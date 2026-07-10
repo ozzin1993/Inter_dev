@@ -60,7 +60,7 @@ namespace StrategyCore
                 }
 
                 castingUnit.DealDamage(t, damage, damageType, false, origin); // false: это способность, не прямая атака
-                if (stunSeconds > 0f) t.Stun(stunSeconds);
+                if (stunSeconds > 0f && !t.dead) t.Stun(stunSeconds); // не оглушаем цель, убитую этим же ударом (иначе StunSetSend для удалённого netID → ложный Desync)
                 hitCount++;
             }
 

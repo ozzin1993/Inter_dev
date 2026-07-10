@@ -48,7 +48,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b166e7a81d9bcf940a22cc4c185f0e45, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::StrategyCore.Unit
-  unitCategory: 1
+  unitCategory: 4
+  targetPriority: 
   respondsToAttackCommand: 1
   respondsToDefenceCommand: 1
   leavesGrave: 0
@@ -76,9 +77,9 @@ MonoBehaviour:
   singleCellViewBlocker: 0
   transportWeight: 1
   formationPriority: 0
-  maxHealth: 5000
-  health: 5000
-  healthRegen: 100
+  maxHealth: 10000
+  health: 10000
+  healthRegen: 1000
   maxMana: 50
   mana: 50
   manaRegen: 0
