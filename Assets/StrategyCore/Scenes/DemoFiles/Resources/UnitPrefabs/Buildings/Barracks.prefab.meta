@@ -1,0 +1,14 @@
+fileFormatVersion: 2
+guid: c7d6f31a73ee35c4892e8c3c40a4bdbf
+PrefabImporter:
+  externalObjects: {}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 292539
+  packageName: Strategy Core - Make your own RTS game
+  packageVersion: 1.05
+  assetPath: Assets/StrategyCore/Scenes/DemoFiles/Resources/UnitPrefabs/Buildings/Barracks.prefab
+  uploadId: 905056

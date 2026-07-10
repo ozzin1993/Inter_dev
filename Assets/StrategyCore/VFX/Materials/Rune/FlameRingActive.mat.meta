@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: 069009f37c391cd4db36baba0f98bb19
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 2100000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 292539
+  packageName: Strategy Core - Make your own RTS game
+  packageVersion: 1.05
+  assetPath: Assets/StrategyCore/VFX/Materials/Rune/FlameRingActive.mat
+  uploadId: 905056

@@ -1,0 +1,14 @@
+fileFormatVersion: 2
+guid: 658b6e7668e123b4dacfe7feb2d003b5
+PrefabImporter:
+  externalObjects: {}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 292539
+  packageName: Strategy Core - Make your own RTS game
+  packageVersion: 1.05
+  assetPath: Assets/StrategyCore/Resources/Projectiles/DontRemove-Sample/DefaultProjectile.prefab
+  uploadId: 905056

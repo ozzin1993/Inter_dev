@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: 950d38b621f193d42b4a539a9bcfb362
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 11400000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 292539
+  packageName: Strategy Core - Make your own RTS game
+  packageVersion: 1.05
+  assetPath: Assets/StrategyCore/Resources/Attributes/Agility.asset
+  uploadId: 905056

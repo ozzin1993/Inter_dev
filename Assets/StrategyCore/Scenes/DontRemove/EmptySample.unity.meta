@@ -1,0 +1,14 @@
+fileFormatVersion: 2
+guid: 3df675ad0d0c10f4998f701366965eed
+DefaultImporter:
+  externalObjects: {}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 292539
+  packageName: Strategy Core - Make your own RTS game
+  packageVersion: 1.05
+  assetPath: Assets/StrategyCore/Scenes/DontRemove/EmptySample.unity
+  uploadId: 905056

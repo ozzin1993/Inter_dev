@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: b8351767aeed141489ba3236e181874e
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 9100000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 292539
+  packageName: Strategy Core - Make your own RTS game
+  packageVersion: 1.05
+  assetPath: Assets/StrategyCore/AnimatorSamples/SimpleController.controller
+  uploadId: 905056

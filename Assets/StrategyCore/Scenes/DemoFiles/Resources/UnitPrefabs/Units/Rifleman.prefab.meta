@@ -1,0 +1,14 @@
+fileFormatVersion: 2
+guid: 5d9509f28fa78db4b855e5fd340969c0
+PrefabImporter:
+  externalObjects: {}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 292539
+  packageName: Strategy Core - Make your own RTS game
+  packageVersion: 1.05
+  assetPath: Assets/StrategyCore/Scenes/DemoFiles/Resources/UnitPrefabs/Units/Rifleman.prefab
+  uploadId: 905056

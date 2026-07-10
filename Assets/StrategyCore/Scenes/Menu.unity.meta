@@ -1,0 +1,14 @@
+fileFormatVersion: 2
+guid: 86accf84046d3d44d8b59a4f3c871f8d
+DefaultImporter:
+  externalObjects: {}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 292539
+  packageName: Strategy Core - Make your own RTS game
+  packageVersion: 1.05
+  assetPath: Assets/StrategyCore/Scenes/Menu.unity
+  uploadId: 905056

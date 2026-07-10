@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: a3ab45f217eae0641bd3dc1c7c0c068f
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 2100000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 292539
+  packageName: Strategy Core - Make your own RTS game
+  packageVersion: 1.05
+  assetPath: Assets/StrategyCore/VFX/Materials/ExplosionMaterial.mat
+  uploadId: 905056

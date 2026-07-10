@@ -1,0 +1,18 @@
+fileFormatVersion: 2
+guid: c9bae3ce75fdebc4aafc03c2ecc92adf
+MonoImporter:
+  externalObjects: {}
+  serializedVersion: 2
+  defaultReferences: []
+  executionOrder: 0
+  icon: {instanceID: 0}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 292539
+  packageName: Strategy Core - Make your own RTS game
+  packageVersion: 1.05
+  assetPath: Assets/Universal Strategy Camera/Scripts/InputActions/CameraControlsOG.cs
+  uploadId: 905056

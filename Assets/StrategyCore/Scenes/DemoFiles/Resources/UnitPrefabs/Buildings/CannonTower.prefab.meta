@@ -1,0 +1,14 @@
+fileFormatVersion: 2
+guid: 0d1477cd7c1d4f74dbe5a70a84988de4
+PrefabImporter:
+  externalObjects: {}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 292539
+  packageName: Strategy Core - Make your own RTS game
+  packageVersion: 1.05
+  assetPath: Assets/StrategyCore/Scenes/DemoFiles/Resources/UnitPrefabs/Buildings/CannonTower.prefab
+  uploadId: 905056

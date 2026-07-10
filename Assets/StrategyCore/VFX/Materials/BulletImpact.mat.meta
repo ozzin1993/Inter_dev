@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: 09e3375a63e0c6246bce2694d6f4e0f5
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 0
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 292539
+  packageName: Strategy Core - Make your own RTS game
+  packageVersion: 1.05
+  assetPath: Assets/StrategyCore/VFX/Materials/BulletImpact.mat
+  uploadId: 905056

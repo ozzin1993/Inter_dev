@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: 3c74e5e203bd10c4aaf7d2d4c68d03bc
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 8400000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 292539
+  packageName: Strategy Core - Make your own RTS game
+  packageVersion: 1.05
+  assetPath: Assets/StrategyCore/Textures/RenderTextures/MiniMap.renderTexture
+  uploadId: 905056

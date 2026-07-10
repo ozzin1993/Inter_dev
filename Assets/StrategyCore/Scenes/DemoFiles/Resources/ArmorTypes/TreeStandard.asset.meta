@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: 17a724299c1b76a44bc89035863cedaf
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 11400000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 292539
+  packageName: Strategy Core - Make your own RTS game
+  packageVersion: 1.05
+  assetPath: Assets/StrategyCore/Scenes/DemoFiles/Resources/ArmorTypes/TreeStandard.asset
+  uploadId: 905056

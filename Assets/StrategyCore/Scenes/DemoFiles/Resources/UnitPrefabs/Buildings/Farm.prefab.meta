@@ -1,0 +1,14 @@
+fileFormatVersion: 2
+guid: 784631efdc9087c4487d1881b9346f76
+PrefabImporter:
+  externalObjects: {}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 292539
+  packageName: Strategy Core - Make your own RTS game
+  packageVersion: 1.05
+  assetPath: Assets/StrategyCore/Scenes/DemoFiles/Resources/UnitPrefabs/Buildings/Farm.prefab
+  uploadId: 905056

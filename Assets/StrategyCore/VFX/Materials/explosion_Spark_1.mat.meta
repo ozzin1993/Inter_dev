@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: 10808f27a58ebd14ba2b2e509b429d00
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 0
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 292539
+  packageName: Strategy Core - Make your own RTS game
+  packageVersion: 1.05
+  assetPath: Assets/StrategyCore/VFX/Materials/explosion_Spark_1.mat
+  uploadId: 905056

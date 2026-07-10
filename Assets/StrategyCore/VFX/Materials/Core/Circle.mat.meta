@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: 691763533f4ed024ab9ec716dbafd724
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 2100000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 292539
+  packageName: Strategy Core - Make your own RTS game
+  packageVersion: 1.05
+  assetPath: Assets/StrategyCore/VFX/Materials/Core/Circle.mat
+  uploadId: 905056

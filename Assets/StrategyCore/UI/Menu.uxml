@@ -1,0 +1,91 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" xsi="http://www.w3.org/2001/XMLSchema-instance" engine="UnityEngine.UIElements" editor="UnityEditor.UIElements" noNamespaceSchemaLocation="../../../UIElementsSchema/UIElements.xsd" editor-extension-mode="False">
+    <Style src="project://database/Assets/StrategyCore/UI/Style/SC_Style.uss?fileID=7433441132597879392&amp;guid=8e018bcf1436603438f2a854e40c64e3&amp;type=3#SC_Style" />
+    <ui:VisualElement name="Menu" style="flex-grow: 1; flex-direction: row; display: flex; background-color: rgb(32, 32, 32);">
+        <ui:VisualElement name="MainMenu" style="flex-grow: 1; height: auto; padding-top: 25px; padding-right: 25px; padding-bottom: 25px; padding-left: 25px; flex-direction: column; align-items: center; justify-content: center;">
+            <ui:Label tabindex="-1" text="CONNECTING..." parse-escape-sequences="true" display-tooltip-when-elided="true" name="Connecting" class="buttonColors" style="border-top-width: 2px; border-right-width: 2px; border-bottom-width: 2px; border-left-width: 2px; font-size: 25px; padding-top: 10px; padding-right: 10px; padding-bottom: 10px; padding-left: 10px; -unity-text-align: upper-center; -unity-font-style: bold; width: 365px; margin-bottom: 25px; display: none;" />
+            <ui:VisualElement name="MenuButtons" style="flex-grow: 0; align-items: center; justify-content: center; display: flex;">
+                <ui:TextField label="Name:" name="PlayerName" max-length="16" value="Player0" class="chat emptySlot menuButton" style="margin-top: 0; margin-right: 0; margin-bottom: 75px; margin-left: 0; border-top-left-radius: 2px; border-top-right-radius: 2px; border-bottom-right-radius: 2px; border-bottom-left-radius: 2px; font-size: 26px; flex-shrink: 0; flex-grow: 0; width: 425px; align-items: center; -unity-text-align: upper-left; justify-content: center; height: 65px;" />
+                <ui:Label tabindex="-1" text="HOST" parse-escape-sequences="true" display-tooltip-when-elided="true" name="HostGame" class="buttonColors menuButton" style="border-top-width: 2px; border-right-width: 2px; border-bottom-width: 2px; border-left-width: 2px; font-size: 25px; padding-top: 10px; padding-right: 10px; padding-bottom: 10px; padding-left: 10px; -unity-text-align: upper-center; -unity-font-style: bold; width: 250px;" />
+                <ui:Label tabindex="-1" text="JOIN" parse-escape-sequences="true" display-tooltip-when-elided="true" name="JoinGame" class="buttonColors menuButton" style="border-top-width: 2px; border-right-width: 2px; border-bottom-width: 2px; border-left-width: 2px; font-size: 25px; padding-top: 10px; padding-right: 10px; padding-bottom: 10px; padding-left: 10px; -unity-text-align: upper-center; -unity-font-style: bold; width: 250px; margin-top: 25px;" />
+                <ui:VisualElement name="ClientInputs" style="flex-grow: 0; flex-shrink: 0; flex-direction: row; margin-top: 6px;">
+                    <ui:TextField label="IP:" name="IpInput" max-length="15" value="127.0.0.1" class="chat emptySlot menuButton" style="margin-top: 0; margin-right: 3px; margin-bottom: 0; margin-left: 0; border-top-left-radius: 2px; border-top-right-radius: 2px; border-bottom-right-radius: 2px; border-bottom-left-radius: 2px; font-size: 20px; flex-shrink: 0; flex-grow: 0;" />
+                    <ui:TextField label="PORT:" name="PortInput" max-length="5" value="7777" class="chat emptySlot menuButton" style="margin-top: 0; margin-right: 0; margin-bottom: 0; margin-left: 3px; border-top-left-radius: 2px; border-top-right-radius: 2px; border-bottom-right-radius: 2px; border-bottom-left-radius: 2px; font-size: 20px; flex-shrink: 0; flex-grow: 0;" />
+                </ui:VisualElement>
+                <ui:Label tabindex="-1" text="LOAD" parse-escape-sequences="true" display-tooltip-when-elided="true" name="Load" class="buttonColors menuButton" style="border-top-width: 2px; border-right-width: 2px; border-bottom-width: 2px; border-left-width: 2px; font-size: 25px; padding-top: 10px; padding-right: 10px; padding-bottom: 10px; padding-left: 10px; -unity-text-align: upper-center; -unity-font-style: bold; margin-top: 65px; width: 250px;" />
+            </ui:VisualElement>
+            <ui:Label tabindex="-1" text="SAVE" parse-escape-sequences="true" display-tooltip-when-elided="true" name="SaveButton" class="buttonColors menuButton" style="border-top-width: 2px; border-right-width: 2px; border-bottom-width: 2px; border-left-width: 2px; font-size: 25px; padding-top: 10px; padding-right: 10px; padding-bottom: 10px; padding-left: 10px; -unity-text-align: upper-center; -unity-font-style: bold; width: 250px; margin-top: 25px; display: none;" />
+            <ui:Label tabindex="-1" text="QUIT" parse-escape-sequences="true" display-tooltip-when-elided="true" name="Quit" class="buttonColors menuButton" style="border-top-width: 2px; border-right-width: 2px; border-bottom-width: 2px; border-left-width: 2px; font-size: 25px; padding-top: 10px; padding-right: 10px; padding-bottom: 10px; padding-left: 10px; -unity-text-align: upper-center; -unity-font-style: bold; margin-top: 25px; width: 250px; display: flex;" />
+        </ui:VisualElement>
+    </ui:VisualElement>
+    <ui:VisualElement name="Lobby" style="flex-grow: 1; flex-direction: row; display: none; background-color: rgb(32, 32, 32);">
+        <ui:VisualElement name="Left" style="flex-grow: 0; flex-shrink: 0; width: 75%;">
+            <ui:VisualElement name="Players" style="flex-grow: 1; padding-top: 25px; padding-right: 25px; padding-bottom: 25px; padding-left: 25px; flex-shrink: 1;">
+                <ui:VisualElement name="Background" class="emptySlot" style="flex-grow: 1; display: flex; position: relative; width: auto; margin-bottom: 0; border-top-left-radius: 2px; border-top-right-radius: 2px; border-bottom-right-radius: 2px; border-bottom-left-radius: 2px; padding-top: 15px; padding-right: 15px; padding-bottom: 15px; padding-left: 15px;">
+                    <ui:Label tabindex="-1" text="PLAYERS" parse-escape-sequences="true" display-tooltip-when-elided="true" name="TeamName" class="TeamName" style="margin-top: 0;" />
+                    <ui:GroupBox name="0" class="ListEntry">
+                        <ui:GroupBox name="Name" class="ItemButton SlotClass">
+                            <ui:Label tabindex="-1" text="Label" parse-escape-sequences="true" display-tooltip-when-elided="true" />
+                        </ui:GroupBox>
+                        <ui:Label tabindex="-1" text="Team: 0" parse-escape-sequences="true" display-tooltip-when-elided="true" name="Team" class="SlotClass ItemButton SlotExtraButton" />
+                        <ui:GroupBox name="Remove" class="ItemButton SlotClass RemoveButton" />
+                    </ui:GroupBox>
+                    <ui:Label tabindex="-1" text="EMPTY SLOT" parse-escape-sequences="true" display-tooltip-when-elided="true" name="EmptySlot" class="emptySlot PlayerSlot" />
+                </ui:VisualElement>
+            </ui:VisualElement>
+            <ui:VisualElement name="Chat" style="flex-grow: 0; width: auto; height: 35%; padding-top: 25px; padding-right: 25px; padding-bottom: 25px; padding-left: 25px;">
+                <ui:ScrollView name="ChatBox" mouse-wheel-scroll-size="3500" class="emptySlot" style="margin-bottom: 5px; padding-top: 8px; padding-right: 8px; padding-bottom: 8px; padding-left: 8px; font-size: 20px; flex-grow: 1; flex-shrink: 1; display: flex; flex-direction: column;">
+                    <ui:VisualElement name="MsgSample" style="flex-grow: 0; flex-direction: row; flex-wrap: nowrap; max-width: 100%; display: none;">
+                        <ui:Label tabindex="-1" text="Player: " parse-escape-sequences="true" display-tooltip-when-elided="true" />
+                        <ui:VisualElement style="flex-grow: 0; flex-wrap: nowrap;">
+                            <ui:Label tabindex="-1" text="message smessage smessage smessage smessage smessage smessage smessage smessage smessage smessage smessage smessage smessage smessage smessage smessage smessage smessage smessage s" parse-escape-sequences="true" display-tooltip-when-elided="true" style="white-space: normal; flex-shrink: 1;" />
+                        </ui:VisualElement>
+                    </ui:VisualElement>
+                </ui:ScrollView>
+                <ui:TextField label="Say:" name="MsgInput" max-length="256" class="chat emptySlot menuButton" style="margin-top: 0; margin-right: 0; margin-bottom: 0; margin-left: 0; border-top-left-radius: 2px; border-top-right-radius: 2px; border-bottom-right-radius: 2px; border-bottom-left-radius: 2px; font-size: 20px; flex-shrink: 0; flex-grow: 0; max-width: 100%;" />
+            </ui:VisualElement>
+        </ui:VisualElement>
+        <ui:VisualElement name="Right" style="flex-grow: 0; height: 100%; width: 25%; flex-shrink: 0;">
+            <ui:VisualElement name="Scene" style="flex-grow: 1; padding-top: 25px; padding-right: 25px; padding-bottom: 25px; padding-left: 25px;">
+                <ui:VisualElement name="About" class="backBorder" style="flex-grow: 1; display: flex; position: relative; width: auto; margin-bottom: 0; border-top-left-radius: 2px; border-top-right-radius: 2px; border-bottom-right-radius: 2px; border-bottom-left-radius: 2px; margin-top: 0; margin-right: 0; margin-left: 0; align-items: center; padding-top: 15px; padding-right: 15px; padding-bottom: 15px; padding-left: 15px; justify-content: flex-start;">
+                    <ui:VisualElement name="MapPreview" class="emptySlot" style="flex-grow: 0; width: 395px; flex-shrink: 0; height: 395px;" />
+                    <ui:Label tabindex="-1" text="This is a demo scene" parse-escape-sequences="true" display-tooltip-when-elided="true" style="font-size: 20px; flex-grow: 1; width: 100%; padding-top: 0; padding-right: 0; padding-bottom: 0; padding-left: 0; margin-top: 15px; align-items: auto; -unity-text-align: upper-center;" />
+                </ui:VisualElement>
+            </ui:VisualElement>
+            <ui:VisualElement name="Start_Buttons" style="flex-grow: 0; height: 35%; padding-top: 25px; padding-right: 25px; padding-bottom: 25px; padding-left: 25px; flex-direction: column-reverse;">
+                <ui:Label tabindex="-1" text="CANCEL" parse-escape-sequences="true" display-tooltip-when-elided="true" name="Cancel" class="buttonColors menuButton" style="border-top-width: 2px; border-right-width: 2px; border-bottom-width: 2px; border-left-width: 2px; font-size: 25px; padding-top: 10px; padding-right: 10px; padding-bottom: 10px; padding-left: 10px; -unity-text-align: upper-center; -unity-font-style: bold; margin-top: 15px;" />
+                <ui:Label tabindex="-1" text="START GAME" parse-escape-sequences="true" display-tooltip-when-elided="true" name="StartGame" class="buttonColors menuButton" style="border-top-width: 2px; border-right-width: 2px; border-bottom-width: 2px; border-left-width: 2px; font-size: 25px; padding-top: 10px; padding-right: 10px; padding-bottom: 10px; padding-left: 10px; -unity-text-align: upper-center; -unity-font-style: bold; display: flex;" />
+            </ui:VisualElement>
+        </ui:VisualElement>
+    </ui:VisualElement>
+    <ui:VisualElement name="LoadMenu" style="flex-grow: 1; flex-direction: row; display: none; background-color: rgb(32, 32, 32);">
+        <ui:VisualElement name="Left" style="flex-grow: 0; flex-shrink: 0; width: 75%;">
+            <ui:VisualElement name="Players" style="flex-grow: 1; padding-top: 25px; padding-right: 25px; padding-bottom: 25px; padding-left: 25px; flex-shrink: 1;">
+                <ui:VisualElement name="SaveList" class="emptySlot" style="flex-grow: 1; display: flex; position: relative; width: auto; margin-bottom: 0; border-top-left-radius: 2px; border-top-right-radius: 2px; border-bottom-right-radius: 2px; border-bottom-left-radius: 2px; padding-top: 15px; padding-right: 15px; padding-bottom: 15px; padding-left: 15px;">
+                    <ui:Label tabindex="-1" text="PLAYERS" parse-escape-sequences="true" display-tooltip-when-elided="true" name="TeamName" class="TeamName" style="margin-top: 0;" />
+                    <ui:GroupBox name="Entry" class="ListEntry">
+                        <ui:GroupBox name="Name" class="ItemButton SlotClass">
+                            <ui:Label tabindex="-1" text="Label" parse-escape-sequences="true" display-tooltip-when-elided="true" />
+                        </ui:GroupBox>
+                        <ui:Label tabindex="-1" text="Team: 0" parse-escape-sequences="true" display-tooltip-when-elided="true" name="Team" class="SlotClass ItemButton SlotExtraButton" />
+                        <ui:GroupBox name="Remove" class="ItemButton SlotClass RemoveButton" />
+                    </ui:GroupBox>
+                    <ui:Label tabindex="-1" text="EMPTY SLOT" parse-escape-sequences="true" display-tooltip-when-elided="true" name="EmptySlot" class="emptySlot PlayerSlot" />
+                </ui:VisualElement>
+            </ui:VisualElement>
+        </ui:VisualElement>
+        <ui:VisualElement name="Right" style="flex-grow: 0; height: 100%; width: 25%; flex-shrink: 0;">
+            <ui:VisualElement name="Start_Buttons" style="flex-grow: 0; height: 100%; padding-top: 25px; padding-right: 25px; padding-bottom: 25px; padding-left: 25px; flex-direction: column-reverse;">
+                <ui:Label tabindex="-1" text="CANCEL" parse-escape-sequences="true" display-tooltip-when-elided="true" name="Cancel" class="buttonColors menuButton" style="border-top-width: 2px; border-right-width: 2px; border-bottom-width: 2px; border-left-width: 2px; font-size: 25px; padding-top: 10px; padding-right: 10px; padding-bottom: 10px; padding-left: 10px; -unity-text-align: upper-center; -unity-font-style: bold; margin-top: 15px;" />
+            </ui:VisualElement>
+        </ui:VisualElement>
+    </ui:VisualElement>
+    <ui:GroupBox name="FloatingMenu" class="darkTheme" style="margin-top: 0; margin-right: 0; margin-bottom: 0; margin-left: 0; padding-top: 0; padding-right: 0; padding-bottom: 0; padding-left: 0; width: 92px; flex-direction: column; flex-wrap: nowrap; border-top-left-radius: 0; border-top-right-radius: 0; border-bottom-right-radius: 0; border-bottom-left-radius: 0; display: none; position: absolute; font-size: 18px;">
+        <ui:Label tabindex="-1" text="ENTRY 1" parse-escape-sequences="true" display-tooltip-when-elided="true" name="0" class="inventoryMenu FloatingMenuEntry" />
+        <ui:Label tabindex="-1" text="ENTRY 1" parse-escape-sequences="true" display-tooltip-when-elided="true" name="1" class="inventoryMenu FloatingMenuEntry" />
+    </ui:GroupBox>
+    <ui:VisualElement name="WinMenu" style="flex-grow: 1; flex-direction: column; display: none; background-color: rgba(32, 32, 32, 0); align-items: center; justify-content: center;">
+        <ui:Label tabindex="-1" text="YOU WON!" parse-escape-sequences="true" display-tooltip-when-elided="true" name="Txt" class="buttonColors" style="border-top-width: 2px; border-right-width: 2px; border-bottom-width: 2px; border-left-width: 2px; font-size: 25px; padding-top: 10px; padding-right: 10px; padding-bottom: 10px; padding-left: 10px; -unity-text-align: upper-center; -unity-font-style: bold; width: 365px; margin-bottom: 25px; display: flex;" />
+        <ui:Label tabindex="-1" text="CONTINUE" parse-escape-sequences="true" display-tooltip-when-elided="true" name="Continue" class="buttonColors menuButton" style="border-top-width: 2px; border-right-width: 2px; border-bottom-width: 2px; border-left-width: 2px; font-size: 25px; padding-top: 10px; padding-right: 10px; padding-bottom: 10px; padding-left: 10px; -unity-text-align: upper-center; -unity-font-style: bold; margin-top: 0; width: 250px; display: flex;" />
+        <ui:Label tabindex="-1" text="QUIT" parse-escape-sequences="true" display-tooltip-when-elided="true" name="Quit" class="buttonColors menuButton" style="border-top-width: 2px; border-right-width: 2px; border-bottom-width: 2px; border-left-width: 2px; font-size: 25px; padding-top: 10px; padding-right: 10px; padding-bottom: 10px; padding-left: 10px; -unity-text-align: upper-center; -unity-font-style: bold; margin-top: 10px; width: 250px; display: flex;" />
+    </ui:VisualElement>
+</ui:UXML>

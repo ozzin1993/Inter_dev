@@ -1,0 +1,106 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6eab1036be064544e8420029828dc5cd, type: 3}
+  m_Name: Faction_Lyudi
+  m_EditorClassIdentifier: Assembly-CSharp::StrategyCore.FactionConfig
+  waveComposition:
+  - unitToSpawn: {fileID: 1165191979987236916, guid: 622d80cb10378414db05626fc5b18b5e, type: 3}
+    count: 2
+  - unitToSpawn: {fileID: 5186792438009123784, guid: e1d4024dc0818a045a577bdc6a6528e1, type: 3}
+    count: 2
+  availableWaveUnits:
+  - {fileID: 5186792438009123784, guid: e1d4024dc0818a045a577bdc6a6528e1, type: 3}
+  - {fileID: 1165191979987236916, guid: 622d80cb10378414db05626fc5b18b5e, type: 3}
+  centralAbilities:
+  - {fileID: 11400000, guid: 6c78edcc27864d878c975e036280609b, type: 2}
+  - {fileID: 11400000, guid: cd52d4d6dbb0159499b71362b041352d, type: 2}
+  heroPrefab: {fileID: 5777498244358534415, guid: a6dd640619d3394408f37a1b3f7b762a, type: 3}
+  techBranches:
+  - levels:
+    - technology: {fileID: 11400000, guid: de4113767a3571c49993468754a11d99, type: 2}
+      icon: {fileID: 0}
+      cost:
+      - type: {fileID: 11400000, guid: dfacb690ca8bd7f41b614f3280cdaf0c, type: 2}
+        value: 100
+    - technology: {fileID: 11400000, guid: bfa755be8ac1be946baacc072e884cfb, type: 2}
+      icon: {fileID: 0}
+      cost:
+      - type: {fileID: 11400000, guid: dfacb690ca8bd7f41b614f3280cdaf0c, type: 2}
+        value: 100
+    - technology: {fileID: 11400000, guid: 2aa40475d29544c4888f47de3175dd82, type: 2}
+      icon: {fileID: 0}
+      cost:
+      - type: {fileID: 11400000, guid: dfacb690ca8bd7f41b614f3280cdaf0c, type: 2}
+        value: 100
+  - levels:
+    - technology: {fileID: 11400000, guid: 90a6eaa0f197308418328ee0c83e0367, type: 2}
+      icon: {fileID: 0}
+      cost:
+      - type: {fileID: 11400000, guid: dfacb690ca8bd7f41b614f3280cdaf0c, type: 2}
+        value: 100
+  - levels:
+    - technology: {fileID: 11400000, guid: 706d52d2e7927d846921e3ecb391085a, type: 2}
+      icon: {fileID: 0}
+      cost:
+      - type: {fileID: 11400000, guid: dfacb690ca8bd7f41b614f3280cdaf0c, type: 2}
+        value: 100
+  mainBuildingUpgradeCosts:
+  - cost:
+    - type: {fileID: 11400000, guid: dfacb690ca8bd7f41b614f3280cdaf0c, type: 2}
+      value: 100
+  - cost:
+    - type: {fileID: 11400000, guid: dfacb690ca8bd7f41b614f3280cdaf0c, type: 2}
+      value: 100
+  - cost:
+    - type: {fileID: 11400000, guid: dfacb690ca8bd7f41b614f3280cdaf0c, type: 2}
+      value: 100
+  mainBuildingLevelTechs: []
+  centreTower: {fileID: 1949225473786359498, guid: a3f868054cba2804a9d217e3d6c684e0, type: 3}
+  defence1Tower: {fileID: 6802366058098623906, guid: 0d1477cd7c1d4f74dbe5a70a84988de4, type: 3}
+  defence2Tower: {fileID: 6802366058098623906, guid: 0d1477cd7c1d4f74dbe5a70a84988de4, type: 3}
+  contentUnlockRules:
+  - requirement:
+      tech: {fileID: 0}
+      mainBuildingLevel: 0
+    addAvailableUnits: []
+    removeAvailableUnits: []
+    unitSwaps: []
+    towerSwaps: []
+    showCentralAbilities: []
+    hideCentralAbilities:
+    - {fileID: 11400000, guid: cd52d4d6dbb0159499b71362b041352d, type: 2}
+  - requirement:
+      tech: {fileID: 11400000, guid: 90a6eaa0f197308418328ee0c83e0367, type: 2}
+      mainBuildingLevel: 1
+    addAvailableUnits: []
+    removeAvailableUnits: []
+    unitSwaps:
+    - from: {fileID: 1165191979987236916, guid: 622d80cb10378414db05626fc5b18b5e, type: 3}
+      to: {fileID: 5777498244358534415, guid: a6dd640619d3394408f37a1b3f7b762a, type: 3}
+    towerSwaps: []
+    showCentralAbilities: []
+    hideCentralAbilities:
+    - {fileID: 11400000, guid: 6c78edcc27864d878c975e036280609b, type: 2}
+  - requirement:
+      tech: {fileID: 11400000, guid: 90a6eaa0f197308418328ee0c83e0367, type: 2}
+      mainBuildingLevel: 1
+    addAvailableUnits: []
+    removeAvailableUnits: []
+    unitSwaps:
+    - from: {fileID: 1165191979987236916, guid: 5d9509f28fa78db4b855e5fd340969c0, type: 3}
+      to: {fileID: 9121133833005996313, guid: cbac68bfa96e3a24698f6af0751939a2, type: 3}
+    towerSwaps: []
+    showCentralAbilities:
+    - {fileID: 11400000, guid: cd52d4d6dbb0159499b71362b041352d, type: 2}
+    hideCentralAbilities: []
+  gravePrefab: {fileID: 0}
+  graveLifetime: 30

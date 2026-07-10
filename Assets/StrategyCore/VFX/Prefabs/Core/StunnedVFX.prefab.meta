@@ -1,0 +1,14 @@
+fileFormatVersion: 2
+guid: 555fac4c150332746b3d81fe89e62f42
+PrefabImporter:
+  externalObjects: {}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 292539
+  packageName: Strategy Core - Make your own RTS game
+  packageVersion: 1.05
+  assetPath: Assets/StrategyCore/VFX/Prefabs/Core/StunnedVFX.prefab
+  uploadId: 905056

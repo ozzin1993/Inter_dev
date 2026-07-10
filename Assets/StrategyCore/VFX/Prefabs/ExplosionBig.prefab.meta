@@ -1,0 +1,14 @@
+fileFormatVersion: 2
+guid: 58edb752335d9054884076d02c343e1d
+PrefabImporter:
+  externalObjects: {}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 292539
+  packageName: Strategy Core - Make your own RTS game
+  packageVersion: 1.05
+  assetPath: Assets/StrategyCore/VFX/Prefabs/ExplosionBig.prefab
+  uploadId: 905056

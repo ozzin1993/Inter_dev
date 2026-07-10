@@ -1,0 +1,14 @@
+fileFormatVersion: 2
+guid: 10750bddf7d4b0a4d94a899144a8e67c
+PrefabImporter:
+  externalObjects: {}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 292539
+  packageName: Strategy Core - Make your own RTS game
+  packageVersion: 1.05
+  assetPath: Assets/StrategyCore/Prefabs/Core/SoundPlayers/SoundFX.prefab
+  uploadId: 905056

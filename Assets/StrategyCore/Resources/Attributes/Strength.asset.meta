@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: fa85be34246aa594a91fee04de5dd54d
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 11400000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 292539
+  packageName: Strategy Core - Make your own RTS game
+  packageVersion: 1.05
+  assetPath: Assets/StrategyCore/Resources/Attributes/Strength.asset
+  uploadId: 905056

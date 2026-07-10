@@ -1,0 +1,14 @@
+fileFormatVersion: 2
+guid: 3c8b2f03ff610a843ae7f4655eea35a3
+PrefabImporter:
+  externalObjects: {}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 292539
+  packageName: Strategy Core - Make your own RTS game
+  packageVersion: 1.05
+  assetPath: Assets/StrategyCore/VFX/Prefabs/LineRendererVFX.prefab
+  uploadId: 905056

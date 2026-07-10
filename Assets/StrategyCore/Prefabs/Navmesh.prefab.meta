@@ -1,0 +1,14 @@
+fileFormatVersion: 2
+guid: c432c5f38bd97394e828b495ab93afcf
+PrefabImporter:
+  externalObjects: {}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 292539
+  packageName: Strategy Core - Make your own RTS game
+  packageVersion: 1.05
+  assetPath: Assets/StrategyCore/Prefabs/Navmesh.prefab
+  uploadId: 905056

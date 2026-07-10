@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: a3ea9b8c0cbd36440a0879c19b9b563e
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 2100000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 292539
+  packageName: Strategy Core - Make your own RTS game
+  packageVersion: 1.05
+  assetPath: Assets/StrategyCore/Materials/Core/StateEffects/MutedIcon.mat
+  uploadId: 905056

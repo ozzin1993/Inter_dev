@@ -1,0 +1,18 @@
+fileFormatVersion: 2
+guid: 9830becea200a2342ba9cbab6de63336
+MonoImporter:
+  externalObjects: {}
+  serializedVersion: 2
+  defaultReferences: []
+  executionOrder: 0
+  icon: {instanceID: 0}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 292539
+  packageName: Strategy Core - Make your own RTS game
+  packageVersion: 1.05
+  assetPath: Assets/Universal Strategy Camera/Scripts/BuildingPlacer.cs
+  uploadId: 905056

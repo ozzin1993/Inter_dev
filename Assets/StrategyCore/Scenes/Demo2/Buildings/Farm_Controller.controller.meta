@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: 67c2d3b763aa1774c86fa92163f099a9
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 9100000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 292539
+  packageName: Strategy Core - Make your own RTS game
+  packageVersion: 1.05
+  assetPath: Assets/StrategyCore/Scenes/Demo2/Buildings/Farm_Controller.controller
+  uploadId: 905056

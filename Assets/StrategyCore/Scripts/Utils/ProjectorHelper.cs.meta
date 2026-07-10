@@ -1,0 +1,9 @@
+fileFormatVersion: 2
+guid: e88a4f039d2d163479cf973a13f55946
+AssetOrigin:
+  serializedVersion: 1
+  productId: 292539
+  packageName: Strategy Core - Make your own RTS game
+  packageVersion: 1.05
+  assetPath: Assets/StrategyCore/Scripts/Utils/ProjectorHelper.cs
+  uploadId: 905056

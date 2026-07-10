@@ -1,0 +1,14 @@
+fileFormatVersion: 2
+guid: bdd8493e02850b04b9094a3f46c19195
+PrefabImporter:
+  externalObjects: {}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 292539
+  packageName: Strategy Core - Make your own RTS game
+  packageVersion: 1.05
+  assetPath: Assets/StrategyCore/VFX/Prefabs/MinigunShell.prefab
+  uploadId: 905056

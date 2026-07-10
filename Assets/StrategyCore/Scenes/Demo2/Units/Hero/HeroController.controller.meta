@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: adc918744434a4940915d04e092dd326
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 9100000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 292539
+  packageName: Strategy Core - Make your own RTS game
+  packageVersion: 1.05
+  assetPath: Assets/StrategyCore/Scenes/Demo2/Units/Hero/HeroController.controller
+  uploadId: 905056

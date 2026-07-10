@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: 324bf94a0b2407b44b0fe5ff4ec33c73
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 2100000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 292539
+  packageName: Strategy Core - Make your own RTS game
+  packageVersion: 1.05
+  assetPath: Assets/StrategyCore/Materials/Core/Projectors/SelectionProjectorMat.mat
+  uploadId: 905056

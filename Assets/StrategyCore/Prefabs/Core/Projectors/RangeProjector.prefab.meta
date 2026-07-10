@@ -1,0 +1,14 @@
+fileFormatVersion: 2
+guid: 52a2c57f56a9a114c8a9eaee1c184eae
+PrefabImporter:
+  externalObjects: {}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 292539
+  packageName: Strategy Core - Make your own RTS game
+  packageVersion: 1.05
+  assetPath: Assets/StrategyCore/Prefabs/Core/Projectors/RangeProjector.prefab
+  uploadId: 905056

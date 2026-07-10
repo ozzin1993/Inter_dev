@@ -1,0 +1,14 @@
+fileFormatVersion: 2
+guid: 66a50b5184ef3874d81f46f634f15d9f
+PrefabImporter:
+  externalObjects: {}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 292539
+  packageName: Strategy Core - Make your own RTS game
+  packageVersion: 1.05
+  assetPath: Assets/StrategyCore/VFX/Prefabs/Abilities/DragonsBreath.prefab
+  uploadId: 905056

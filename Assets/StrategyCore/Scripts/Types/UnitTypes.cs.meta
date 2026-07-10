@@ -1,0 +1,18 @@
+fileFormatVersion: 2
+guid: e0a70491325fb7b4f8c1bb76128558c5
+MonoImporter:
+  externalObjects: {}
+  serializedVersion: 2
+  defaultReferences: []
+  executionOrder: 0
+  icon: {instanceID: 0}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 292539
+  packageName: Strategy Core - Make your own RTS game
+  packageVersion: 1.05
+  assetPath: Assets/StrategyCore/Scripts/Types/UnitTypes.cs
+  uploadId: 905056

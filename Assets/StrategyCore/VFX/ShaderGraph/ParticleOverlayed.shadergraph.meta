@@ -1,0 +1,17 @@
+fileFormatVersion: 2
+guid: 0b0d4c6a20af2ca45a963ae6acce1dc6
+ScriptedImporter:
+  internalIDToNameTable: []
+  externalObjects: {}
+  serializedVersion: 2
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+  script: {fileID: 11500000, guid: 625f186215c104763be7675aa2d941aa, type: 3}
+AssetOrigin:
+  serializedVersion: 1
+  productId: 292539
+  packageName: Strategy Core - Make your own RTS game
+  packageVersion: 1.05
+  assetPath: Assets/StrategyCore/VFX/ShaderGraph/ParticleOverlayed.shadergraph
+  uploadId: 905056

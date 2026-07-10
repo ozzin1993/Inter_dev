@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: f9698b0c98db2dc419003b1b7c201409
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 11400000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 292539
+  packageName: Strategy Core - Make your own RTS game
+  packageVersion: 1.05
+  assetPath: Assets/StrategyCore/Resources/Ability/Items/FlameRing.asset
+  uploadId: 905056

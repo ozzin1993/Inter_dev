@@ -1,0 +1,14 @@
+fileFormatVersion: 2
+guid: de31defbcc3a5b94b89b95b6defea715
+PrefabImporter:
+  externalObjects: {}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 292539
+  packageName: Strategy Core - Make your own RTS game
+  packageVersion: 1.05
+  assetPath: Assets/StrategyCore/VFX/Prefabs/RocketExplosion.prefab
+  uploadId: 905056

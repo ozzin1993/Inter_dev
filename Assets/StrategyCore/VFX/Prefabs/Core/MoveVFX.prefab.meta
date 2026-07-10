@@ -1,0 +1,14 @@
+fileFormatVersion: 2
+guid: 4469a795cbd012f459dd0efef09385cb
+PrefabImporter:
+  externalObjects: {}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 292539
+  packageName: Strategy Core - Make your own RTS game
+  packageVersion: 1.05
+  assetPath: Assets/StrategyCore/VFX/Prefabs/Core/MoveVFX.prefab
+  uploadId: 905056

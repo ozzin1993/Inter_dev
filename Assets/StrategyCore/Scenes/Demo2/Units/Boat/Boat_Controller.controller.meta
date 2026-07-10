@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: be4f5b19ed807da4ba775771ae08250e
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 9100000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 292539
+  packageName: Strategy Core - Make your own RTS game
+  packageVersion: 1.05
+  assetPath: Assets/StrategyCore/Scenes/Demo2/Units/Boat/Boat_Controller.controller
+  uploadId: 905056

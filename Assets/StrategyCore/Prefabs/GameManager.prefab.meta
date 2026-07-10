@@ -1,0 +1,14 @@
+fileFormatVersion: 2
+guid: 196397215042416429ab91cf510de4f3
+PrefabImporter:
+  externalObjects: {}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 292539
+  packageName: Strategy Core - Make your own RTS game
+  packageVersion: 1.05
+  assetPath: Assets/StrategyCore/Prefabs/GameManager.prefab
+  uploadId: 905056

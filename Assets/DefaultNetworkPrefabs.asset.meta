@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: ba42ebf19fb8aac438b9d01224982b3b
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 11400000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 292539
+  packageName: Strategy Core - Make your own RTS game
+  packageVersion: 1.05
+  assetPath: Assets/DefaultNetworkPrefabs.asset
+  uploadId: 905056

@@ -1,0 +1,18 @@
+fileFormatVersion: 2
+guid: 44c40617db7c35a4883c032feb603737
+MonoImporter:
+  externalObjects: {}
+  serializedVersion: 2
+  defaultReferences: []
+  executionOrder: 0
+  icon: {instanceID: 0}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 292539
+  packageName: Strategy Core - Make your own RTS game
+  packageVersion: 1.05
+  assetPath: Assets/StrategyCore/Scripts/CustomDrawers/ProjectileDrawer.cs
+  uploadId: 905056

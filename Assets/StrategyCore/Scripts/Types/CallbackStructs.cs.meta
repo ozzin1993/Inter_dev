@@ -1,0 +1,9 @@
+fileFormatVersion: 2
+guid: 840c52faf60077840ab24abf0de15296
+AssetOrigin:
+  serializedVersion: 1
+  productId: 292539
+  packageName: Strategy Core - Make your own RTS game
+  packageVersion: 1.05
+  assetPath: Assets/StrategyCore/Scripts/Types/CallbackStructs.cs
+  uploadId: 905056

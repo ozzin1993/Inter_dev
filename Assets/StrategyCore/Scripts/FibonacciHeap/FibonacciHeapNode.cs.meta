@@ -1,0 +1,18 @@
+fileFormatVersion: 2
+guid: 16128b1e10881dc44a03f66c9b9dcb82
+MonoImporter:
+  externalObjects: {}
+  serializedVersion: 2
+  defaultReferences: []
+  executionOrder: 0
+  icon: {instanceID: 0}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 292539
+  packageName: Strategy Core - Make your own RTS game
+  packageVersion: 1.05
+  assetPath: Assets/StrategyCore/Scripts/FibonacciHeap/FibonacciHeapNode.cs
+  uploadId: 905056

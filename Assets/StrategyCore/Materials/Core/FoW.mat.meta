@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: 30dc99c143942d44983bda329960a5cb
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 2100000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 292539
+  packageName: Strategy Core - Make your own RTS game
+  packageVersion: 1.05
+  assetPath: Assets/StrategyCore/Materials/Core/FoW.mat
+  uploadId: 905056

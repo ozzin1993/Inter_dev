@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: afd324706fc7ddb47b96c28c59aec0f4
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 11400000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 292539
+  packageName: Strategy Core - Make your own RTS game
+  packageVersion: 1.05
+  assetPath: Assets/StrategyCore/Resources/Ability/PassiveInvisibility.asset
+  uploadId: 905056

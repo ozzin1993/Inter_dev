@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: 8a9e724d89a9f6246aa3edfc19591a54
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 9100000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 292539
+  packageName: Strategy Core - Make your own RTS game
+  packageVersion: 1.05
+  assetPath: Assets/StrategyCore/Scenes/Demo2/Buildings/Castle_Controller.controller
+  uploadId: 905056

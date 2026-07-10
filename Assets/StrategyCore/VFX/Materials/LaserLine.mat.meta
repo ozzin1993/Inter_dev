@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: fa41e57b5489b29449f57c3edbb49fe4
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 2100000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 292539
+  packageName: Strategy Core - Make your own RTS game
+  packageVersion: 1.05
+  assetPath: Assets/StrategyCore/VFX/Materials/LaserLine.mat
+  uploadId: 905056

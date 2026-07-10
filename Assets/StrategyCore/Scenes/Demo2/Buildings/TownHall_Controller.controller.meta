@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: 1a6de39f1036e1c43a7a3d37348c32ce
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 9100000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 292539
+  packageName: Strategy Core - Make your own RTS game
+  packageVersion: 1.05
+  assetPath: Assets/StrategyCore/Scenes/Demo2/Buildings/TownHall_Controller.controller
+  uploadId: 905056

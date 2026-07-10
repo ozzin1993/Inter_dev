@@ -1,0 +1,14 @@
+fileFormatVersion: 2
+guid: ae2b5175b2bbb414d98c24567def78c4
+PrefabImporter:
+  externalObjects: {}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 292539
+  packageName: Strategy Core - Make your own RTS game
+  packageVersion: 1.05
+  assetPath: Assets/StrategyCore/Scenes/DemoFiles/Resources/UnitPrefabs/Buildings/Blacksmith.prefab
+  uploadId: 905056

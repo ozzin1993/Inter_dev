@@ -1,0 +1,14 @@
+fileFormatVersion: 2
+guid: 85c1db7da022a2343ac5c858d65cc764
+PrefabImporter:
+  externalObjects: {}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 292539
+  packageName: Strategy Core - Make your own RTS game
+  packageVersion: 1.05
+  assetPath: Assets/StrategyCore/VFX/Prefabs/Abilities/RuneActive 1.prefab
+  uploadId: 905056

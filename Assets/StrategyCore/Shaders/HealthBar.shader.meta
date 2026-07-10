@@ -1,0 +1,17 @@
+fileFormatVersion: 2
+guid: 2bcc5d42c69d96248b1d83fe9a78e31d
+ShaderImporter:
+  externalObjects: {}
+  defaultTextures: []
+  nonModifiableTextures: []
+  preprocessorOverride: 0
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 292539
+  packageName: Strategy Core - Make your own RTS game
+  packageVersion: 1.05
+  assetPath: Assets/StrategyCore/Shaders/HealthBar.shader
+  uploadId: 905056

@@ -1,0 +1,18 @@
+fileFormatVersion: 2
+guid: d76fa077e9a2a844cb3e32e1b453f2d8
+MonoImporter:
+  externalObjects: {}
+  serializedVersion: 2
+  defaultReferences: []
+  executionOrder: 0
+  icon: {instanceID: 0}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 292539
+  packageName: Strategy Core - Make your own RTS game
+  packageVersion: 1.05
+  assetPath: Assets/StrategyCore/Scripts/Unit/Unit.Invisibility.cs
+  uploadId: 905056

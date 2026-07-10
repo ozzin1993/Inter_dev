@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: a09f8a52aa3466c448e9803a4d4277d8
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 11400000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 292539
+  packageName: Strategy Core - Make your own RTS game
+  packageVersion: 1.05
+  assetPath: Assets/StrategyCore/Scenes/DemoFiles/Resources/Ability/TowerUpgrades/ArrowTowerUpgrade.asset
+  uploadId: 905056

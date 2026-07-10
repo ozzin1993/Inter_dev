@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: e396c62927c359b41866251f242a85d8
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 11400000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 292539
+  packageName: Strategy Core - Make your own RTS game
+  packageVersion: 1.05
+  assetPath: Assets/StrategyCore/Resources/Ability/Items/RingPassive.asset
+  uploadId: 905056

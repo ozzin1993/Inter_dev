@@ -1,0 +1,70 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 93e374e956ae738469c9a0eaa3b1dcda, type: 3}
+  m_Name: HeavensBlessingActive
+  m_EditorClassIdentifier: Assembly-CSharp::StrategyCore.HeavensBlessingActive
+  id: 91922
+  abilityName:
+  - "\u0411\u043B\u0430\u0433\u043E\u0441\u043B\u043E\u0432\u0435\u043D\u0438\u0435
+    \u043D\u0435\u0431\u0435\u0441"
+  description:
+  - 
+  icon:
+  - {fileID: 2800000, guid: 679a43925a73d044bbcabe3ded6ddc87, type: 3}
+  slotNumber: -1
+  isItem: 0
+  useUponPickUp: 0
+  dropOnDeath: 0
+  charges: 0
+  maxLevels: 0
+  heroLevelable: 0
+  cooldown:
+  - 0
+  castRange:
+  - 0
+  castTime:
+  - 0
+  radius:
+  - 0
+  unitSelector:
+    isOwn: 1
+    isAlly: 1
+    isEnemy: 0
+    isUnit: 1
+    isBuilding: 0
+    isStaticDestructible: 0
+    isTree: 0
+    isGround: 1
+    isWater: 0
+    isAir: 1
+    includeInvisible: 1
+    includeInvulnerable: 0
+  dontTurn: 0
+  continuous: 0
+  interruptible: 0
+  requiresCastingUnit: 0
+  duration:
+  - 0
+  - 0
+  - 0
+  - 0
+  - 0
+  requiredTech: []
+  requiredLevel: 
+  manaCost: []
+  manaCostPerSecond: []
+  cost: []
+  instantHealPercent:
+  - 25
+  healPerSecondPercent:
+  - 2
+  VFX: {fileID: 0}

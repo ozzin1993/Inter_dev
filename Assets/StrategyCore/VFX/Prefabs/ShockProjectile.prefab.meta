@@ -1,0 +1,14 @@
+fileFormatVersion: 2
+guid: 44c4fafac99a56344b117f575a6ba4e5
+PrefabImporter:
+  externalObjects: {}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 292539
+  packageName: Strategy Core - Make your own RTS game
+  packageVersion: 1.05
+  assetPath: Assets/StrategyCore/VFX/Prefabs/ShockProjectile.prefab
+  uploadId: 905056

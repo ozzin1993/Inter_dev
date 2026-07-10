@@ -1,0 +1,14 @@
+fileFormatVersion: 2
+guid: ae1deed6d7a8a674ea4f60ce41ac1ca6
+PrefabImporter:
+  externalObjects: {}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 292539
+  packageName: Strategy Core - Make your own RTS game
+  packageVersion: 1.05
+  assetPath: Assets/StrategyCore/Scenes/DemoFiles/Resources/UnitPrefabs/Units/Footman.prefab
+  uploadId: 905056

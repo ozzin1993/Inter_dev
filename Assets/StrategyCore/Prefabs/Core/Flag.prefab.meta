@@ -1,0 +1,14 @@
+fileFormatVersion: 2
+guid: 3afce2bbd543ec94fa1a302c8d9bf0f1
+PrefabImporter:
+  externalObjects: {}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 292539
+  packageName: Strategy Core - Make your own RTS game
+  packageVersion: 1.05
+  assetPath: Assets/StrategyCore/Prefabs/Core/Flag.prefab
+  uploadId: 905056

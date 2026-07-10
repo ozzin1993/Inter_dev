@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: 4db0c0695047d4f4eb2c0b7eaa3fb3fd
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 11400000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 292539
+  packageName: Strategy Core - Make your own RTS game
+  packageVersion: 1.05
+  assetPath: Assets/StrategyCore/Resources/ArmorTypes/DontRemove/ArmorType.asset
+  uploadId: 905056

@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: e4f1243e503c6d240bcc6f625b181a56
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 2100000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 292539
+  packageName: Strategy Core - Make your own RTS game
+  packageVersion: 1.05
+  assetPath: Assets/StrategyCore/Materials/Core/HealthBar/HealthBarEnemy.mat
+  uploadId: 905056

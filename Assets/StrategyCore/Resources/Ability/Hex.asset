@@ -1,0 +1,62 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 39d016f57bb27f84c871d9cffcba6c41, type: 3}
+  m_Name: Hex
+  m_EditorClassIdentifier: 
+  id: 30693
+  abilityName:
+  - Hex
+  description:
+  - Transform an enemy into a critter
+  icon:
+  - {fileID: 2800000, guid: 8a5869e28666405479dbb0df3105f1c9, type: 3}
+  slotNumber: -1
+  isItem: 0
+  useUponPickUp: 0
+  dropOnDeath: 0
+  charges: 0
+  maxLevels: 0
+  heroLevelable: 0
+  cooldown:
+  - 1
+  castRange:
+  - 6
+  castTime:
+  - 0
+  radius:
+  - 0
+  unitSelector:
+    isOwn: 0
+    isAlly: 0
+    isEnemy: 1
+    isUnit: 1
+    isBuilding: 0
+    isStaticDestructible: 0
+    isTree: 0
+    isGround: 1
+    isWater: 1
+    isAir: 1
+    includeInvisible: 0
+    includeInvulnerable: 0
+  dontTurn: 0
+  continuous: 0
+  interruptible: 0
+  requiresCastingUnit: 1
+  duration: []
+  requiredTech: []
+  requiredLevel: 
+  manaCost: []
+  manaCostPerSecond: []
+  cost: []
+  hexUnit: {fileID: 8798433854789065780, guid: e4b97021cc4cbab4d846570de651b7e2, type: 3}
+  hexTime:
+  - 3

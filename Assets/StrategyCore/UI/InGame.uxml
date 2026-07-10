@@ -1,0 +1,258 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" xsi="http://www.w3.org/2001/XMLSchema-instance" engine="UnityEngine.UIElements" editor="UnityEditor.UIElements" noNamespaceSchemaLocation="../../../UIElementsSchema/UIElements.xsd" editor-extension-mode="False">
+    <Style src="project://database/Assets/StrategyCore/UI/Style/SC_Style.uss?fileID=7433441132597879392&amp;guid=8e018bcf1436603438f2a854e40c64e3&amp;type=3#SC_Style" />
+    <ui:GroupBox name="Resources" class="dark-theme" style="max-width: 890px; left: auto; right: 10px; position: absolute; top: 10px; padding-left: 0; padding-top: 0; padding-bottom: 0; margin-left: 0; margin-right: 0; margin-top: 0; margin-bottom: 0; padding-right: 0; min-width: auto; flex-direction: row-reverse; flex-wrap: wrap; justify-content: flex-start; align-items: flex-start; background-color: rgba(0, 0, 0, 0);">
+        <ui:GroupBox name="ResourceWrapper" class="dark-theme resource-wrapper" style="border-left-color: rgb(87, 87, 87); border-right-color: rgb(87, 87, 87); border-top-color: rgb(87, 87, 87); border-bottom-color: rgb(87, 87, 87); display: none;">
+            <ui:GroupBox name="Resource" class="resourceBox dark-theme">
+                <ui:Label text="15" display-tooltip-when-elided="true" name="Count" class="resourceCount" />
+                <ui:Label display-tooltip-when-elided="true" name="Icon" class="resourceIcon" />
+            </ui:GroupBox>
+        </ui:GroupBox>
+        <ui:GroupBox name="Resource" class="resourceBox dark-theme">
+            <ui:Label text="15" display-tooltip-when-elided="true" name="Count" class="resourceCount" />
+            <ui:Label display-tooltip-when-elided="true" name="Icon" class="resourceIcon" style="background-image: url(&quot;project://database/Assets/StrategyCore/Textures/Core/Star.png?fileID=2800000&amp;guid=0e05512845de76b4ab516af01eec9aad&amp;type=3#Star&quot;);" />
+        </ui:GroupBox>
+    </ui:GroupBox>
+    <ui:GroupBox name="Status" style="margin-top: 0; margin-right: 0; margin-bottom: 0; margin-left: 0; padding-top: 0; padding-right: 0; padding-bottom: 0; padding-left: 0; flex-direction: column-reverse; justify-content: flex-start; align-self: auto; align-items: flex-start; border-top-left-radius: 1px; border-top-right-radius: 1px; border-bottom-right-radius: 1px; border-bottom-left-radius: 1px; border-top-width: 0; border-right-width: 0; border-bottom-width: 0; border-left-width: 0; position: absolute; left: 520px; bottom: 5px; height: auto; flex-wrap: wrap; max-height: 263px;">
+        <ui:GroupBox name="1" class="statusElement stat2" style="background-image: url(&quot;project://database/Assets/StrategyCore/Textures/Core/Star.png?fileID=2800000&amp;guid=0e05512845de76b4ab516af01eec9aad&amp;type=3#Star&quot;);" />
+    </ui:GroupBox>
+    <ui:GroupBox name="Descriptor" style="padding-left: 0; padding-right: 0; padding-top: 0; padding-bottom: 0; margin-left: 0; margin-right: 0; margin-top: 0; margin-bottom: 0; border-left-color: rgb(56, 56, 56); border-right-color: rgb(56, 56, 56); border-top-color: rgb(56, 56, 56); border-bottom-color: rgb(56, 56, 56); border-left-width: 3px; border-right-width: 3px; border-top-width: 3px; border-bottom-width: 3px; border-top-left-radius: 2px; border-bottom-left-radius: 2px; border-top-right-radius: 2px; border-bottom-right-radius: 2px; background-color: rgb(75, 75, 75); color: rgb(255, 255, 255); position: absolute; left: auto; right: 10px; bottom: 340px; display: none; width: 390px; max-width: 390px;">
+        <ui:GroupBox name="Title" style="white-space: normal; flex-direction: row; padding-top: 8px; padding-right: 8px; padding-bottom: 8px; padding-left: 8px; margin-top: 0; margin-right: 0; margin-bottom: 0; margin-left: 0; background-color: rgb(56, 56, 56); justify-content: flex-start; align-items: flex-start;">
+            <ui:Label tabindex="-1" text="[H]" parse-escape-sequences="true" display-tooltip-when-elided="true" name="Hotkey" style="margin-right: 5px; color: rgb(243, 189, 90);" />
+            <ui:Label text="Name" display-tooltip-when-elided="true" name="Name" style="margin-bottom: 0; padding-top: 0; padding-right: 0; padding-bottom: 0; padding-left: 0;" />
+            <ui:Label tabindex="-1" text="Level 1/3" parse-escape-sequences="true" display-tooltip-when-elided="true" name="Level" style="position: absolute; right: 8px; display: flex;" />
+        </ui:GroupBox>
+        <ui:GroupBox name="DescriptionBox" style="margin-top: 0; margin-right: 0; margin-bottom: 0; margin-left: 0; padding-top: 8px; padding-right: 8px; padding-bottom: 8px; padding-left: 8px; display: flex;">
+            <ui:GroupBox name="CostBox" style="white-space: normal; flex-direction: row; padding-top: 0; padding-right: 0; padding-bottom: 0; padding-left: 0; margin-top: 0; margin-right: 0; margin-bottom: 0; margin-left: 0; height: auto; flex-wrap: wrap; justify-content: flex-start; align-items: flex-start; display: flex; bottom: 4px;">
+                <ui:VisualElement name="UsageCost" style="flex-grow: 0; flex-direction: row; left: -10px;">
+                    <ui:GroupBox name="ManaCost" class="costGroup" style="display: flex;">
+                        <ui:GroupBox name="Icon" class="costIcon manaIcon" />
+                        <ui:Label tabindex="-1" text="215" parse-escape-sequences="true" display-tooltip-when-elided="true" name="Label" />
+                    </ui:GroupBox>
+                    <ui:GroupBox name="Cooldown" class="costGroup" style="display: flex;">
+                        <ui:GroupBox name="Icon" class="costIcon cooldownIcon" />
+                        <ui:Label tabindex="-1" text="215" parse-escape-sequences="true" display-tooltip-when-elided="true" name="Label" />
+                    </ui:GroupBox>
+                </ui:VisualElement>
+                <ui:VisualElement name="ResourceCost" style="flex-grow: 1; flex-direction: row-reverse; flex-shrink: 1; flex-wrap: wrap;" />
+            </ui:GroupBox>
+            <ui:GroupBox name="LockBox" style="white-space: normal; flex-direction: column; padding-top: 10px; padding-right: 10px; padding-bottom: 10px; padding-left: 10px; margin-top: 0; margin-right: 0; margin-bottom: 8px; margin-left: 0; height: auto; flex-wrap: nowrap; justify-content: flex-start; align-items: center; width: 100%; color: rgb(245, 206, 103); background-color: rgb(56, 56, 56); display: flex; border-top-left-radius: 3px; border-top-right-radius: 3px; border-bottom-right-radius: 3px; border-bottom-left-radius: 3px;">
+                <ui:Label tabindex="-1" text="LOCKED" parse-escape-sequences="true" display-tooltip-when-elided="true" name="LockLabel" style="-unity-font-style: bold; width: auto;" />
+                <ui:GroupBox name="LockNames" style="min-width: auto; min-height: auto; margin-top: 0; margin-right: 0; margin-bottom: 0; margin-left: 0; padding-top: 0; padding-right: 0; padding-bottom: 0; padding-left: 0; width: 100%;">
+                    <ui:GroupBox name="LockName" class="lockName">
+                        <ui:Label tabindex="-1" text="Tech name" parse-escape-sequences="true" display-tooltip-when-elided="true" name="TechName" class="techName yellow-label" />
+                        <ui:Label tabindex="-1" text="dgas dasfdaf sdf asdf asdf asdf sd gasdgsdg sadg sadg sagsd" parse-escape-sequences="true" display-tooltip-when-elided="true" name="TechDescription" class="techDescription" />
+                    </ui:GroupBox>
+                    <ui:GroupBox name="LockName" class="lockName">
+                        <ui:Label tabindex="-1" text="Tech name" parse-escape-sequences="true" display-tooltip-when-elided="true" name="TechName" class="techName yellow-label" />
+                        <ui:Label tabindex="-1" text="dgas dasfdaf sdf asdf asdf asdf sd gasdgsdg sadg sadg sagsd" parse-escape-sequences="true" display-tooltip-when-elided="true" name="TechDescription" class="techDescription" />
+                    </ui:GroupBox>
+                </ui:GroupBox>
+            </ui:GroupBox>
+            <ui:Label text="Description" display-tooltip-when-elided="true" name="Description" style="padding-top: 0; padding-right: 0; padding-bottom: 0; padding-left: 0; margin-bottom: 0; flex-wrap: wrap; white-space: normal;" />
+            <ui:Label text="CAST TIME: 0.3s &#10;CAST RANGE: 3&#10;TYPE: UNIT / CONTINIOUS" display-tooltip-when-elided="true" name="BottomText" style="padding-top: 0; padding-right: 0; padding-bottom: 0; padding-left: 0; margin-bottom: 0; flex-wrap: wrap; white-space: normal; font-size: 13px; -unity-font-style: normal; margin-top: 9px; color: rgb(243, 189, 90); flex-direction: row; -unity-text-align: upper-right;" />
+        </ui:GroupBox>
+    </ui:GroupBox>
+    <ui:GroupBox name="RightArea" usage-hints="None" class="darkTheme" style="position: absolute; bottom: 10px; margin-left: 0; margin-right: 0; margin-top: 0; margin-bottom: 0; left: auto; width: auto; height: 317px; padding-left: 0; padding-right: 0; padding-top: 0; padding-bottom: 0; right: 10px; flex-direction: row; flex-wrap: nowrap; align-items: center; justify-content: space-between; border-top-width: 10px; border-right-width: 10px; border-bottom-width: 10px; border-left-width: 10px;">
+        <ui:GroupBox name="Commands" class="CommandsPanel darkTheme" style="position: relative; height: 100%; display: flex; width: 53px; flex-direction: column; border-top-width: 0; border-right-width: 8px; border-bottom-width: 0; border-left-width: 0; top: auto; padding-right: 0; margin-right: 0;">
+            <ui:GroupBox name="Top" style="margin-left: 0; margin-right: 0; margin-top: 5px; margin-bottom: 0; padding-left: 0; padding-right: 0; padding-top: 0; padding-bottom: 0; flex-direction: column; flex-wrap: nowrap;">
+                <ui:GroupBox name="MoveCommand" class="buttonColors" style="width: 35px; height: 35px; background-image: none; padding-left: 5px; padding-right: 5px; padding-top: 5px; padding-bottom: 5px; margin-left: 0; margin-right: 0; margin-top: 0; margin-bottom: 6px; -unity-background-image-tint-color: rgb(255, 255, 255); -unity-text-align: upper-left; justify-content: flex-start; align-self: auto; display: none; border-top-width: 2px; border-right-width: 2px; border-bottom-width: 2px; border-left-width: 2px;">
+                    <ui:GroupBox name="MoveCommandIcon" class="buttonIcon" style="margin-top: 0; margin-right: 0; margin-bottom: 0; margin-left: 0; padding-top: 0; padding-right: 0; padding-bottom: 0; padding-left: 0; background-image: url(&quot;project://database/Assets/StrategyCore/Textures/UI/MoveCommand.png?fileID=2800000&amp;guid=c9eb1b6bf61931d448f45a89c616f48d&amp;type=3#MoveCommand&quot;); width: 100%; height: 100%;" />
+                </ui:GroupBox>
+                <ui:GroupBox name="AttackCommand" class="buttonColors" style="width: 35px; height: 35px; background-image: none; padding-left: 5px; padding-right: 5px; padding-top: 5px; padding-bottom: 5px; margin-left: 0; margin-right: 0; margin-top: 0; margin-bottom: 6px; -unity-background-image-tint-color: rgb(255, 255, 255); -unity-text-align: upper-left; justify-content: flex-start; align-self: auto; display: flex; border-top-width: 2px; border-right-width: 2px; border-bottom-width: 2px; border-left-width: 2px;">
+                    <ui:GroupBox name="AttackCommandIcon" class="buttonIcon" style="margin-top: 0; margin-right: 0; margin-bottom: 0; margin-left: 0; padding-top: 0; padding-right: 0; padding-bottom: 0; padding-left: 0; background-image: url(&quot;project://database/Assets/StrategyCore/Textures/UI/AttackCommand.png?fileID=2800000&amp;guid=87b5d3346b1c13f48a4729bd86b094a1&amp;type=3#AttackCommand&quot;); width: 100%; height: 100%;" />
+                </ui:GroupBox>
+                <ui:GroupBox name="StopCommand" class="buttonColors" style="width: 35px; height: 35px; background-image: none; padding-left: 5px; padding-right: 5px; padding-top: 5px; padding-bottom: 5px; margin-left: 0; margin-right: 0; margin-top: 0; margin-bottom: 6px; -unity-background-image-tint-color: rgb(255, 255, 255); -unity-text-align: upper-left; justify-content: flex-start; align-self: auto; display: flex; border-top-width: 2px; border-right-width: 2px; border-bottom-width: 2px; border-left-width: 2px;">
+                    <ui:GroupBox name="StopCommandIcon" class="buttonIcon" style="margin-top: 0; margin-right: 0; margin-bottom: 0; margin-left: 0; padding-top: 0; padding-right: 0; padding-bottom: 0; padding-left: 0; background-image: url(&quot;project://database/Assets/StrategyCore/Textures/UI/StopCommand.png?fileID=2800000&amp;guid=29ed497dd9701974c890025362b3d117&amp;type=3#StopCommand&quot;); width: 100%; height: 100%;" />
+                </ui:GroupBox>
+                <ui:GroupBox name="HoldCommand" class="buttonColors" style="width: 35px; height: 35px; background-image: none; padding-left: 5px; padding-right: 5px; padding-top: 5px; padding-bottom: 5px; margin-left: 0; margin-right: 0; margin-top: 0; margin-bottom: 6px; -unity-background-image-tint-color: rgb(255, 255, 255); -unity-text-align: upper-left; justify-content: flex-start; align-self: auto; display: flex; border-top-width: 2px; border-right-width: 2px; border-bottom-width: 2px; border-left-width: 2px;">
+                    <ui:GroupBox name="HoldCommandIcon" class="buttonIcon" style="margin-top: 0; margin-right: 0; margin-bottom: 0; margin-left: 0; padding-top: 0; padding-right: 0; padding-bottom: 0; padding-left: 0; background-image: url(&quot;project://database/Assets/StrategyCore/Textures/UI/HoldCommand.png?fileID=2800000&amp;guid=96bed390b54cb1d4dbaaa7b0cde31943&amp;type=3#HoldCommand&quot;); width: 100%; height: 100%;" />
+                </ui:GroupBox>
+            </ui:GroupBox>
+            <ui:GroupBox name="Bottom" style="flex-grow: 1; flex-direction: column-reverse; margin-left: 0; margin-right: 0; margin-top: 0; padding-left: 0; padding-right: 0; padding-top: 0; padding-bottom: 0; display: flex; align-items: center; bottom: 3px;">
+                <ui:GroupBox name="CancelButton" class="buttonColors commandButtonActive" style="width: 35px; height: 35px; background-image: none; padding-left: 5px; padding-right: 5px; padding-top: 5px; padding-bottom: 5px; margin-left: 0; margin-right: 0; margin-top: 6px; margin-bottom: 0; -unity-background-image-tint-color: rgb(255, 255, 255); -unity-text-align: upper-left; justify-content: flex-start; align-self: auto; display: flex; border-top-width: 2px; border-right-width: 2px; border-bottom-width: 2px; border-left-width: 2px;">
+                    <ui:GroupBox name="CancelButtonIcon" class="buttonIcon" style="margin-top: 0; margin-right: 0; margin-bottom: 0; margin-left: 0; padding-top: 0; padding-right: 0; padding-bottom: 0; padding-left: 0; background-image: url(&quot;project://database/Assets/StrategyCore/Textures/UI/cancel.png?fileID=2800000&amp;guid=68c9e1a1bfdc04b4b9a2ec64fc78dc60&amp;type=3#cancel&quot;); width: 100%; height: 100%;" />
+                </ui:GroupBox>
+                <ui:GroupBox name="LevelButton" class="buttonColors commandButtonActive" style="width: 35px; height: 35px; background-image: none; padding-left: 5px; padding-right: 5px; padding-top: 5px; padding-bottom: 5px; margin-left: 0; margin-right: 0; margin-top: 6px; margin-bottom: 0; -unity-background-image-tint-color: rgb(255, 255, 255); -unity-text-align: upper-left; justify-content: flex-start; align-self: auto; display: flex; border-top-width: 2px; border-right-width: 2px; border-bottom-width: 2px; border-left-width: 2px;">
+                    <ui:GroupBox name="LevelButtonIcon" class="buttonIcon" style="margin-top: 0; margin-right: 0; margin-bottom: 0; margin-left: 0; padding-top: 0; padding-right: 0; padding-bottom: 0; padding-left: 0; background-image: url(&quot;project://database/Assets/StrategyCore/Textures/UI/Levelling.png?fileID=2800000&amp;guid=679a43925a73d044bbcabe3ded6ddc87&amp;type=3#Levelling&quot;); width: 100%; height: 100%;" />
+                    <ui:Label text="15" display-tooltip-when-elided="true" name="LevelText" class="darkTheme" style="position: absolute; padding-left: 2px; padding-right: 2px; padding-top: 2px; padding-bottom: 2px; left: auto; right: 0; bottom: 0; font-size: 12px;" />
+                </ui:GroupBox>
+                <ui:GroupBox name="ReturnButton" class="buttonColors" style="width: 35px; height: 35px; background-image: none; padding-left: 5px; padding-right: 5px; padding-top: 5px; padding-bottom: 5px; margin-left: 0; margin-right: 0; margin-top: 6px; margin-bottom: 0; -unity-background-image-tint-color: rgb(255, 255, 255); -unity-text-align: upper-left; justify-content: flex-start; align-self: auto; display: flex; border-top-width: 2px; border-right-width: 2px; border-bottom-width: 2px; border-left-width: 2px;">
+                    <ui:GroupBox name="ReturnButtonIcon" class="buttonIcon" style="margin-top: 0; margin-right: 0; margin-bottom: 0; margin-left: 0; padding-top: 0; padding-right: 0; padding-bottom: 0; padding-left: 0; background-image: url(&quot;project://database/Assets/StrategyCore/Textures/UI/back.png?fileID=2800000&amp;guid=07bf84a66163d0743881b061f9a5ae0e&amp;type=3#back&quot;); width: 100%; height: 100%;" />
+                </ui:GroupBox>
+                <ui:GroupBox name="ShopButton" class="buttonColors" style="width: 35px; height: 35px; background-image: none; padding-left: 5px; padding-right: 5px; padding-top: 5px; padding-bottom: 5px; margin-left: 0; margin-right: 0; margin-top: 6px; margin-bottom: 0; -unity-background-image-tint-color: rgb(255, 255, 255); -unity-text-align: upper-left; justify-content: flex-start; align-self: auto; display: flex; border-top-width: 2px; border-right-width: 2px; border-bottom-width: 2px; border-left-width: 2px;">
+                    <ui:GroupBox name="ShopButtonIcon" class="buttonIcon" style="margin-top: 0; margin-right: 0; margin-bottom: 0; margin-left: 0; padding-top: 0; padding-right: 0; padding-bottom: 0; padding-left: 0; background-image: url(&quot;project://database/Assets/StrategyCore/Textures/UI/shop.png?fileID=2800000&amp;guid=cba50092cdd3d2c49822f6f20709b1c2&amp;type=3#shop&quot;); width: 100%; height: 100%;" />
+                </ui:GroupBox>
+            </ui:GroupBox>
+        </ui:GroupBox>
+        <ui:ScrollView name="ScrollView" usage-hints="DynamicTransform" vertical-scroller-visibility="AlwaysVisible" horizontal-scroller-visibility="Hidden" class="AbilityScrollView" style="left: 7px;">
+            <ui:GroupBox name="Button" class="AbilityButton">
+                <ui:GroupBox name="Icon" class="AbilityButtonIcon" />
+            </ui:GroupBox>
+            <ui:GroupBox name="Button" class="AbilityButton emptySlot">
+                <ui:GroupBox name="Icon" class="AbilityButtonIcon locked" style="background-image: url(&quot;project://database/Assets/StrategyCore/Textures/Core/Star.png?fileID=2800000&amp;guid=0e05512845de76b4ab516af01eec9aad&amp;type=3#Star&quot;);" />
+            </ui:GroupBox>
+            <ui:GroupBox name="Button" class="AbilityButton">
+                <ui:GroupBox name="Icon" class="AbilityButtonIcon" />
+            </ui:GroupBox>
+            <ui:GroupBox name="Button" class="AbilityButton">
+                <ui:GroupBox name="Icon" class="AbilityButtonIcon" />
+            </ui:GroupBox>
+            <ui:GroupBox name="Button" class="AbilityButton">
+                <ui:GroupBox name="Icon" class="AbilityButtonIcon" />
+            </ui:GroupBox>
+            <ui:GroupBox name="Button" class="AbilityButton">
+                <ui:GroupBox name="Icon" class="AbilityButtonIcon" />
+            </ui:GroupBox>
+            <ui:GroupBox name="Button" class="AbilityButton">
+                <ui:GroupBox name="Icon" class="AbilityButtonIcon" />
+            </ui:GroupBox>
+            <ui:GroupBox name="Button" class="AbilityButton">
+                <ui:GroupBox name="Icon" class="AbilityButtonIcon" />
+            </ui:GroupBox>
+            <ui:GroupBox name="Button" class="AbilityButton">
+                <ui:GroupBox name="Icon" class="AbilityButtonIcon" />
+            </ui:GroupBox>
+            <ui:GroupBox name="Button" class="AbilityButton">
+                <ui:GroupBox name="Icon" class="AbilityButtonIcon" />
+            </ui:GroupBox>
+            <ui:GroupBox name="Button" class="AbilityButton">
+                <ui:GroupBox name="Icon" class="AbilityButtonIcon" />
+            </ui:GroupBox>
+            <ui:GroupBox name="Button" class="AbilityButton">
+                <ui:GroupBox name="Icon" class="AbilityButtonIcon" />
+            </ui:GroupBox>
+            <ui:GroupBox name="Button" class="AbilityButton">
+                <ui:GroupBox name="Icon" class="AbilityButtonIcon" />
+            </ui:GroupBox>
+            <ui:GroupBox name="Button" class="AbilityButton">
+                <ui:GroupBox name="Icon" class="AbilityButtonIcon" />
+            </ui:GroupBox>
+            <ui:GroupBox name="Button" class="AbilityButton">
+                <ui:GroupBox name="Icon" class="AbilityButtonIcon" />
+            </ui:GroupBox>
+            <ui:GroupBox name="Button" class="AbilityButton">
+                <ui:GroupBox name="Icon" class="AbilityButtonIcon" style="background-image: url(&quot;project://database/Assets/StrategyCore/Textures/Core/Star.png?fileID=2800000&amp;guid=0e05512845de76b4ab516af01eec9aad&amp;type=3#Star&quot;);" />
+                <ui:VisualElement name="cooldown" class="buttonCD" />
+                <ui:Label text="54.5" display-tooltip-when-elided="true" name="timer" class="process-timer" />
+            </ui:GroupBox>
+        </ui:ScrollView>
+    </ui:GroupBox>
+    <ui:GroupBox name="InventoryBox" class="inventoryBox backBorder" style="display: flex; right: 406px; border-bottom-right-radius: 0; border-bottom-left-radius: 0; border-top-width: 0; border-right-width: 0; border-bottom-width: 0; border-left-width: 0; border-top-left-radius: 0; border-top-right-radius: 0; bottom: 10px; height: 285px;">
+        <ui:Label text="INVENTORY" display-tooltip-when-elided="true" name="InventoryLabel" style="top: auto; position: relative; font-size: 16px; left: auto; margin-left: 0; -unity-font-style: bold; -unity-font: none; -unity-font-definition: url(&quot;project://database/Assets/StrategyCore/UI/Roboto-Regular%20SDF.asset?fileID=11400000&amp;guid=254d3f72c115fee4d958a52d35f37106&amp;type=2#Roboto-Regular SDF&quot;); color: rgb(255, 255, 255); margin-right: 0; margin-top: 3px; margin-bottom: 6px; width: 100%; -unity-text-align: upper-center; bottom: 4px;" />
+        <ui:GroupBox name="Items" class="darkTheme" style="width: 156px; height: 230px; margin-left: 0; margin-right: 0; margin-top: 0; margin-bottom: 0; padding-left: 0; padding-right: 0; padding-top: 2px; padding-bottom: 0; flex-direction: row; flex-wrap: wrap; align-items: center; justify-content: center; position: relative; left: 0; top: 0; border-top-width: 0; border-right-width: 0; border-bottom-width: 0; border-left-width: 0; border-top-left-radius: 0; border-top-right-radius: 0; border-bottom-right-radius: 0; border-bottom-left-radius: 0; align-self: center;">
+            <ui:GroupBox name="Button" class="ItemButton" />
+            <ui:GroupBox name="Button" class="ItemButton" />
+            <ui:GroupBox name="Button" class="ItemButton" />
+            <ui:GroupBox name="Button" class="ItemButton" />
+            <ui:GroupBox name="Button" class="ItemButton" style="visibility: visible;">
+                <ui:GroupBox name="Icon" class="AbilityButtonIcon" style="background-image: url(&quot;project://database/Assets/StrategyCore/Textures/Core/Star.png?fileID=2800000&amp;guid=0e05512845de76b4ab516af01eec9aad&amp;type=3#Star&quot;);" />
+                <ui:VisualElement name="cooldown" class="buttonCD" />
+                <ui:Label text="54.5" display-tooltip-when-elided="true" name="timer" class="process-timer" />
+                <ui:Label text="x2" display-tooltip-when-elided="true" name="charges" class="charges" />
+            </ui:GroupBox>
+            <ui:GroupBox name="Button" class="ItemButton emptySlot" style="display: flex; visibility: visible;" />
+        </ui:GroupBox>
+    </ui:GroupBox>
+    <ui:VisualElement name="Processes" class="darkTheme" style="position: relative; flex-shrink: 0; bottom: 10px; padding-top: 2px; padding-right: 2px; padding-bottom: 2px; padding-left: 2px; width: 546px; flex-grow: 0; left: auto; height: 170px; margin-left: auto; margin-right: auto; margin-top: auto; display: flex; flex-direction: row; flex-wrap: wrap; border-top-width: 8px; border-right-width: 8px; border-bottom-width: 8px; border-left-width: 8px; align-items: stretch; justify-content: space-between; align-self: center; border-bottom-right-radius: 0; border-bottom-left-radius: 0; border-top-left-radius: 0; border-top-right-radius: 0;">
+        <ui:GroupBox name="0" class="ItemButton">
+            <ui:GroupBox name="0" class="AbilityButtonIcon" style="background-color: rgba(75, 75, 75, 0.96); background-image: url(&quot;project://database/Assets/StrategyCore/Textures/Core/PSD/Wood.png?fileID=2800000&amp;guid=059a8ffd31293754db6f28dfc3dad18f&amp;type=3#Wood&quot;);" />
+            <ui:Label text="54.5" display-tooltip-when-elided="true" name="0" class="process-timer" />
+        </ui:GroupBox>
+        <ui:GroupBox name="empty" class="ItemButton emptySlot" />
+        <ui:GroupBox name="empty" class="ItemButton emptySlot" />
+        <ui:GroupBox name="empty" class="ItemButton emptySlot" />
+        <ui:GroupBox name="empty" class="ItemButton emptySlot" />
+        <ui:GroupBox name="empty" class="ItemButton emptySlot" />
+        <ui:GroupBox name="empty" class="ItemButton emptySlot" />
+        <ui:GroupBox name="empty" class="ItemButton emptySlot" />
+        <ui:GroupBox name="empty" class="ItemButton emptySlot" />
+        <ui:GroupBox name="empty" class="ItemButton emptySlot" />
+        <ui:GroupBox name="empty" class="ItemButton emptySlot" />
+        <ui:GroupBox name="empty" class="ItemButton emptySlot" />
+        <ui:GroupBox name="empty" class="ItemButton emptySlot" />
+        <ui:GroupBox name="empty" class="ItemButton emptySlot" />
+    </ui:VisualElement>
+    <ui:GroupBox name="UnitBox" class="backBorder" style="position: absolute; bottom: 10px; margin-top: 0; margin-right: 0; margin-bottom: 0; margin-left: 0; padding-top: 10px; padding-right: 10px; padding-bottom: 10px; padding-left: 10px; left: 340px; height: auto; width: 180px; border-left-width: 0; border-bottom-width: 0; border-bottom-right-radius: 0; border-bottom-left-radius: 0; border-top-width: 0; border-right-width: 0; border-top-left-radius: 0; border-top-right-radius: 0;">
+        <ui:GroupBox name="UnitInfo" style="margin-left: 0; margin-right: 0; margin-top: 0; margin-bottom: 0; padding-left: 0; padding-right: 0; padding-bottom: 0; position: relative; top: auto; width: 100%; height: 100%; justify-content: flex-end; align-items: stretch; padding-top: 0; display: flex;">
+            <ui:Label text="UNIT NAME" display-tooltip-when-elided="true" name="UnitName" style="margin-top: 0; justify-content: flex-start; align-items: flex-start; -unity-text-align: upper-center; font-size: 16px; -unity-font-style: bold; margin-bottom: 0; padding-bottom: 13px; padding-top: 5px; padding-right: 0; padding-left: 0;" />
+            <ui:GroupBox name="UnitView" style="height: 160px; padding-left: 0; padding-right: 0; padding-top: 0; padding-bottom: 0; margin-left: 0; margin-right: 0; margin-top: 0; margin-bottom: 0; width: 160px; bottom: 0;">
+                <ui:GroupBox name="UnitIcon" class="darkBorder" style="height: 100%; padding-left: 0; padding-right: 0; padding-top: 0; padding-bottom: 0; margin-left: 0; margin-right: 0; margin-top: 0; margin-bottom: 0; width: 100%; border-top-width: 1px; border-right-width: 1px; border-bottom-width: 0; border-left-width: 1px;" />
+                <ui:ProgressBar value="0.5" title="5" high-value="1" usage-hints="None" name="XPBar" class="custom-bar xpbar" style="visibility: visible; position: absolute; left: 5px; top: auto; width: 30px; height: 30px; right: auto; font-size: 18px; display: flex; bottom: 5px; margin-top: 0; margin-right: 0; margin-bottom: 0; margin-left: 0;" />
+                <ui:GroupBox name="UnitStats" style="position: absolute; left: auto; top: 0; right: 0; margin-left: 0; margin-right: 0; margin-top: 0; margin-bottom: 0; padding-left: 0; padding-right: 0; padding-top: 0; padding-bottom: 0; color: rgb(219, 219, 219); display: flex; align-items: stretch; justify-content: flex-start;">
+                    <ui:GroupBox name="DamageInfo" class="darkTheme" style="width: auto; margin-left: 2px; margin-right: 2px; margin-top: 2px; margin-bottom: 2px; padding-left: 3px; padding-right: 3px; padding-top: 3px; padding-bottom: 3px; flex-direction: row-reverse; align-items: center; justify-content: flex-start; border-top-left-radius: 3px; border-top-right-radius: 3px; border-bottom-right-radius: 3px; border-bottom-left-radius: 3px; background-color: rgba(56, 56, 56, 0.73); display: flex;">
+                        <ui:GroupBox name="Icon" class="dark-theme AbilityButton" style="width: 20px; height: 20px; padding-left: 0; padding-right: 0; padding-top: 0; padding-bottom: 0; margin-left: 0.5%; margin-right: 0.5%; margin-top: 0.5%; margin-bottom: 0.5%; background-image: url(&quot;project://database/Assets/StrategyCore/Textures/UI/Attack.png?fileID=2800000&amp;guid=b845719fce476a44592688c1cab5a6f9&amp;type=3#Attack&quot;); border-left-width: 0; border-right-width: 0; border-top-width: 0; border-bottom-width: 0; border-top-left-radius: 2px; border-bottom-left-radius: 2px; border-top-right-radius: 2px; border-bottom-right-radius: 2px; background-color: rgba(75, 75, 75, 0.53);" />
+                        <ui:GroupBox name="Labels" style="align-items: flex-start; justify-content: center; flex-direction: row; flex-wrap: nowrap; margin-left: 0; margin-right: 5px; margin-top: 0; margin-bottom: 0; padding-left: 0; padding-right: 0; padding-top: 0; padding-bottom: 0;">
+                            <ui:Label text="15" display-tooltip-when-elided="true" name="DamageValue" style="align-items: stretch; justify-content: flex-start; flex-direction: row; font-size: 14px; -unity-font-style: normal;" />
+                            <ui:Label text="+15" display-tooltip-when-elided="true" name="ExtraDamageValue" style="align-items: stretch; justify-content: flex-start; flex-direction: row; font-size: 14px; color: rgb(145, 214, 86); -unity-font-style: normal; display: none;" />
+                        </ui:GroupBox>
+                    </ui:GroupBox>
+                    <ui:GroupBox name="ArmorInfo" class="darkTheme" style="width: auto; margin-left: 2px; margin-right: 2px; margin-top: 2px; margin-bottom: 2px; padding-left: 3px; padding-right: 3px; padding-top: 3px; padding-bottom: 3px; flex-direction: row-reverse; align-items: center; justify-content: flex-start; border-top-left-radius: 3px; border-top-right-radius: 3px; border-bottom-right-radius: 3px; border-bottom-left-radius: 3px; background-color: rgba(56, 56, 56, 0.73); display: flex;">
+                        <ui:GroupBox name="Icon" class="dark-theme AbilityButton" style="width: 20px; height: 20px; padding-left: 0; padding-right: 0; padding-top: 0; padding-bottom: 0; margin-left: 0.5%; margin-right: 0.5%; margin-top: 0.5%; margin-bottom: 0.5%; background-image: url(&quot;project://database/Assets/StrategyCore/Textures/UI/Armor.png?fileID=2800000&amp;guid=2491b555a060ab14c8cb0563ba3403b4&amp;type=3#Armor&quot;); border-left-width: 0; border-right-width: 0; border-top-width: 0; border-bottom-width: 0; border-top-left-radius: 2px; border-bottom-left-radius: 2px; border-top-right-radius: 2px; border-bottom-right-radius: 2px; background-color: rgba(75, 75, 75, 0.53);" />
+                        <ui:GroupBox name="Labels" style="align-items: flex-start; justify-content: center; flex-direction: row; flex-wrap: nowrap; margin-left: 0; margin-right: 5px; margin-top: 0; margin-bottom: 0; padding-left: 0; padding-right: 0; padding-top: 0; padding-bottom: 0;">
+                            <ui:Label text="15" display-tooltip-when-elided="true" name="ArmorValue" style="align-items: stretch; justify-content: flex-start; flex-direction: row; font-size: 14px;" />
+                            <ui:Label text="+5" display-tooltip-when-elided="true" name="ExtraArmorValue" style="align-items: stretch; justify-content: flex-start; flex-direction: row; font-size: 14px; color: rgb(145, 214, 86); display: none;" />
+                        </ui:GroupBox>
+                    </ui:GroupBox>
+                    <ui:GroupBox name="StatsInfo" class="darkTheme" style="margin-left: 2px; margin-right: 2px; margin-top: 2px; margin-bottom: 2px; padding-left: 3px; padding-right: 3px; padding-top: 3px; padding-bottom: 3px; flex-direction: row-reverse; align-items: center; justify-content: flex-start; border-top-left-radius: 3px; border-top-right-radius: 3px; border-bottom-right-radius: 3px; border-bottom-left-radius: 3px; background-color: rgba(56, 56, 56, 0.73); display: flex;">
+                        <ui:GroupBox name="Icon" class="dark-theme AbilityButton" style="width: 20px; height: 20px; padding-left: 0; padding-right: 0; padding-top: 0; padding-bottom: 0; margin-left: 0.5%; margin-right: 0.5%; margin-top: 0.5%; margin-bottom: 0.5%; background-image: url(&quot;project://database/Assets/StrategyCore/Textures/UI/Attributes.png?fileID=2800000&amp;guid=4a4469614f2dfca45a2bd50b70db5a4d&amp;type=3#Attributes&quot;); border-left-width: 0; border-right-width: 0; border-top-width: 0; border-bottom-width: 0; border-top-left-radius: 2px; border-bottom-left-radius: 2px; border-top-right-radius: 2px; border-bottom-right-radius: 2px; background-color: rgba(75, 75, 75, 0.53);" />
+                        <ui:GroupBox name="Labels" style="align-items: flex-start; justify-content: center; flex-direction: column-reverse; flex-wrap: nowrap; margin-left: 0; margin-right: 5px; margin-top: 0; margin-bottom: 0; padding-left: 0; padding-right: 0; padding-top: 0; padding-bottom: 0; display: none; visibility: visible;">
+                            <ui:Label text="15" display-tooltip-when-elided="true" name="DamageValue" style="align-items: stretch; justify-content: flex-start; flex-direction: row; font-size: 14px;" />
+                        </ui:GroupBox>
+                    </ui:GroupBox>
+                </ui:GroupBox>
+                <ui:Label text="INVULNERABLE" display-tooltip-when-elided="true" name="Invulnerable" style="margin-top: 0; justify-content: flex-start; align-items: flex-start; -unity-text-align: upper-center; font-size: 12px; -unity-font-style: bold; margin-bottom: 0; padding-bottom: 0; padding-top: 0; padding-right: 0; padding-left: 0; position: absolute; bottom: 160px; right: 30px; color: rgb(255, 29, 0); display: none;" />
+            </ui:GroupBox>
+            <ui:ProgressBar value="0.2" title="1" high-value="1" usage-hints="None" tooltip="asdfsdafsda" name="ManaBar" class="custom-bar manabar mana-bar darkBorder" style="opacity: 1; display: flex; visibility: visible; border-right-width: 1px; border-bottom-width: 0; border-left-width: 1px; width: 160px; border-top-width: 0; overflow: visible; background-color: rgba(56, 56, 56, 0);">
+                <ui:Label text="+0" display-tooltip-when-elided="true" name="ManaRegen" style="position: absolute; left: auto; font-size: 10px; color: rgba(255, 255, 255, 0.59); flex-direction: row-reverse; right: 5px; display: flex;" />
+            </ui:ProgressBar>
+            <ui:ProgressBar value="0.5" title="100/100" high-value="1" usage-hints="None" name="HealthBar" class="hp-bar custom-bar healthbar darkBorder" style="visibility: visible; border-right-width: 1px; border-bottom-width: 1px; border-left-width: 1px; width: 160px; border-top-width: 0; background-color: rgba(56, 56, 56, 0); display: flex;">
+                <ui:Label text="+0" display-tooltip-when-elided="true" name="HealthRegen" style="position: absolute; left: auto; font-size: 10px; color: rgba(255, 255, 255, 0.59); flex-direction: row-reverse; right: 5px;" />
+            </ui:ProgressBar>
+            <ui:ProgressBar value="0.5" title="15s" high-value="1" usage-hints="None" name="Lifetime" class="custom-bar healthbar darkBorder hp-bar lifetime-bar" style="visibility: visible; border-right-width: 1px; border-bottom-width: 1px; border-left-width: 1px; border-top-width: 0; background-color: rgba(56, 56, 56, 0); display: none; width: 160px;" />
+        </ui:GroupBox>
+    </ui:GroupBox>
+    <ui:GroupBox name="MiniMap" class="backBorder" style="position: absolute; bottom: 10px; margin-left: 0; margin-right: 0; margin-top: 0; margin-bottom: 0; left: 10px; width: 320px; height: 320px; padding-left: 10px; padding-right: 10px; padding-top: 10px; padding-bottom: 10px; border-bottom-width: 0; border-left-width: 0; border-bottom-right-radius: 0; border-bottom-left-radius: 0; border-top-width: 0; border-right-width: 0; border-top-left-radius: 0; border-top-right-radius: 0;">
+        <ui:GroupBox name="RenderTexture" style="margin-left: 0; margin-right: 0; margin-top: 0; margin-bottom: 0; width: 100%; height: 100%; background-image: url(&quot;project://database/Assets/StrategyCore/Textures/RenderTextures/MiniMap.renderTexture?fileID=8400000&amp;guid=3c74e5e203bd10c4aaf7d2d4c68d03bc&amp;type=2#MiniMap&quot;); position: relative; padding-top: 0; padding-right: 0; padding-bottom: 0; padding-left: 0; display: flex;" />
+        <ui:GroupBox name="Overlay" style="padding-left: 0; padding-right: 0; padding-top: 0; margin-left: 0; margin-right: 0; margin-top: 0; width: 100%; height: 100%; position: relative; bottom: 100%; margin-bottom: 0; padding-bottom: 0;" />
+        <ui:VisualElement name="Ping" class="pingMiniMap" style="display: none;" />
+    </ui:GroupBox>
+    <ui:TextField picking-mode="Ignore" name="MessageInput" max-length="60" label="All:" class="chat" style="position: absolute; left: 10px; bottom: 344px; width: 510px; padding-top: 0; padding-right: 0; padding-bottom: 0; padding-left: 0; margin-top: 0; margin-right: 0; margin-bottom: 0; margin-left: 0; border-top-left-radius: 3px; border-top-right-radius: 3px; border-bottom-right-radius: 3px; border-bottom-left-radius: 3px; display: none; justify-content: flex-start; align-items: center;" />
+    <ui:GroupBox name="MessageBox" style="font-size: 16px; padding-top: 10px; padding-right: 10px; padding-bottom: 10px; padding-left: 10px; margin-top: 0; margin-right: 0; margin-bottom: 0; margin-left: 0; position: absolute; bottom: 362px; display: flex;">
+        <ui:Label tabindex="-1" parse-escape-sequences="true" display-tooltip-when-elided="true" name="warningMsg" style="color: rgb(245, 206, 103); font-size: 20px; -unity-font-style: bold; display: none; left: 524px; top: 70px;" />
+        <ui:VisualElement name="ChatBox" style="flex-grow: 1; bottom: 20px; display: flex; position: absolute;" />
+    </ui:GroupBox>
+    <ui:VisualElement name="Transport" class="darkTheme transport" style="position: absolute; flex-shrink: 0; bottom: 10px; padding-top: 2px; padding-right: 2px; padding-bottom: 2px; padding-left: 2px; width: 546px; flex-grow: 0; left: auto; height: 170px; margin-left: auto; margin-right: auto; margin-top: auto; display: flex; flex-direction: row; flex-wrap: wrap; border-top-width: 8px; border-right-width: 8px; border-bottom-width: 8px; border-left-width: 8px; align-items: center; justify-content: center; align-self: center; border-bottom-right-radius: 0; border-bottom-left-radius: 0; border-top-left-radius: 0; border-top-right-radius: 0;">
+        <ui:GroupBox name="0" class="ItemButton">
+            <ui:GroupBox name="0" class="AbilityButtonIcon" style="background-color: rgba(75, 75, 75, 0.96); background-image: url(&quot;project://database/Assets/StrategyCore/Textures/Core/Star.png?fileID=2800000&amp;guid=0e05512845de76b4ab516af01eec9aad&amp;type=3#Star&quot;);" />
+            <ui:Label text="54.5" display-tooltip-when-elided="true" name="0" class="process-timer" />
+        </ui:GroupBox>
+        <ui:GroupBox name="empty" class="ItemButton emptySlot" style="background-image: url(&quot;project://database/Assets/StrategyCore/Textures/Core/Star.png?fileID=2800000&amp;guid=0e05512845de76b4ab516af01eec9aad&amp;type=3#Star&quot;);" />
+        <ui:GroupBox name="empty" class="ItemButton emptySlot" />
+        <ui:GroupBox name="empty" class="ItemButton emptySlot" />
+        <ui:GroupBox name="empty" class="ItemButton emptySlot" />
+        <ui:GroupBox name="empty" class="ItemButton emptySlot" />
+        <ui:GroupBox name="empty" class="ItemButton emptySlot" />
+        <ui:GroupBox name="empty" class="ItemButton emptySlot" />
+        <ui:GroupBox name="empty" class="ItemButton emptySlot" />
+        <ui:GroupBox name="empty" class="ItemButton emptySlot" />
+        <ui:GroupBox name="empty" class="ItemButton emptySlot" />
+        <ui:GroupBox name="empty" class="ItemButton emptySlot" />
+        <ui:GroupBox name="empty" class="ItemButton emptySlot" />
+        <ui:GroupBox name="empty" class="ItemButton emptySlot" />
+    </ui:VisualElement>
+    <ui:GroupBox name="InventoryMenu" class="darkTheme" style="margin-top: 0; margin-right: 0; margin-bottom: 0; margin-left: 0; padding-top: 0; padding-right: 0; padding-bottom: 0; padding-left: 0; width: 92px; flex-direction: column; flex-wrap: nowrap; border-top-left-radius: 0; border-top-right-radius: 0; border-bottom-right-radius: 0; border-bottom-left-radius: 0; display: none; position: absolute; font-size: 18px;">
+        <ui:Label tabindex="-1" text="DROP" parse-escape-sequences="true" display-tooltip-when-elided="true" name="dropItemButton" class="inventoryMenu" style="padding-top: 7px; padding-right: 7px; padding-bottom: 7px; padding-left: 7px; border-bottom-width: 0;" />
+        <ui:Label tabindex="-1" text="SELL" parse-escape-sequences="true" display-tooltip-when-elided="true" name="sellItemButton" class="inventoryMenu" style="padding-top: 7px; padding-right: 7px; padding-bottom: 7px; padding-left: 7px;" />
+    </ui:GroupBox>
+    <ui:GroupBox name="InventoryDragIcon" class="darkTheme" style="position: absolute; width: 55px; height: 55px; margin-top: 0; margin-right: 0; margin-bottom: 0; margin-left: 0; padding-top: 0; padding-right: 0; padding-bottom: 0; padding-left: 0; border-top-width: 3px; border-right-width: 3px; border-bottom-width: 3px; border-left-width: 3px; display: none;" />
+    <ui:GroupBox name="Debug" class="dark-theme" style="max-width: 890px; left: auto; position: absolute; padding-left: 10px; padding-top: 10px; padding-bottom: 10px; margin-left: 10px; margin-right: 10px; margin-top: 10px; margin-bottom: 10px; padding-right: 10px; min-width: auto; flex-direction: column; flex-wrap: wrap; border-left-width: 0; border-right-width: 0; border-top-width: 0; border-bottom-width: 0; justify-content: flex-start; align-items: flex-start; background-color: rgb(70, 70, 70); border-top-left-radius: 0; border-bottom-left-radius: 0; border-top-right-radius: 0; border-bottom-right-radius: 0; font-size: 21px; display: none;">
+        <ui:Label text="Name" display-tooltip-when-elided="true" name="nameLabel" style="color: rgb(155, 241, 160);" />
+        <ui:Label text="Description" display-tooltip-when-elided="true" name="dataLabel" />
+    </ui:GroupBox>
+    <ui:GroupBox name="Tips" class="dark-theme" style="max-width: 890px; left: auto; position: absolute; padding-left: 10px; padding-top: 10px; padding-bottom: 10px; margin-left: 0; margin-right: 0; margin-top: 0; margin-bottom: 0; padding-right: 10px; min-width: auto; flex-direction: column; flex-wrap: wrap; border-left-width: 0; border-right-width: 0; border-top-width: 0; border-bottom-width: 0; justify-content: flex-start; align-items: flex-start; border-top-left-radius: 0; border-bottom-left-radius: 0; border-top-right-radius: 0; border-bottom-right-radius: 0; font-size: 21px; display: flex; background-color: rgba(56, 56, 56, 0);">
+        <ui:VisualElement style="flex-grow: 1; background-color: rgba(74, 74, 74, 0.61); padding-top: 10px; padding-right: 10px; padding-bottom: 10px; padding-left: 10px;">
+            <ui:Label text="TIPS" display-tooltip-when-elided="true" name="nameLabel" style="color: rgb(228, 178, 82);" />
+            <ui:Label text="F10 - Menu&#10;Alt - Show/Hide Healthbar&#10;Ctrl + RMB - Attack ground for splash units&#10;Enter - Chat&#10;&quot;hide&quot; in chat - Hide text on the ground&#10;&quot;edge&quot; in chat - Turns off screen edge camera move" display-tooltip-when-elided="true" name="dataLabel" />
+        </ui:VisualElement>
+    </ui:GroupBox>
+</ui:UXML>

@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: 989b753b2a4860a418afbadc804e083e
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 11400000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 292539
+  packageName: Strategy Core - Make your own RTS game
+  packageVersion: 1.05
+  assetPath: Assets/StrategyCore/Resources/Ability/MuteArea.asset
+  uploadId: 905056

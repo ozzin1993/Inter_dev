@@ -1,0 +1,14 @@
+fileFormatVersion: 2
+guid: 06a103c1b93df7b43ab9e2b9e016f03a
+PrefabImporter:
+  externalObjects: {}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 292539
+  packageName: Strategy Core - Make your own RTS game
+  packageVersion: 1.05
+  assetPath: Assets/StrategyCore/Prefabs/Core/FloatingText.prefab
+  uploadId: 905056

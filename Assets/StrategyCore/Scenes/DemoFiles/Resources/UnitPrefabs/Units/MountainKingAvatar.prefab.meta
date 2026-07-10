@@ -1,0 +1,14 @@
+fileFormatVersion: 2
+guid: 3a01d2264b68f8340b7e1775ec90670d
+PrefabImporter:
+  externalObjects: {}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 292539
+  packageName: Strategy Core - Make your own RTS game
+  packageVersion: 1.05
+  assetPath: Assets/StrategyCore/Scenes/DemoFiles/Resources/UnitPrefabs/Units/MountainKingAvatar.prefab
+  uploadId: 905056

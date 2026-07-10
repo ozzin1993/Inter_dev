@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: ccc0fe2d76e78af44be03b516879b88c
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 0
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 292539
+  packageName: Strategy Core - Make your own RTS game
+  packageVersion: 1.05
+  assetPath: Assets/StrategyCore/VFX/Materials/explosion_Smoke_1.mat
+  uploadId: 905056

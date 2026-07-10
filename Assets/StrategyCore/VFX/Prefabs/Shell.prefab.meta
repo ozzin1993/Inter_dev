@@ -1,0 +1,14 @@
+fileFormatVersion: 2
+guid: fe547e3fd3a63194480b5772d35f1d58
+PrefabImporter:
+  externalObjects: {}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 292539
+  packageName: Strategy Core - Make your own RTS game
+  packageVersion: 1.05
+  assetPath: Assets/StrategyCore/VFX/Prefabs/Shell.prefab
+  uploadId: 905056

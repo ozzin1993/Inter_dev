@@ -1,0 +1,14 @@
+fileFormatVersion: 2
+guid: d9aa582b8938c91468211ed339d4a4e6
+PrefabImporter:
+  externalObjects: {}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 292539
+  packageName: Strategy Core - Make your own RTS game
+  packageVersion: 1.05
+  assetPath: Assets/StrategyCore/Scenes/DemoFiles/Resources/UnitPrefabs/Trees/Tree3Unit.prefab
+  uploadId: 905056

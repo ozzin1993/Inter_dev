@@ -1,0 +1,14 @@
+fileFormatVersion: 2
+guid: 99d662431d7db464a99d71fae67f4b95
+PrefabImporter:
+  externalObjects: {}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 292539
+  packageName: Strategy Core - Make your own RTS game
+  packageVersion: 1.05
+  assetPath: Assets/StrategyCore/Scenes/DemoFiles/Resources/Projectiles/ArrowProjectile.prefab
+  uploadId: 905056

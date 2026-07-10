@@ -1,0 +1,14 @@
+fileFormatVersion: 2
+guid: 27eec0ca020b7ac469c2b02c63bf1086
+PrefabImporter:
+  externalObjects: {}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 292539
+  packageName: Strategy Core - Make your own RTS game
+  packageVersion: 1.05
+  assetPath: Assets/StrategyCore/VFX/Prefabs/RocketTrail.prefab
+  uploadId: 905056

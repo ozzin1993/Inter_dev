@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: 0440305917103f040bee6af318e5b6fc
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 2100000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 292539
+  packageName: Strategy Core - Make your own RTS game
+  packageVersion: 1.05
+  assetPath: Assets/StrategyCore/Scenes/DemoFiles/VFX/VFXLine/LifeDrain/LifeDrain.mat
+  uploadId: 905056

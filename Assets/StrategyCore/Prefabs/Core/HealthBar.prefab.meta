@@ -1,0 +1,14 @@
+fileFormatVersion: 2
+guid: 7313807ae004ba340aae74d4dd8ff4f7
+PrefabImporter:
+  externalObjects: {}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 292539
+  packageName: Strategy Core - Make your own RTS game
+  packageVersion: 1.05
+  assetPath: Assets/StrategyCore/Prefabs/Core/HealthBar.prefab
+  uploadId: 905056

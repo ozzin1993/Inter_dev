@@ -1,0 +1,14 @@
+fileFormatVersion: 2
+guid: b19723c9c2019204da8c3067dae861f4
+PrefabImporter:
+  externalObjects: {}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 292539
+  packageName: Strategy Core - Make your own RTS game
+  packageVersion: 1.05
+  assetPath: Assets/StrategyCore/Prefabs/Core/Projectors/AreaSelector.prefab
+  uploadId: 905056

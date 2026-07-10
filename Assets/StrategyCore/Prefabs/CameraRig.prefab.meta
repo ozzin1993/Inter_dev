@@ -1,0 +1,14 @@
+fileFormatVersion: 2
+guid: 077b510f5dacfd046ac8a7e3320908aa
+PrefabImporter:
+  externalObjects: {}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 292539
+  packageName: Strategy Core - Make your own RTS game
+  packageVersion: 1.05
+  assetPath: Assets/StrategyCore/Prefabs/CameraRig.prefab
+  uploadId: 905056

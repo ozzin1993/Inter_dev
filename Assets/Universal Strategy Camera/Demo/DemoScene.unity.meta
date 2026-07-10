@@ -1,0 +1,14 @@
+fileFormatVersion: 2
+guid: 2086f5cd5ca960a41bad3610ca48a0dd
+DefaultImporter:
+  externalObjects: {}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 292539
+  packageName: Strategy Core - Make your own RTS game
+  packageVersion: 1.05
+  assetPath: Assets/Universal Strategy Camera/Demo/DemoScene.unity
+  uploadId: 905056

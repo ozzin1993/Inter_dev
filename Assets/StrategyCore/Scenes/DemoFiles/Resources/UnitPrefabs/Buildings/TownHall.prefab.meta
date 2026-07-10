@@ -1,0 +1,14 @@
+fileFormatVersion: 2
+guid: fc7cb7859fffe6c459a7e02224930908
+PrefabImporter:
+  externalObjects: {}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 292539
+  packageName: Strategy Core - Make your own RTS game
+  packageVersion: 1.05
+  assetPath: Assets/StrategyCore/Scenes/DemoFiles/Resources/UnitPrefabs/Buildings/TownHall.prefab
+  uploadId: 905056

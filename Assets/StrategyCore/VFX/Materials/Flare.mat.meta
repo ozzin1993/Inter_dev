@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: 78066c493d92a4d4f842db1fd7da96e9
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 0
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 292539
+  packageName: Strategy Core - Make your own RTS game
+  packageVersion: 1.05
+  assetPath: Assets/StrategyCore/VFX/Materials/Flare.mat
+  uploadId: 905056

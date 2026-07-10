@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: 96b5aaf068a0e7646b44218b67bb20bf
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 9100000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 292539
+  packageName: Strategy Core - Make your own RTS game
+  packageVersion: 1.05
+  assetPath: Assets/StrategyCore/Scenes/Demo2/Buildings/Goldmine_Controller.controller
+  uploadId: 905056

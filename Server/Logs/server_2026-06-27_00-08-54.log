@@ -1,0 +1,6 @@
+=== Interflow server log === start 2026-06-27 00:08:54 ===
+unityVersion=6000.4.7f1 platform=WindowsServer headless=True args=D:\Interflow\Interflow\Server\Interflow.exe -batchmode -nographics -logFile -
+00:08:54.282 [Log] [ServerBootstrap] Start: headless=True, gfx=Null, batchmode=True, автозапуск=True, injectMenuButton=True.
+00:08:54.493 [Log] [ServerBootstrap] Сервер запущен (StartServer). Ожидание игроков: 2.
+00:09:14.996 [Log] Approved: joined Player0, 1 at slot 0
+=== end 2026-06-27 00:09:38 ===

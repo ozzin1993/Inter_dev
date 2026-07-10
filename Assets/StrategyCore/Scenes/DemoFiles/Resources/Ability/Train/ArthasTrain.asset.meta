@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: ba3a29bf13e3a524c9768c108c15d17b
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 11400000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 292539
+  packageName: Strategy Core - Make your own RTS game
+  packageVersion: 1.05
+  assetPath: Assets/StrategyCore/Scenes/DemoFiles/Resources/Ability/Train/ArthasTrain.asset
+  uploadId: 905056

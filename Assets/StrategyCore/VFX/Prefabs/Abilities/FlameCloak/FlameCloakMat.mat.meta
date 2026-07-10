@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: 90b107ddc0716ae46bf86854b2be4d6d
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 2100000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 292539
+  packageName: Strategy Core - Make your own RTS game
+  packageVersion: 1.05
+  assetPath: Assets/StrategyCore/VFX/Prefabs/Abilities/FlameCloak/FlameCloakMat.mat
+  uploadId: 905056

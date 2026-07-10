@@ -1,0 +1,14 @@
+fileFormatVersion: 2
+guid: fa0b5fa67e99729428e7d23cb573d10e
+PrefabImporter:
+  externalObjects: {}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 292539
+  packageName: Strategy Core - Make your own RTS game
+  packageVersion: 1.05
+  assetPath: Assets/StrategyCore/Scenes/DemoFiles/Resources/Projectiles/MagicProjectile.prefab
+  uploadId: 905056

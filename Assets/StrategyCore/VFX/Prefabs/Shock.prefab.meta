@@ -1,0 +1,14 @@
+fileFormatVersion: 2
+guid: 8ae312630a4be6743ab1cd8e8c9c2982
+PrefabImporter:
+  externalObjects: {}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 292539
+  packageName: Strategy Core - Make your own RTS game
+  packageVersion: 1.05
+  assetPath: Assets/StrategyCore/VFX/Prefabs/Shock.prefab
+  uploadId: 905056

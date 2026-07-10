@@ -1,0 +1,157 @@
+=== Interflow server log === start 2026-06-26 23:22:52 ===
+unityVersion=6000.4.7f1 platform=WindowsServer headless=True args=D:\Interflow\Interflow\Server\Interflow.exe -batchmode -nographics -logFile -
+23:22:52.372 [Log] [ServerBootstrap] Start: headless=True, gfx=Null, batchmode=True, автозапуск=True, injectMenuButton=True.
+23:22:52.510 [Log] [ServerBootstrap] Сервер запущен (StartServer). Ожидание игроков: 2.
+23:23:18.955 [Log] Approved: joined Player0, 1 at slot 0
+23:23:28.255 [Log] Approved: joined Player01, 2 at slot 1
+23:23:28.422 [Log] [ServerBootstrap] Набралось игроков (2) — отсчёт 15с до старта.
+23:23:43.469 [Log] [ServerBootstrap] Отсчёт завершён — старт матча.
+23:23:43.569 [Warning] No mesh data available for mesh ArrowPlane on particle system Arrow. Make sure Read/Write Enabled is set in the importer to work on the particle system renderer
+23:23:43.569 [Warning] No mesh data available for mesh ArrowPlane on particle system Arrow. Make sure Read/Write Enabled is set in the importer to work on the particle system renderer
+23:23:43.569 [Warning] No mesh data available for mesh ArrowPlane on particle system Arrow. Make sure Read/Write Enabled is set in the importer to work on the particle system renderer
+23:23:43.569 [Warning] No mesh data available for mesh ArrowPlane on particle system Arrow. Make sure Read/Write Enabled is set in the importer to work on the particle system renderer
+23:23:43.569 [Warning] No mesh data available for mesh ArrowPlane on particle system Arrow. Make sure Read/Write Enabled is set in the importer to work on the particle system renderer
+23:23:43.570 [Warning] No mesh data available for mesh ArrowPlane on particle system Arrow. Make sure Read/Write Enabled is set in the importer to work on the particle system renderer
+23:23:43.702 [Warning] The referenced script (Unknown) on this Behaviour is missing!
+23:23:43.702 [Warning] The referenced script on this Behaviour (Game Object '<null>') is missing!
+23:23:43.702 [Error] A scripted object (script unknown or not yet loaded) has a different serialization layout when loading. (Read 40 bytes but expected 140 bytes)
+Did you #if UNITY_EDITOR a section of your serialized properties in any of your scripts?
+23:23:44.040 [Log] [MatchManager] Точка DefPointA2: towerPrefab не назначен — захват без отстройки (OK для Defence-точек).
+23:23:44.040 [Log] [MatchManager] Точка DefPointA1: towerPrefab не назначен — захват без отстройки (OK для Defence-точек).
+23:23:44.041 [Log] [MatchManager] Точка DefPointB2: towerPrefab не назначен — захват без отстройки (OK для Defence-точек).
+23:23:44.041 [Log] [MatchManager] Точка DefPointB1: towerPrefab не назначен — захват без отстройки (OK для Defence-точек).
+23:23:44.041 [Warning] [MatchManager] GameManager.specificUnitsDead не настроен — победа по уничтожению базы не сработает. Задайте NetID баз и winningTeam в Inspector у GameManager.
+23:23:44.041 [Log] [MatchManager] Подписка на смерть башни CentralTower.
+23:23:44.041 [Log] [MatchManager] Подписка на смерть башни CannonTowerOwn2.
+23:23:44.041 [Log] [MatchManager] Подписка на смерть башни CannonTowerOwn1.
+23:23:44.041 [Log] [MatchManager] Подписка на смерть башни CannonTowerEnemy2.
+23:23:44.041 [Log] [MatchManager] Подписка на смерть башни CannonTowerEnemy1.
+23:23:45.034 [Log] [MatchManager] Матч начался — запускаем волны.
+23:23:45.036 [Log] [MatchManager] Ожидаем первую волну 5 сек.
+23:23:47.409 [Log] [MatchManager] Точка защиты команды 0 изменилась → DefPointB2.
+23:23:47.409 [Log] [MatchManager] ЗАЩИТА: команда 0 (player=0), юнитов=0, точка=DefPointB2.
+23:23:49.642 [Log] [MatchManager] Точка защиты команды 1 изменилась → DefPointA2.
+23:23:49.642 [Log] [MatchManager] ЗАЩИТА: команда 1 (player=1), юнитов=0, точка=DefPointA2.
+23:23:49.976 [Log] [MatchManager] Волна #1 — спавним обе команды.
+23:23:49.982 [Log] [MatchManager] Команда 0: ChangeAmount — игрок=0, ресурс=Gold, сумма=15, multiplier=1, decrease=true, calledByServer=true.
+23:23:49.986 [Log] [MatchManager] Спавн волны команды 0 (player=0): цель=CentralPoint, точка спавна=(67.42, 0.00, 7.85).
+23:23:50.009 [Log] [MatchManager] Волна команды 0: заспавнено 3 юнитов.
+23:23:50.015 [Log] [MatchManager] Команда 1: ChangeAmount — игрок=1, ресурс=Gold, сумма=15, multiplier=1, decrease=true, calledByServer=true.
+23:23:50.015 [Log] [MatchManager] Спавн волны команды 1 (player=1): цель=CentralPoint, точка спавна=(68.63, 0.00, 122.00).
+23:23:50.020 [Log] [MatchManager] Волна команды 1: заспавнено 3 юнитов.
+23:23:54.494 [Log] [MatchManager] Точка атаки команды 0 изменилась → CentralPoint.
+23:23:54.494 [Log] [MatchManager] АТАКА: команда 0 (player=0), юнитов=3, цель=CentralPoint, режим=сервер(FormationMarch).
+23:23:59.398 [Log] [MatchManager] Точка атаки команды 1 изменилась → CentralPoint.
+23:23:59.398 [Log] [MatchManager] АТАКА: команда 1 (player=1), юнитов=3, цель=CentralPoint, режим=сервер(FormationMarch).
+23:23:59.900 [Log] [MatchManager] ЗАЩИТА: команда 1 (player=1), юнитов=3, точка=DefPointA2.
+23:24:00.000 [Log] [MatchManager] Волна #2 — спавним обе команды.
+23:24:00.000 [Log] [MatchManager] Команда 0: ChangeAmount — игрок=0, ресурс=Gold, сумма=15, multiplier=1, decrease=true, calledByServer=true.
+23:24:00.000 [Log] [MatchManager] Спавн волны команды 0 (player=0): цель=CentralPoint, точка спавна=(67.42, 0.00, 7.85).
+23:24:00.002 [Log] [MatchManager] Волна команды 0: заспавнено 3 юнитов.
+23:24:00.003 [Log] [MatchManager] АТАКА: команда 0 (player=0), юнитов=6, цель=CentralPoint, режим=сервер(FormationMarch).
+23:24:00.004 [Log] [MatchManager] Команда 1: ChangeAmount — игрок=1, ресурс=Gold, сумма=15, multiplier=1, decrease=true, calledByServer=true.
+23:24:00.004 [Log] [MatchManager] Спавн волны команды 1 (player=1): цель=CentralPoint, точка спавна=(68.63, 0.00, 122.00).
+23:24:00.007 [Log] [MatchManager] Волна команды 1: заспавнено 3 юнитов.
+23:24:02.836 [Log] [MatchManager] ЗАЩИТА: команда 1 (player=1), юнитов=6, точка=DefPointA2.
+23:24:04.601 [Exception] NullReferenceException: Object reference not set to an instance of an object
+StrategyCore.Unit.TargetReferenceChange (StrategyCore.Unit newTarget) (at <f3417296e33d46b1921487a76461bbe9>:0)
+StrategyCore.Unit.Die (System.Int32 playerThatKills, StrategyCore.Unit unitThatKills, System.Boolean rewards, System.Boolean calledByServer, System.Boolean destroy) (at <f3417296e33d46b1921487a76461bbe9>:0)
+StrategyCore.Unit.GetDamage (System.Single amount, StrategyCore.DamageType damageType, System.Int32 attackingPlayer, StrategyCore.Unit attackingUnit, System.Boolean directAttack, System.Single& damageDealt) (at <f3417296e33d46b1921487a76461bbe9>:0)
+StrategyCore.Unit.DealDamage (StrategyCore.Unit targetUnit, System.Single amount, StrategyCore.DamageType damageType, System.Boolean directAttack, UnityEngine.Vector3 attackPosition) (at <f3417296e33d46b1921487a76461bbe9>:0)
+StrategyCore.Projectile.Damage (StrategyCore.Unit targetUnit, System.Single amount, StrategyCore.DamageType damageType) (at <f3417296e33d46b1921487a76461bbe9>:0)
+StrategyCore.Projectile.Update () (at <f3417296e33d46b1921487a76461bbe9>:0)
+23:24:05.406 [Log] [MatchManager] АТАКА: команда 1 (player=1), юнитов=6, цель=CentralPoint, режим=сервер(FormationMarch).
+23:24:07.407 [Log] [MatchManager] ЗАЩИТА: команда 1 (player=1), юнитов=6, точка=DefPointA2.
+23:24:07.844 [Log] [MatchManager] Юнит погиб: Footman(Clone) (команда 1, player=1).
+23:24:09.010 [Log] [MatchManager] Юнит погиб: Footman(Clone) (команда 1, player=1).
+23:24:10.012 [Log] [MatchManager] Волна #3 — спавним обе команды.
+23:24:10.013 [Log] [MatchManager] Команда 0: ChangeAmount — игрок=0, ресурс=Gold, сумма=15, multiplier=1, decrease=true, calledByServer=true.
+23:24:10.013 [Log] [MatchManager] Спавн волны команды 0 (player=0): цель=CentralPoint, точка спавна=(67.42, 0.00, 7.85).
+23:24:10.018 [Log] [MatchManager] Волна команды 0: заспавнено 3 юнитов.
+23:24:10.018 [Log] [MatchManager] АТАКА: команда 0 (player=0), юнитов=9, цель=CentralPoint, режим=сервер(FormationMarch).
+23:24:10.019 [Log] [MatchManager] Команда 1: ChangeAmount — игрок=1, ресурс=Gold, сумма=15, multiplier=1, decrease=true, calledByServer=true.
+23:24:10.019 [Log] [MatchManager] Спавн волны команды 1 (player=1): цель=CentralPoint, точка спавна=(68.63, 0.00, 122.00).
+23:24:10.023 [Log] [MatchManager] Волна команды 1: заспавнено 3 юнитов.
+23:24:11.281 [Log] [MatchManager] ЗАЩИТА: команда 0 (player=0), юнитов=9, точка=DefPointB2.
+23:24:15.729 [Log] [MatchManager] Юнит погиб: Footman(Clone) (команда 0, player=0).
+23:24:20.043 [Log] [MatchManager] Волна #4 — спавним обе команды.
+23:24:20.043 [Log] [MatchManager] Команда 0: ChangeAmount — игрок=0, ресурс=Gold, сумма=15, multiplier=1, decrease=true, calledByServer=true.
+23:24:20.043 [Log] [MatchManager] Спавн волны команды 0 (player=0): цель=CentralPoint, точка спавна=(67.42, 0.00, 7.85).
+23:24:20.046 [Log] [MatchManager] Волна команды 0: заспавнено 3 юнитов.
+23:24:20.047 [Log] [MatchManager] Команда 1: ChangeAmount — игрок=1, ресурс=Gold, сумма=15, multiplier=1, decrease=true, calledByServer=true.
+23:24:20.047 [Log] [MatchManager] Спавн волны команды 1 (player=1): цель=CentralPoint, точка спавна=(68.63, 0.00, 122.00).
+23:24:20.049 [Log] [MatchManager] Волна команды 1: заспавнено 3 юнитов.
+23:24:20.076 [Log] [MatchManager] Юнит погиб: Rifleman(Clone) (команда 1, player=1).
+23:24:20.842 [Log] [MatchManager] Юнит погиб: Footman(Clone) (команда 1, player=1).
+23:24:24.749 [Log] [MatchManager] Юнит погиб: Footman(Clone) (команда 0, player=0).
+23:24:30.058 [Log] [MatchManager] Волна #5 — спавним обе команды.
+23:24:30.059 [Warning] [MatchManager] Команда 0: лидерство волны (6) не влезает в кап карты — волна пропущена.
+23:24:30.059 [Log] [MatchManager] Команда 1: ChangeAmount — игрок=1, ресурс=Gold, сумма=15, multiplier=1, decrease=true, calledByServer=true.
+23:24:30.059 [Log] [MatchManager] Спавн волны команды 1 (player=1): цель=CentralPoint, точка спавна=(68.63, 0.00, 122.00).
+23:24:30.065 [Log] [MatchManager] Волна команды 1: заспавнено 3 юнитов.
+23:24:30.090 [Log] [MatchManager] Юнит погиб: Footman(Clone) (команда 1, player=1).
+23:24:34.235 [Log] [MatchManager] УНИЧТОЖЕНА БАШНЯ: CannonTowerEnemy2 (owner=1, убийца player=0, юнит=Rifleman(Clone)).
+23:24:34.236 [Log] [MatchManager] Точка DefPointB2 захвачена: команда 1 → 0.
+23:24:34.236 [Log] [MatchManager] ЗАХВАТ DefPointB2 (ID=17220): towerAlive=False, currentTeam=0. NextAttackTarget(team=0) = (67.67, 63.48)
+23:24:34.238 [Log] [MatchManager] Lane-точки для team=0: [0]CastlePointA(ID=17230) team=0 towerAlive=True type=Castle ownedByAttacker=True, [1]DefPointA1(ID=17236) team=0 towerAlive=True type=Defence1 ownedByAttacker=True, [2]DefPointA2(ID=17238) team=0 towerAlive=True type=Defence2 ownedByAttacker=True, [3]CentralPoint(ID=17232) team=-1 towerAlive=True type=Centre ownedByAttacker=False, [4]DefPointB2(ID=17220) team=0 towerAlive=False type=Defence2 ownedByAttacker=True, [5]DefPointB1(ID=17210) team=1 towerAlive=True type=Defence1 ownedByAttacker=False, [6]CastlePointB(ID=17224) team=1 towerAlive=True type=Castle ownedByAttacker=False
+23:24:34.239 [Log] [MatchManager] RefreshTargetPoints: точка защиты команды 0 → DefPointB1.
+23:24:34.239 [Log] [MatchManager] Следующие цели команды 0: атака=CentralPoint, защита=DefPointB1.
+23:24:34.239 [Log] [MatchManager] Следующие цели команды 1: атака=CentralPoint, защита=DefPointA2.
+23:24:34.239 [Log] [MatchManager] ЗАЩИТА: команда 0 (player=0), юнитов=10, точка=DefPointB1.
+23:24:34.239 [Log] [MatchManager] ЗАЩИТА: команда 1 (player=1), юнитов=10, точка=DefPointA2.
+23:24:35.068 [Log] [MatchManager] Юнит погиб: Footman(Clone) (команда 1, player=1).
+23:24:38.075 [Log] [MatchManager] Юнит погиб: Rifleman(Clone) (команда 1, player=1).
+23:24:40.076 [Log] [MatchManager] Юнит погиб: Rifleman(Clone) (команда 1, player=1).
+23:24:40.078 [Log] [MatchManager] Волна #6 — спавним обе команды.
+23:24:40.079 [Warning] [MatchManager] Команда 0: лидерство волны (6) не влезает в кап карты — волна пропущена.
+23:24:40.079 [Log] [MatchManager] Команда 1: ChangeAmount — игрок=1, ресурс=Gold, сумма=15, multiplier=1, decrease=true, calledByServer=true.
+23:24:40.079 [Log] [MatchManager] Спавн волны команды 1 (player=1): цель=CentralPoint, точка спавна=(68.63, 0.00, 122.00).
+23:24:40.085 [Log] [MatchManager] Волна команды 1: заспавнено 3 юнитов.
+23:24:40.879 [Log] [MatchManager] Юнит погиб: Footman(Clone) (команда 1, player=1).
+23:24:41.878 [Log] [MatchManager] Юнит погиб: Footman(Clone) (команда 1, player=1).
+23:24:42.412 [Log] [MatchManager] Юнит погиб: Rifleman(Clone) (команда 0, player=0).
+23:24:44.882 [Log] [MatchManager] Юнит погиб: Footman(Clone) (команда 1, player=1).
+23:24:46.354 [Log] [MatchManager] Юнит погиб: Rifleman(Clone) (команда 0, player=0).
+23:24:47.355 [Log] [MatchManager] Юнит погиб: Rifleman(Clone) (команда 0, player=0).
+23:24:47.890 [Log] [MatchManager] Юнит погиб: Footman(Clone) (команда 1, player=1).
+23:24:49.359 [Log] [MatchManager] Юнит погиб: Rifleman(Clone) (команда 0, player=0).
+23:24:50.091 [Log] [MatchManager] Волна #7 — спавним обе команды.
+23:24:50.091 [Log] [MatchManager] Команда 0: ChangeAmount — игрок=0, ресурс=Gold, сумма=15, multiplier=1, decrease=true, calledByServer=true.
+23:24:50.091 [Log] [MatchManager] Спавн волны команды 0 (player=0): цель=CentralPoint, точка спавна=(67.42, 0.00, 7.85).
+23:24:50.093 [Log] [MatchManager] Волна команды 0: заспавнено 3 юнитов.
+23:24:50.093 [Log] [MatchManager] Команда 1: ChangeAmount — игрок=1, ресурс=Gold, сумма=15, multiplier=1, decrease=true, calledByServer=true.
+23:24:50.093 [Log] [MatchManager] Спавн волны команды 1 (player=1): цель=CentralPoint, точка спавна=(68.63, 0.00, 122.00).
+23:24:50.094 [Log] [MatchManager] Волна команды 1: заспавнено 3 юнитов.
+23:24:50.896 [Log] [MatchManager] Юнит погиб: Rifleman(Clone) (команда 1, player=1).
+23:24:50.898 [Log] [MatchManager] Юнит погиб: Footman(Clone) (команда 1, player=1).
+23:24:51.762 [Log] [MatchManager] УНИЧТОЖЕНА БАШНЯ: CannonTowerOwn2 (owner=0, убийца player=1, юнит=Rifleman(Clone)).
+23:24:51.763 [Log] [MatchManager] Точка DefPointA2 захвачена: команда 0 → 1.
+23:24:51.763 [Log] [MatchManager] ЗАХВАТ DefPointA2 (ID=17238): towerAlive=False, currentTeam=1. NextAttackTarget(team=1) = (67.67, 63.48)
+23:24:51.764 [Log] [MatchManager] Lane-точки для team=1: [0]CastlePointA(ID=17230) team=0 towerAlive=True type=Castle ownedByAttacker=False, [1]DefPointA1(ID=17236) team=0 towerAlive=True type=Defence1 ownedByAttacker=False, [2]DefPointA2(ID=17238) team=1 towerAlive=False type=Defence2 ownedByAttacker=True, [3]CentralPoint(ID=17232) team=-1 towerAlive=True type=Centre ownedByAttacker=False, [4]DefPointB2(ID=17220) team=0 towerAlive=False type=Defence2 ownedByAttacker=False, [5]DefPointB1(ID=17210) team=1 towerAlive=True type=Defence1 ownedByAttacker=True, [6]CastlePointB(ID=17224) team=1 towerAlive=True type=Castle ownedByAttacker=True
+23:24:51.764 [Log] [MatchManager] RefreshTargetPoints: точка защиты команды 1 → DefPointA1.
+23:24:51.765 [Log] [MatchManager] Следующие цели команды 0: атака=CentralPoint, защита=DefPointB1.
+23:24:51.765 [Log] [MatchManager] Следующие цели команды 1: атака=CentralPoint, защита=DefPointA1.
+23:24:51.766 [Log] [MatchManager] ЗАЩИТА: команда 0 (player=0), юнитов=9, точка=DefPointB1.
+23:24:51.766 [Log] [MatchManager] ЗАЩИТА: команда 1 (player=1), юнитов=7, точка=DefPointA1.
+23:24:52.163 [Log] [MatchManager] УНИЧТОЖЕНА БАШНЯ: CannonTowerEnemy1 (owner=1, убийца player=0, юнит=Rifleman(Clone)).
+23:24:52.163 [Log] [MatchManager] Точка DefPointB1 захвачена: команда 1 → 0.
+23:24:52.163 [Log] [MatchManager] ЗАХВАТ DefPointB1 (ID=17210): towerAlive=False, currentTeam=0. NextAttackTarget(team=0) = (67.67, 63.48)
+23:24:52.164 [Log] [MatchManager] Lane-точки для team=0: [0]CastlePointA(ID=17230) team=0 towerAlive=True type=Castle ownedByAttacker=True, [1]DefPointA1(ID=17236) team=0 towerAlive=True type=Defence1 ownedByAttacker=True, [2]DefPointA2(ID=17238) team=1 towerAlive=False type=Defence2 ownedByAttacker=False, [3]CentralPoint(ID=17232) team=-1 towerAlive=True type=Centre ownedByAttacker=False, [4]DefPointB2(ID=17220) team=0 towerAlive=False type=Defence2 ownedByAttacker=True, [5]DefPointB1(ID=17210) team=0 towerAlive=False type=Defence1 ownedByAttacker=True, [6]CastlePointB(ID=17224) team=1 towerAlive=True type=Castle ownedByAttacker=False
+23:24:52.164 [Log] [MatchManager] RefreshTargetPoints: точка защиты команды 0 → CastlePointB.
+23:24:52.165 [Log] [MatchManager] Следующие цели команды 0: атака=CentralPoint, защита=CastlePointB.
+23:24:52.165 [Log] [MatchManager] Следующие цели команды 1: атака=CentralPoint, защита=DefPointA1.
+23:24:52.165 [Log] [MatchManager] ЗАЩИТА: команда 0 (player=0), юнитов=9, точка=CastlePointB.
+23:24:52.166 [Log] [MatchManager] ЗАЩИТА: команда 1 (player=1), юнитов=7, точка=DefPointA1.
+23:24:58.677 [Log] [MatchManager] Юнит погиб: Rifleman(Clone) (команда 1, player=1).
+23:25:00.108 [Log] [MatchManager] Волна #8 — спавним обе команды.
+23:25:00.110 [Log] [MatchManager] Команда 0: ChangeAmount — игрок=0, ресурс=Gold, сумма=15, multiplier=1, decrease=true, calledByServer=true.
+23:25:00.110 [Log] [MatchManager] Спавн волны команды 0 (player=0): цель=CentralPoint, точка спавна=(67.42, 0.00, 7.85).
+23:25:00.113 [Log] [MatchManager] Волна команды 0: заспавнено 3 юнитов.
+23:25:00.113 [Log] [MatchManager] Команда 1: ChangeAmount — игрок=1, ресурс=Gold, сумма=15, multiplier=1, decrease=true, calledByServer=true.
+23:25:00.113 [Log] [MatchManager] Спавн волны команды 1 (player=1): цель=CentralPoint, точка спавна=(68.63, 0.00, 122.00).
+23:25:00.114 [Log] [MatchManager] Волна команды 1: заспавнено 3 юнитов.
+23:25:00.378 [Log] [MatchManager] Юнит погиб: Footman(Clone) (команда 1, player=1).
+23:25:00.676 [Log] [MatchManager] Юнит погиб: Rifleman(Clone) (команда 1, player=1).
+23:25:01.445 [Log] [MatchManager] Юнит погиб: Footman(Clone) (команда 1, player=1).
+23:25:03.883 [Log] [MatchManager] Юнит погиб: Footman(Clone) (команда 1, player=1).
+=== end 2026-06-26 23:25:06 ===

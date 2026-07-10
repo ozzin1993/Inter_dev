@@ -1,0 +1,84 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6eab1036be064544e8420029828dc5cd, type: 3}
+  m_Name: Faction_Orki
+  m_EditorClassIdentifier: Assembly-CSharp::StrategyCore.FactionConfig
+  waveComposition:
+  - unitToSpawn: {fileID: 4548537984079817803, guid: 67eb1d6915a06f14fa7dee809b513b89, type: 3}
+    count: 2
+  - unitToSpawn: {fileID: 1165191979987236916, guid: 6abb21b4aa690ca46b87b1786802067d, type: 3}
+    count: 2
+  availableWaveUnits:
+  - {fileID: 4548537984079817803, guid: 67eb1d6915a06f14fa7dee809b513b89, type: 3}
+  - {fileID: 1165191979987236916, guid: 6abb21b4aa690ca46b87b1786802067d, type: 3}
+  centralAbilities:
+  - {fileID: 11400000, guid: bdf892467984a874a8e50900105520d6, type: 2}
+  - {fileID: 11400000, guid: cd52d4d6dbb0159499b71362b041352d, type: 2}
+  - {fileID: 11400000, guid: 7237120f64d53684ea0ad9b7d723e192, type: 2}
+  heroPrefab: {fileID: 1165191979987236916, guid: ffc8b98f7a08c5e40aca087b28870076, type: 3}
+  techBranches:
+  - levels:
+    - technology: {fileID: 11400000, guid: de4113767a3571c49993468754a11d99, type: 2}
+      icon: {fileID: 0}
+      cost:
+      - type: {fileID: 11400000, guid: dfacb690ca8bd7f41b614f3280cdaf0c, type: 2}
+        value: 100
+    - technology: {fileID: 11400000, guid: bfa755be8ac1be946baacc072e884cfb, type: 2}
+      icon: {fileID: 0}
+      cost:
+      - type: {fileID: 11400000, guid: dfacb690ca8bd7f41b614f3280cdaf0c, type: 2}
+        value: 100
+    - technology: {fileID: 11400000, guid: 2aa40475d29544c4888f47de3175dd82, type: 2}
+      icon: {fileID: 0}
+      cost:
+      - type: {fileID: 11400000, guid: dfacb690ca8bd7f41b614f3280cdaf0c, type: 2}
+        value: 100
+  - levels:
+    - technology: {fileID: 11400000, guid: 90a6eaa0f197308418328ee0c83e0367, type: 2}
+      icon: {fileID: 0}
+      cost:
+      - type: {fileID: 11400000, guid: dfacb690ca8bd7f41b614f3280cdaf0c, type: 2}
+        value: 100
+  - levels:
+    - technology: {fileID: 11400000, guid: 706d52d2e7927d846921e3ecb391085a, type: 2}
+      icon: {fileID: 0}
+      cost:
+      - type: {fileID: 11400000, guid: dfacb690ca8bd7f41b614f3280cdaf0c, type: 2}
+        value: 100
+  mainBuildingUpgradeCosts:
+  - cost:
+    - type: {fileID: 11400000, guid: dfacb690ca8bd7f41b614f3280cdaf0c, type: 2}
+      value: 100
+  - cost:
+    - type: {fileID: 11400000, guid: dfacb690ca8bd7f41b614f3280cdaf0c, type: 2}
+      value: 100
+  - cost:
+    - type: {fileID: 11400000, guid: dfacb690ca8bd7f41b614f3280cdaf0c, type: 2}
+      value: 100
+  mainBuildingLevelTechs: []
+  centreTower: {fileID: 1949225473786359498, guid: a3f868054cba2804a9d217e3d6c684e0, type: 3}
+  defence1Tower: {fileID: 6802366058098623906, guid: 0d1477cd7c1d4f74dbe5a70a84988de4, type: 3}
+  defence2Tower: {fileID: 6802366058098623906, guid: 0d1477cd7c1d4f74dbe5a70a84988de4, type: 3}
+  contentUnlockRules:
+  - requirement:
+      tech: {fileID: 0}
+      mainBuildingLevel: 1
+    addAvailableUnits: []
+    removeAvailableUnits: []
+    unitSwaps:
+    - from: {fileID: 4548537984079817803, guid: 67eb1d6915a06f14fa7dee809b513b89, type: 3}
+      to: {fileID: 1165191979987236916, guid: ffc8b98f7a08c5e40aca087b28870076, type: 3}
+    towerSwaps: []
+    showCentralAbilities: []
+    hideCentralAbilities: []
+  gravePrefab: {fileID: 0}
+  graveLifetime: 30

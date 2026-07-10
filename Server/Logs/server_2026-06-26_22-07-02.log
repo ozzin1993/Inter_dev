@@ -1,0 +1,74 @@
+=== Interflow server log === start 2026-06-26 22:07:02 ===
+unityVersion=6000.4.7f1 platform=WindowsServer headless=True args=D:\Interflow\Interflow\Server\Interflow.exe -batchmode -nographics -logFile -
+22:07:02.415 [Log] [ServerBootstrap] Start: headless=True, gfx=Null, batchmode=True, автозапуск=True, injectMenuButton=True.
+22:07:02.602 [Log] [ServerBootstrap] Сервер запущен (StartServer). Ожидание игроков: 2.
+22:07:27.558 [Log] Approved: joined Player0, 1 at slot 0
+22:07:32.397 [Log] Approved: joined Player01, 2 at slot 1
+22:07:32.566 [Log] [ServerBootstrap] Набралось игроков (2) — старт матча.
+22:07:32.806 [Warning] No mesh data available for mesh ArrowPlane on particle system Arrow. Make sure Read/Write Enabled is set in the importer to work on the particle system renderer
+22:07:32.807 [Warning] No mesh data available for mesh ArrowPlane on particle system Arrow. Make sure Read/Write Enabled is set in the importer to work on the particle system renderer
+22:07:32.837 [Warning] No mesh data available for mesh ArrowPlane on particle system Arrow. Make sure Read/Write Enabled is set in the importer to work on the particle system renderer
+22:07:32.874 [Warning] No mesh data available for mesh ArrowPlane on particle system Arrow. Make sure Read/Write Enabled is set in the importer to work on the particle system renderer
+22:07:32.876 [Warning] No mesh data available for mesh ArrowPlane on particle system Arrow. Make sure Read/Write Enabled is set in the importer to work on the particle system renderer
+22:07:32.908 [Warning] No mesh data available for mesh ArrowPlane on particle system Arrow. Make sure Read/Write Enabled is set in the importer to work on the particle system renderer
+22:07:33.170 [Warning] The referenced script (Unknown) on this Behaviour is missing!
+22:07:33.170 [Warning] The referenced script on this Behaviour (Game Object '<null>') is missing!
+22:07:33.172 [Error] A scripted object (script unknown or not yet loaded) has a different serialization layout when loading. (Read 40 bytes but expected 140 bytes)
+Did you #if UNITY_EDITOR a section of your serialized properties in any of your scripts?
+22:07:33.924 [Log] [MatchManager] Точка DefPointA2: towerPrefab не назначен — захват без отстройки (OK для Defence-точек).
+22:07:33.929 [Log] [MatchManager] Точка DefPointA1: towerPrefab не назначен — захват без отстройки (OK для Defence-точек).
+22:07:33.929 [Log] [MatchManager] Точка DefPointB2: towerPrefab не назначен — захват без отстройки (OK для Defence-точек).
+22:07:33.931 [Log] [MatchManager] Точка DefPointB1: towerPrefab не назначен — захват без отстройки (OK для Defence-точек).
+22:07:33.932 [Warning] [MatchManager] GameManager.specificUnitsDead не настроен — победа по уничтожению базы не сработает. Задайте NetID баз и winningTeam в Inspector у GameManager.
+22:07:33.933 [Log] [MatchManager] Подписка на смерть башни CentralTower.
+22:07:33.933 [Log] [MatchManager] Подписка на смерть башни CannonTowerOwn2.
+22:07:33.933 [Log] [MatchManager] Подписка на смерть башни CannonTowerOwn1.
+22:07:33.933 [Log] [MatchManager] Подписка на смерть башни CannonTowerEnemy2.
+22:07:33.933 [Log] [MatchManager] Подписка на смерть башни CannonTowerEnemy1.
+22:07:35.461 [Log] [MatchManager] Матч начался — запускаем волны.
+22:07:35.473 [Log] [MatchManager] Ожидаем первую волну 5 сек.
+22:07:36.392 [Log] [MatchManager] Точка защиты команды 1 изменилась → DefPointB2.
+22:07:36.393 [Log] [MatchManager] ЗАЩИТА: команда 1 (player=1), юнитов=0, точка=DefPointB2.
+22:07:37.232 [Log] [MatchManager] Точка защиты команды 0 изменилась → DefPointA2.
+22:07:37.237 [Log] [MatchManager] ЗАЩИТА: команда 0 (player=0), юнитов=0, точка=DefPointA2.
+22:07:40.346 [Log] [MatchManager] Волна #1 — спавним обе команды.
+22:07:40.358 [Log] [MatchManager] Команда 0: ChangeAmount — игрок=0, ресурс=Gold, сумма=15, multiplier=1, decrease=true, calledByServer=true.
+22:07:40.383 [Log] [MatchManager] Спавн волны команды 0 (player=0): цель=CentralPoint, точка спавна=(67.42, 0.00, 7.85).
+22:07:40.468 [Log] [MatchManager] Волна команды 0: заспавнено 3 юнитов.
+22:07:40.480 [Log] [MatchManager] Команда 1: ChangeAmount — игрок=1, ресурс=Gold, сумма=15, multiplier=1, decrease=true, calledByServer=true.
+22:07:40.485 [Log] [MatchManager] Спавн волны команды 1 (player=1): цель=CentralPoint, точка спавна=(68.63, 0.00, 122.00).
+22:07:40.496 [Log] [MatchManager] Волна команды 1: заспавнено 3 юнитов.
+22:07:46.413 [Warning] [WaveComposition] Запрос отклонён owner-гейтом: team=0, sender=1, ownerPlayer=0.
+22:07:46.580 [Warning] [WaveComposition] Запрос отклонён owner-гейтом: team=0, sender=1, ownerPlayer=0.
+22:07:46.725 [Warning] [WaveComposition] Запрос отклонён owner-гейтом: team=0, sender=1, ownerPlayer=0.
+22:07:50.371 [Log] [MatchManager] Волна #2 — спавним обе команды.
+22:07:50.374 [Log] [MatchManager] Команда 1: ChangeAmount — игрок=1, ресурс=Gold, сумма=15, multiplier=1, decrease=true, calledByServer=true.
+22:07:50.382 [Log] [MatchManager] Спавн волны команды 1 (player=1): цель=CentralPoint, точка спавна=(68.63, 0.00, 122.00).
+22:07:50.397 [Log] [MatchManager] Волна команды 1: заспавнено 3 юнитов.
+22:08:00.371 [Log] [MatchManager] Волна #3 — спавним обе команды.
+22:08:00.374 [Log] [MatchManager] Команда 1: ChangeAmount — игрок=1, ресурс=Gold, сумма=15, multiplier=1, decrease=true, calledByServer=true.
+22:08:00.381 [Log] [MatchManager] Спавн волны команды 1 (player=1): цель=CentralPoint, точка спавна=(68.63, 0.00, 122.00).
+22:08:00.410 [Log] [MatchManager] Волна команды 1: заспавнено 3 юнитов.
+22:08:10.375 [Log] [MatchManager] Волна #4 — спавним обе команды.
+22:08:10.377 [Log] [MatchManager] Команда 1: ChangeAmount — игрок=1, ресурс=Gold, сумма=15, multiplier=1, decrease=true, calledByServer=true.
+22:08:10.377 [Log] [MatchManager] Спавн волны команды 1 (player=1): цель=CentralPoint, точка спавна=(68.63, 0.00, 122.00).
+22:08:10.387 [Log] [MatchManager] Волна команды 1: заспавнено 3 юнитов.
+22:08:11.935 [Warning] [WaveComposition] Запрос отклонён owner-гейтом: team=0, sender=1, ownerPlayer=0.
+22:08:12.106 [Warning] [WaveComposition] Запрос отклонён owner-гейтом: team=0, sender=1, ownerPlayer=0.
+22:08:12.241 [Warning] [WaveComposition] Запрос отклонён owner-гейтом: team=0, sender=1, ownerPlayer=0.
+22:08:12.841 [Warning] [WaveComposition] Запрос отклонён owner-гейтом: team=0, sender=1, ownerPlayer=0.
+22:08:13.018 [Warning] [WaveComposition] Запрос отклонён owner-гейтом: team=0, sender=1, ownerPlayer=0.
+22:08:13.159 [Warning] [WaveComposition] Запрос отклонён owner-гейтом: team=0, sender=1, ownerPlayer=0.
+22:08:20.378 [Log] [MatchManager] Волна #5 — спавним обе команды.
+22:08:20.384 [Warning] [MatchManager] Команда 1: лидерство волны (6) не влезает в кап карты — волна пропущена.
+22:08:30.402 [Log] [MatchManager] Волна #6 — спавним обе команды.
+22:08:30.402 [Warning] [MatchManager] Команда 1: лидерство волны (6) не влезает в кап карты — волна пропущена.
+22:08:40.430 [Log] [MatchManager] Волна #7 — спавним обе команды.
+22:08:40.430 [Warning] [MatchManager] Команда 1: лидерство волны (6) не влезает в кап карты — волна пропущена.
+22:08:50.460 [Log] [MatchManager] Волна #8 — спавним обе команды.
+22:08:50.460 [Warning] [MatchManager] Команда 1: лидерство волны (6) не влезает в кап карты — волна пропущена.
+22:09:00.463 [Log] [MatchManager] Волна #9 — спавним обе команды.
+22:09:00.463 [Warning] [MatchManager] Команда 1: лидерство волны (6) не влезает в кап карты — волна пропущена.
+22:09:10.488 [Log] [MatchManager] Волна #10 — спавним обе команды.
+22:09:10.488 [Warning] [MatchManager] Команда 1: лидерство волны (6) не влезает в кап карты — волна пропущена.
+=== end 2026-06-26 22:09:15 ===

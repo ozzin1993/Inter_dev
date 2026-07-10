@@ -1,0 +1,14 @@
+fileFormatVersion: 2
+guid: 8322a254c00c5cc4ea83c283faf06209
+PrefabImporter:
+  externalObjects: {}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 292539
+  packageName: Strategy Core - Make your own RTS game
+  packageVersion: 1.05
+  assetPath: Assets/StrategyCore/VFX/Prefabs/ParticleVFX.prefab
+  uploadId: 905056

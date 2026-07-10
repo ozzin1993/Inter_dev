@@ -1,0 +1,765 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" xsi="http://www.w3.org/2001/XMLSchema-instance" engine="UnityEngine.UIElements" editor="UnityEditor.UIElements" noNamespaceSchemaLocation="../../../UIElementsSchema/UIElements.xsd" editor-extension-mode="True">
+    <Style src="project://database/Assets/StrategyCore/UI/Editor/SCEditor.uss?fileID=7433441132597879392&amp;guid=ff08a77b403c17d44a85a11d6e749572&amp;type=3#SCEditor" />
+    <ui:VisualElement name="Main" style="display: flex; background-color: rgb(32, 32, 32); color: rgb(255, 255, 255); flex-direction: row; height: 2160px; flex-shrink: 1; flex-grow: 1;">
+        <ui:VisualElement name="Categories" style="flex-grow: 0; background-color: rgb(56, 56, 56); border-right-width: 2px; border-left-color: rgb(89, 89, 89); border-right-color: rgb(89, 89, 89); border-top-color: rgb(89, 89, 89); border-bottom-color: rgb(89, 89, 89); font-size: 18px; flex-shrink: 0; width: 165px;">
+            <ui:VisualElement name="AbilitiesCat" style="flex-grow: 0; padding-top: 5px; padding-right: 10px; padding-bottom: 5px; padding-left: 5px;">
+                <ui:Label tabindex="-1" text="Abilities" parse-escape-sequences="true" display-tooltip-when-elided="true" name="CategoryName" picking-mode="Ignore" style="padding-top: 0; padding-right: 0; padding-bottom: 0; padding-left: 0; margin-top: 0; margin-right: 0; margin-bottom: 0; margin-left: 0;" />
+            </ui:VisualElement>
+            <ui:VisualElement name="ArmorTypesCat" style="flex-grow: 0; padding-top: 5px; padding-right: 10px; padding-bottom: 5px; padding-left: 5px;">
+                <ui:Label tabindex="-1" text="Armor Types" parse-escape-sequences="true" display-tooltip-when-elided="true" name="CategoryName" picking-mode="Ignore" style="padding-top: 0; padding-right: 0; padding-bottom: 0; padding-left: 0; margin-top: 0; margin-right: 0; margin-bottom: 0; margin-left: 0;" />
+            </ui:VisualElement>
+            <ui:VisualElement name="AttributesCat" style="flex-grow: 0; padding-top: 5px; padding-right: 10px; padding-bottom: 5px; padding-left: 5px;">
+                <ui:Label tabindex="-1" text="Attributes" parse-escape-sequences="true" display-tooltip-when-elided="true" name="CategoryName" picking-mode="Ignore" style="padding-top: 0; padding-right: 0; padding-bottom: 0; padding-left: 0; margin-top: 0; margin-right: 0; margin-bottom: 0; margin-left: 0;" />
+            </ui:VisualElement>
+            <ui:VisualElement name="DamageTypesCat" style="flex-grow: 0; padding-top: 5px; padding-right: 10px; padding-bottom: 5px; padding-left: 5px;">
+                <ui:Label tabindex="-1" text="Damage Types" parse-escape-sequences="true" display-tooltip-when-elided="true" name="CategoryName" picking-mode="Ignore" style="padding-top: 0; padding-right: 0; padding-bottom: 0; padding-left: 0; margin-top: 0; margin-right: 0; margin-bottom: 0; margin-left: 0;" />
+            </ui:VisualElement>
+            <ui:VisualElement name="EffectorsCat" style="flex-grow: 0; padding-top: 5px; padding-right: 10px; padding-bottom: 5px; padding-left: 5px;">
+                <ui:Label tabindex="-1" text="Effectors" parse-escape-sequences="true" display-tooltip-when-elided="true" name="CategoryName" picking-mode="Ignore" style="padding-top: 0; padding-right: 0; padding-bottom: 0; padding-left: 0; margin-top: 0; margin-right: 0; margin-bottom: 0; margin-left: 0;" />
+            </ui:VisualElement>
+            <ui:VisualElement name="ProjectilesCat" style="flex-grow: 0; padding-top: 5px; padding-right: 10px; padding-bottom: 5px; padding-left: 5px;">
+                <ui:Label tabindex="-1" text="Projectiles" parse-escape-sequences="true" display-tooltip-when-elided="true" name="CategoryName" picking-mode="Ignore" style="padding-top: 0; padding-right: 0; padding-bottom: 0; padding-left: 0; margin-top: 0; margin-right: 0; margin-bottom: 0; margin-left: 0;" />
+            </ui:VisualElement>
+            <ui:VisualElement name="ResourcesCat" style="flex-grow: 0; padding-top: 5px; padding-right: 10px; padding-bottom: 5px; padding-left: 5px;">
+                <ui:Label tabindex="-1" text="Resources" parse-escape-sequences="true" display-tooltip-when-elided="true" name="CategoryName" picking-mode="Ignore" style="padding-top: 0; padding-right: 0; padding-bottom: 0; padding-left: 0; margin-top: 0; margin-right: 0; margin-bottom: 0; margin-left: 0;" />
+            </ui:VisualElement>
+            <ui:VisualElement name="TechnologyCat" style="flex-grow: 0; padding-top: 5px; padding-right: 10px; padding-bottom: 5px; padding-left: 5px;">
+                <ui:Label tabindex="-1" text="Technology" parse-escape-sequences="true" display-tooltip-when-elided="true" name="CategoryName" picking-mode="Ignore" style="padding-top: 0; padding-right: 0; padding-bottom: 0; padding-left: 0; margin-top: 0; margin-right: 0; margin-bottom: 0; margin-left: 0;" />
+            </ui:VisualElement>
+            <ui:VisualElement name="UnitsCat" style="flex-grow: 0; padding-top: 5px; padding-right: 10px; padding-bottom: 5px; padding-left: 5px;">
+                <ui:Label tabindex="-1" text="Units" parse-escape-sequences="true" display-tooltip-when-elided="true" name="CategoryName" picking-mode="Ignore" style="padding-top: 0; padding-right: 0; padding-bottom: 0; padding-left: 0; margin-top: 0; margin-right: 0; margin-bottom: 0; margin-left: 0;" />
+            </ui:VisualElement>
+            <ui:VisualElement name="WeaponSoundsCat" style="flex-grow: 0; padding-top: 5px; padding-right: 10px; padding-bottom: 5px; padding-left: 5px;">
+                <ui:Label tabindex="-1" text="Weapon Sounds" parse-escape-sequences="true" display-tooltip-when-elided="true" name="CategoryName" picking-mode="Ignore" style="padding-top: 0; padding-right: 0; padding-bottom: 0; padding-left: 0; margin-top: 0; margin-right: 0; margin-bottom: 0; margin-left: 0;" />
+            </ui:VisualElement>
+            <ui:VisualElement name="ScenesCat" style="flex-grow: 0; padding-top: 5px; padding-right: 10px; padding-bottom: 5px; padding-left: 5px; margin-bottom: 0;">
+                <ui:Label tabindex="-1" text="Scenes" parse-escape-sequences="true" display-tooltip-when-elided="true" name="CategoryName" picking-mode="Ignore" style="padding-top: 0; padding-right: 0; padding-bottom: 0; padding-left: 0; margin-top: 0; margin-right: 0; margin-bottom: 0; margin-left: 0;" />
+            </ui:VisualElement>
+        </ui:VisualElement>
+        <ui:VisualElement name="ItemsWrapper" style="background-color: rgba(56, 56, 56, 0.69); border-left-color: rgb(89, 89, 89); border-right-color: rgb(89, 89, 89); border-top-color: rgb(89, 89, 89); border-bottom-color: rgb(89, 89, 89); border-right-width: 2px; padding-top: 0; padding-right: 0; padding-bottom: 0; padding-left: 0; font-size: 16px; flex-shrink: 0; min-width: 225px; width: 25%;">
+            <ui:VisualElement style="flex-grow: 0; flex-direction: row;">
+                <ui:Button text="+" parse-escape-sequences="true" display-tooltip-when-elided="true" name="ItemAdd" style="margin-top: 5px; margin-right: 5px; margin-bottom: 5px; margin-left: 5px; font-size: 14px; flex-grow: 1;" />
+                <ui:Button parse-escape-sequences="true" display-tooltip-when-elided="true" enable-rich-text="false" tooltip="Refresh" name="Refresh" style="background-image: url(&quot;project://database/Assets/StrategyCore/Textures/UI/shop.png?fileID=2800000&amp;guid=cba50092cdd3d2c49822f6f20709b1c2&amp;type=3#shop&quot;); -unity-slice-left: 7; -unity-slice-top: 7; -unity-slice-right: 7; -unity-slice-bottom: 7; width: 30px; padding-top: 0; padding-right: 0; padding-bottom: 0; padding-left: 0; left: -2px; height: 30px;" />
+            </ui:VisualElement>
+            <ui:Button text="Filter" parse-escape-sequences="true" display-tooltip-when-elided="true" name="Filter" style="margin-top: 5px; margin-right: 5px; margin-bottom: 5px; margin-left: 5px; font-size: 14px; flex-grow: 0; flex-shrink: 1;" />
+            <ui:VisualElement name="ItemsList" style="flex-grow: 1; padding-top: 5px; padding-right: 5px; padding-bottom: 5px; padding-left: 5px;">
+                <ui:VisualElement name="ItemEntry" style="flex-grow: 0; padding-top: 5px; padding-right: 10px; padding-bottom: 5px; padding-left: 5px; flex-direction: row;">
+                    <ui:VisualElement name="ItemIcon" style="flex-grow: 0; background-image: url(&quot;project://database/Assets/StrategyCore/Textures/Core/MissingTexture.png?fileID=2800000&amp;guid=3e50fec4e891dde488f5f20498a88c83&amp;type=3#MissingTexture&quot;); flex-shrink: 0; width: 40px; height: 40px; margin-right: 10px;" />
+                    <ui:Label tabindex="-1" text="Technology" parse-escape-sequences="true" display-tooltip-when-elided="true" name="ItemName" style="margin-top: 0; margin-right: 0; margin-bottom: 0; margin-left: 0; padding-top: 0; padding-right: 0; padding-bottom: 0; padding-left: 0;" />
+                </ui:VisualElement>
+            </ui:VisualElement>
+        </ui:VisualElement>
+        <ui:VisualElement name="AbilitiesEditor" style="padding-top: 15px; padding-right: 15px; padding-bottom: 15px; padding-left: 15px; background-color: rgba(56, 56, 56, 0.29); display: none; flex-grow: 1; flex-shrink: 1;">
+            <ui:VisualElement name="Header" style="flex-grow: 1; flex-direction: column; justify-content: space-between; font-size: 20px; width: 100%; flex-shrink: 0; flex-wrap: nowrap;">
+                <ui:VisualElement name="ItemInfo" style="flex-grow: 1; flex-direction: row; position: relative; flex-shrink: 0;">
+                    <ui:VisualElement name="ItemIcon" style="flex-grow: 0; background-image: url(&quot;project://database/Assets/StrategyCore/Textures/Core/MissingTexture.png?fileID=2800000&amp;guid=3e50fec4e891dde488f5f20498a88c83&amp;type=3#MissingTexture&quot;); flex-shrink: 0; width: 50px; height: 50px; margin-right: 15px;" />
+                    <ui:VisualElement style="flex-shrink: 1; flex-grow: 1;">
+                        <ui:Label tabindex="-1" text="ItemName" parse-escape-sequences="true" display-tooltip-when-elided="true" name="ItemName" binding-path="techName" style="margin-top: 0; margin-right: 0; margin-bottom: 0; margin-left: 0; padding-top: 0; padding-right: 0; padding-bottom: 0; padding-left: 0;" />
+                        <ui:Label tabindex="-1" text="Ability Type" parse-escape-sequences="true" display-tooltip-when-elided="true" name="ItemType" style="margin-right: 0; margin-bottom: 0; margin-left: 0; padding-top: 0; padding-right: 0; padding-bottom: 0; padding-left: 0; -unity-font-style: italic; font-size: 12px; color: rgb(217, 173, 135);" />
+                        <ui:Label tabindex="-1" text="Path to the ability" parse-escape-sequences="true" display-tooltip-when-elided="true" name="ItemPath" class="itemPath" style="margin-right: 0; margin-bottom: 0; margin-left: 0; padding-top: 0; padding-right: 0; padding-bottom: 0; padding-left: 0; -unity-font-style: italic; font-size: 12px;" />
+                    </ui:VisualElement>
+                </ui:VisualElement>
+            </ui:VisualElement>
+            <ui:ScrollView name="Content" style="margin-top: 15px; flex-shrink: 1; flex-grow: 0;">
+                <ui:VisualElement name="FileName" style="flex-grow: 0; background-color: rgb(49, 49, 49); border-top-width: 2px; border-right-width: 2px; border-bottom-width: 2px; border-left-width: 2px; border-left-color: rgb(89, 89, 89); border-right-color: rgb(89, 89, 89); border-top-color: rgb(89, 89, 89); border-bottom-color: rgb(89, 89, 89); display: flex; margin-bottom: 15px; padding-top: 8px; padding-right: 8px; padding-bottom: 8px; padding-left: 8px;">
+                    <ui:TextField picking-mode="Ignore" label="FileName" name="FileNameInput" class="filenameInput" style="margin-top: 0; margin-right: 0; margin-bottom: 0; margin-left: 0; color: rgb(255, 255, 255);" />
+                </ui:VisualElement>
+                <ui:VisualElement name="AbilityText" style="flex-grow: 0; background-color: rgb(56, 56, 56); border-top-width: 2px; border-right-width: 2px; border-bottom-width: 2px; border-left-width: 2px; border-left-color: rgb(89, 89, 89); border-right-color: rgb(89, 89, 89); border-top-color: rgb(89, 89, 89); border-bottom-color: rgb(89, 89, 89); display: flex;">
+                    <ui:Label tabindex="-1" text="Text" parse-escape-sequences="true" display-tooltip-when-elided="true" name="Header" style="font-size: 14px; padding-top: 10px; padding-right: 10px; padding-bottom: 10px; padding-left: 10px; background-color: rgb(49, 49, 49); -unity-font-style: bold;" />
+                    <ui:VisualElement name="Body" style="flex-grow: 1; padding-top: 10px; padding-right: 10px; padding-bottom: 10px; padding-left: 10px;">
+                        <uie:PropertyField binding-path="abilityName" label="Display Name" name="DisplayName" />
+                        <uie:PropertyField binding-path="description" label="Description" />
+                        <uie:PropertyField binding-path="icon" label="Icon" />
+                    </ui:VisualElement>
+                </ui:VisualElement>
+                <ui:VisualElement name="Technical" style="flex-grow: 0; background-color: rgb(56, 56, 56); border-top-width: 2px; border-right-width: 2px; border-bottom-width: 2px; border-left-width: 2px; border-left-color: rgb(89, 89, 89); border-right-color: rgb(89, 89, 89); border-top-color: rgb(89, 89, 89); border-bottom-color: rgb(89, 89, 89); margin-top: 15px; display: flex;">
+                    <ui:Label tabindex="-1" text="Technical" parse-escape-sequences="true" display-tooltip-when-elided="true" name="Header" style="font-size: 14px; padding-top: 10px; padding-right: 10px; padding-bottom: 10px; padding-left: 10px; background-color: rgb(49, 49, 49); -unity-font-style: bold;" />
+                    <ui:VisualElement name="Body" style="flex-grow: 1; padding-top: 10px; padding-right: 10px; padding-bottom: 10px; padding-left: 10px;">
+                        <uie:PropertyField binding-path="isItem" label="Is Item" name="IsItemProp" />
+                        <uie:PropertyField binding-path="slotNumber" label="Slot" view-data-key="SlotNumberProp" name="SlotNumberProp" />
+                        <ui:VisualElement name="ItemParams" style="flex-grow: 1;">
+                            <uie:PropertyField binding-path="useUponPickUp" label="Use Upon PickUp" />
+                            <uie:PropertyField binding-path="dropOnDeath" label="Drop on Death" />
+                            <uie:PropertyField binding-path="charges" label="Charges" />
+                        </ui:VisualElement>
+                    </ui:VisualElement>
+                </ui:VisualElement>
+                <ui:VisualElement name="Levels" style="flex-grow: 0; background-color: rgb(56, 56, 56); border-top-width: 2px; border-right-width: 2px; border-bottom-width: 2px; border-left-width: 2px; border-left-color: rgb(89, 89, 89); border-right-color: rgb(89, 89, 89); border-top-color: rgb(89, 89, 89); border-bottom-color: rgb(89, 89, 89); margin-top: 15px; display: flex;">
+                    <ui:Label tabindex="-1" text="Levels" parse-escape-sequences="true" display-tooltip-when-elided="true" name="Header" style="font-size: 14px; padding-top: 10px; padding-right: 10px; padding-bottom: 10px; padding-left: 10px; background-color: rgb(49, 49, 49); -unity-font-style: bold;" />
+                    <ui:VisualElement name="Body" style="flex-grow: 1; padding-top: 10px; padding-right: 10px; padding-bottom: 10px; padding-left: 10px;">
+                        <uie:PropertyField binding-path="maxLevels" label="Max Level" />
+                        <uie:PropertyField binding-path="heroLevelable" label="Hero Levelable" />
+                    </ui:VisualElement>
+                </ui:VisualElement>
+                <ui:VisualElement name="Parameters" style="flex-grow: 0; background-color: rgb(56, 56, 56); border-top-width: 2px; border-right-width: 2px; border-bottom-width: 2px; border-left-width: 2px; border-left-color: rgb(89, 89, 89); border-right-color: rgb(89, 89, 89); border-top-color: rgb(89, 89, 89); border-bottom-color: rgb(89, 89, 89); margin-top: 15px; display: flex;">
+                    <ui:Label tabindex="-1" text="Parameters" parse-escape-sequences="true" display-tooltip-when-elided="true" name="Header" style="font-size: 14px; padding-top: 10px; padding-right: 10px; padding-bottom: 10px; padding-left: 10px; background-color: rgb(49, 49, 49); -unity-font-style: bold;" />
+                    <ui:VisualElement name="Body" style="flex-grow: 1; padding-top: 10px; padding-right: 10px; padding-bottom: 10px; padding-left: 10px;">
+                        <uie:PropertyField binding-path="cooldown" label="Cooldown" />
+                        <uie:PropertyField binding-path="castRange" label="Cast Range" />
+                        <uie:PropertyField binding-path="castTime" label="Cast Time" />
+                        <uie:PropertyField binding-path="radius" label="Radius" />
+                        <uie:PropertyField binding-path="unitSelector" label="Unit Selector" />
+                        <uie:PropertyField binding-path="dontTurn" label="Don&apos;t Turn" />
+                    </ui:VisualElement>
+                </ui:VisualElement>
+                <ui:VisualElement name="Continuous" style="flex-grow: 0; background-color: rgb(56, 56, 56); border-top-width: 2px; border-right-width: 2px; border-bottom-width: 2px; border-left-width: 2px; border-left-color: rgb(89, 89, 89); border-right-color: rgb(89, 89, 89); border-top-color: rgb(89, 89, 89); border-bottom-color: rgb(89, 89, 89); margin-top: 15px; display: flex;">
+                    <ui:Label tabindex="-1" text="Continuous" parse-escape-sequences="true" display-tooltip-when-elided="true" name="Header" style="font-size: 14px; padding-top: 10px; padding-right: 10px; padding-bottom: 10px; padding-left: 10px; background-color: rgb(49, 49, 49); -unity-font-style: bold;" />
+                    <ui:VisualElement name="Body" style="flex-grow: 1; padding-top: 10px; padding-right: 10px; padding-bottom: 10px; padding-left: 10px;">
+                        <uie:PropertyField binding-path="continuous" label="Continuous" name="IsCont" />
+                        <ui:VisualElement name="ContProps" style="flex-grow: 1;">
+                            <uie:PropertyField binding-path="interruptible" label="Interruptible" />
+                            <uie:PropertyField binding-path="requiresCastingUnit" label="Requires Unit" />
+                            <uie:PropertyField binding-path="duration" label="Duration" />
+                        </ui:VisualElement>
+                    </ui:VisualElement>
+                </ui:VisualElement>
+                <ui:VisualElement name="Requirements" style="flex-grow: 0; background-color: rgb(56, 56, 56); border-top-width: 2px; border-right-width: 2px; border-bottom-width: 2px; border-left-width: 2px; border-left-color: rgb(89, 89, 89); border-right-color: rgb(89, 89, 89); border-top-color: rgb(89, 89, 89); border-bottom-color: rgb(89, 89, 89); margin-top: 15px;">
+                    <ui:Label tabindex="-1" text="Requirements" parse-escape-sequences="true" display-tooltip-when-elided="true" name="Header" style="font-size: 14px; padding-top: 10px; padding-right: 10px; padding-bottom: 10px; padding-left: 10px; background-color: rgb(49, 49, 49); -unity-font-style: bold;" />
+                    <ui:VisualElement name="Body" style="flex-grow: 1; padding-top: 10px; padding-right: 10px; padding-bottom: 10px; padding-left: 10px;">
+                        <uie:PropertyField binding-path="requiredTech" label="Required Tech" />
+                        <uie:PropertyField binding-path="requiredLevel" label="Required Level" />
+                    </ui:VisualElement>
+                </ui:VisualElement>
+                <ui:VisualElement name="Cost" style="flex-grow: 0; background-color: rgb(56, 56, 56); border-top-width: 2px; border-right-width: 2px; border-bottom-width: 2px; border-left-width: 2px; border-left-color: rgb(89, 89, 89); border-right-color: rgb(89, 89, 89); border-top-color: rgb(89, 89, 89); border-bottom-color: rgb(89, 89, 89); margin-top: 15px;">
+                    <ui:Label tabindex="-1" text="Cost" parse-escape-sequences="true" display-tooltip-when-elided="true" name="Header" style="font-size: 14px; padding-top: 10px; padding-right: 10px; padding-bottom: 10px; padding-left: 10px; background-color: rgb(49, 49, 49); -unity-font-style: bold;" />
+                    <ui:VisualElement name="Body" style="flex-grow: 1; padding-top: 10px; padding-right: 10px; padding-bottom: 10px; padding-left: 10px;">
+                        <uie:PropertyField binding-path="manaCost" label="Mana Cost" />
+                        <uie:PropertyField binding-path="manaCostPerSecond" label="Mana Cost / Second" />
+                        <uie:PropertyField binding-path="cost" label="Cost" />
+                    </ui:VisualElement>
+                </ui:VisualElement>
+                <ui:VisualElement name="AbilitySpecific" style="flex-grow: 0; background-color: rgb(56, 56, 56); border-top-width: 2px; border-right-width: 2px; border-bottom-width: 2px; border-left-width: 2px; border-left-color: rgb(89, 89, 89); border-right-color: rgb(89, 89, 89); border-top-color: rgb(89, 89, 89); border-bottom-color: rgb(89, 89, 89); margin-top: 15px;">
+                    <ui:Label tabindex="-1" text="Ability Specific" parse-escape-sequences="true" display-tooltip-when-elided="true" name="Header" style="font-size: 14px; padding-top: 10px; padding-right: 10px; padding-bottom: 10px; padding-left: 10px; background-color: rgb(49, 49, 49); -unity-font-style: bold;" />
+                    <ui:VisualElement name="Body" style="flex-grow: 1; padding-top: 10px; padding-right: 10px; padding-bottom: 10px; padding-left: 10px;" />
+                </ui:VisualElement>
+            </ui:ScrollView>
+        </ui:VisualElement>
+        <ui:VisualElement name="ArmorTypesEditor" style="padding-top: 15px; padding-right: 15px; padding-bottom: 15px; padding-left: 15px; background-color: rgba(56, 56, 56, 0.29); display: none; flex-grow: 1; flex-shrink: 1;">
+            <ui:VisualElement name="Header" style="flex-direction: column; justify-content: space-between; font-size: 20px; width: 100%; flex-shrink: 0; flex-wrap: nowrap;">
+                <ui:VisualElement name="ItemInfo" style="flex-grow: 1; flex-direction: row; position: relative; flex-shrink: 0;">
+                    <ui:VisualElement name="ItemIcon" style="flex-grow: 0; background-image: url(&quot;project://database/Assets/StrategyCore/Textures/Core/MissingTexture.png?fileID=2800000&amp;guid=3e50fec4e891dde488f5f20498a88c83&amp;type=3#MissingTexture&quot;); flex-shrink: 0; width: 50px; height: 50px; margin-right: 15px;" />
+                    <ui:VisualElement style="flex-shrink: 1; flex-grow: 1;">
+                        <ui:Label tabindex="-1" text="ItemName" parse-escape-sequences="true" display-tooltip-when-elided="true" name="ItemName" binding-path="techName" style="margin-top: 0; margin-right: 0; margin-bottom: 0; margin-left: 0; padding-top: 0; padding-right: 0; padding-bottom: 0; padding-left: 0;" />
+                        <ui:Label tabindex="-1" text="Path to the ability" parse-escape-sequences="true" display-tooltip-when-elided="true" name="ItemPath" class="itemPath" style="margin-right: 0; margin-bottom: 0; margin-left: 0; padding-top: 0; padding-right: 0; padding-bottom: 0; padding-left: 0; -unity-font-style: italic; font-size: 12px;" />
+                    </ui:VisualElement>
+                </ui:VisualElement>
+            </ui:VisualElement>
+            <ui:ScrollView name="Content" style="margin-top: 15px; flex-shrink: 1; flex-grow: 0;">
+                <ui:VisualElement name="FileName" style="flex-grow: 0; background-color: rgb(49, 49, 49); border-top-width: 2px; border-right-width: 2px; border-bottom-width: 2px; border-left-width: 2px; border-left-color: rgb(89, 89, 89); border-right-color: rgb(89, 89, 89); border-top-color: rgb(89, 89, 89); border-bottom-color: rgb(89, 89, 89); display: flex; margin-bottom: 15px; padding-top: 8px; padding-right: 8px; padding-bottom: 8px; padding-left: 8px;">
+                    <ui:TextField picking-mode="Ignore" label="FileName" name="FileNameInput" class="filenameInput" style="margin-top: 0; margin-right: 0; margin-bottom: 0; margin-left: 0; color: rgb(255, 255, 255);" />
+                </ui:VisualElement>
+                <ui:VisualElement name="Text" style="flex-grow: 0; background-color: rgb(56, 56, 56); border-top-width: 2px; border-right-width: 2px; border-bottom-width: 2px; border-left-width: 2px; border-left-color: rgb(89, 89, 89); border-right-color: rgb(89, 89, 89); border-top-color: rgb(89, 89, 89); border-bottom-color: rgb(89, 89, 89); display: flex;">
+                    <ui:Label tabindex="-1" text="Text" parse-escape-sequences="true" display-tooltip-when-elided="true" name="Header" style="font-size: 14px; padding-top: 10px; padding-right: 10px; padding-bottom: 10px; padding-left: 10px; background-color: rgb(49, 49, 49); -unity-font-style: bold;" />
+                    <ui:VisualElement name="Body" style="flex-grow: 1; padding-top: 10px; padding-right: 10px; padding-bottom: 10px; padding-left: 10px;">
+                        <ui:TextField picking-mode="Ignore" label="Display Name" binding-path="displayName" name="DisplayName" />
+                        <uie:PropertyField binding-path="icon" label="Icon" />
+                        <uie:PropertyField binding-path="description" label="Description" />
+                    </ui:VisualElement>
+                </ui:VisualElement>
+            </ui:ScrollView>
+        </ui:VisualElement>
+        <ui:VisualElement name="AttributesEditor" style="padding-top: 15px; padding-right: 15px; padding-bottom: 15px; padding-left: 15px; background-color: rgba(56, 56, 56, 0.29); display: none; flex-grow: 1; flex-shrink: 1;">
+            <ui:VisualElement name="Header" style="flex-direction: column; justify-content: space-between; font-size: 20px; width: 100%; flex-shrink: 0; flex-wrap: nowrap; height: 50px;">
+                <ui:VisualElement name="ItemInfo" style="flex-grow: 1; flex-direction: row; position: relative; flex-shrink: 0;">
+                    <ui:VisualElement name="ItemIcon" style="flex-grow: 0; background-image: url(&quot;project://database/Assets/StrategyCore/Textures/Core/MissingTexture.png?fileID=2800000&amp;guid=3e50fec4e891dde488f5f20498a88c83&amp;type=3#MissingTexture&quot;); flex-shrink: 0; width: 50px; height: 50px; margin-right: 15px;" />
+                    <ui:VisualElement style="flex-shrink: 1; flex-grow: 1;">
+                        <ui:Label tabindex="-1" text="ItemName" parse-escape-sequences="true" display-tooltip-when-elided="true" name="ItemName" binding-path="techName" style="margin-top: 0; margin-right: 0; margin-bottom: 0; margin-left: 0; padding-top: 0; padding-right: 0; padding-bottom: 0; padding-left: 0;" />
+                        <ui:Label tabindex="-1" text="Path to the ability" parse-escape-sequences="true" display-tooltip-when-elided="true" name="ItemPath" class="itemPath" style="margin-right: 0; margin-bottom: 0; margin-left: 0; padding-top: 0; padding-right: 0; padding-bottom: 0; padding-left: 0; -unity-font-style: italic; font-size: 12px;" />
+                    </ui:VisualElement>
+                </ui:VisualElement>
+            </ui:VisualElement>
+            <ui:ScrollView name="Content" style="margin-top: 15px; flex-shrink: 1; flex-grow: 0;">
+                <ui:VisualElement name="FileName" style="flex-grow: 0; background-color: rgb(49, 49, 49); border-top-width: 2px; border-right-width: 2px; border-bottom-width: 2px; border-left-width: 2px; border-left-color: rgb(89, 89, 89); border-right-color: rgb(89, 89, 89); border-top-color: rgb(89, 89, 89); border-bottom-color: rgb(89, 89, 89); display: flex; margin-bottom: 15px; padding-top: 8px; padding-right: 8px; padding-bottom: 8px; padding-left: 8px;">
+                    <ui:TextField picking-mode="Ignore" label="FileName" name="FileNameInput" class="filenameInput" style="margin-top: 0; margin-right: 0; margin-bottom: 0; margin-left: 0; color: rgb(255, 255, 255);" />
+                </ui:VisualElement>
+                <ui:VisualElement name="Text" style="flex-grow: 0; background-color: rgb(56, 56, 56); border-top-width: 2px; border-right-width: 2px; border-bottom-width: 2px; border-left-width: 2px; border-left-color: rgb(89, 89, 89); border-right-color: rgb(89, 89, 89); border-top-color: rgb(89, 89, 89); border-bottom-color: rgb(89, 89, 89); display: flex;">
+                    <ui:Label tabindex="-1" text="Text" parse-escape-sequences="true" display-tooltip-when-elided="true" name="Header" style="font-size: 14px; padding-top: 10px; padding-right: 10px; padding-bottom: 10px; padding-left: 10px; background-color: rgb(49, 49, 49); -unity-font-style: bold;" />
+                    <ui:VisualElement name="Body" style="flex-grow: 1; padding-top: 10px; padding-right: 10px; padding-bottom: 10px; padding-left: 10px;">
+                        <ui:TextField picking-mode="Ignore" label="Display Name" binding-path="displayName" name="DisplayName" />
+                        <uie:PropertyField binding-path="icon" label="Icon" />
+                        <uie:PropertyField binding-path="description" label="Description" />
+                    </ui:VisualElement>
+                </ui:VisualElement>
+                <ui:VisualElement name="AttributeParams" style="flex-grow: 0; background-color: rgb(56, 56, 56); border-top-width: 2px; border-right-width: 2px; border-bottom-width: 2px; border-left-width: 2px; border-left-color: rgb(89, 89, 89); border-right-color: rgb(89, 89, 89); border-top-color: rgb(89, 89, 89); border-bottom-color: rgb(89, 89, 89); display: flex; margin-top: 15px;">
+                    <ui:Label tabindex="-1" text="Parameters" parse-escape-sequences="true" display-tooltip-when-elided="true" name="Header" style="font-size: 14px; padding-top: 10px; padding-right: 10px; padding-bottom: 10px; padding-left: 10px; background-color: rgb(49, 49, 49); -unity-font-style: bold;" />
+                    <ui:VisualElement name="Body" style="flex-grow: 1; padding-top: 10px; padding-right: 10px; padding-bottom: 10px; padding-left: 10px;">
+                        <uie:PropertyField binding-path="passiveEffects" label="Passive Effects" />
+                    </ui:VisualElement>
+                </ui:VisualElement>
+            </ui:ScrollView>
+        </ui:VisualElement>
+        <ui:VisualElement name="DamageTypesEditor" style="padding-top: 15px; padding-right: 15px; padding-bottom: 15px; padding-left: 15px; background-color: rgba(56, 56, 56, 0.29); display: none; flex-grow: 1; flex-shrink: 1;">
+            <ui:VisualElement name="Header" style="flex-direction: column; justify-content: space-between; font-size: 20px; width: 100%; flex-shrink: 0; flex-wrap: nowrap; height: 50px;">
+                <ui:VisualElement name="ItemInfo" style="flex-grow: 1; flex-direction: row; position: relative; flex-shrink: 0;">
+                    <ui:VisualElement name="ItemIcon" style="flex-grow: 0; background-image: url(&quot;project://database/Assets/StrategyCore/Textures/Core/MissingTexture.png?fileID=2800000&amp;guid=3e50fec4e891dde488f5f20498a88c83&amp;type=3#MissingTexture&quot;); flex-shrink: 0; width: 50px; height: 50px; margin-right: 15px;" />
+                    <ui:VisualElement style="flex-shrink: 1; flex-grow: 1;">
+                        <ui:Label tabindex="-1" text="ItemName" parse-escape-sequences="true" display-tooltip-when-elided="true" name="ItemName" binding-path="techName" style="margin-top: 0; margin-right: 0; margin-bottom: 0; margin-left: 0; padding-top: 0; padding-right: 0; padding-bottom: 0; padding-left: 0;" />
+                        <ui:Label tabindex="-1" text="Path to the ability" parse-escape-sequences="true" display-tooltip-when-elided="true" name="ItemPath" class="itemPath" style="margin-right: 0; margin-bottom: 0; margin-left: 0; padding-top: 0; padding-right: 0; padding-bottom: 0; padding-left: 0; -unity-font-style: italic; font-size: 12px;" />
+                    </ui:VisualElement>
+                </ui:VisualElement>
+            </ui:VisualElement>
+            <ui:ScrollView name="Content" style="margin-top: 15px; flex-shrink: 1; flex-grow: 0;">
+                <ui:VisualElement name="FileName" style="flex-grow: 0; background-color: rgb(49, 49, 49); border-top-width: 2px; border-right-width: 2px; border-bottom-width: 2px; border-left-width: 2px; border-left-color: rgb(89, 89, 89); border-right-color: rgb(89, 89, 89); border-top-color: rgb(89, 89, 89); border-bottom-color: rgb(89, 89, 89); display: flex; margin-bottom: 15px; padding-top: 8px; padding-right: 8px; padding-bottom: 8px; padding-left: 8px;">
+                    <ui:TextField picking-mode="Ignore" label="FileName" name="FileNameInput" class="filenameInput" style="margin-top: 0; margin-right: 0; margin-bottom: 0; margin-left: 0; color: rgb(255, 255, 255);" />
+                </ui:VisualElement>
+                <ui:VisualElement name="Text" style="flex-grow: 0; background-color: rgb(56, 56, 56); border-top-width: 2px; border-right-width: 2px; border-bottom-width: 2px; border-left-width: 2px; border-left-color: rgb(89, 89, 89); border-right-color: rgb(89, 89, 89); border-top-color: rgb(89, 89, 89); border-bottom-color: rgb(89, 89, 89); display: flex;">
+                    <ui:Label tabindex="-1" text="Text" parse-escape-sequences="true" display-tooltip-when-elided="true" name="Header" style="font-size: 14px; padding-top: 10px; padding-right: 10px; padding-bottom: 10px; padding-left: 10px; background-color: rgb(49, 49, 49); -unity-font-style: bold;" />
+                    <ui:VisualElement name="Body" style="flex-grow: 1; padding-top: 10px; padding-right: 10px; padding-bottom: 10px; padding-left: 10px;">
+                        <ui:TextField picking-mode="Ignore" label="Display Name" binding-path="displayName" name="DisplayName" />
+                        <uie:PropertyField binding-path="icon" label="Icon" />
+                        <uie:PropertyField binding-path="description" label="Description" />
+                    </ui:VisualElement>
+                </ui:VisualElement>
+                <ui:VisualElement name="Effectivness" style="flex-grow: 0; background-color: rgb(56, 56, 56); border-top-width: 2px; border-right-width: 2px; border-bottom-width: 2px; border-left-width: 2px; border-left-color: rgb(89, 89, 89); border-right-color: rgb(89, 89, 89); border-top-color: rgb(89, 89, 89); border-bottom-color: rgb(89, 89, 89); display: flex; margin-top: 15px;">
+                    <ui:Label tabindex="-1" text="Effectivness" parse-escape-sequences="true" display-tooltip-when-elided="true" name="Header" style="font-size: 14px; padding-top: 10px; padding-right: 10px; padding-bottom: 10px; padding-left: 10px; background-color: rgb(49, 49, 49); -unity-font-style: bold;" />
+                    <ui:VisualElement name="Body" style="flex-grow: 1; padding-top: 10px; padding-right: 10px; padding-bottom: 10px; padding-left: 10px;">
+                        <uie:PropertyField binding-path="damageEffectivness" label="Damage Effectivness" />
+                    </ui:VisualElement>
+                </ui:VisualElement>
+            </ui:ScrollView>
+        </ui:VisualElement>
+        <ui:VisualElement name="EffectorsEditor" style="padding-top: 15px; padding-right: 15px; padding-bottom: 15px; padding-left: 15px; background-color: rgba(56, 56, 56, 0.29); display: none; flex-grow: 1; flex-shrink: 1;">
+            <ui:VisualElement name="Header" style="flex-direction: column; justify-content: space-between; font-size: 20px; width: 100%; flex-shrink: 0; flex-wrap: nowrap; height: 50px;">
+                <ui:VisualElement name="ItemInfo" style="flex-grow: 1; flex-direction: row; position: relative; flex-shrink: 0;">
+                    <ui:VisualElement name="ItemIcon" style="flex-grow: 0; background-image: url(&quot;project://database/Assets/StrategyCore/Textures/Core/MissingTexture.png?fileID=2800000&amp;guid=3e50fec4e891dde488f5f20498a88c83&amp;type=3#MissingTexture&quot;); flex-shrink: 0; width: 50px; height: 50px; margin-right: 15px;" />
+                    <ui:VisualElement style="flex-shrink: 1; flex-grow: 1;">
+                        <ui:Label tabindex="-1" text="ItemName" parse-escape-sequences="true" display-tooltip-when-elided="true" name="ItemName" binding-path="techName" style="margin-top: 0; margin-right: 0; margin-bottom: 0; margin-left: 0; padding-top: 0; padding-right: 0; padding-bottom: 0; padding-left: 0;" />
+                        <ui:Label tabindex="-1" text="Path to the ability" parse-escape-sequences="true" display-tooltip-when-elided="true" name="ItemPath" class="itemPath" style="margin-right: 0; margin-bottom: 0; margin-left: 0; padding-top: 0; padding-right: 0; padding-bottom: 0; padding-left: 0; -unity-font-style: italic; font-size: 12px;" />
+                    </ui:VisualElement>
+                </ui:VisualElement>
+            </ui:VisualElement>
+            <ui:ScrollView name="Content" style="margin-top: 15px; flex-shrink: 1; flex-grow: 0;">
+                <ui:VisualElement name="FileName" style="flex-grow: 0; background-color: rgb(49, 49, 49); border-top-width: 2px; border-right-width: 2px; border-bottom-width: 2px; border-left-width: 2px; border-left-color: rgb(89, 89, 89); border-right-color: rgb(89, 89, 89); border-top-color: rgb(89, 89, 89); border-bottom-color: rgb(89, 89, 89); display: flex; margin-bottom: 15px; padding-top: 8px; padding-right: 8px; padding-bottom: 8px; padding-left: 8px;">
+                    <ui:TextField picking-mode="Ignore" label="FileName" name="FileNameInput" class="filenameInput" style="margin-top: 0; margin-right: 0; margin-bottom: 0; margin-left: 0; color: rgb(255, 255, 255);" />
+                </ui:VisualElement>
+                <ui:VisualElement name="Text" style="flex-grow: 0; background-color: rgb(56, 56, 56); border-top-width: 2px; border-right-width: 2px; border-bottom-width: 2px; border-left-width: 2px; border-left-color: rgb(89, 89, 89); border-right-color: rgb(89, 89, 89); border-top-color: rgb(89, 89, 89); border-bottom-color: rgb(89, 89, 89); display: flex;">
+                    <ui:Label tabindex="-1" text="Text" parse-escape-sequences="true" display-tooltip-when-elided="true" name="Header" style="font-size: 14px; padding-top: 10px; padding-right: 10px; padding-bottom: 10px; padding-left: 10px; background-color: rgb(49, 49, 49); -unity-font-style: bold;" />
+                    <ui:VisualElement name="Body" style="flex-grow: 1; padding-top: 10px; padding-right: 10px; padding-bottom: 10px; padding-left: 10px;">
+                        <ui:TextField picking-mode="Ignore" label="Display Name" binding-path="displayName" name="DisplayName" />
+                        <uie:PropertyField binding-path="icon" label="Icon" />
+                        <uie:PropertyField binding-path="description" label="Description" />
+                    </ui:VisualElement>
+                </ui:VisualElement>
+                <ui:VisualElement name="VFX" style="flex-grow: 0; background-color: rgb(56, 56, 56); border-top-width: 2px; border-right-width: 2px; border-bottom-width: 2px; border-left-width: 2px; border-left-color: rgb(89, 89, 89); border-right-color: rgb(89, 89, 89); border-top-color: rgb(89, 89, 89); border-bottom-color: rgb(89, 89, 89); display: flex; margin-top: 15px;">
+                    <ui:Label tabindex="-1" text="VFX" parse-escape-sequences="true" display-tooltip-when-elided="true" name="Header" style="font-size: 14px; padding-top: 10px; padding-right: 10px; padding-bottom: 10px; padding-left: 10px; background-color: rgb(49, 49, 49); -unity-font-style: bold;" />
+                    <ui:VisualElement name="Body" style="flex-grow: 1; padding-top: 10px; padding-right: 10px; padding-bottom: 10px; padding-left: 10px;">
+                        <uie:PropertyField binding-path="VFX" label="VFX" />
+                        <uie:PropertyField binding-path="aboveHead" label="Above Head" />
+                    </ui:VisualElement>
+                </ui:VisualElement>
+                <ui:VisualElement name="Parameters" style="flex-grow: 0; background-color: rgb(56, 56, 56); border-top-width: 2px; border-right-width: 2px; border-bottom-width: 2px; border-left-width: 2px; border-left-color: rgb(89, 89, 89); border-right-color: rgb(89, 89, 89); border-top-color: rgb(89, 89, 89); border-bottom-color: rgb(89, 89, 89); display: flex; margin-top: 15px;">
+                    <ui:Label tabindex="-1" text="Parameters" parse-escape-sequences="true" display-tooltip-when-elided="true" name="Header" style="font-size: 14px; padding-top: 10px; padding-right: 10px; padding-bottom: 10px; padding-left: 10px; background-color: rgb(49, 49, 49); -unity-font-style: bold;" />
+                    <ui:VisualElement name="Body" style="flex-grow: 1; padding-top: 10px; padding-right: 10px; padding-bottom: 10px; padding-left: 10px;">
+                        <uie:PropertyField binding-path="permanent" label="Permanent" name="Permanent" />
+                        <uie:PropertyField binding-path="duration" label="Duration" name="Duration" />
+                        <uie:PropertyField binding-path="stacks" label="Stacks" />
+                    </ui:VisualElement>
+                </ui:VisualElement>
+                <ui:VisualElement name="DOT" style="flex-grow: 0; background-color: rgb(56, 56, 56); border-top-width: 2px; border-right-width: 2px; border-bottom-width: 2px; border-left-width: 2px; border-left-color: rgb(89, 89, 89); border-right-color: rgb(89, 89, 89); border-top-color: rgb(89, 89, 89); border-bottom-color: rgb(89, 89, 89); display: flex; margin-top: 15px;">
+                    <ui:Label tabindex="-1" text="Damage Over Time" parse-escape-sequences="true" display-tooltip-when-elided="true" name="Header" style="font-size: 14px; padding-top: 10px; padding-right: 10px; padding-bottom: 10px; padding-left: 10px; background-color: rgb(49, 49, 49); -unity-font-style: bold;" />
+                    <ui:VisualElement name="Body" style="flex-grow: 1; padding-top: 10px; padding-right: 10px; padding-bottom: 10px; padding-left: 10px;">
+                        <uie:PropertyField binding-path="damageAmount" label="Damage Amount" />
+                        <uie:PropertyField binding-path="damageType" label="Damage Type" />
+                    </ui:VisualElement>
+                </ui:VisualElement>
+                <ui:VisualElement name="Invisibility" style="flex-grow: 0; background-color: rgb(56, 56, 56); border-top-width: 2px; border-right-width: 2px; border-bottom-width: 2px; border-left-width: 2px; border-left-color: rgb(89, 89, 89); border-right-color: rgb(89, 89, 89); border-top-color: rgb(89, 89, 89); border-bottom-color: rgb(89, 89, 89); display: flex; margin-top: 15px;">
+                    <ui:Label tabindex="-1" text="Invisibility" parse-escape-sequences="true" display-tooltip-when-elided="true" name="Header" style="font-size: 14px; padding-top: 10px; padding-right: 10px; padding-bottom: 10px; padding-left: 10px; background-color: rgb(49, 49, 49); -unity-font-style: bold;" />
+                    <ui:VisualElement name="Body" style="flex-grow: 1; padding-top: 10px; padding-right: 10px; padding-bottom: 10px; padding-left: 10px;">
+                        <uie:PropertyField binding-path="makeInvisible" label="Make Invisible" />
+                        <uie:PropertyField binding-path="revealInvisible" label="Reveal Invisible" />
+                    </ui:VisualElement>
+                </ui:VisualElement>
+                <ui:VisualElement name="PassiveChanges" style="flex-grow: 0; background-color: rgb(56, 56, 56); border-top-width: 2px; border-right-width: 2px; border-bottom-width: 2px; border-left-width: 2px; border-left-color: rgb(89, 89, 89); border-right-color: rgb(89, 89, 89); border-top-color: rgb(89, 89, 89); border-bottom-color: rgb(89, 89, 89); display: flex; margin-top: 15px;">
+                    <ui:Label tabindex="-1" text="Passive Changes" parse-escape-sequences="true" display-tooltip-when-elided="true" name="Header" style="font-size: 14px; padding-top: 10px; padding-right: 10px; padding-bottom: 10px; padding-left: 10px; background-color: rgb(49, 49, 49); -unity-font-style: bold;" />
+                    <ui:VisualElement name="Body" style="flex-grow: 1; padding-top: 10px; padding-right: 10px; padding-bottom: 10px; padding-left: 10px;">
+                        <uie:PropertyField binding-path="passiveEffectsOn" label="Passive Effects On" name="PassiveOn" />
+                        <uie:PropertyField binding-path="passiveEffects" label="Passive Effects" name="PassiveEffects" />
+                    </ui:VisualElement>
+                </ui:VisualElement>
+            </ui:ScrollView>
+        </ui:VisualElement>
+        <ui:VisualElement name="ProjectilesEditor" style="padding-top: 15px; padding-right: 15px; padding-bottom: 15px; padding-left: 15px; background-color: rgba(56, 56, 56, 0.29); display: none; flex-grow: 1; flex-shrink: 1;">
+            <ui:VisualElement name="Header" style="flex-direction: column; justify-content: space-between; font-size: 20px; width: 100%; flex-shrink: 0; flex-wrap: nowrap; height: 50px;">
+                <ui:VisualElement name="ItemInfo" style="flex-grow: 1; flex-direction: row; position: relative; flex-shrink: 0;">
+                    <ui:VisualElement name="ItemIcon" style="flex-grow: 0; background-image: url(&quot;project://database/Assets/StrategyCore/Textures/Core/MissingTexture.png?fileID=2800000&amp;guid=3e50fec4e891dde488f5f20498a88c83&amp;type=3#MissingTexture&quot;); flex-shrink: 0; width: 50px; height: 50px; margin-right: 15px;" />
+                    <ui:VisualElement style="flex-shrink: 1; flex-grow: 1;">
+                        <ui:Label tabindex="-1" text="ItemName" parse-escape-sequences="true" display-tooltip-when-elided="true" name="ItemName" binding-path="techName" style="margin-top: 0; margin-right: 0; margin-bottom: 0; margin-left: 0; padding-top: 0; padding-right: 0; padding-bottom: 0; padding-left: 0;" />
+                        <ui:Label tabindex="-1" text="Path to the ability" parse-escape-sequences="true" display-tooltip-when-elided="true" name="ItemPath" class="itemPath" style="margin-right: 0; margin-bottom: 0; margin-left: 0; padding-top: 0; padding-right: 0; padding-bottom: 0; padding-left: 0; -unity-font-style: italic; font-size: 12px;" />
+                        <ui:Label tabindex="-1" text="Renderers are not set!" parse-escape-sequences="true" display-tooltip-when-elided="true" name="ItemError" class="itemPath" style="margin-right: 0; margin-bottom: 0; margin-left: 0; padding-top: 0; padding-right: 0; padding-bottom: 0; padding-left: 0; -unity-font-style: normal; font-size: 12px; color: rgb(255, 31, 0);" />
+                    </ui:VisualElement>
+                </ui:VisualElement>
+            </ui:VisualElement>
+            <ui:ScrollView name="Content" style="margin-top: 15px; flex-shrink: 1; flex-grow: 0;">
+                <ui:VisualElement name="FileName" style="flex-grow: 0; background-color: rgb(49, 49, 49); border-top-width: 2px; border-right-width: 2px; border-bottom-width: 2px; border-left-width: 2px; border-left-color: rgb(89, 89, 89); border-right-color: rgb(89, 89, 89); border-top-color: rgb(89, 89, 89); border-bottom-color: rgb(89, 89, 89); display: flex; margin-bottom: 15px; padding-top: 8px; padding-right: 8px; padding-bottom: 8px; padding-left: 8px;">
+                    <ui:TextField picking-mode="Ignore" label="FileName" name="FileNameInput" class="filenameInput" style="margin-top: 0; margin-right: 0; margin-bottom: 0; margin-left: 0; color: rgb(255, 255, 255);" />
+                </ui:VisualElement>
+                <ui:VisualElement name="Visuals" style="flex-grow: 0; background-color: rgb(56, 56, 56); border-top-width: 2px; border-right-width: 2px; border-bottom-width: 2px; border-left-width: 2px; border-left-color: rgb(89, 89, 89); border-right-color: rgb(89, 89, 89); border-top-color: rgb(89, 89, 89); border-bottom-color: rgb(89, 89, 89); display: flex;">
+                    <ui:Label tabindex="-1" text="Visuals" parse-escape-sequences="true" display-tooltip-when-elided="true" name="Header" style="font-size: 14px; padding-top: 10px; padding-right: 10px; padding-bottom: 10px; padding-left: 10px; background-color: rgb(49, 49, 49); -unity-font-style: bold;" />
+                    <ui:VisualElement name="Body" style="flex-grow: 1; padding-top: 10px; padding-right: 10px; padding-bottom: 10px; padding-left: 10px;">
+                        <ui:VisualElement style="flex-grow: 1; flex-direction: row;">
+                            <uie:PropertyField binding-path="renderObject" label="Render Object" name="RenderObj" style="display: flex;" />
+                            <ui:Button text="PICK" parse-escape-sequences="true" display-tooltip-when-elided="true" name="RenPicker" style="flex-grow: 0; width: 56px;" />
+                        </ui:VisualElement>
+                        <uie:PropertyField binding-path="impactSound" label="Impact Sound" />
+                        <uie:PropertyField binding-path="impactVFX" label="Impact VFX" />
+                    </ui:VisualElement>
+                </ui:VisualElement>
+                <ui:VisualElement name="Params" style="flex-grow: 0; background-color: rgb(56, 56, 56); border-top-width: 2px; border-right-width: 2px; border-bottom-width: 2px; border-left-width: 2px; border-left-color: rgb(89, 89, 89); border-right-color: rgb(89, 89, 89); border-top-color: rgb(89, 89, 89); border-bottom-color: rgb(89, 89, 89); display: flex; margin-top: 15px;">
+                    <ui:Label tabindex="-1" text="Parameters" parse-escape-sequences="true" display-tooltip-when-elided="true" name="Header" style="font-size: 14px; padding-top: 10px; padding-right: 10px; padding-bottom: 10px; padding-left: 10px; background-color: rgb(49, 49, 49); -unity-font-style: bold;" />
+                    <ui:VisualElement name="Body" style="flex-grow: 1; padding-top: 10px; padding-right: 10px; padding-bottom: 10px; padding-left: 10px;">
+                        <uie:PropertyField binding-path="speed" label="Speed" />
+                        <uie:PropertyField binding-path="radius" label="Radius" />
+                        <uie:PropertyField binding-path="ArcSpeedCurve" label="Arc&amp;Speed Curve" name="ArcOn" />
+                        <ui:VisualElement name="ASCurve" style="flex-grow: 1;">
+                            <uie:PropertyField binding-path="speedCurve" label="Speed Curve" />
+                            <uie:PropertyField binding-path="arcFactor" label="Arc Factor" />
+                        </ui:VisualElement>
+                    </ui:VisualElement>
+                </ui:VisualElement>
+            </ui:ScrollView>
+        </ui:VisualElement>
+        <ui:VisualElement name="ResourcesEditor" style="padding-top: 15px; padding-right: 15px; padding-bottom: 15px; padding-left: 15px; background-color: rgba(56, 56, 56, 0.29); display: none; flex-grow: 1; flex-shrink: 1;">
+            <ui:VisualElement name="Header" style="flex-direction: column; justify-content: space-between; font-size: 20px; width: 100%; flex-shrink: 0; flex-wrap: nowrap; height: 50px;">
+                <ui:VisualElement name="ItemInfo" style="flex-grow: 1; flex-direction: row; position: relative; flex-shrink: 0;">
+                    <ui:VisualElement name="ItemIcon" style="flex-grow: 0; background-image: url(&quot;project://database/Assets/StrategyCore/Textures/Core/MissingTexture.png?fileID=2800000&amp;guid=3e50fec4e891dde488f5f20498a88c83&amp;type=3#MissingTexture&quot;); flex-shrink: 0; width: 50px; height: 50px; margin-right: 15px;" />
+                    <ui:VisualElement style="flex-shrink: 1; flex-grow: 1;">
+                        <ui:Label tabindex="-1" text="ItemName" parse-escape-sequences="true" display-tooltip-when-elided="true" name="ItemName" binding-path="techName" style="margin-top: 0; margin-right: 0; margin-bottom: 0; margin-left: 0; padding-top: 0; padding-right: 0; padding-bottom: 0; padding-left: 0;" />
+                        <ui:Label tabindex="-1" text="Path to the ability" parse-escape-sequences="true" display-tooltip-when-elided="true" name="ItemPath" class="itemPath" style="margin-right: 0; margin-bottom: 0; margin-left: 0; padding-top: 0; padding-right: 0; padding-bottom: 0; padding-left: 0; -unity-font-style: italic; font-size: 12px;" />
+                    </ui:VisualElement>
+                </ui:VisualElement>
+            </ui:VisualElement>
+            <ui:ScrollView name="Content" style="margin-top: 15px; flex-shrink: 1; flex-grow: 0;">
+                <ui:VisualElement name="FileName" style="flex-grow: 0; background-color: rgb(49, 49, 49); border-top-width: 2px; border-right-width: 2px; border-bottom-width: 2px; border-left-width: 2px; border-left-color: rgb(89, 89, 89); border-right-color: rgb(89, 89, 89); border-top-color: rgb(89, 89, 89); border-bottom-color: rgb(89, 89, 89); display: flex; margin-bottom: 15px; padding-top: 8px; padding-right: 8px; padding-bottom: 8px; padding-left: 8px;">
+                    <ui:TextField picking-mode="Ignore" label="FileName" name="FileNameInput" class="filenameInput" style="margin-top: 0; margin-right: 0; margin-bottom: 0; margin-left: 0; color: rgb(255, 255, 255);" />
+                </ui:VisualElement>
+                <ui:VisualElement name="Text" style="flex-grow: 0; background-color: rgb(56, 56, 56); border-top-width: 2px; border-right-width: 2px; border-bottom-width: 2px; border-left-width: 2px; border-left-color: rgb(89, 89, 89); border-right-color: rgb(89, 89, 89); border-top-color: rgb(89, 89, 89); border-bottom-color: rgb(89, 89, 89); display: flex;">
+                    <ui:Label tabindex="-1" text="Text" parse-escape-sequences="true" display-tooltip-when-elided="true" name="Header" style="font-size: 14px; padding-top: 10px; padding-right: 10px; padding-bottom: 10px; padding-left: 10px; background-color: rgb(49, 49, 49); -unity-font-style: bold;" />
+                    <ui:VisualElement name="Body" style="flex-grow: 1; padding-top: 10px; padding-right: 10px; padding-bottom: 10px; padding-left: 10px;">
+                        <ui:TextField picking-mode="Ignore" label="Display Name" binding-path="displayName" name="DisplayName" />
+                        <uie:PropertyField binding-path="icon" label="Icon" />
+                        <uie:PropertyField binding-path="resourceColor" label="Resource Color" />
+                        <uie:PropertyField binding-path="description" label="Description" />
+                    </ui:VisualElement>
+                </ui:VisualElement>
+                <ui:VisualElement name="Limited" style="flex-grow: 0; background-color: rgb(56, 56, 56); border-top-width: 2px; border-right-width: 2px; border-bottom-width: 2px; border-left-width: 2px; border-left-color: rgb(89, 89, 89); border-right-color: rgb(89, 89, 89); border-top-color: rgb(89, 89, 89); border-bottom-color: rgb(89, 89, 89); display: flex; margin-top: 15px;">
+                    <ui:Label tabindex="-1" text="Limited" parse-escape-sequences="true" display-tooltip-when-elided="true" name="Header" style="font-size: 14px; padding-top: 10px; padding-right: 10px; padding-bottom: 10px; padding-left: 10px; background-color: rgb(49, 49, 49); -unity-font-style: bold;" />
+                    <ui:VisualElement name="Body" style="flex-grow: 1; padding-top: 10px; padding-right: 10px; padding-bottom: 10px; padding-left: 10px;">
+                        <uie:PropertyField binding-path="limited" label="Limited" name="BoolLimited" />
+                        <uie:PropertyField binding-path="maxLimit" label="Max Limit" name="MaxLimit" />
+                    </ui:VisualElement>
+                </ui:VisualElement>
+            </ui:ScrollView>
+        </ui:VisualElement>
+        <ui:VisualElement name="TechnologyEditor" style="padding-top: 15px; padding-right: 15px; padding-bottom: 15px; padding-left: 15px; background-color: rgba(56, 56, 56, 0.29); display: none; flex-grow: 1; flex-shrink: 1;">
+            <ui:VisualElement name="Header" style="flex-direction: column; justify-content: space-between; font-size: 20px; width: 100%; flex-shrink: 0; flex-wrap: nowrap; height: 50px;">
+                <ui:VisualElement name="ItemInfo" style="flex-grow: 1; flex-direction: row; position: relative; flex-shrink: 0;">
+                    <ui:VisualElement name="ItemIcon" style="flex-grow: 0; background-image: url(&quot;project://database/Assets/StrategyCore/Textures/Core/MissingTexture.png?fileID=2800000&amp;guid=3e50fec4e891dde488f5f20498a88c83&amp;type=3#MissingTexture&quot;); flex-shrink: 0; width: 50px; height: 50px; margin-right: 15px;" />
+                    <ui:VisualElement style="flex-shrink: 1; flex-grow: 1;">
+                        <ui:Label tabindex="-1" text="ItemName" parse-escape-sequences="true" display-tooltip-when-elided="true" name="ItemName" binding-path="techName" style="margin-top: 0; margin-right: 0; margin-bottom: 0; margin-left: 0; padding-top: 0; padding-right: 0; padding-bottom: 0; padding-left: 0;" />
+                        <ui:Label tabindex="-1" text="Path to the ability" parse-escape-sequences="true" display-tooltip-when-elided="true" name="ItemPath" class="itemPath" style="margin-right: 0; margin-bottom: 0; margin-left: 0; padding-top: 0; padding-right: 0; padding-bottom: 0; padding-left: 0; -unity-font-style: italic; font-size: 12px;" />
+                    </ui:VisualElement>
+                </ui:VisualElement>
+            </ui:VisualElement>
+            <ui:ScrollView name="Content" style="margin-top: 15px; flex-shrink: 1; flex-grow: 0;">
+                <ui:VisualElement name="FileName" style="flex-grow: 0; background-color: rgb(49, 49, 49); border-top-width: 2px; border-right-width: 2px; border-bottom-width: 2px; border-left-width: 2px; border-left-color: rgb(89, 89, 89); border-right-color: rgb(89, 89, 89); border-top-color: rgb(89, 89, 89); border-bottom-color: rgb(89, 89, 89); display: flex; margin-bottom: 15px; padding-top: 8px; padding-right: 8px; padding-bottom: 8px; padding-left: 8px;">
+                    <ui:TextField picking-mode="Ignore" label="FileName" name="FileNameInput" class="filenameInput" style="margin-top: 0; margin-right: 0; margin-bottom: 0; margin-left: 0; color: rgb(255, 255, 255);" />
+                </ui:VisualElement>
+                <ui:VisualElement name="Text" style="flex-grow: 0; background-color: rgb(56, 56, 56); border-top-width: 2px; border-right-width: 2px; border-bottom-width: 2px; border-left-width: 2px; border-left-color: rgb(89, 89, 89); border-right-color: rgb(89, 89, 89); border-top-color: rgb(89, 89, 89); border-bottom-color: rgb(89, 89, 89); display: flex;">
+                    <ui:Label tabindex="-1" text="Text" parse-escape-sequences="true" display-tooltip-when-elided="true" name="Header" style="font-size: 14px; padding-top: 10px; padding-right: 10px; padding-bottom: 10px; padding-left: 10px; background-color: rgb(49, 49, 49); -unity-font-style: bold;" />
+                    <ui:VisualElement name="Body" style="flex-grow: 1; padding-top: 10px; padding-right: 10px; padding-bottom: 10px; padding-left: 10px;">
+                        <ui:TextField picking-mode="Ignore" label="Display Name" binding-path="displayName" name="DisplayName" />
+                        <uie:PropertyField binding-path="description" label="Description" />
+                    </ui:VisualElement>
+                </ui:VisualElement>
+                <ui:VisualElement name="Shared" style="flex-grow: 0; background-color: rgb(56, 56, 56); border-top-width: 2px; border-right-width: 2px; border-bottom-width: 2px; border-left-width: 2px; border-left-color: rgb(89, 89, 89); border-right-color: rgb(89, 89, 89); border-top-color: rgb(89, 89, 89); border-bottom-color: rgb(89, 89, 89); display: flex; margin-top: 15px;">
+                    <ui:Label tabindex="-1" text="Parameters" parse-escape-sequences="true" display-tooltip-when-elided="true" name="Header" style="font-size: 14px; padding-top: 10px; padding-right: 10px; padding-bottom: 10px; padding-left: 10px; background-color: rgb(49, 49, 49); -unity-font-style: bold;" />
+                    <ui:VisualElement name="Body" style="flex-grow: 1; padding-top: 10px; padding-right: 10px; padding-bottom: 10px; padding-left: 10px;">
+                        <uie:PropertyField binding-path="shared" label="Shared" />
+                    </ui:VisualElement>
+                </ui:VisualElement>
+            </ui:ScrollView>
+        </ui:VisualElement>
+        <ui:VisualElement name="UnitsEditor" style="padding-top: 15px; padding-right: 15px; padding-bottom: 15px; padding-left: 15px; background-color: rgba(56, 56, 56, 0.29); display: flex; flex-grow: 1; flex-shrink: 1;">
+            <ui:VisualElement name="Header" style="flex-grow: 1; flex-direction: column; justify-content: space-between; font-size: 20px; width: 100%; flex-shrink: 0; flex-wrap: nowrap;">
+                <ui:VisualElement name="ItemInfo" style="flex-grow: 1; flex-direction: row; position: relative; flex-shrink: 0;">
+                    <ui:VisualElement name="ItemIcon" style="flex-grow: 0; background-image: url(&quot;project://database/Assets/StrategyCore/Textures/Core/MissingTexture.png?fileID=2800000&amp;guid=3e50fec4e891dde488f5f20498a88c83&amp;type=3#MissingTexture&quot;); flex-shrink: 0; width: 50px; height: 50px; margin-right: 15px;" />
+                    <ui:VisualElement style="flex-grow: 1; flex-shrink: 1;">
+                        <ui:Label tabindex="-1" text="ItemName" parse-escape-sequences="true" display-tooltip-when-elided="true" name="ItemName" binding-path="techName" style="margin-top: 0; margin-right: 0; margin-bottom: 0; margin-left: 0; padding-top: 0; padding-right: 0; padding-bottom: 0; padding-left: 0;" />
+                        <ui:Label tabindex="-1" text="Ability Type" parse-escape-sequences="true" display-tooltip-when-elided="true" name="ItemType" style="margin-right: 0; margin-bottom: 0; margin-left: 0; padding-top: 0; padding-right: 0; padding-bottom: 0; padding-left: 0; -unity-font-style: italic; font-size: 12px; color: rgb(217, 173, 135);" />
+                        <ui:Label tabindex="-1" text="Path to the ability" parse-escape-sequences="true" display-tooltip-when-elided="true" name="ItemPath" class="itemPath" style="margin-right: 0; margin-bottom: 0; margin-left: 0; padding-top: 0; padding-right: 0; padding-bottom: 0; padding-left: 0; -unity-font-style: italic; font-size: 12px;" />
+                    </ui:VisualElement>
+                </ui:VisualElement>
+            </ui:VisualElement>
+            <ui:ScrollView name="Content" style="margin-top: 15px; flex-shrink: 1; flex-grow: 0;">
+                <ui:VisualElement style="flex-grow: 1; flex-direction: row-reverse; margin-bottom: 10px;">
+                    <ui:Button text="COMPONENTS" parse-escape-sequences="true" display-tooltip-when-elided="true" name="Components" style="flex-direction: row-reverse; padding-top: 1px; padding-right: 5px; padding-bottom: 1px; padding-left: 5px; margin-top: 0; margin-right: 0; margin-bottom: 0; margin-left: 0;" />
+                </ui:VisualElement>
+                <ui:VisualElement name="FileName" style="flex-grow: 0; background-color: rgb(49, 49, 49); border-top-width: 2px; border-right-width: 2px; border-bottom-width: 2px; border-left-width: 2px; border-left-color: rgb(89, 89, 89); border-right-color: rgb(89, 89, 89); border-top-color: rgb(89, 89, 89); border-bottom-color: rgb(89, 89, 89); display: flex; margin-bottom: 15px; padding-top: 8px; padding-right: 8px; padding-bottom: 8px; padding-left: 8px;">
+                    <ui:TextField picking-mode="Ignore" label="FileName" name="FileNameInput" class="filenameInput" style="margin-top: 0; margin-right: 0; margin-bottom: 0; margin-left: 0; color: rgb(255, 255, 255);" />
+                </ui:VisualElement>
+                <ui:VisualElement name="Main" style="flex-grow: 0; background-color: rgb(56, 56, 56); border-top-width: 2px; border-right-width: 2px; border-bottom-width: 2px; border-left-width: 2px; border-left-color: rgb(89, 89, 89); border-right-color: rgb(89, 89, 89); border-top-color: rgb(89, 89, 89); border-bottom-color: rgb(89, 89, 89); display: flex;">
+                    <ui:Label tabindex="-1" text="Instance Specific" parse-escape-sequences="true" display-tooltip-when-elided="true" name="Header" style="font-size: 14px; padding-top: 10px; padding-right: 10px; padding-bottom: 10px; padding-left: 10px; background-color: rgb(49, 49, 49); -unity-font-style: bold;" />
+                    <ui:VisualElement name="Body" style="flex-grow: 1; padding-top: 10px; padding-right: 10px; padding-bottom: 10px; padding-left: 10px;">
+                        <uie:PropertyField binding-path="unitTypeID" label="Unit Type ID" />
+                        <uie:PropertyField binding-path="netID" label="Net ID" name="NetID" />
+                        <uie:PropertyField binding-path="owner" label="Owner" />
+                    </ui:VisualElement>
+                </ui:VisualElement>
+                <ui:VisualElement name="Text" style="flex-grow: 0; background-color: rgb(56, 56, 56); border-top-width: 2px; border-right-width: 2px; border-bottom-width: 2px; border-left-width: 2px; border-left-color: rgb(89, 89, 89); border-right-color: rgb(89, 89, 89); border-top-color: rgb(89, 89, 89); border-bottom-color: rgb(89, 89, 89); margin-top: 15px; display: flex;">
+                    <ui:Label tabindex="-1" text="Text" parse-escape-sequences="true" display-tooltip-when-elided="true" name="Header" style="font-size: 14px; padding-top: 10px; padding-right: 10px; padding-bottom: 10px; padding-left: 10px; background-color: rgb(49, 49, 49); -unity-font-style: bold;" />
+                    <ui:VisualElement name="Body" style="flex-grow: 1; padding-top: 10px; padding-right: 10px; padding-bottom: 10px; padding-left: 10px;">
+                        <ui:TextField picking-mode="Ignore" label="Display Name" binding-path="unitName" name="DisplayName" />
+                        <uie:PropertyField binding-path="icon" label="Icon" name="Icon" />
+                        <uie:PropertyField binding-path="description" label="Description" name="Description" />
+                    </ui:VisualElement>
+                </ui:VisualElement>
+                <ui:VisualElement name="General" style="flex-grow: 0; background-color: rgb(56, 56, 56); border-top-width: 2px; border-right-width: 2px; border-bottom-width: 2px; border-left-width: 2px; border-left-color: rgb(89, 89, 89); border-right-color: rgb(89, 89, 89); border-top-color: rgb(89, 89, 89); border-bottom-color: rgb(89, 89, 89); margin-top: 15px; display: flex;">
+                    <ui:Label tabindex="-1" text="General Parameters" parse-escape-sequences="true" display-tooltip-when-elided="true" name="Header" style="font-size: 14px; padding-top: 10px; padding-right: 10px; padding-bottom: 10px; padding-left: 10px; background-color: rgb(49, 49, 49); -unity-font-style: bold;" />
+                    <ui:VisualElement name="Body" style="flex-grow: 1; padding-top: 10px; padding-right: 10px; padding-bottom: 10px; padding-left: 10px;">
+                        <uie:PropertyField binding-path="isSelectable" label="Is Selectable" />
+                        <ui:EnumField label="Unit Type" type="StrategyCore.UnitType, Assembly-CSharp" binding-path="unitType" name="UnitType" />
+                        <uie:PropertyField binding-path="isGround" label="Is Ground" name="IsGround" />
+                        <uie:PropertyField binding-path="isWater" label="Is Water" name="IsWater" />
+                        <uie:PropertyField binding-path="isAir" label="Is Air" name="IsAir" />
+                    </ui:VisualElement>
+                </ui:VisualElement>
+                <ui:VisualElement name="Visuals" style="flex-grow: 0; background-color: rgb(56, 56, 56); border-top-width: 2px; border-right-width: 2px; border-bottom-width: 2px; border-left-width: 2px; border-left-color: rgb(89, 89, 89); border-right-color: rgb(89, 89, 89); border-top-color: rgb(89, 89, 89); border-bottom-color: rgb(89, 89, 89); margin-top: 15px; display: flex;">
+                    <ui:Label tabindex="-1" text="Visuals" parse-escape-sequences="true" display-tooltip-when-elided="true" name="Header" style="font-size: 14px; padding-top: 10px; padding-right: 10px; padding-bottom: 10px; padding-left: 10px; background-color: rgb(49, 49, 49); -unity-font-style: bold;" />
+                    <ui:VisualElement name="Body" style="flex-grow: 1; padding-top: 10px; padding-right: 10px; padding-bottom: 10px; padding-left: 10px;">
+                        <uie:PropertyField binding-path="unitRadius" label="Unit Radius" />
+                        <uie:PropertyField binding-path="unitHeight" label="Unit Height" />
+                        <uie:PropertyField binding-path="crossFadeTime" label="Cross Fade Time" />
+                        <ui:VisualElement style="flex-grow: 1; flex-direction: row;">
+                            <uie:PropertyField binding-path="horizontalPart" label="Horizontal Part" />
+                            <ui:Button text="PICK" parse-escape-sequences="true" display-tooltip-when-elided="true" name="HorPicker" style="flex-grow: 0; width: 56px;" />
+                        </ui:VisualElement>
+                        <ui:VisualElement style="flex-grow: 1; flex-direction: row;">
+                            <uie:PropertyField binding-path="verticalPart" label="Vertical Part" />
+                            <ui:Button text="PICK" parse-escape-sequences="true" display-tooltip-when-elided="true" name="VerPicker" style="flex-grow: 0; width: 55px;" />
+                        </ui:VisualElement>
+                    </ui:VisualElement>
+                </ui:VisualElement>
+                <ui:VisualElement name="Behaviour" style="flex-grow: 0; background-color: rgb(56, 56, 56); border-top-width: 2px; border-right-width: 2px; border-bottom-width: 2px; border-left-width: 2px; border-left-color: rgb(89, 89, 89); border-right-color: rgb(89, 89, 89); border-top-color: rgb(89, 89, 89); border-bottom-color: rgb(89, 89, 89); margin-top: 15px; display: flex;">
+                    <ui:Label tabindex="-1" text="Behaviour" parse-escape-sequences="true" display-tooltip-when-elided="true" name="Header" style="font-size: 14px; padding-top: 10px; padding-right: 10px; padding-bottom: 10px; padding-left: 10px; background-color: rgb(49, 49, 49); -unity-font-style: bold;" />
+                    <ui:VisualElement name="Body" style="flex-grow: 1; padding-top: 10px; padding-right: 10px; padding-bottom: 10px; padding-left: 10px;">
+                        <uie:PropertyField binding-path="doNotLookForTargets" label="Don&apos;t look for Targets" name="PropertyField" />
+                        <uie:PropertyField binding-path="visionRange" label="Vision Range" name="PropertyField" />
+                        <uie:PropertyField binding-path="reactionRange" label="Reaction Range" name="PropertyField" />
+                        <uie:PropertyField binding-path="viewBlocker" label="View Blocker" name="ViewBlock" />
+                        <uie:PropertyField binding-path="singleCellViewBlocker" label="Single Cell Blocker" name="SingleBlock" />
+                        <uie:PropertyField binding-path="transportWeight" label="Transport Weight" name="PropertyField" />
+                        <uie:PropertyField binding-path="formationPriority" label="Formation Priority" name="PropertyField" />
+                    </ui:VisualElement>
+                </ui:VisualElement>
+                <ui:VisualElement name="Stats" style="flex-grow: 0; background-color: rgb(56, 56, 56); border-top-width: 2px; border-right-width: 2px; border-bottom-width: 2px; border-left-width: 2px; border-left-color: rgb(89, 89, 89); border-right-color: rgb(89, 89, 89); border-top-color: rgb(89, 89, 89); border-bottom-color: rgb(89, 89, 89); margin-top: 15px; display: flex;">
+                    <ui:Label tabindex="-1" text="Stats" parse-escape-sequences="true" display-tooltip-when-elided="true" name="Header" style="font-size: 14px; padding-top: 10px; padding-right: 10px; padding-bottom: 10px; padding-left: 10px; background-color: rgb(49, 49, 49); -unity-font-style: bold;" />
+                    <ui:VisualElement name="Body" style="flex-grow: 1; padding-top: 10px; padding-right: 10px; padding-bottom: 10px; padding-left: 10px;">
+                        <ui:Label tabindex="-1" text="Health" parse-escape-sequences="true" display-tooltip-when-elided="true" style="-unity-font-style: bold; margin-top: 10px; margin-bottom: 5px;" />
+                        <uie:PropertyField binding-path="maxHealth" label="Max Health" />
+                        <uie:PropertyField binding-path="health" label="Health" />
+                        <uie:PropertyField binding-path="healthRegen" label="Health Regen" />
+                        <ui:Label tabindex="-1" text="Mana" parse-escape-sequences="true" display-tooltip-when-elided="true" style="-unity-font-style: bold; margin-top: 10px; margin-bottom: 5px;" />
+                        <uie:PropertyField binding-path="maxMana" label="Max Mana" />
+                        <uie:PropertyField binding-path="mana" label="Mana" name="PropertyField" />
+                        <uie:PropertyField binding-path="manaRegen" label="Mana Regen" />
+                        <ui:Label tabindex="-1" text="Armor" parse-escape-sequences="true" display-tooltip-when-elided="true" style="-unity-font-style: bold; margin-top: 10px; margin-bottom: 5px;" />
+                        <uie:PropertyField binding-path="isInvulnerable" label="Is Invulnerable" />
+                        <uie:PropertyField binding-path="armor" label="Armor" />
+                        <uie:PropertyField binding-path="armorType" label="ArmorType" />
+                    </ui:VisualElement>
+                </ui:VisualElement>
+                <ui:VisualElement name="Movement" style="flex-grow: 0; background-color: rgb(56, 56, 56); border-top-width: 2px; border-right-width: 2px; border-bottom-width: 2px; border-left-width: 2px; border-left-color: rgb(89, 89, 89); border-right-color: rgb(89, 89, 89); border-top-color: rgb(89, 89, 89); border-bottom-color: rgb(89, 89, 89); margin-top: 15px; display: flex;">
+                    <ui:Label tabindex="-1" text="Movement" parse-escape-sequences="true" display-tooltip-when-elided="true" name="Header" style="font-size: 14px; padding-top: 10px; padding-right: 10px; padding-bottom: 10px; padding-left: 10px; background-color: rgb(49, 49, 49); -unity-font-style: bold;" />
+                    <ui:VisualElement name="Body" style="flex-grow: 1; padding-top: 10px; padding-right: 10px; padding-bottom: 10px; padding-left: 10px;">
+                        <uie:PropertyField binding-path="turnSpeed" label="TurnSpeed" />
+                        <uie:PropertyField binding-path="canMove" label="Can Move" name="CanMove" />
+                        <ui:VisualElement name="MoveParams" style="flex-grow: 1;">
+                            <uie:PropertyField binding-path="moveSpeed" label="MoveSpeed" />
+                            <uie:PropertyField binding-path="acceleration" label="Acceleration" />
+                            <uie:PropertyField binding-path="animationMoveSpeed" label="Move Animation Speed" />
+                        </ui:VisualElement>
+                    </ui:VisualElement>
+                </ui:VisualElement>
+                <ui:VisualElement name="Creation" style="flex-grow: 0; background-color: rgb(56, 56, 56); border-top-width: 2px; border-right-width: 2px; border-bottom-width: 2px; border-left-width: 2px; border-left-color: rgb(89, 89, 89); border-right-color: rgb(89, 89, 89); border-top-color: rgb(89, 89, 89); border-bottom-color: rgb(89, 89, 89); margin-top: 15px; display: flex;">
+                    <ui:Label tabindex="-1" text="Creation" parse-escape-sequences="true" display-tooltip-when-elided="true" name="Header" style="font-size: 14px; padding-top: 10px; padding-right: 10px; padding-bottom: 10px; padding-left: 10px; background-color: rgb(49, 49, 49); -unity-font-style: bold;" />
+                    <ui:VisualElement name="Body" style="flex-grow: 1; padding-top: 10px; padding-right: 10px; padding-bottom: 10px; padding-left: 10px;">
+                        <uie:PropertyField binding-path="unlockTech" label="Unlock Tech" />
+                        <uie:PropertyField binding-path="resourceProduced" label="Resource Produced" />
+                        <uie:PropertyField binding-path="resourceCost" label="Resource Cost" />
+                    </ui:VisualElement>
+                </ui:VisualElement>
+                <ui:VisualElement name="Death" style="flex-grow: 0; background-color: rgb(56, 56, 56); border-top-width: 2px; border-right-width: 2px; border-bottom-width: 2px; border-left-width: 2px; border-left-color: rgb(89, 89, 89); border-right-color: rgb(89, 89, 89); border-top-color: rgb(89, 89, 89); border-bottom-color: rgb(89, 89, 89); margin-top: 15px; display: flex;">
+                    <ui:Label tabindex="-1" text="Death" parse-escape-sequences="true" display-tooltip-when-elided="true" name="Header" style="font-size: 14px; padding-top: 10px; padding-right: 10px; padding-bottom: 10px; padding-left: 10px; background-color: rgb(49, 49, 49); -unity-font-style: bold;" />
+                    <ui:VisualElement name="Body" style="flex-grow: 1; padding-top: 10px; padding-right: 10px; padding-bottom: 10px; padding-left: 10px;">
+                        <uie:PropertyField binding-path="xpReward" label="XP Reward" />
+                        <uie:PropertyField binding-path="resourceReward" label="Resource Reward" />
+                        <uie:PropertyField binding-path="dieVFX" label="Die VFX" />
+                    </ui:VisualElement>
+                </ui:VisualElement>
+                <ui:VisualElement name="Attack" style="flex-grow: 0; background-color: rgb(56, 56, 56); border-top-width: 2px; border-right-width: 2px; border-bottom-width: 2px; border-left-width: 2px; border-left-color: rgb(89, 89, 89); border-right-color: rgb(89, 89, 89); border-top-color: rgb(89, 89, 89); border-bottom-color: rgb(89, 89, 89); margin-top: 15px; display: flex;">
+                    <ui:Label tabindex="-1" text="Attack" parse-escape-sequences="true" display-tooltip-when-elided="true" name="Header" style="font-size: 14px; padding-top: 10px; padding-right: 10px; padding-bottom: 10px; padding-left: 10px; background-color: rgb(49, 49, 49); -unity-font-style: bold;" />
+                    <ui:VisualElement name="Body" style="flex-grow: 1; padding-top: 10px; padding-right: 10px; padding-bottom: 10px; padding-left: 10px;">
+                        <ui:Label tabindex="-1" text="Parameters" parse-escape-sequences="true" display-tooltip-when-elided="true" style="-unity-font-style: bold; margin-top: 10px; margin-bottom: 5px;" />
+                        <uie:PropertyField binding-path="attackUnitSelector" label="Attack Unit Selector" name="AttackSelector" />
+                        <ui:VisualElement name="AttackData" style="flex-grow: 1;">
+                            <uie:PropertyField binding-path="melee" label="Melee" name="Melee" />
+                            <uie:PropertyField binding-path="attackRange" label="Attack Range" name="AttackRange" />
+                            <uie:PropertyField binding-path="attackType" label="Attack Type" name="AttackType" />
+                            <uie:PropertyField binding-path="damageType" label="Damage Type" />
+                            <uie:PropertyField binding-path="attackDamage" label="Attack Damage" />
+                            <uie:PropertyField binding-path="attackSpeed" label="Attack Speed" />
+                            <uie:PropertyField binding-path="attackEffectors" label="Attack Effectors" />
+                            <ui:Label tabindex="-1" text="Technical" parse-escape-sequences="true" display-tooltip-when-elided="true" style="-unity-font-style: bold; margin-top: 10px; margin-bottom: 5px;" />
+                            <uie:PropertyField binding-path="animationAttackDelay" label="Attack Anim Delay" />
+                            <ui:VisualElement name="Technical" style="flex-grow: 1;">
+                                <ui:VisualElement style="flex-grow: 1; flex-direction: row;">
+                                    <uie:ObjectField label="Projectile/VFXLine" binding-path="projectileGO" name="Projectile" />
+                                    <ui:Button text="PICK" parse-escape-sequences="true" display-tooltip-when-elided="true" name="ProjPicker" style="flex-grow: 0; width: 56px;" />
+                                </ui:VisualElement>
+                                <uie:PropertyField binding-path="launchSite" label="Launch Sites" name="LaunchSite" />
+                                <uie:PropertyField binding-path="launchVFX" label="Launch VFX" data-source-type="UnityEngine.ParticleSystem, UnityEngine.ParticleSystemModule" />
+                            </ui:VisualElement>
+                            <ui:VisualElement name="Periodic" style="flex-grow: 1;">
+                                <ui:Label tabindex="-1" text="Periodic Attack Parameters" parse-escape-sequences="true" display-tooltip-when-elided="true" style="-unity-font-style: bold; margin-top: 10px; margin-bottom: 5px;" />
+                                <uie:PropertyField binding-path="periodicSequential" label="Periodic Sequential" />
+                                <uie:PropertyField binding-path="periodicAttackDelay" label="Periodic Attack Delay" />
+                                <uie:PropertyField binding-path="periodicAttackCount" label="Periodic Attack Count" />
+                            </ui:VisualElement>
+                            <ui:Label tabindex="-1" text="Splash" parse-escape-sequences="true" display-tooltip-when-elided="true" style="-unity-font-style: bold; margin-top: 10px; margin-bottom: 5px;" />
+                            <uie:PropertyField binding-path="isSplash" label="Is Splash" />
+                            <ui:VisualElement name="Splash" style="flex-grow: 1;">
+                                <uie:PropertyField binding-path="splashRadius" label="Splash Radius" />
+                                <uie:PropertyField binding-path="splashReduction" label="Splash Reduction" />
+                                <uie:PropertyField binding-path="projectileFollowTarget" label="Projectile Follow Target" name="FollowTarget" />
+                            </ui:VisualElement>
+                            <ui:VisualElement name="MultiTarget" style="flex-grow: 1;">
+                                <ui:Label tabindex="-1" text="MultiTarget" parse-escape-sequences="true" display-tooltip-when-elided="true" style="-unity-font-style: bold; margin-top: 10px; margin-bottom: 5px;" />
+                                <uie:PropertyField binding-path="multiTarget" label="MultiTarget" name="MultiOn" />
+                                <uie:PropertyField binding-path="multiTargetCount" label="MultiTarget Count" name="MultiParams" />
+                            </ui:VisualElement>
+                            <ui:VisualElement name="Bounce" style="flex-grow: 1;">
+                                <ui:Label tabindex="-1" text="Bounce" parse-escape-sequences="true" display-tooltip-when-elided="true" style="-unity-font-style: bold; margin-top: 10px; margin-bottom: 5px;" />
+                                <uie:PropertyField binding-path="bounceCount" label="Bounce Count" name="BounceCount" />
+                                <ui:VisualElement name="BounceParams" style="flex-grow: 1;">
+                                    <uie:PropertyField binding-path="bounceRange" label="Bounce Range" />
+                                    <uie:PropertyField binding-path="bounceReduction" label="Bounce Reduction" />
+                                </ui:VisualElement>
+                            </ui:VisualElement>
+                        </ui:VisualElement>
+                    </ui:VisualElement>
+                </ui:VisualElement>
+                <ui:VisualElement name="Sound" style="flex-grow: 0; background-color: rgb(56, 56, 56); border-top-width: 2px; border-right-width: 2px; border-bottom-width: 2px; border-left-width: 2px; border-left-color: rgb(89, 89, 89); border-right-color: rgb(89, 89, 89); border-top-color: rgb(89, 89, 89); border-bottom-color: rgb(89, 89, 89); margin-top: 15px; display: flex;">
+                    <ui:Label tabindex="-1" text="Sound" parse-escape-sequences="true" display-tooltip-when-elided="true" name="Header" style="font-size: 14px; padding-top: 10px; padding-right: 10px; padding-bottom: 10px; padding-left: 10px; background-color: rgb(49, 49, 49); -unity-font-style: bold;" />
+                    <ui:VisualElement name="Body" style="flex-grow: 1; padding-top: 10px; padding-right: 10px; padding-bottom: 10px; padding-left: 10px;">
+                        <uie:PropertyField binding-path="readySound" label="Ready Sound" />
+                        <uie:PropertyField binding-path="moveSound" label="Move Sound" />
+                        <uie:PropertyField binding-path="clickSound" label="Click Sound" />
+                        <uie:PropertyField binding-path="deathSound" label="Death Sound" />
+                        <uie:PropertyField binding-path="attackCommandSound" label="Attack Command Sound" />
+                        <uie:PropertyField binding-path="attackStartSound" label="Attack Start Sound" />
+                        <uie:PropertyField binding-path="attackEndSound" label="Attack End Sound" />
+                        <uie:PropertyField binding-path="weaponSound" label="Weapon Sound" />
+                    </ui:VisualElement>
+                </ui:VisualElement>
+                <ui:VisualElement name="Abilities" style="flex-grow: 0; background-color: rgb(56, 56, 56); border-top-width: 2px; border-right-width: 2px; border-bottom-width: 2px; border-left-width: 2px; border-left-color: rgb(89, 89, 89); border-right-color: rgb(89, 89, 89); border-top-color: rgb(89, 89, 89); border-bottom-color: rgb(89, 89, 89); margin-top: 15px; display: flex;">
+                    <ui:Label tabindex="-1" text="Abilities" parse-escape-sequences="true" display-tooltip-when-elided="true" name="Header" style="font-size: 14px; padding-top: 10px; padding-right: 10px; padding-bottom: 10px; padding-left: 10px; background-color: rgb(49, 49, 49); -unity-font-style: bold;" />
+                    <ui:VisualElement name="Body" style="flex-grow: 1; padding-top: 10px; padding-right: 10px; padding-bottom: 10px; padding-left: 10px;">
+                        <uie:PropertyField binding-path="abilities" label="Abilities" />
+                        <uie:PropertyField binding-path="abilityLevel" label="Ability Levels" />
+                    </ui:VisualElement>
+                </ui:VisualElement>
+                <ui:VisualElement name="Inventory" style="flex-grow: 0; background-color: rgb(56, 56, 56); border-top-width: 2px; border-right-width: 2px; border-bottom-width: 2px; border-left-width: 2px; border-left-color: rgb(89, 89, 89); border-right-color: rgb(89, 89, 89); border-top-color: rgb(89, 89, 89); border-bottom-color: rgb(89, 89, 89); margin-top: 15px; display: flex;">
+                    <ui:Label tabindex="-1" text="Inventory" parse-escape-sequences="true" display-tooltip-when-elided="true" name="Header" style="font-size: 14px; padding-top: 10px; padding-right: 10px; padding-bottom: 10px; padding-left: 10px; background-color: rgb(49, 49, 49); -unity-font-style: bold;" />
+                    <ui:VisualElement name="Body" style="flex-grow: 1; padding-top: 10px; padding-right: 10px; padding-bottom: 10px; padding-left: 10px;">
+                        <uie:PropertyField binding-path="inventorySize" label="Inventory Size" />
+                        <ui:VisualElement name="InvItems" style="flex-grow: 1;">
+                            <uie:PropertyField binding-path="items" label="Items" />
+                            <uie:PropertyField binding-path="itemCharges" label="Item Charges" />
+                        </ui:VisualElement>
+                    </ui:VisualElement>
+                </ui:VisualElement>
+                <ui:VisualElement name="AttributeUnit" style="flex-grow: 0; background-color: rgb(56, 56, 56); border-top-width: 2px; border-right-width: 2px; border-bottom-width: 2px; border-left-width: 2px; border-left-color: rgb(89, 89, 89); border-right-color: rgb(89, 89, 89); border-top-color: rgb(89, 89, 89); border-bottom-color: rgb(89, 89, 89); margin-top: 15px; display: flex;">
+                    <ui:Label tabindex="-1" text="Attribute Unit" parse-escape-sequences="true" display-tooltip-when-elided="true" name="Header" style="font-size: 14px; padding-top: 10px; padding-right: 10px; padding-bottom: 10px; padding-left: 10px; background-color: rgb(49, 49, 49); -unity-font-style: bold;" />
+                    <ui:VisualElement name="Body" style="flex-grow: 1; padding-top: 10px; padding-right: 10px; padding-bottom: 10px; padding-left: 10px;">
+                        <uie:PropertyField binding-path="mainAttribute" label="Main Attribute" />
+                        <uie:PropertyField binding-path="unitAttributes" label="Unit Attributes" />
+                    </ui:VisualElement>
+                </ui:VisualElement>
+                <ui:VisualElement name="ConstructionUnit" style="flex-grow: 0; background-color: rgb(56, 56, 56); border-top-width: 2px; border-right-width: 2px; border-bottom-width: 2px; border-left-width: 2px; border-left-color: rgb(89, 89, 89); border-right-color: rgb(89, 89, 89); border-top-color: rgb(89, 89, 89); border-bottom-color: rgb(89, 89, 89); margin-top: 15px; display: flex;">
+                    <ui:Label tabindex="-1" text="Construction Unit" parse-escape-sequences="true" display-tooltip-when-elided="true" name="Header" style="font-size: 14px; padding-top: 10px; padding-right: 10px; padding-bottom: 10px; padding-left: 10px; background-color: rgb(49, 49, 49); -unity-font-style: bold;" />
+                    <ui:VisualElement name="Body" style="flex-grow: 1; padding-top: 10px; padding-right: 10px; padding-bottom: 10px; padding-left: 10px;">
+                        <uie:PropertyField binding-path="isBuilding" label="IsBuilding" name="IsBuilding" />
+                        <ui:VisualElement name="Building" style="flex-grow: 1;">
+                            <uie:PropertyField binding-path="completed" label="Completed" />
+                            <uie:PropertyField binding-path="constructionTime" label="Construction Time" />
+                            <uie:PropertyField binding-path="buildsItself" label="Builds Itself" />
+                            <uie:PropertyField binding-path="multipleBuilders" label="Multiple Builders" />
+                        </ui:VisualElement>
+                    </ui:VisualElement>
+                </ui:VisualElement>
+                <ui:VisualElement name="LevelingUnit" style="flex-grow: 0; background-color: rgb(56, 56, 56); border-top-width: 2px; border-right-width: 2px; border-bottom-width: 2px; border-left-width: 2px; border-left-color: rgb(89, 89, 89); border-right-color: rgb(89, 89, 89); border-top-color: rgb(89, 89, 89); border-bottom-color: rgb(89, 89, 89); margin-top: 15px; display: flex;">
+                    <ui:Label tabindex="-1" text="Leveling Unit" parse-escape-sequences="true" display-tooltip-when-elided="true" name="Header" style="font-size: 14px; padding-top: 10px; padding-right: 10px; padding-bottom: 10px; padding-left: 10px; background-color: rgb(49, 49, 49); -unity-font-style: bold;" />
+                    <ui:VisualElement name="Body" style="flex-grow: 1; padding-top: 10px; padding-right: 10px; padding-bottom: 10px; padding-left: 10px;">
+                        <ui:Label tabindex="-1" text="Effects" parse-escape-sequences="true" display-tooltip-when-elided="true" style="-unity-font-style: bold; margin-top: 10px; margin-bottom: 5px;" />
+                        <uie:PropertyField binding-path="sound" label="Sound" />
+                        <uie:PropertyField binding-path="VFX" label="VFX" />
+                        <ui:Label tabindex="-1" text="Leveling" parse-escape-sequences="true" display-tooltip-when-elided="true" style="-unity-font-style: bold; margin-top: 10px; margin-bottom: 5px;" />
+                        <uie:PropertyField binding-path="level" label="Level" />
+                        <uie:PropertyField binding-path="maxLevel" label="Max Level" />
+                        <uie:PropertyField binding-path="expRequired" label="XP Required" />
+                        <uie:PropertyField binding-path="expDifficultyIncrease" label="XP Difficulty Increase" />
+                        <ui:Label tabindex="-1" text="Parameter changes" parse-escape-sequences="true" display-tooltip-when-elided="true" style="-unity-font-style: bold; margin-top: 10px; margin-bottom: 5px;" />
+                        <uie:PropertyField binding-path="passiveEffects" label="Passive Effects" />
+                    </ui:VisualElement>
+                </ui:VisualElement>
+                <ui:VisualElement name="ResourceUnit" style="flex-grow: 0; background-color: rgb(56, 56, 56); border-top-width: 2px; border-right-width: 2px; border-bottom-width: 2px; border-left-width: 2px; border-left-color: rgb(89, 89, 89); border-right-color: rgb(89, 89, 89); border-top-color: rgb(89, 89, 89); border-bottom-color: rgb(89, 89, 89); margin-top: 15px; display: flex;">
+                    <ui:Label tabindex="-1" text="Resource Unit (Choose one)" parse-escape-sequences="true" display-tooltip-when-elided="true" name="Header" style="font-size: 14px; padding-top: 10px; padding-right: 10px; padding-bottom: 10px; padding-left: 10px; background-color: rgb(49, 49, 49); -unity-font-style: bold;" />
+                    <ui:VisualElement name="Body" style="flex-grow: 1; padding-top: 10px; padding-right: 10px; padding-bottom: 10px; padding-left: 10px;">
+                        <ui:Label tabindex="-1" text="Storage" parse-escape-sequences="true" display-tooltip-when-elided="true" style="-unity-font-style: bold; margin-top: 10px; margin-bottom: 5px;" />
+                        <uie:PropertyField binding-path="isStorage" label="IsStorage" name="IsStorage" />
+                        <ui:Label tabindex="-1" text="Collectible" parse-escape-sequences="true" display-tooltip-when-elided="true" style="-unity-font-style: bold; margin-top: 10px; margin-bottom: 5px;" />
+                        <uie:PropertyField binding-path="isCollectible" label="IsCollectible" name="IsCollectible" />
+                        <ui:VisualElement name="Collectible" style="flex-grow: 1;">
+                            <uie:PropertyField binding-path="hitToCollect" label="Hit To Collect" />
+                            <uie:PropertyField binding-path="collectibleResources" label="Collectible Resources" />
+                        </ui:VisualElement>
+                        <ui:Label tabindex="-1" text="Collector" parse-escape-sequences="true" display-tooltip-when-elided="true" style="-unity-font-style: bold; margin-top: 10px; margin-bottom: 5px;" />
+                        <uie:PropertyField binding-path="isCollector" label="IsCollector" name="IsCollector" />
+                        <ui:VisualElement name="Collector" style="flex-grow: 1;">
+                            <uie:PropertyField binding-path="timeToCollect" label="Time to Collect" />
+                            <uie:PropertyField binding-path="collectorResources" label="Collector Resources" />
+                            <uie:PropertyField binding-path="hitResources" label="Hit Resources" />
+                            <uie:PropertyField binding-path="animationBlendingIndex" label="Animation Blending Index" />
+                        </ui:VisualElement>
+                    </ui:VisualElement>
+                </ui:VisualElement>
+                <ui:VisualElement name="TransportUnit" style="flex-grow: 0; background-color: rgb(56, 56, 56); border-top-width: 2px; border-right-width: 2px; border-bottom-width: 2px; border-left-width: 2px; border-left-color: rgb(89, 89, 89); border-right-color: rgb(89, 89, 89); border-top-color: rgb(89, 89, 89); border-bottom-color: rgb(89, 89, 89); margin-top: 15px;">
+                    <ui:Label tabindex="-1" text="Transport Unit" parse-escape-sequences="true" display-tooltip-when-elided="true" name="Header" style="font-size: 14px; padding-top: 10px; padding-right: 10px; padding-bottom: 10px; padding-left: 10px; background-color: rgb(49, 49, 49); -unity-font-style: bold;" />
+                    <ui:VisualElement name="Body" style="flex-grow: 1; padding-top: 10px; padding-right: 10px; padding-bottom: 10px; padding-left: 10px;">
+                        <uie:PropertyField binding-path="capacity" label="Capacity" />
+                        <uie:PropertyField binding-path="unitsDie" label="Units Die" />
+                    </ui:VisualElement>
+                </ui:VisualElement>
+                <ui:VisualElement name="LifetimeUnit" style="flex-grow: 0; background-color: rgb(56, 56, 56); border-top-width: 2px; border-right-width: 2px; border-bottom-width: 2px; border-left-width: 2px; border-left-color: rgb(89, 89, 89); border-right-color: rgb(89, 89, 89); border-top-color: rgb(89, 89, 89); border-bottom-color: rgb(89, 89, 89); margin-top: 15px;">
+                    <ui:Label tabindex="-1" text="Lifetime Unit" parse-escape-sequences="true" display-tooltip-when-elided="true" name="Header" style="font-size: 14px; padding-top: 10px; padding-right: 10px; padding-bottom: 10px; padding-left: 10px; background-color: rgb(49, 49, 49); -unity-font-style: bold;" />
+                    <ui:VisualElement name="Body" style="flex-grow: 1; padding-top: 10px; padding-right: 10px; padding-bottom: 10px; padding-left: 10px;">
+                        <uie:PropertyField binding-path="lifespan" label="Lifespan" />
+                    </ui:VisualElement>
+                </ui:VisualElement>
+            </ui:ScrollView>
+        </ui:VisualElement>
+        <ui:VisualElement name="WeaponSoundsEditor" style="padding-top: 15px; padding-right: 15px; padding-bottom: 15px; padding-left: 15px; background-color: rgba(56, 56, 56, 0.29); display: none; flex-grow: 1; flex-shrink: 1;">
+            <ui:VisualElement name="Header" style="flex-direction: column; justify-content: space-between; font-size: 20px; width: 100%; flex-shrink: 0; flex-wrap: nowrap; height: 50px;">
+                <ui:VisualElement name="ItemInfo" style="flex-grow: 1; flex-direction: row; position: relative; flex-shrink: 0;">
+                    <ui:VisualElement name="ItemIcon" style="flex-grow: 0; background-image: url(&quot;project://database/Assets/StrategyCore/Textures/Core/MissingTexture.png?fileID=2800000&amp;guid=3e50fec4e891dde488f5f20498a88c83&amp;type=3#MissingTexture&quot;); flex-shrink: 0; width: 50px; height: 50px; margin-right: 15px;" />
+                    <ui:VisualElement style="flex-shrink: 1; flex-grow: 1;">
+                        <ui:Label tabindex="-1" text="ItemName" parse-escape-sequences="true" display-tooltip-when-elided="true" name="ItemName" binding-path="techName" style="margin-top: 0; margin-right: 0; margin-bottom: 0; margin-left: 0; padding-top: 0; padding-right: 0; padding-bottom: 0; padding-left: 0;" />
+                        <ui:Label tabindex="-1" text="Path to the ability" parse-escape-sequences="true" display-tooltip-when-elided="true" name="ItemPath" class="itemPath" style="margin-right: 0; margin-bottom: 0; margin-left: 0; padding-top: 0; padding-right: 0; padding-bottom: 0; padding-left: 0; -unity-font-style: italic; font-size: 12px;" />
+                    </ui:VisualElement>
+                </ui:VisualElement>
+            </ui:VisualElement>
+            <ui:ScrollView name="Content" style="margin-top: 15px; flex-shrink: 1; flex-grow: 0;">
+                <ui:VisualElement name="FileName" style="flex-grow: 0; background-color: rgb(49, 49, 49); border-top-width: 2px; border-right-width: 2px; border-bottom-width: 2px; border-left-width: 2px; border-left-color: rgb(89, 89, 89); border-right-color: rgb(89, 89, 89); border-top-color: rgb(89, 89, 89); border-bottom-color: rgb(89, 89, 89); display: flex; margin-bottom: 15px; padding-top: 8px; padding-right: 8px; padding-bottom: 8px; padding-left: 8px;">
+                    <ui:TextField picking-mode="Ignore" label="FileName" name="FileNameInput" class="filenameInput" style="margin-top: 0; margin-right: 0; margin-bottom: 0; margin-left: 0; color: rgb(255, 255, 255);" />
+                </ui:VisualElement>
+                <ui:VisualElement name="General" style="flex-grow: 0; background-color: rgb(56, 56, 56); border-top-width: 2px; border-right-width: 2px; border-bottom-width: 2px; border-left-width: 2px; border-left-color: rgb(89, 89, 89); border-right-color: rgb(89, 89, 89); border-top-color: rgb(89, 89, 89); border-bottom-color: rgb(89, 89, 89); display: flex;">
+                    <ui:Label tabindex="-1" text="General" parse-escape-sequences="true" display-tooltip-when-elided="true" name="Header" style="font-size: 14px; padding-top: 10px; padding-right: 10px; padding-bottom: 10px; padding-left: 10px; background-color: rgb(49, 49, 49); -unity-font-style: bold;" />
+                    <ui:VisualElement name="Body" style="flex-grow: 1; padding-top: 10px; padding-right: 10px; padding-bottom: 10px; padding-left: 10px;">
+                        <uie:PropertyField binding-path="groundHitClips" label="Default Sound" />
+                        <uie:PropertyField binding-path="attackToArmorSound" label="Attack To Armor Sound" />
+                    </ui:VisualElement>
+                </ui:VisualElement>
+            </ui:ScrollView>
+        </ui:VisualElement>
+        <ui:VisualElement name="ScenesEditor" style="flex-grow: 1; padding-top: 15px; padding-right: 15px; padding-bottom: 15px; padding-left: 15px; background-color: rgba(56, 56, 56, 0.29); display: none;">
+            <ui:VisualElement name="Header" style="flex-direction: column; justify-content: space-between; font-size: 20px; width: 100%; flex-shrink: 0; flex-wrap: nowrap; height: 50px;">
+                <ui:VisualElement name="ItemInfo" style="flex-grow: 1; flex-direction: row; position: relative; flex-shrink: 0;">
+                    <ui:VisualElement style="flex-shrink: 1; flex-grow: 1;">
+                        <ui:Label tabindex="-1" text="ItemName" parse-escape-sequences="true" display-tooltip-when-elided="true" name="ItemName" binding-path="techName" style="margin-top: 0; margin-right: 0; margin-bottom: 0; margin-left: 0; padding-top: 0; padding-right: 0; padding-bottom: 0; padding-left: 0;" />
+                        <ui:Label tabindex="-1" text="Path to the ability" parse-escape-sequences="true" display-tooltip-when-elided="true" name="ItemPath" class="itemPath" style="margin-right: 0; margin-bottom: 0; margin-left: 0; padding-top: 0; padding-right: 0; padding-bottom: 0; padding-left: 0; -unity-font-style: italic; font-size: 12px;" />
+                    </ui:VisualElement>
+                </ui:VisualElement>
+            </ui:VisualElement>
+            <ui:ScrollView name="Content" style="margin-top: 0;">
+                <ui:VisualElement name="FileName" style="flex-grow: 0; background-color: rgb(49, 49, 49); border-top-width: 2px; border-right-width: 2px; border-bottom-width: 2px; border-left-width: 2px; border-left-color: rgb(89, 89, 89); border-right-color: rgb(89, 89, 89); border-top-color: rgb(89, 89, 89); border-bottom-color: rgb(89, 89, 89); display: flex; margin-bottom: 15px; padding-top: 8px; padding-right: 8px; padding-bottom: 8px; padding-left: 8px;">
+                    <ui:TextField picking-mode="Ignore" label="FileName" name="FileNameInput" class="filenameInput" style="margin-top: 0; margin-right: 0; margin-bottom: 0; margin-left: 0; color: rgb(255, 255, 255);" />
+                </ui:VisualElement>
+                <ui:VisualElement name="Grid" style="flex-grow: 0; background-color: rgb(56, 56, 56); border-top-width: 2px; border-right-width: 2px; border-bottom-width: 2px; border-left-width: 2px; border-left-color: rgb(89, 89, 89); border-right-color: rgb(89, 89, 89); border-top-color: rgb(89, 89, 89); border-bottom-color: rgb(89, 89, 89); display: flex;">
+                    <ui:Label tabindex="-1" text="Grid" parse-escape-sequences="true" display-tooltip-when-elided="true" name="Header" style="font-size: 14px; padding-top: 10px; padding-right: 10px; padding-bottom: 10px; padding-left: 10px; background-color: rgb(49, 49, 49); -unity-font-style: bold;" />
+                    <ui:VisualElement name="Body" style="flex-grow: 1; padding-top: 10px; padding-right: 10px; padding-bottom: 10px; padding-left: 10px;">
+                        <ui:IntegerField label="Width" value="100" binding-path="width" name="Width" />
+                        <ui:IntegerField label="Height" value="100" binding-path="height" name="Height" />
+                        <ui:FloatField label="Cell Size" value="1" binding-path="cellSize" name="CellSize" />
+                    </ui:VisualElement>
+                </ui:VisualElement>
+                <ui:VisualElement name="FoW" style="flex-grow: 0; background-color: rgb(56, 56, 56); border-top-width: 2px; border-right-width: 2px; border-bottom-width: 2px; border-left-width: 2px; border-left-color: rgb(89, 89, 89); border-right-color: rgb(89, 89, 89); border-top-color: rgb(89, 89, 89); border-bottom-color: rgb(89, 89, 89); margin-top: 15px; display: flex;">
+                    <ui:Label tabindex="-1" text="FoW" parse-escape-sequences="true" display-tooltip-when-elided="true" name="Header" style="font-size: 14px; padding-top: 10px; padding-right: 10px; padding-bottom: 10px; padding-left: 10px; background-color: rgb(49, 49, 49); -unity-font-style: bold;" />
+                    <ui:VisualElement name="Body" style="flex-grow: 1; padding-top: 10px; padding-right: 10px; padding-bottom: 10px; padding-left: 10px;">
+                        <ui:Toggle label="Turn Off" binding-path="turnOff" />
+                        <ui:FloatField label="Reveal Time" value="1" binding-path="revealTime" />
+                    </ui:VisualElement>
+                </ui:VisualElement>
+                <ui:VisualElement name="GameManager" style="flex-grow: 1;">
+                    <ui:VisualElement name="Teams" style="flex-grow: 0; background-color: rgb(56, 56, 56); border-top-width: 2px; border-right-width: 2px; border-bottom-width: 2px; border-left-width: 2px; border-left-color: rgb(89, 89, 89); border-right-color: rgb(89, 89, 89); border-top-color: rgb(89, 89, 89); border-bottom-color: rgb(89, 89, 89); margin-top: 15px; display: flex;">
+                        <ui:Label tabindex="-1" text="Teams" parse-escape-sequences="true" display-tooltip-when-elided="true" name="Header" style="font-size: 14px; padding-top: 10px; padding-right: 10px; padding-bottom: 10px; padding-left: 10px; background-color: rgb(49, 49, 49); -unity-font-style: bold;" />
+                        <ui:VisualElement name="Body" style="flex-grow: 1; padding-top: 10px; padding-right: 10px; padding-bottom: 10px; padding-left: 10px;">
+                            <ui:Toggle label="Choose Teams" binding-path="chooseTeams" />
+                            <uie:PropertyField binding-path="teamsAndPlayers" label="Slots" />
+                        </ui:VisualElement>
+                    </ui:VisualElement>
+                    <ui:VisualElement name="Factions" style="flex-grow: 0; background-color: rgb(56, 56, 56); border-top-width: 2px; border-right-width: 2px; border-bottom-width: 2px; border-left-width: 2px; border-left-color: rgb(89, 89, 89); border-right-color: rgb(89, 89, 89); border-top-color: rgb(89, 89, 89); border-bottom-color: rgb(89, 89, 89); margin-top: 15px; display: flex;">
+                        <ui:Label tabindex="-1" text="Factions" parse-escape-sequences="true" display-tooltip-when-elided="true" name="Header" style="font-size: 14px; padding-top: 10px; padding-right: 10px; padding-bottom: 10px; padding-left: 10px; background-color: rgb(49, 49, 49); -unity-font-style: bold;" />
+                        <ui:VisualElement name="Body" style="flex-grow: 1; padding-top: 10px; padding-right: 10px; padding-bottom: 10px; padding-left: 10px;">
+                            <uie:PropertyField binding-path="factionData" label="Factions" />
+                        </ui:VisualElement>
+                    </ui:VisualElement>
+                    <ui:VisualElement name="Win" style="flex-grow: 0; background-color: rgb(56, 56, 56); border-top-width: 2px; border-right-width: 2px; border-bottom-width: 2px; border-left-width: 2px; border-left-color: rgb(89, 89, 89); border-right-color: rgb(89, 89, 89); border-top-color: rgb(89, 89, 89); border-bottom-color: rgb(89, 89, 89); margin-top: 15px; display: flex;">
+                        <ui:Label tabindex="-1" text="Win Conditions" parse-escape-sequences="true" display-tooltip-when-elided="true" name="Header" style="font-size: 14px; padding-top: 10px; padding-right: 10px; padding-bottom: 10px; padding-left: 10px; background-color: rgb(49, 49, 49); -unity-font-style: bold;" />
+                        <ui:VisualElement name="Body" style="flex-grow: 1; padding-top: 10px; padding-right: 10px; padding-bottom: 10px; padding-left: 10px;">
+                            <uie:PropertyField binding-path="allUnitsBuildingsDead" label="Units and Buildings dead" />
+                            <uie:PropertyField binding-path="allBuildingsDestroyed" label="Only Buildings destroyed" />
+                            <uie:PropertyField binding-path="specificUnitsDead" label="Specific Units Dead" />
+                        </ui:VisualElement>
+                    </ui:VisualElement>
+                    <ui:VisualElement name="GameSetup" style="flex-grow: 0; background-color: rgb(56, 56, 56); border-top-width: 2px; border-right-width: 2px; border-bottom-width: 2px; border-left-width: 2px; border-left-color: rgb(89, 89, 89); border-right-color: rgb(89, 89, 89); border-top-color: rgb(89, 89, 89); border-bottom-color: rgb(89, 89, 89); margin-top: 15px; display: flex;">
+                        <ui:Label tabindex="-1" text="Game Setup" parse-escape-sequences="true" display-tooltip-when-elided="true" name="Header" style="font-size: 14px; padding-top: 10px; padding-right: 10px; padding-bottom: 10px; padding-left: 10px; background-color: rgb(49, 49, 49); -unity-font-style: bold;" />
+                        <ui:VisualElement name="Body" style="flex-grow: 1; padding-top: 10px; padding-right: 10px; padding-bottom: 10px; padding-left: 10px;">
+                            <ui:Toggle label="Includes Invisible" binding-path="gameIncludesInvisible" name="Invisible" />
+                            <ui:Toggle label="Show Buildings FoW" binding-path="showBuildingsInFow" />
+                            <ui:Toggle label="Cancel Full Return" binding-path="constructionCancelFullReturn" />
+                        </ui:VisualElement>
+                    </ui:VisualElement>
+                    <ui:VisualElement name="Rewards" style="flex-grow: 0; background-color: rgb(56, 56, 56); border-top-width: 2px; border-right-width: 2px; border-bottom-width: 2px; border-left-width: 2px; border-left-color: rgb(89, 89, 89); border-right-color: rgb(89, 89, 89); border-top-color: rgb(89, 89, 89); border-bottom-color: rgb(89, 89, 89); margin-top: 15px; display: flex;">
+                        <ui:Label tabindex="-1" text="Rewards" parse-escape-sequences="true" display-tooltip-when-elided="true" name="Header" style="font-size: 14px; padding-top: 10px; padding-right: 10px; padding-bottom: 10px; padding-left: 10px; background-color: rgb(49, 49, 49); -unity-font-style: bold;" />
+                        <ui:VisualElement name="Body" style="flex-grow: 1; padding-top: 10px; padding-right: 10px; padding-bottom: 10px; padding-left: 10px;">
+                            <ui:Toggle label="Spread XP" binding-path="spreadEXP" />
+                            <ui:FloatField label="XP Spread Range" value="42.2" binding-path="spreadRange" />
+                            <ui:Toggle label="Equal XP" binding-path="equalEXP" />
+                            <ui:FloatField label="Ally Kill Reward" value="42.2" binding-path="allyKillReward" />
+                        </ui:VisualElement>
+                    </ui:VisualElement>
+                    <ui:VisualElement name="Shop" style="flex-grow: 0; background-color: rgb(56, 56, 56); border-top-width: 2px; border-right-width: 2px; border-bottom-width: 2px; border-left-width: 2px; border-left-color: rgb(89, 89, 89); border-right-color: rgb(89, 89, 89); border-top-color: rgb(89, 89, 89); border-bottom-color: rgb(89, 89, 89); margin-top: 15px; display: flex;">
+                        <ui:Label tabindex="-1" text="Shop" parse-escape-sequences="true" display-tooltip-when-elided="true" name="Header" style="font-size: 14px; padding-top: 10px; padding-right: 10px; padding-bottom: 10px; padding-left: 10px; background-color: rgb(49, 49, 49); -unity-font-style: bold;" />
+                        <ui:VisualElement name="Body" style="flex-grow: 1; padding-top: 10px; padding-right: 10px; padding-bottom: 10px; padding-left: 10px;">
+                            <ui:FloatField label="Shop Radius" value="3" binding-path="shopRadius" />
+                            <ui:FloatField label="Price Reduction" value="0.5" binding-path="sellPriceReduction" />
+                        </ui:VisualElement>
+                    </ui:VisualElement>
+                </ui:VisualElement>
+                <ui:VisualElement name="GameResources" style="flex-grow: 0; background-color: rgb(56, 56, 56); border-top-width: 2px; border-right-width: 2px; border-bottom-width: 2px; border-left-width: 2px; border-left-color: rgb(89, 89, 89); border-right-color: rgb(89, 89, 89); border-top-color: rgb(89, 89, 89); border-bottom-color: rgb(89, 89, 89); margin-top: 15px;">
+                    <ui:Label tabindex="-1" text="Scene Resources" parse-escape-sequences="true" display-tooltip-when-elided="true" name="Header" style="font-size: 14px; padding-top: 10px; padding-right: 10px; padding-bottom: 10px; padding-left: 10px; background-color: rgb(49, 49, 49); -unity-font-style: bold;" />
+                    <ui:VisualElement name="Body" style="flex-grow: 1; padding-top: 10px; padding-right: 10px; padding-bottom: 10px; padding-left: 10px;">
+                        <uie:PropertyField label="Resources" binding-path="gameResources" />
+                    </ui:VisualElement>
+                </ui:VisualElement>
+                <ui:VisualElement name="Sound" style="flex-grow: 0; background-color: rgb(56, 56, 56); border-top-width: 2px; border-right-width: 2px; border-bottom-width: 2px; border-left-width: 2px; border-left-color: rgb(89, 89, 89); border-right-color: rgb(89, 89, 89); border-top-color: rgb(89, 89, 89); border-bottom-color: rgb(89, 89, 89); margin-top: 15px;">
+                    <ui:Label tabindex="-1" text="Sound" parse-escape-sequences="true" display-tooltip-when-elided="true" name="Header" style="font-size: 14px; padding-top: 10px; padding-right: 10px; padding-bottom: 10px; padding-left: 10px; background-color: rgb(49, 49, 49); -unity-font-style: bold;" />
+                    <ui:VisualElement name="Body" style="flex-grow: 1; padding-top: 10px; padding-right: 10px; padding-bottom: 10px; padding-left: 10px;">
+                        <ui:IntegerField label="Max Sound Count" value="4" binding-path="maxSoundCount" />
+                    </ui:VisualElement>
+                </ui:VisualElement>
+            </ui:ScrollView>
+        </ui:VisualElement>
+        <ui:Button text="Delete" parse-escape-sequences="true" display-tooltip-when-elided="true" name="DeleteButton" style="padding-top: 10px; padding-right: 10px; padding-bottom: 10px; padding-left: 10px; margin-top: 0; margin-right: 0; margin-bottom: 0; margin-left: 0; height: 30px; position: absolute; top: 15px; right: 15px;" />
+    </ui:VisualElement>
+</ui:UXML>

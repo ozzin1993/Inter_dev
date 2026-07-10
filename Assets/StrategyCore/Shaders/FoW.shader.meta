@@ -1,0 +1,16 @@
+fileFormatVersion: 2
+guid: c135ef558774ac24fb991067eaeb37bc
+ShaderImporter:
+  externalObjects: {}
+  defaultTextures: []
+  nonModifiableTextures: []
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 292539
+  packageName: Strategy Core - Make your own RTS game
+  packageVersion: 1.05
+  assetPath: Assets/StrategyCore/Shaders/FoW.shader
+  uploadId: 905056

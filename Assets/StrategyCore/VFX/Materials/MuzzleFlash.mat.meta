@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: beb7f5ffdae455a478b6ee75cb65aa33
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 2100000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 292539
+  packageName: Strategy Core - Make your own RTS game
+  packageVersion: 1.05
+  assetPath: Assets/StrategyCore/VFX/Materials/MuzzleFlash.mat
+  uploadId: 905056

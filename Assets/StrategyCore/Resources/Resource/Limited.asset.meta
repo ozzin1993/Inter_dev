@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: 0ed14f2f22f398b4ea72e957e05a4707
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 11400000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 292539
+  packageName: Strategy Core - Make your own RTS game
+  packageVersion: 1.05
+  assetPath: Assets/StrategyCore/Resources/Resource/Limited.asset
+  uploadId: 905056

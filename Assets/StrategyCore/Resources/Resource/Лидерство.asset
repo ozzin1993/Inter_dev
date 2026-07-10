@@ -1,0 +1,20 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 146213d1e059e6b4995c38f82cdd6363, type: 3}
+  m_Name: "\u041B\u0438\u0434\u0435\u0440\u0441\u0442\u0432\u043E"
+  m_EditorClassIdentifier: Assembly-CSharp::StrategyCore.Resource
+  displayName: "\u041B\u0438\u0434\u0435\u0440\u0441\u0442\u0432\u043E"
+  icon: {fileID: 2800000, guid: cd8fc06798bd240429ae1beb137de455, type: 3}
+  resourceColor: {r: 0.21568629, g: 0.21568629, b: 0.21568629, a: 0}
+  description: "\u041B\u0438\u0434\u0435\u0440\u0441\u0442\u0432\u043E"
+  limited: 1
+  maxLimit: 100

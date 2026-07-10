@@ -1,0 +1,14 @@
+fileFormatVersion: 2
+guid: 94d299cb5ae956243b443ec9e606b644
+PrefabImporter:
+  externalObjects: {}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 292539
+  packageName: Strategy Core - Make your own RTS game
+  packageVersion: 1.05
+  assetPath: Assets/StrategyCore/Prefabs/Core/Projectors/SelectionProjector.prefab
+  uploadId: 905056

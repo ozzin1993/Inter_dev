@@ -1,0 +1,20 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 146213d1e059e6b4995c38f82cdd6363, type: 3}
+  m_Name: Lumber
+  m_EditorClassIdentifier: 
+  displayName: Lumber
+  icon: {fileID: 2800000, guid: cd8fc06798bd240429ae1beb137de455, type: 3}
+  resourceColor: {r: 0.41417545, g: 0.78867924, b: 0.25446063, a: 1}
+  description: Lumber can be collected at trees by workers
+  limited: 0
+  maxLimit: 0

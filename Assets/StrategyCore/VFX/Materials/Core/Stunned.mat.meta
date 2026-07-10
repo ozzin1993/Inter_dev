@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: 2a26348aef9f0304aa1b1bd71711c3e6
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 2100000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 292539
+  packageName: Strategy Core - Make your own RTS game
+  packageVersion: 1.05
+  assetPath: Assets/StrategyCore/VFX/Materials/Core/Stunned.mat
+  uploadId: 905056

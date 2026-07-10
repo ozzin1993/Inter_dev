@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: 7dd6b7407c080dc48ab1bd0e79b7ce98
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 11400000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 292539
+  packageName: Strategy Core - Make your own RTS game
+  packageVersion: 1.05
+  assetPath: Assets/StrategyCore/Resources/Ability/Transport/TransportTakeOut.asset
+  uploadId: 905056

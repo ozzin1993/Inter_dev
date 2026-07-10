@@ -1,0 +1,14 @@
+fileFormatVersion: 2
+guid: 573ae2b86976b7e4a890472a03ab9f96
+PrefabImporter:
+  externalObjects: {}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 292539
+  packageName: Strategy Core - Make your own RTS game
+  packageVersion: 1.05
+  assetPath: Assets/StrategyCore/Prefabs/Core/Selection/SelectionSprite.prefab
+  uploadId: 905056

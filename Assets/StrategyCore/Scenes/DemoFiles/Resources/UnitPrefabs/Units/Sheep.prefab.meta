@@ -1,0 +1,14 @@
+fileFormatVersion: 2
+guid: e4b97021cc4cbab4d846570de651b7e2
+PrefabImporter:
+  externalObjects: {}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 292539
+  packageName: Strategy Core - Make your own RTS game
+  packageVersion: 1.05
+  assetPath: Assets/StrategyCore/Scenes/DemoFiles/Resources/UnitPrefabs/Units/Sheep.prefab
+  uploadId: 905056

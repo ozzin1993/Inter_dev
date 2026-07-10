@@ -1,0 +1,14 @@
+fileFormatVersion: 2
+guid: 96b151e83481f3c43acc70f94a190190
+DefaultImporter:
+  externalObjects: {}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 292539
+  packageName: Strategy Core - Make your own RTS game
+  packageVersion: 1.05
+  assetPath: Assets/StrategyCore/Scripts/RVOCS/BUILD.bazel
+  uploadId: 905056

@@ -1,0 +1,16 @@
+fileFormatVersion: 2
+guid: 287f30203e452df4ab3f3d04dadfd692
+ShaderImporter:
+  externalObjects: {}
+  defaultTextures: []
+  nonModifiableTextures: []
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 292539
+  packageName: Strategy Core - Make your own RTS game
+  packageVersion: 1.05
+  assetPath: Assets/StrategyCore/Shaders/ViewRect.shader
+  uploadId: 905056

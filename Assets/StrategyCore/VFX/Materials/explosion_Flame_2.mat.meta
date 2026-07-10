@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: 4002236f0fd6a65489c6c0b33fa484be
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 0
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 292539
+  packageName: Strategy Core - Make your own RTS game
+  packageVersion: 1.05
+  assetPath: Assets/StrategyCore/VFX/Materials/explosion_Flame_2.mat
+  uploadId: 905056

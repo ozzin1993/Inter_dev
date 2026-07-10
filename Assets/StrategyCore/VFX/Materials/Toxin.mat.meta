@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: 6d25180df5d2bad409f721462fe4723f
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 2100000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 292539
+  packageName: Strategy Core - Make your own RTS game
+  packageVersion: 1.05
+  assetPath: Assets/StrategyCore/VFX/Materials/Toxin.mat
+  uploadId: 905056

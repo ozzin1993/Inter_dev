@@ -1,0 +1,18 @@
+fileFormatVersion: 2
+guid: e854857f78e2d9a4e80f6635e342a818
+MonoImporter:
+  externalObjects: {}
+  serializedVersion: 2
+  defaultReferences: []
+  executionOrder: 0
+  icon: {instanceID: 0}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 292539
+  packageName: Strategy Core - Make your own RTS game
+  packageVersion: 1.05
+  assetPath: Assets/Universal Strategy Camera/Scripts/Camera_TopDown.cs
+  uploadId: 905056

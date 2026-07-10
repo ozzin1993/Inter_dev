@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: e5785d6b12233c74293445a4983a7757
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 9100000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 292539
+  packageName: Strategy Core - Make your own RTS game
+  packageVersion: 1.05
+  assetPath: Assets/StrategyCore/Scenes/Demo2/Units/Peasant/PeasantController.controller
+  uploadId: 905056

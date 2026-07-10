@@ -1,0 +1,14 @@
+fileFormatVersion: 2
+guid: a665c6a64f24e2844806039e32e6ba4f
+PrefabImporter:
+  externalObjects: {}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 292539
+  packageName: Strategy Core - Make your own RTS game
+  packageVersion: 1.05
+  assetPath: Assets/StrategyCore/VFX/Prefabs/Hit.prefab
+  uploadId: 905056

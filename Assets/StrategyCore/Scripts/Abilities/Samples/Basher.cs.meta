@@ -1,0 +1,18 @@
+fileFormatVersion: 2
+guid: 4bbc0f28ac947ad4e981c4ff18aff3cb
+MonoImporter:
+  externalObjects: {}
+  serializedVersion: 2
+  defaultReferences: []
+  executionOrder: 0
+  icon: {instanceID: 0}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 292539
+  packageName: Strategy Core - Make your own RTS game
+  packageVersion: 1.05
+  assetPath: Assets/StrategyCore/Scripts/Abilities/Samples/Basher.cs
+  uploadId: 905056

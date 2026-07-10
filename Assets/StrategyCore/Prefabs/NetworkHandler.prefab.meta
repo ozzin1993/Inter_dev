@@ -1,0 +1,14 @@
+fileFormatVersion: 2
+guid: fb7fa072a6c807a429a96ff358b8e735
+PrefabImporter:
+  externalObjects: {}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 292539
+  packageName: Strategy Core - Make your own RTS game
+  packageVersion: 1.05
+  assetPath: Assets/StrategyCore/Prefabs/NetworkHandler.prefab
+  uploadId: 905056

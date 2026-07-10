@@ -1,0 +1,18 @@
+fileFormatVersion: 2
+guid: dadf5b4d10cde45458ce2f78fba39621
+MonoImporter:
+  externalObjects: {}
+  serializedVersion: 2
+  defaultReferences: []
+  executionOrder: 0
+  icon: {instanceID: 0}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 292539
+  packageName: Strategy Core - Make your own RTS game
+  packageVersion: 1.05
+  assetPath: Assets/StrategyCore/Scripts/CustomDrawers/DamageDrawer.cs
+  uploadId: 905056

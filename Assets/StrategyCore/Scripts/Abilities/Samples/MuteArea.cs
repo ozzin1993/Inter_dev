@@ -1,0 +1,27 @@
+using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
+
+namespace StrategyCore
+{
+    // Asset menu
+    [CreateAssetMenu(fileName = "MuteArea", menuName = "StrategyCore/Abilities/MuteArea")]
+    public class MuteArea : Ability
+    {
+        public override AbilityType type { get { return AbilityType.Area; } } // Specify type
+
+        [Header("Ability specific")]
+        public float[] muteTime;
+
+        public override void Use(Unit castingUnit, int castingPlayer, int level, Vector3 location)
+        {
+            // Get units in radius
+            Unit[] units = Utils.GetUnitsInRadius(new Vector2(location.x, location.z), radius[level], castingUnit.owner, unitSelector);
+
+            for (int i = 0; i < units.Length; i++)
+            {
+                units[i].Mute(muteTime[level]);
+            }
+        }
+    }
+}

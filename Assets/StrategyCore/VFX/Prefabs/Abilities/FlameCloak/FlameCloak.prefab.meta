@@ -1,0 +1,14 @@
+fileFormatVersion: 2
+guid: 325c5d5f58f88a44b853d89dba45742e
+PrefabImporter:
+  externalObjects: {}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 292539
+  packageName: Strategy Core - Make your own RTS game
+  packageVersion: 1.05
+  assetPath: Assets/StrategyCore/VFX/Prefabs/Abilities/FlameCloak/FlameCloak.prefab
+  uploadId: 905056

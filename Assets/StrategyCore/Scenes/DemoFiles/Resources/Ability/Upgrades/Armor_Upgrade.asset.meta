@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: 32ff5061dba78ef42b2d5f414360808b
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 11400000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 292539
+  packageName: Strategy Core - Make your own RTS game
+  packageVersion: 1.05
+  assetPath: Assets/StrategyCore/Scenes/DemoFiles/Resources/Ability/Upgrades/Armor_Upgrade.asset
+  uploadId: 905056

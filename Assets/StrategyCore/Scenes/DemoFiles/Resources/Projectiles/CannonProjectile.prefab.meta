@@ -1,0 +1,14 @@
+fileFormatVersion: 2
+guid: e14e8ca05f77d3342bb7177a1289b43b
+PrefabImporter:
+  externalObjects: {}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 292539
+  packageName: Strategy Core - Make your own RTS game
+  packageVersion: 1.05
+  assetPath: Assets/StrategyCore/Scenes/DemoFiles/Resources/Projectiles/CannonProjectile.prefab
+  uploadId: 905056

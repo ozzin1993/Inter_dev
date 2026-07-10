@@ -1,0 +1,18 @@
+fileFormatVersion: 2
+guid: b64dfd0a3ca8bab49a28d9a9b8d0b83c
+ScriptedImporter:
+  internalIDToNameTable: []
+  externalObjects: {}
+  serializedVersion: 2
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+  script: {fileID: 12388, guid: 0000000000000000e000000000000000, type: 0}
+  disableValidation: 0
+AssetOrigin:
+  serializedVersion: 1
+  productId: 292539
+  packageName: Strategy Core - Make your own RTS game
+  packageVersion: 1.05
+  assetPath: Assets/UI Toolkit/UnityThemes/UnityDefaultRuntimeTheme.tss
+  uploadId: 905056

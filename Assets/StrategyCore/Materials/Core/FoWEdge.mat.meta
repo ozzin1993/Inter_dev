@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: e4dcb7f10ff7d5e4c8db5eb1daa29115
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 2100000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 292539
+  packageName: Strategy Core - Make your own RTS game
+  packageVersion: 1.05
+  assetPath: Assets/StrategyCore/Materials/Core/FoWEdge.mat
+  uploadId: 905056
