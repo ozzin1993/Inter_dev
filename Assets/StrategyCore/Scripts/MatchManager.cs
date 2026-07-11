@@ -249,8 +249,6 @@ namespace StrategyCore
             GravesUnwire(); // Могилки: отписка (см. GravesWire / MatchManager.Graves.cs).
             DeathEventsUnwire(); // Хаб смертей: отписка (см. DeathEventsWire / MatchManager.DeathEvents.cs).
             SoulsUnwire(); // Ресурс «Души»: отписка от хаба + очистка модификаторов (см. SoulsWire / MatchManager.Souls.cs).
-            // [ВРЕМЕННАЯ ДИАГНОСТИКА CallToArms] Отписка периодического лога.
-            if (summonDiagSubscribed && GameManager.instance != null) GameManager.instance.Tick -= SummonLifetimeDiagTick;
             if (instance == this) instance = null;
         }
 

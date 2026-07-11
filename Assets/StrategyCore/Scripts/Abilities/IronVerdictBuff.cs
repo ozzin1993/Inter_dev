@@ -55,7 +55,6 @@ namespace StrategyCore
                     immunityAdded = true;
                 }
                 applied = true;
-                StartCoroutine(MatchManager.PingScaleDiag(unit.transform));   // [Hero DIAG — ВРЕМЕННО] пульс реально задетого союзника
             }
 
             if (!subscribed && GameManager.instance != null)

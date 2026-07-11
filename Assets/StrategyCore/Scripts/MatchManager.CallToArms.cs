@@ -19,12 +19,6 @@ namespace StrategyCore
         // команды при потере точки (ReissueSummonedCommand). Только для не слушающих общих приказов.
         readonly List<Unit>[] summonedUnits = new List<Unit>[2] { new List<Unit>(), new List<Unit>() };
 
-        // [ВРЕМЕННАЯ ДИАГНОСТИКА CallToArms] Наблюдение за таймерами жизни призванных (баг «не умирают по таймеру»).
-        // Удалить целиком вместе с SummonLifetimeDiagTrack/SummonLifetimeDiagTick после локализации бага.
-        readonly List<LifetimeUnit> summonDiag = new List<LifetimeUnit>();
-        float summonDiagTimer;
-        bool  summonDiagSubscribed;
-
         // ======================== «ПРИЗЫВ К ОРУЖИЮ» (повторная волна ополчения) ========================
 
         /// <summary>
@@ -83,56 +77,15 @@ namespace StrategyCore
         // уже был на префабе — ассет проинициализировал сам, не трогаем (во избежание двойной подписки).
         void ApplySummonLifetime(Unit u, float lifetime)
         {
-            // [ВРЕМЕННАЯ ДИАГНОСТИКА CallToArms] Ранее тихие выходы теперь логируются.
-            if (u == null) { Debug.LogWarning("[CallToArms ДИАГНОСТИКА] ApplySummonLifetime: u == null — время жизни не назначено."); return; }
-            if (lifetime <= 0f) { Debug.LogWarning($"[CallToArms ДИАГНОСТИКА] {u.name}: lifetime={lifetime} ≤ 0 — время жизни не назначено."); return; }
+            if (u == null || lifetime <= 0f) return;
 
             LifetimeUnit existing = u.GetComponent<LifetimeUnit>();
-            if (existing != null) // уже инициализирован ассетом (компонент был на префабе)
-            {
-                Debug.Log($"[CallToArms ДИАГНОСТИКА] {u.name} #{existing.GetInstanceID()}: LifetimeUnit уже был на префабе, " +
-                          $"lifespan={existing.lifespan}, currentLifeSpan={existing.currentLifeSpan} — новый не добавляется.");
-                SummonLifetimeDiagTrack(u, existing);
-                return;
-            }
+            if (existing != null) return; // уже инициализирован ассетом (компонент был на префабе) — не трогаем (двойная подписка)
 
             LifetimeUnit lt = u.gameObject.AddComponent<LifetimeUnit>();
             lt.lifespan = lifetime;
             if (GameManager.instance != null) lt.Initialize();
             else { Debug.LogWarning("[MatchManager] Призыв к Оружию: GameManager.instance == null — LifetimeUnit не инициализирован."); return; }
-            Debug.Log($"[CallToArms ДИАГНОСТИКА] {u.name} #{lt.GetInstanceID()} (netID={u.netID}): LifetimeUnit добавлен и инициализирован, " +
-                      $"currentLifeSpan={lt.currentLifeSpan}.");
-            SummonLifetimeDiagTrack(u, lt);
-        }
-
-        // [ВРЕМЕННАЯ ДИАГНОСТИКА CallToArms] Взять призванного под наблюдение: лог факта смерти + периодический лог таймера.
-        void SummonLifetimeDiagTrack(Unit u, LifetimeUnit lt)
-        {
-            summonDiag.Add(lt);
-            u.OnDie += (du, killer, killerUnit, rewards) =>
-                Debug.Log($"[CallToArms ДИАГНОСТИКА] {du.name} (netID={du.netID}) умер: killerPlayer={killer}, rewards={rewards} " +
-                          "(смерть по таймеру выглядит так: killerPlayer=-1, rewards=False).");
-            if (!summonDiagSubscribed && GameManager.instance != null)
-            {
-                GameManager.instance.Tick += SummonLifetimeDiagTick;
-                summonDiagSubscribed = true;
-            }
-        }
-
-        // [ВРЕМЕННАЯ ДИАГНОСТИКА CallToArms] Раз в ~10 с логирует таймеры живых призванных.
-        // ВАЖНО: метод сам работает от GameManager.Tick — если после призыва этих логов нет ВООБЩЕ,
-        // значит Tick не тикает, и это и есть причина «бессмертия» (LifetimeUnit тоже живёт от Tick).
-        void SummonLifetimeDiagTick()
-        {
-            summonDiagTimer += GameManager.instance.currentDeltaTime;
-            if (summonDiagTimer < 10f) return; // интервал зашит осознанно: код временный, удаляется целиком (не Inspector)
-            summonDiagTimer = 0f;
-            for (int i = summonDiag.Count - 1; i >= 0; i--)
-            {
-                LifetimeUnit lt = summonDiag[i];
-                if (lt == null) { summonDiag.RemoveAt(i); continue; } // объект юнита уничтожен — снимаем с наблюдения
-                Debug.Log($"[CallToArms ДИАГНОСТИКА] {lt.name} #{lt.GetInstanceID()}: currentLifeSpan={lt.currentLifeSpan:F1} из {lt.lifespan}.");
-            }
         }
 
         // «Бесплатность» призыва по Limited-ресурсам (лидерство): ассет в Unit.Initialize занял ресурс

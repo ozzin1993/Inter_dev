@@ -289,30 +289,7 @@ namespace StrategyCore
                 return;
             }
 
-            // [Hero DIAG 2026-07-06 — ВРЕМЕННО] Диагностика каста: result=false → гейт requirements/cooldown
-            // (lock/мана/ресурс); mana покажет мана-причину. Убрать после диагностики.
-            bool diagResult = caster.UseAbilityItem(index, false, null, Vector3.zero, true);
-            Debug.Log($"[Hero DIAG] Каст умения id={abilityId} idx={index}: UseAbilityItem={diagResult}, mana={caster.mana}/{caster.maxMana}, dead={caster.dead}.");
-            // [Hero DIAG] Гарантированный ВИДИМЫЙ эффект: пульс масштаба героя, когда каст прошёл гейт.
-            // Позволяет глазами отличить «каст сработал, но у умения нет своего VFX» от «каст заблокирован».
-            if (diagResult && caster != null)
-                StartCoroutine(PingScaleDiag(caster.transform));   // пульс самого героя-кастера (каст прошёл гейт)
-        }
-
-        // [Hero DIAG — ВРЕМЕННО] Видимый пульс масштаба (0.35с, до 1.6×) — индикатор каста/реакции. Убрать после диагностики.
-        // Public static: реально задетых пингуют сами умения в точке применения эффекта (напр. IronVerdictBuff на союзнике).
-        public static System.Collections.IEnumerator PingScaleDiag(Transform t)
-        {
-            if (t == null) yield break;
-            Vector3 baseScale = t.localScale;
-            const float dur = 0.35f;
-            for (float e = 0f; e < dur; e += Time.deltaTime)
-            {
-                float k = 1f + 0.6f * Mathf.Sin(e / dur * Mathf.PI);
-                t.localScale = baseScale * k;
-                yield return null;
-            }
-            t.localScale = baseScale;
+            caster.UseAbilityItem(index, false, null, Vector3.zero, true);   // уровень/замок/КД/ману проверяет сам ассет (правило 2)
         }
     }
 }
