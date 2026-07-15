@@ -139,6 +139,11 @@ namespace StrategyCore
                 if (!IsTechUnlocked(team, branch, prev)) return false;         // первая непустая выше должна быть открыта
                 break;                                                          // требование удовлетворено
             }
+
+            // C3 «Без Союза»: взаимоисключение путей А/Б + блок ветки синергии (MatchManager.TechExclusion).
+            // Покрывает и покупку (TryUnlockTech зовёт этот метод), и доступность в UI. Правка — с ОК Artsiom (§30).
+            if (!IsTechAllowedByExclusion(cell.technology, cfg.ownerPlayer)) return false;
+
             return true;
         }
 

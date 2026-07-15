@@ -91,6 +91,16 @@ namespace StrategyCore
         public float percentReduction = 0f;
     }
 
+    /// <summary>Группа взаимоисключающих технологий (C3 «Без Союза»): купив ОДИН тех группы, остальные
+    /// блокируются навсегда. Обёртка нужна, т.к. Unity не сериализует зубчатый Technology[][].</summary>
+    [Serializable]
+    public class TechGroup
+    {
+        [Tooltip("Технологии одной взаимоисключающей группы (например [Путь А, Путь Б]). Разблокировка одной " +
+                 "навсегда блокирует остальные (проверка по штатному TechTree, без мутации). Лежат в Resources/Technology.")]
+        public Technology[] techs;
+    }
+
     [CreateAssetMenu(fileName = "FactionConfig", menuName = "StrategyCore/Faction Config")]
     public class FactionConfig : ScriptableObject
     {
@@ -208,5 +218,14 @@ namespace StrategyCore
         [Tooltip("Кап радиуса Скверны на источник (макс.), мировые единицы. 0 — без капа (растёт неограниченно). " +
                  "Активна только у Нежити. [БАЛАНС — Влад]")]
         public float skvernaMaxRadius = 0f;
+
+        [Header("Взаимоисключение техов (C3 «Без Союза»)")]
+        [Tooltip("Группы взаимоисключающих технологий (пути А/Б). В каждой группе игрок может разблокировать " +
+                 "ТОЛЬКО ОДИН тех — остальные блокируются навсегда. Пример: [[Путь А, Путь Б]]. Пусто — механика неактивна.")]
+        public TechGroup[] exclusiveTechGroups;
+
+        [Tooltip("Технологии «ветки синергии Союза», блокируемые при выборе пути (как только разблокирован любой " +
+                 "тех из exclusiveTechGroups). Список — в Inspector; дефолт-предложение A5 (Решения_Ждут.md) не подтверждён Владом. Пусто — неактивно.")]
+        public Technology[] lockedBySouzlessTechs;
     }
 }
