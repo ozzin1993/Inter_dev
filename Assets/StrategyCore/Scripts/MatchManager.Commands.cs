@@ -81,19 +81,20 @@ namespace StrategyCore
             List<Unit> units = FilterByCommandGroup(GetGroupUnits(teamIndex), groupIndex);
             List<Unit> attackUnits = FilterByCommand(units, isAttack: true);
             Debug.Log($"[MatchManager] АТАКА: команда {teamIndex} ряд {groupIndex} (player={player}), " +
-                      $"юнитов={attackUnits.Count}/{units.Count}, цель={POIName(attackPOI)}, " +
-                      $"режим={( NetworkConnectionHandler.isClient ? "клиент(AttackMove)" : "сервер(FormationMarch)" )}.");
+                      $"юнитов={attackUnits.Count}/{units.Count}, цель={POIName(attackPOI)}.");
             if (attackUnits.Count == 0) return;
 
             Vector2 target = currentAttackPoint[teamIndex];
             if (target == Vector2.zero) return;
 
-            Func<Vector2> targetDelegate = lane != null ? () => AttackTarget(player) : (Func<Vector2>)null;
-            StopFormationsForOwnerGroup(player, groupIndex);
-            FormationMarch.Begin(
-                attackUnits, target, player,
-                detectionRadius, regroupDebounce, formationPollInterval, arrivalDistance,
-                slotSpacing, targetDelegate, groupIndex);
+            // Прямой AttackMove каждому юниту ряда: штатный автомат Unit сам дерётся по пути и после боя
+            // продолжает движение к цели (строя/пауз на пересборку нет). Перенацеливание при смене владельца
+            // точек — по событиям: SpawnWave (новая волна), HandleTowerDie (захват), ReissueCurrentCommand (после авто-каста).
+            for (int i = 0; i < attackUnits.Count; i++)
+            {
+                Unit u = attackUnits[i];
+                if (u != null && !u.dead) u.AttackMove(target);
+            }
         }
 
         /// <summary>
@@ -125,17 +126,16 @@ namespace StrategyCore
             Vector2 target = currentDefencePoint[teamIndex];
             if (target == Vector2.zero) return;
 
-            StopFormationsForOwnerGroup(player, groupIndex);
             // Защита через сетки слотов: каждый живой юнит ряда идёт в СВОЙ слот активной сетки.
             IssueDefenceAll(teamIndex, groupIndex);
         }
 
         /// <summary>
-        /// Переотдать одному юниту текущую команду его команды (Атака/Защита).
-        /// Нужна для возврата юнита к маршу/обороне после авто-каста (см. AutoAbilityUser).
+        /// Переотдать одному юниту текущую команду его ряда (Атака/Защита/None).
+        /// Нужна для возврата юнита к движению/обороне после авто-каста (см. AutoAbilityUser).
         /// Серверо-авторитетно. Цель берётся «вживую» из Lane (единый источник истины),
-        /// поэтому актуальна даже после смены владельца точек. Если у команды нет активного
-        /// режима (None) или цели нет — ничего не делает.
+        /// поэтому актуальна даже после смены владельца точек. None (включая юнитов вне всех
+        /// рядов) = идти к вражеской точке и драться (AttackMove); цели нет — ничего не делает.
         /// </summary>
         public void ReissueCurrentCommand(Unit unit)
         {
@@ -145,11 +145,14 @@ namespace StrategyCore
             int teamIndex = TeamIndexOfOwner(unit.owner);
             if (teamIndex < 0) return;
 
+            // Режим ряда юнита. Класс вне всех рядов (group < 0) — кнопки его не трогают, режим None.
             int group = CommandGroupOfUnit(unit);
-            if (group < 0 || !IsValidCommandGroup(group)) return; // класс юнита не покрыт ни одним рядом — переотдавать нечего
+            BottomTableAction mode = IsValidCommandGroup(group)
+                ? currentCommand[teamIndex][group]
+                : BottomTableAction.None;
 
             int player = Team(teamIndex).ownerPlayer;
-            switch (currentCommand[teamIndex][group])
+            switch (mode)
             {
                 case BottomTableAction.Attack:
                     if (!RespondsToCommand(unit, isAttack: true)) break; // не реагирует на атаку
@@ -166,7 +169,13 @@ namespace StrategyCore
                         if (def != Vector2.zero) unit.Move(def);
                     }
                     break;
-                // None — переотдавать нечего.
+                default:
+                    // None (включая юнитов вне всех рядов): инвариант — без команды юнит идёт к вражеской
+                    // точке и дерётся. Раньше застывшего после авто-каста дефолт-юнита подхватывал опрос
+                    // строя (FormationMarch); строя больше нет — выдаём AttackMove явно. Цели нет → no-op.
+                    Vector2 atkNone = AttackTarget(player);
+                    if (atkNone != Vector2.zero) unit.AttackMove(atkNone);
+                    break;
             }
         }
 
@@ -187,60 +196,6 @@ namespace StrategyCore
             int teamIndex = TeamIndexOfOwner(player);
             if (teamIndex < 0) return new List<Unit>();
             return GetGroupUnits(teamIndex);
-        }
-
-        // Динамический порог прибытия группы: запас из конфига (arrivalDistance) + полуразмер
-        // строя ComputeFormation (√N × макс. unitRadius). Считается один раз при выдаче команды.
-        static float GroupArrivalThreshold(List<Unit> units, float margin)
-        {
-            int n = 0;
-            float maxRadius = 0f;
-            for (int i = 0; i < units.Count; i++)
-            {
-                Unit u = units[i];
-                if (u == null || u.dead) continue;
-                n++;
-                if (u.unitRadius > maxRadius) maxRadius = u.unitRadius;
-            }
-            if (n == 0) return margin;
-            return margin + Mathf.Sqrt(n) * maxRadius;
-        }
-
-        // Корутина: ждёт, пока все живые юниты команды не окажутся рядом с точкой,
-        // затем выдаёт им Hold. Самоотключается, если все юниты погибли до прибытия.
-        IEnumerator HoldOnArrival(int teamIndex, List<Unit> units, Vector2 target, float arrivalThreshold)
-        {
-            while (true)
-            {
-                yield return new WaitForSeconds(0.2f);
-
-                bool anyAlive = false;
-                bool anyFar   = false;
-                for (int i = 0; i < units.Count; i++)
-                {
-                    Unit u = units[i];
-                    if (u == null || u.dead) continue;
-                    anyAlive = true;
-                    Vector3 pos = u.transform.position;
-                    if (Vector2.Distance(new Vector2(pos.x, pos.z), target) > arrivalThreshold)
-                        anyFar = true;
-                }
-
-                if (!anyAlive)   // все погибли — холд не нужен
-                {
-                    defenceHoldCoroutines[teamIndex] = null;
-                    yield break;
-                }
-                if (!anyFar) break; // все добрались до точки
-            }
-
-            defenceHoldCoroutines[teamIndex] = null;
-            Debug.Log($"[MatchManager] ХОЛД: юниты команды {teamIndex} прибыли в точку защиты, занимаем холд.");
-            for (int i = 0; i < units.Count; i++)
-            {
-                Unit u = units[i];
-                if (u != null && !u.dead) u.Hold();
-            }
         }
 
         // Живые боевые юниты команды. Сервер — из teamUnits; клиент — FindObjectsByType.
@@ -288,19 +243,6 @@ namespace StrategyCore
                 currentAttackPoint[i]  = newAttack;
                 currentDefencePoint[i] = newDefence;
             }
-        }
-
-        // Остановить FormationMarch указанного владельца И РЯДА (commandGroup), чтобы не конфликтовали с новой
-        // командой этого ряда. Строи ДРУГИХ рядов не трогаются — ряды независимы.
-        void StopFormationsForOwnerGroup(int player, int group)
-        {
-            if (NetworkConnectionHandler.isClient) return;
-            // Реестр активных формаций (FormationMarch.ActiveFormations) вместо FindObjectsByType — без скана сцены.
-            // Stop()→Destroy отложен (OnDestroy правит реестр в конце кадра), поэтому идём с конца.
-            IReadOnlyList<FormationMarch> all = FormationMarch.ActiveFormations;
-            for (int i = all.Count - 1; i >= 0; i--)
-                if (all[i] != null && all[i].OwnerPlayer == player && all[i].CommandGroup == group)
-                    all[i].Stop();
         }
 
     }

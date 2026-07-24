@@ -12,58 +12,32 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6eab1036be064544e8420029828dc5cd, type: 3}
   m_Name: Faction_Lyudi
   m_EditorClassIdentifier: Assembly-CSharp::StrategyCore.FactionConfig
-  waveComposition:
-  - unitToSpawn: {fileID: 1165191979987236916, guid: 622d80cb10378414db05626fc5b18b5e, type: 3}
-    count: 2
-  - unitToSpawn: {fileID: 5186792438009123784, guid: e1d4024dc0818a045a577bdc6a6528e1, type: 3}
-    count: 2
+  waveUnits:
+  - unit: {fileID: 5186792438009123784, guid: e1d4024dc0818a045a577bdc6a6528e1, type: 3}
+    role: 0
+    count: 1
+  - unit: {fileID: 1165191979987236916, guid: 622d80cb10378414db05626fc5b18b5e, type: 3}
+    role: 0
+    count: 1
   availableWaveUnits:
   - {fileID: 5186792438009123784, guid: e1d4024dc0818a045a577bdc6a6528e1, type: 3}
   - {fileID: 1165191979987236916, guid: 622d80cb10378414db05626fc5b18b5e, type: 3}
+  basicWaveUnits:
+  - {fileID: 5186792438009123784, guid: e1d4024dc0818a045a577bdc6a6528e1, type: 3}
+  - {fileID: 1165191979987236916, guid: 622d80cb10378414db05626fc5b18b5e, type: 3}
+  waveUnitCounts:
+  - unit: {fileID: 0}
+    count: 0
+  - unit: {fileID: 0}
+    count: 0
+  baseWaveIncome: 50
   centralAbilities:
   - {fileID: 11400000, guid: 6c78edcc27864d878c975e036280609b, type: 2}
   - {fileID: 11400000, guid: cd52d4d6dbb0159499b71362b041352d, type: 2}
   heroPrefab: {fileID: 5777498244358534415, guid: a6dd640619d3394408f37a1b3f7b762a, type: 3}
-  techBranches:
-  - levels:
-    - technology: {fileID: 11400000, guid: de4113767a3571c49993468754a11d99, type: 2}
-      icon: {fileID: 0}
-      cost:
-      - type: {fileID: 11400000, guid: dfacb690ca8bd7f41b614f3280cdaf0c, type: 2}
-        value: 100
-    - technology: {fileID: 11400000, guid: bfa755be8ac1be946baacc072e884cfb, type: 2}
-      icon: {fileID: 0}
-      cost:
-      - type: {fileID: 11400000, guid: dfacb690ca8bd7f41b614f3280cdaf0c, type: 2}
-        value: 100
-    - technology: {fileID: 11400000, guid: 2aa40475d29544c4888f47de3175dd82, type: 2}
-      icon: {fileID: 0}
-      cost:
-      - type: {fileID: 11400000, guid: dfacb690ca8bd7f41b614f3280cdaf0c, type: 2}
-        value: 100
-  - levels:
-    - technology: {fileID: 11400000, guid: 90a6eaa0f197308418328ee0c83e0367, type: 2}
-      icon: {fileID: 0}
-      cost:
-      - type: {fileID: 11400000, guid: dfacb690ca8bd7f41b614f3280cdaf0c, type: 2}
-        value: 100
-  - levels:
-    - technology: {fileID: 11400000, guid: 706d52d2e7927d846921e3ecb391085a, type: 2}
-      icon: {fileID: 0}
-      cost:
-      - type: {fileID: 11400000, guid: dfacb690ca8bd7f41b614f3280cdaf0c, type: 2}
-        value: 100
-  mainBuildingUpgradeCosts:
-  - cost:
-    - type: {fileID: 11400000, guid: dfacb690ca8bd7f41b614f3280cdaf0c, type: 2}
-      value: 100
-  - cost:
-    - type: {fileID: 11400000, guid: dfacb690ca8bd7f41b614f3280cdaf0c, type: 2}
-      value: 100
-  - cost:
-    - type: {fileID: 11400000, guid: dfacb690ca8bd7f41b614f3280cdaf0c, type: 2}
-      value: 100
-  mainBuildingLevelTechs: []
+  heroUnlockTech: {fileID: 0}
+  techTiers: []
+  mainBuildingShapesByLevel: []
   centreTower: {fileID: 1949225473786359498, guid: a3f868054cba2804a9d217e3d6c684e0, type: 3}
   defence1Tower: {fileID: 6802366058098623906, guid: 0d1477cd7c1d4f74dbe5a70a84988de4, type: 3}
   defence2Tower: {fileID: 6802366058098623906, guid: 0d1477cd7c1d4f74dbe5a70a84988de4, type: 3}
@@ -102,5 +76,21 @@ MonoBehaviour:
     showCentralAbilities:
     - {fileID: 11400000, guid: cd52d4d6dbb0159499b71362b041352d, type: 2}
     hideCentralAbilities: []
+  costModifiers: []
   gravePrefab: {fileID: 0}
   graveLifetime: 30
+  soulsResource: {fileID: 0}
+  soulsPerMinuteByMbLevel:
+  - 15
+  - 20
+  - 30
+  - 40
+  - 60
+  soulsPerTier: 010000000200000004000000080000000f000000
+  soulBranches: []
+  soulBranchLimit: 2
+  skvernaStartRadius: 0
+  skvernaGrowthPerSecond: 0
+  skvernaMaxRadius: 0
+  exclusiveTechGroups: []
+  lockedBySouzlessTechs: []

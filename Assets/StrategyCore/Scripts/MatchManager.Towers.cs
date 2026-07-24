@@ -83,6 +83,25 @@ namespace StrategyCore
                     else if (currentCommand[i][g] == BottomTableAction.Defence)  SendDefenceCommand(i, g);
                 }
 
+            // Ретаргет юнитов «без команды» (ряд в None или класс вне всех рядов) на новую вражескую точку.
+            // Раньше их перенацеливал делегат цели FormationMarch (опрос); теперь — явно по событию захвата,
+            // иначе дефолт-юниты застывают у взятой точки до следующей волны. Цели нет (Vector2.zero) → no-op.
+            for (int i = 0; i < 2; i++)
+            {
+                TeamWaveConfig teamCfg = Team(i);
+                if (teamCfg == null) continue;
+                Vector2 noneTarget = AttackTarget(teamCfg.ownerPlayer);
+                if (noneTarget == Vector2.zero) continue;
+                List<Unit> units = teamUnits[i];
+                for (int j = 0; j < units.Count; j++)
+                {
+                    Unit teamUnit = units[j];
+                    if (teamUnit == null || teamUnit.dead) continue;
+                    if (CurrentCommandForUnit(i, teamUnit) != BottomTableAction.None) continue;
+                    teamUnit.AttackMove(noneTarget);
+                }
+            }
+
             // Призванные из отдельного списка (не слушающие общих приказов) переотдают свою команду
             // (Защита → новая передовая своя точка, Атака → новая вражеская). Слушающие общие — уже в teamUnits
             // и покрыты переотдачей команд выше.

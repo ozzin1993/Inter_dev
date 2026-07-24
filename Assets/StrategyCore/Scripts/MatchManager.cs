@@ -14,6 +14,13 @@ namespace StrategyCore
         public int count = 1;
     }
 
+    // Волна 2.0: политика при пропуске волны (не влезла в лидерство) — судьба разовых пометок.
+    public enum WaveOverflowPolicy
+    {
+        CarryOneShots,     // перенести разовые (резерв держится) на следующую волну
+        CancelAndRefund,   // отменить разовые с разморозкой (вернуть золото)
+    }
+
     // ============================= TEAM CONFIG ==
     // Полный конфиг одной команды. Раньше был отдельным компонентом UnitWaveSpawner —
     // свёрнут сюда, чтобы уменьшить число объектов/точек входа. Всё настраивается в Inspector.
@@ -23,9 +30,6 @@ namespace StrategyCore
         [Tooltip("Индекс игрока-владельца юнитов этой команды (A обычно 0, B обычно 1).")]
         public int ownerPlayer = 0;
 
-        // ↓ Runtime-копии контента расы (ApplyFaction ← FactionConfig). Единая точка истины — FactionConfig;
-        // в Inspector скрыто, контент правится ТОЛЬКО в ассете расы.
-        [HideInInspector] public WaveEntry[] waveComposition;
 
         [Header("Спавн")]
         [Tooltip("Сетка слотов ЗАМКА этой команды (DefenceGrid): волна спавнится СРАЗУ в слотах строя " +
@@ -36,9 +40,7 @@ namespace StrategyCore
         [Tooltip("Фоллбэк: задержка между спавном юнитов внутри волны, сек. 0 — одновременно (риск NavMesh overlap). Действует только при пустом spawnGrid.")]
         public float spawnDelay = 0f;
 
-        [HideInInspector] public TechBranch[] techBranches;
-        [HideInInspector] public UpgradeCost[] mainBuildingUpgradeCosts;
-        [HideInInspector] public Technology[] mainBuildingLevelTechs; // скрытые техи уровней ГЗ (мост ГЗ→тех); резолв из FactionConfig в ApplyFaction
+        [HideInInspector] public TechTier[] techTiers;                // дерево технологий (тиры); резолв из FactionConfig ГЛУБОКИМ клоном (MatchManager.Factions.CloneTechTiers)
         [HideInInspector] public Unit[] mainBuildingShapesByLevel;    // облик замка по уровням ГЗ (резолв из FactionConfig); смена — MatchManager.MainBuildingShape.cs
 
         [Header("Главное здание")]
@@ -69,6 +71,19 @@ namespace StrategyCore
         [HideInInspector] public Resource soulsResource;               // null у не-Нежити → система душ неактивна
         [HideInInspector] public float[] soulsPerMinuteByMbLevel;      // генерация душ/мин по уровню ГЗ
         [HideInInspector] public int[] soulsPerTier;                   // души за убийство по тиру жертвы
+
+        // ── Волна 2.0 (runtime; резолв из FactionConfig в ApplyFaction) ──
+        [HideInInspector] public WaveUnitEntry[] waveUnits;            // единый список юнитов волны (роль + count); резолв из FactionConfig
+        [HideInInspector] public int baseWaveIncome;                   // стартовый базовый доход волны (из FactionConfig)
+
+        // Пометки состава и окна (сервер, runtime — не сериализуются). autoSummon: типы на автопризыв (каждую волну);
+        // oneShot: unitTypeID → зарезервированное золото (цена×count) разового призыва на ближайшую волну.
+        [NonSerialized] public HashSet<int> autoSummon = new HashSet<int>();
+        [NonSerialized] public Dictionary<int, int> oneShot = new Dictionary<int, int>();
+        [NonSerialized] public int baseIncome;                         // текущий базовый доход (стартует из baseWaveIncome)
+        [NonSerialized] public bool compositionLocked;                 // окно лока t−5..t0 — пометки отклоняются
+        [NonSerialized] public bool waveSkipped;                       // вердикт t−5: волна пропускается целиком
+        [NonSerialized] public int heroWavesToSkip;                    // сколько волн герой ещё пропускает (перерождение)
     }
 
     // ============================= POINT TOWER CONFIG ==
@@ -127,21 +142,6 @@ namespace StrategyCore
                  "Стартовые башни спавнятся автоматически (SpawnInitialTowers) — pre-placed башни в сцене не нужны.")]
         [SerializeField] PointTowerConfig[] rebuildablePoints;
 
-        [Header("Строй (FormationMarch) — общий для обеих команд")]
-        [Tooltip("Вести волну единым квадратом. Выкл — каждый юнит сам AttackMove на цель.")]
-        [SerializeField] bool useFormationMarch = true;
-        [Tooltip("Радиус обнаружения врага вокруг центра группы (бой).")]
-        [SerializeField] float detectionRadius = 8f;
-        [Tooltip("Сколько секунд без врага ждать перед пересборкой строя после боя.")]
-        [SerializeField] float regroupDebounce = 1.5f;
-        [Tooltip("Период опроса состояния строя, сек.")]
-        [SerializeField] float formationPollInterval = 0.5f;
-        [Tooltip("Дистанция до цели, считающаяся прибытием. Для ЗАЩИТЫ — запас сверх полуразмера строя " +
-                 "(порог считается динамически от числа юнитов); для атаки/марша — абсолютное значение.")]
-        [SerializeField] float arrivalDistance = 3f;
-        [Tooltip("Расстояние между слотами строя.")]
-        [SerializeField] float slotSpacing = 2f;
-
         [Header("Темп волн")]
         [Tooltip("Задержка до первой волны после старта матча, сек.")]
         [SerializeField] float firstWaveDelay = 5f;
@@ -155,9 +155,16 @@ namespace StrategyCore
         [Tooltip("Ассет ресурса «Лидерство» (limited). Кап карты = лимит этого ресурса в GameResources " +
                  "(пользователь задаёт его как пул волны × 3). Живые юниты занимают лидерство сами через Unit.resourceCost.")]
         [SerializeField] Resource leadershipResource;
-        [Tooltip("Бюджет лидерства на одну волну. Суммарная стоимость состава не должна его превышать. " +
-                 "Дефолт условный — итоговое значение задаёт пользователь.")]
-        [SerializeField] int waveLeadershipPool = 100;
+
+        [Header("Волна 2.0 — окна / политика / герой")]
+        [Tooltip("За сколько секунд до волны показать предупреждение о превышении лидерства. Должно быть > lockSeconds и < waveInterval.")]
+        [SerializeField] float warnSeconds = 15f;
+        [Tooltip("За сколько секунд до волны заблокировать состав (лок) и вынести вердикт пропуска. Должно быть < warnSeconds.")]
+        [SerializeField] float lockSeconds = 5f;
+        [Tooltip("При пропуске волны: перенести разовые пометки на следующую волну или отменить с разморозкой золота.")]
+        [SerializeField] WaveOverflowPolicy overflowPolicy = WaveOverflowPolicy.CarryOneShots;
+        [Tooltip("Сколько волн герой пропускает после смерти (2 → выходит с 3-й волны).")]
+        [SerializeField] int heroRespawnWavesSkipped = 2;
 
         /// <summary>Ассет ресурса «Золото» (для UI: читать цену из prefab.resourceCost). Единый источник ссылки.</summary>
         public Resource GoldResource => goldResource;
@@ -170,13 +177,13 @@ namespace StrategyCore
         /// <summary>Вызывается после спавна каждого юнита волны. Параметры: индекс команды (0=A, 1=B), юнит.</summary>
         public event Action<int, Unit> OnUnitSpawned;
 
-        /// <summary>Состав волны команды изменился (параметр — индекс команды 0=A, 1=B). Для перерисовки UI конструктора.</summary>
-        public event Action<int> OnWaveCompositionChanged;
+        /// <summary>Пометки состава волны команды изменились (параметр — индекс команды 0=A, 1=B). Для перерисовки UI.</summary>
+        public event Action<int> OnWaveMarksChanged;
+
+        /// <summary>За warnSeconds до волны: состав не влезает в лидерство (параметр — индекс команды). Для UI-предупреждения.</summary>
+        public event Action<int> OnWaveOverflowWarning;
 
         // ======================== СПИСОК ЮНИТОВ ========================
-        // Активные корутины move→hold для защиты каждой команды (0=A, 1=B). Отменяются при новой команде.
-        readonly Coroutine[] defenceHoldCoroutines = new Coroutine[2];
-
         // Живые боевые юниты (UnitType.Unit) каждой команды. Обновляются при спавне волны и OnDie.
         // На клиенте не обновляются (спавн серверный) — GetGroupUnits на клиенте использует FindObjectsByType.
         List<Unit>[] teamUnits;
@@ -209,11 +216,9 @@ namespace StrategyCore
             // Апгрейды контента: подписка на триггеры + начальный пересчёт — по OnGameStart. См. MatchManager.ContentUnlock.cs.
             if (SlotManager.instance != null) SlotManager.instance.OnGameStart += WireContentTriggers;
 
-            // Герой: подписка на изменение уровня ГЗ (пол уровня, D9). Отписка — в OnDestroy (HeroUnwire).
-            HeroWire();
             MainBuildingStatsWire(); // Статы ГЗ по уровню: подписка на OnMainBuildingLevelChanged. Отписка — в OnDestroy.
             MainBuildingShapeWire(); // Облик ГЗ по уровню: подписка на OnMainBuildingLevelChanged. Отписка — в OnDestroy.
-            WaveDefaultsWire(); // Дефолт-состав волны по уровню ГЗ: подписка на OnMainBuildingLevelChanged. Отписка — в OnDestroy.
+            // Волна 2.0: WaveDefaults (состав по уровню ГЗ) упразднён — состав = базовые + пометки.
 
             // Могилки: подписка на спавн юнитов (хук смерти помеченных). Отписка — в OnDestroy (GravesUnwire). См. MatchManager.Graves.cs.
             GravesWire();
@@ -242,10 +247,8 @@ namespace StrategyCore
             hookedTowers.Clear();
             if (SlotManager.instance != null) SlotManager.instance.OnGameStart -= WireContentTriggers;
             UnwireContentTriggers();
-            HeroUnwire(); // Герой: отписка от изменения уровня ГЗ (см. HeroWire).
             MainBuildingStatsUnwire(); // Статы ГЗ по уровню: отписка (см. MainBuildingStatsWire / MatchManager.MainBuildingStats.cs).
             MainBuildingShapeUnwire(); // Облик ГЗ по уровню: отписка (см. MainBuildingShapeWire / MatchManager.MainBuildingShape.cs).
-            WaveDefaultsUnwire(); // Дефолт-состав волны по уровню ГЗ: отписка (см. WaveDefaultsWire / MatchManager.WaveDefaults.cs).
             GravesUnwire(); // Могилки: отписка (см. GravesWire / MatchManager.Graves.cs).
             DeathEventsUnwire(); // Хаб смертей: отписка (см. DeathEventsWire / MatchManager.DeathEvents.cs).
             SoulsUnwire(); // Ресурс «Души»: отписка от хаба + очистка модификаторов (см. SoulsWire / MatchManager.Souls.cs).

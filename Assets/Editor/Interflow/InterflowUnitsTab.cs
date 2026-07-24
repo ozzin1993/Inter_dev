@@ -400,8 +400,10 @@ namespace StrategyCore
         static List<string> FactionRolesOf(FactionConfig f, Unit unit)
         {
             var roles = new List<string>();
-            if (f.waveComposition != null && f.waveComposition.Any(w => w != null && w.unitToSpawn == unit)) roles.Add("волна");
-            if (f.availableWaveUnits != null && f.availableWaveUnits.Contains(unit)) roles.Add("доступные волны");
+            if (f.waveUnits != null)
+                foreach (var e in f.waveUnits)
+                    if (e != null && e.unit == unit)
+                        roles.Add(e.role == WaveUnitRole.Basic ? "волна (базовый)" : "волна (доступный)");
             if (f.centreTower == unit) roles.Add("башня-центр");
             if (f.defence1Tower == unit) roles.Add("башня об.1");
             if (f.defence2Tower == unit) roles.Add("башня об.2");
@@ -502,10 +504,8 @@ namespace StrategyCore
         // Игровые юниты, на которые ссылается фракция (те же поля, что и в InterflowFactionTab.FactionUnits).
         static IEnumerable<Unit> FactionUnits(FactionConfig f)
         {
-            if (f.waveComposition != null)
-                foreach (var w in f.waveComposition) if (w != null) yield return w.unitToSpawn;
-            if (f.availableWaveUnits != null)
-                foreach (var u in f.availableWaveUnits) yield return u;
+            if (f.waveUnits != null)
+                foreach (var e in f.waveUnits) if (e != null) yield return e.unit;
             yield return f.centreTower;
             yield return f.defence1Tower;
             yield return f.defence2Tower;

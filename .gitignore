@@ -77,3 +77,6 @@ _ReSharper*/
 ehthumbs.db
 Thumbs.db
 desktop.ini
+
+# Plastic SCM (служебные файлы чужой VCS — в git не нужны; решение Artsiom 2026-07-24)
+.plastic/

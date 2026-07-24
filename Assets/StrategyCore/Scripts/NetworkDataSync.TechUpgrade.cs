@@ -9,27 +9,10 @@ namespace StrategyCore
     /// </summary>
     public partial class NetworkDataSync
     {
-        /// <summary>
-        /// Клиент → сервер: запрос улучшить главное здание СВОЕЙ команды. expectedLevel — ожидаемый клиентом
-        /// текущий уровень (идемпотентность против дубль/устаревших кликов). Сервер проверяет владельца и гейт.
-        /// </summary>
+        /// <summary>Клиент → сервер: запрос купить узел дерева ТИРОВ технологий СВОЕЙ команды (Технологии 2.0).
+        /// step: 0=уровень, 1=большой выбор, 2=специализация; option/spec: 0=A,1=B (для своих ступеней). Сервер проверяет владельца и гейты.</summary>
         [Rpc(SendTo.Server)]
-        public void UpgradeMainBuildingServerRpc(int teamIndex, int expectedLevel, RpcParams rpcParams = default)
-        {
-            if (MatchManager.instance == null) return;
-            if (teamIndex != 0 && teamIndex != 1) return;
-
-            // Авторизация: отправитель должен управлять этой командой.
-            int senderPlayer = SlotManager.instance.GetClientSlot(rpcParams.Receive.SenderClientId);
-            TeamWaveConfig cfg = MatchManager.instance.Team(teamIndex);
-            if (cfg == null || senderPlayer != cfg.ownerPlayer) return; // нет прав на эту команду
-
-            MatchManager.instance.TryUpgradeMainBuilding(teamIndex, expectedLevel);
-        }
-
-        /// <summary>Клиент → сервер: запрос разблокировать узел технологии (branch, level) СВОЕЙ команды. Сервер проверяет владельца и гейт.</summary>
-        [Rpc(SendTo.Server)]
-        public void UnlockTechServerRpc(int teamIndex, int branch, int level, RpcParams rpcParams = default)
+        public void UnlockTechTierServerRpc(int teamIndex, int tier, int step, int option, int spec, RpcParams rpcParams = default)
         {
             if (MatchManager.instance == null) return;
             if (teamIndex != 0 && teamIndex != 1) return;
@@ -38,7 +21,7 @@ namespace StrategyCore
             TeamWaveConfig cfg = MatchManager.instance.Team(teamIndex);
             if (cfg == null || senderPlayer != cfg.ownerPlayer) return; // нет прав на эту команду
 
-            MatchManager.instance.TryUnlockTech(teamIndex, branch, level);
+            MatchManager.instance.TryUnlockTierStep(teamIndex, tier, step, option, spec);
         }
 
         /// <summary>Сервер → клиенты: новый уровень главного здания команды (для гейтинга UI).</summary>

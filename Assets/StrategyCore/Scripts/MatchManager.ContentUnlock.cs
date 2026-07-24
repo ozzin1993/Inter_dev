@@ -51,9 +51,10 @@ namespace StrategyCore
 
             if (faction == null) { OnTeamContentChanged?.Invoke(team); return; }
 
-            // База
-            if (faction.availableWaveUnits != null)
-                foreach (Unit u in faction.availableWaveUnits) if (u != null && !units.Contains(u)) units.Add(u);
+            // База: доступные-для-пометки юниты из единого списка (роль Available); техи добавляют поверх ниже.
+            if (faction.waveUnits != null)
+                foreach (WaveUnitEntry e in faction.waveUnits)
+                    if (e != null && e.role == WaveUnitRole.Available && e.unit != null && !units.Contains(e.unit)) units.Add(e.unit);
             if (faction.centralAbilities != null)
                 foreach (Ability a in faction.centralAbilities) if (a != null && !central.Contains(a)) central.Add(a);
 
@@ -81,8 +82,8 @@ namespace StrategyCore
                         foreach (Ability a in rule.hideCentralAbilities) central.Remove(a);
                 }
 
-            // Чистка состава (сервер): убрать из waveComposition юнитов, ушедших из доступных.
-            if (!NetworkConnectionHandler.isClient) PruneWaveComposition(team);
+            // Волна 2.0: чистка пометок (сервер): снять авто/разовые типов, ушедших из доступных (с возвратом резерва).
+            if (!NetworkConnectionHandler.isClient) PruneMarks(team);
 
             // Ретро-замена живых башен (сервер): башни чьи префабы изменились от towerSwaps (шаг 4).
             if (!NetworkConnectionHandler.isClient) RetroReplaceTowers(team);
@@ -116,29 +117,6 @@ namespace StrategyCore
             while (map.TryGetValue(cur, out Unit next) && next != null && next != cur && guard++ < 16)
                 cur = next;
             return cur;
-        }
-
-        // Сервер: убрать из состава волны юнитов, которых больше нет в доступных. Набор пуст → не чистим.
-        void PruneWaveComposition(int team)
-        {
-            TeamWaveConfig cfg = Team(team);
-            if (cfg == null || cfg.waveComposition == null) return;
-            List<Unit> avail = effectiveAvailableUnits[team];
-            if (avail.Count == 0) return;
-
-            List<WaveEntry> kept = new List<WaveEntry>();
-            bool changed = false;
-            foreach (WaveEntry e in cfg.waveComposition)
-            {
-                if (e != null && e.unitToSpawn != null && !avail.Contains(e.unitToSpawn)) { changed = true; continue; }
-                kept.Add(e);
-            }
-            if (changed)
-            {
-                cfg.waveComposition = kept.ToArray();
-                OnWaveCompositionChanged?.Invoke(team);
-                BroadcastWaveComposition(team);
-            }
         }
 
         // Проекция расового базового префаба башни через активные towerSwaps команды (pointKey → to).

@@ -67,6 +67,7 @@ namespace StrategyCore
                 ("Умения и эффекторы", InterflowAbilitiesTab.CreateTabUI),
                 ("Справочники", InterflowCatalogsTab.CreateTabUI),
                 ("Приоритет цели", InterflowTargetPriorityTab.CreateTabUI),
+                ("Матч", InterflowMatchTab.CreateTabUI),
                 ("Валидатор", InterflowValidator.CreateTabUI),
                 ("Чистка — отчёт", InterflowUsageScanner.CreateTabUI),
             };

@@ -5,25 +5,18 @@ namespace StrategyCore
 {
     // ============================= ГЕРОЙ (партиал MatchManager) ==
     // Сервер-авторитетно (правило 6). Один живой герой на команду (одновременно только один).
-    // Призыв кнопкой ВНЕ волны за золото; спавн в слоте сетки замка (как юнит волны); герой попадает в teamUnits
+    // Призыв — АВТОСПАВН с волной (TryAutoSpawnHero, Волна 2.0), бесплатно; после смерти пауза heroWavesToSkip волн.
+    // Спавн в слоте сетки замка (как юнит волны); герой попадает в teamUnits
     // (подчиняется командам Атака/Защита); лидерство НЕ занимает (компенсация как у «Призыва к Оружию»).
-    // Уровень сохраняется между смертями (heroLevel[team]); подъём по улучшению ГЗ — отдельный шаг (D9).
+    // Уровень сохраняется между смертями (heroLevel[team]).
     // Умения героя — на его префабе: Active кастуются из таблицы (CastHeroAbilityById — отдельный шаг),
     // автоматические — штатный компонент AutoAbilityUser на префабе. Ассет StrategyCore не трогаем (правило 1).
     public partial class MatchManager
     {
-        [Header("Герой")]
-        [Tooltip("Стоимость призыва героя в золоте (standard-ресурс GoldResource). 0 — призыв бесплатный. Число — контент.")]
-        [SerializeField] int heroSummonGoldCost = 0;
-
-        [Tooltip("Пол уровня героя по уровню ГЗ (D9): индекс = уровеньГЗ−1. Улучшение ГЗ поднимает уровень героя " +
-                 "до порога и НЕ опускает. Дефолт: ГЗ1→6, ГЗ2→12, ГЗ3→18. На префабе LevelingUnit.maxLevel должен быть ≥ макс. порога (18).")]
-        [SerializeField] int[] heroLevelFloorByMainBuildingLevel = { 6, 12, 18 };
-
         // Живой герой команды (сервер). null — героя нет. Одновременно только один на команду.
         readonly Unit[] heroUnit = new Unit[2];
 
-        // Сохранённый уровень героя команды: персистентность между смертями + пол по уровню ГЗ (D9).
+        // Сохранённый уровень героя команды: персистентность между смертями (D8).
         // 0 — ещё не задан (первый призыв берёт уровень префаба как базовый).
         readonly int[] heroLevel = new int[2];
 
@@ -82,19 +75,6 @@ namespace StrategyCore
                 return;
             }
 
-            // Стоимость золотом: проверка + списание (как в SpawnWave). Сумма — из Inspector (правило 3).
-            if (heroSummonGoldCost > 0)
-            {
-                Resource gold = GoldResource;
-                if (gold == null) { Debug.LogWarning("[MatchManager] Герой: goldResource не задан — призыв отклонён."); return; }
-                if (!GameResources.instance.CheckAmount(cfg.ownerPlayer, new ResourceWrapper(gold, heroSummonGoldCost)))
-                {
-                    Debug.Log($"[MatchManager] Герой команды {team}: не хватает золота ({heroSummonGoldCost}) — призыв отклонён.");
-                    return;
-                }
-                GameResources.instance.ChangeAmount(cfg.ownerPlayer, new ResourceWrapper(gold, heroSummonGoldCost), 1, true, true);
-            }
-
             // Спавн в слоте сетки замка (строй), если spawnGrid задан; иначе — фоллбэк в точку спавна.
             Unit hero = SpawnSlotPose(cfg, team, cfg.heroPrefab.formationPriority, out Vector3 slotPos, out float slotYaw)
                 ? Unit.Spawn(cfg.heroPrefab, slotPos, slotYaw, cfg.ownerPlayer, 0f)
@@ -102,14 +82,7 @@ namespace StrategyCore
 
             if (hero == null)
             {
-                // [CR1 fix 2026-07-10] Возврат золота при неудачном спавне (точка занята) — симметрично списанию выше.
-                if (heroSummonGoldCost > 0)
-                {
-                    Resource goldRefund = GoldResource;
-                    if (goldRefund != null)
-                        GameResources.instance.ChangeAmount(cfg.ownerPlayer, new ResourceWrapper(goldRefund, heroSummonGoldCost), 1, false, true);
-                }
-                Debug.LogWarning($"[MatchManager] Герой команды {team}: спавн не удался (точка занята?). Золото возвращено.");
+                Debug.LogWarning($"[MatchManager] Герой команды {team}: спавн не удался (точка занята?).");
                 return;
             }
 
@@ -137,6 +110,7 @@ namespace StrategyCore
             hero.OnDie += (u, _, _, _) =>
             {
                 CaptureHeroLevel(capt, u);     // сохранить уровень до уничтожения (между смертями)
+                if (Team(capt) != null) Team(capt).heroWavesToSkip = heroRespawnWavesSkipped; // Волна 2.0: после смерти герой пропускает волны
                 teamUnits[capt].Remove(u);
                 OnDefenceUnitDied(capt, u);     // компакция слота (крайний → в дыру)
                 if (heroUnit[capt] == u) heroUnit[capt] = null;
@@ -159,6 +133,19 @@ namespace StrategyCore
             catch (Exception e) { Debug.LogError($"[MatchManager] OnHeroChanged(summon): {e.Message}"); }
             BroadcastHeroAlive(team, true);   // [UI-сессия] синк клиенту: герой жив (дизейбл кнопки призыва)
             Debug.Log($"[MatchManager] Герой команды {team} (player={cfg.ownerPlayer}) призван. Уровень={heroLevel[team]}.");
+        }
+
+        /// <summary>Волна 2.0: автоспавн героя с волной. Открыт (heroUnlockTech), не жив и не на паузе перерождения (heroWavesToSkip==0) → SummonHero (бесплатно).</summary>
+        public void TryAutoSpawnHero(int team)
+        {
+            if (NetworkConnectionHandler.isClient) return;
+            if (team != 0 && team != 1) return;
+            TeamWaveConfig cfg = Team(team);
+            if (cfg == null || cfg.heroPrefab == null) return;
+            if (cfg.heroWavesToSkip > 0) return;                                                        // ещё на паузе перерождения
+            if (HeroAlive(team)) return;                                                                 // уже жив (один живой)
+            if (cfg.heroUnlockTech != null && !TechUnlockedSafe(cfg.heroUnlockTech, cfg.ownerPlayer)) return; // не открыт техой
+            SummonHero(team);
         }
 
         // Поднять уровень свежезаспавненного героя до сохранённого (heroLevel[team]). Только вверх (SetLevel не опускает).
@@ -227,39 +214,6 @@ namespace StrategyCore
 
         /// <summary>[UI-сессия] Уровень героя, известный клиенту (синк). Для UI .locked умений по уровню.</summary>
         public int HeroLevelClient(int team) => (team == 0 || team == 1) ? heroLevelClient[team] : 0;
-
-        // ======================== ПОДЪЁМ УРОВНЯ ПО УЛУЧШЕНИЮ ГЗ (D9) ========================
-
-        // Подписка/отписка на изменение уровня ГЗ (событие OnMainBuildingLevelChanged, MatchManager.TechUpgrade.cs).
-        // Вызываются из Awake/OnDestroy MatchManager (как у ContentUnlock).
-        void HeroWire()   { OnMainBuildingLevelChanged += ApplyHeroLevelFloor; }
-        void HeroUnwire() { OnMainBuildingLevelChanged -= ApplyHeroLevelFloor; }
-
-        // Улучшение ГЗ поднимает уровень героя до порога heroLevelFloorByMainBuildingLevel[уровеньГЗ−1] и НЕ опускает.
-        // Сервер-онли (SetLevel меняет статы/замки умений). Применяется и к сохранённому уровню (heroLevel), и к живому герою.
-        void ApplyHeroLevelFloor(int team)
-        {
-            if (NetworkConnectionHandler.isClient) return;                 // уровень/статы — только сервер (правило 6)
-            if (team != 0 && team != 1) return;
-            if (heroLevelFloorByMainBuildingLevel == null || heroLevelFloorByMainBuildingLevel.Length == 0) return;
-
-            int gz = MainBuildingLevel(team);                              // 0 = стартовый уровень ГЗ (пола нет)
-            if (gz < 1) return;
-            int idx = Mathf.Min(gz - 1, heroLevelFloorByMainBuildingLevel.Length - 1); // выше таблицы — последний порог
-            int floor = heroLevelFloorByMainBuildingLevel[idx];
-            if (floor <= 0) return;
-
-            if (floor > heroLevel[team]) heroLevel[team] = floor;          // персистентный уровень — только вверх
-
-            if (HeroAlive(team))                                           // живому — поднять немедленно (SetLevel не опускает)
-            {
-                LevelingUnit lvl = heroUnit[team].GetComponent<LevelingUnit>();
-                if (lvl != null && lvl.level < floor)
-                    lvl.SetLevel(floor, 0, 0, true, true, true);           // levelUp=true (статы/замки/умения), noVFX=true
-            }
-            SyncHeroLevel(team);                                           // [UI-сессия] уровень мог подняться — синк клиенту
-            Debug.Log($"[MatchManager] Герой команды {team}: пол уровня по ГЗ={gz} → {floor} (сохранённый={heroLevel[team]}).");
-        }
 
         // ======================== КАСТ УМЕНИЙ ГЕРОЯ (кастер = герой) ========================
 

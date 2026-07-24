@@ -58,7 +58,7 @@ namespace StrategyCore
     /// Таблицы — контейнеры с flex-wrap (как штатный .AbilityScrollView), ячейки в стиле .AbilityButton.
     /// Содержимое настраивается в Inspector (tableContents) и/или меняется в рантайме через публичное API.
     /// Клик: подсветка штатным .activeAbility + действие ячейки (Attack/Defence — команда группе юнитов).
-    /// Команды серверо-авторитетны: на сервере строй через FormationMarch, на клиенте — локальное движение.
+    /// Команды серверо-авторитетны: на сервере — прямой Unit.AttackMove (атака) / сетки слотов (защита); клиент шлёт запрос через NetworkDataSync.
     /// На слоте abilityTableSlot вместо общей таблицы строится отдельная ветка способностей (BottomAbilityTable):
     /// набор берётся из MatchManager.Team(commandTeamSlot).centralAbilities, иконка — из Ability.icon[0]. Сама Ability
     /// хранится в userData ячейки; клик активирует её серверо-авторитетно через фиксированного юнита-кастера
@@ -601,7 +601,6 @@ namespace StrategyCore
             {
                 lastAbilitySlotsTeam = team;
                 RefreshAbilitySlots();
-                RefreshHeroSummonButton();   // кнопка призыва зависит от команды локального игрока
             }
         }
 

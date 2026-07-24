@@ -32,10 +32,7 @@ namespace StrategyCore
             FactionConfig faction = ResolveFaction(cfg.ownerPlayer);
             if (faction == null) return;
 
-            cfg.waveComposition          = CloneWaveComposition(faction.waveComposition);
-            cfg.techBranches             = CloneArray(faction.techBranches);
-            cfg.mainBuildingUpgradeCosts = CloneArray(faction.mainBuildingUpgradeCosts);
-            cfg.mainBuildingLevelTechs   = CloneArray(faction.mainBuildingLevelTechs);
+            cfg.techTiers                = CloneTechTiers(faction.techTiers); // дерево тиров — ГЛУБОКИЙ клон (урок waveComposition; ассет не мутируем)
             cfg.mainBuildingShapesByLevel = CloneArray(faction.mainBuildingShapesByLevel);
             cfg.centralAbilities         = faction.centralAbilities != null
                                            ? new List<Ability>(faction.centralAbilities)
@@ -46,6 +43,16 @@ namespace StrategyCore
             cfg.soulsResource            = faction.soulsResource; // ресурс душ Нежити (N1; single ref, клон не нужен)
             cfg.soulsPerMinuteByMbLevel  = CloneArray(faction.soulsPerMinuteByMbLevel); // генерация душ/мин по уровню ГЗ
             cfg.soulsPerTier             = CloneArray(faction.soulsPerTier); // души за убийство по тиру
+
+            // Волна 2.0: единый список юнитов волны + доход + сброс runtime-пометок.
+            cfg.waveUnits                = CloneWaveUnits(faction.waveUnits);           // единый список (глубокий клон — ассет не мутируем)
+            cfg.baseWaveIncome           = faction.baseWaveIncome;
+            cfg.baseIncome               = faction.baseWaveIncome;                      // текущий доход стартует из базового
+            cfg.autoSummon               = new HashSet<int>();
+            cfg.oneShot                  = new Dictionary<int, int>();
+            cfg.compositionLocked        = false;
+            cfg.waveSkipped              = false;
+            cfg.heroWavesToSkip          = 0;
         }
 
         // Раса по слоту-владельцу: playerFaction[slot] — 0-based индекс в GameManager.factionData[] (после
@@ -76,15 +83,57 @@ namespace StrategyCore
         // Поверхностная копия массива (runtime-конфиг изолируем от общего ассета фракции).
         static T[] CloneArray<T>(T[] src) => src != null ? (T[])src.Clone() : null;
 
-        // Глубокая копия состава волны: новые WaveEntry, чтобы runtime НЕ мутировал ассет фракции
-        // (count правит игрок через TryAdd/RemoveWaveUnit) и teamA не делил объекты с teamB.
-        static WaveEntry[] CloneWaveComposition(WaveEntry[] src)
+        // Глубокая копия единого списка юнитов волны: новые WaveUnitEntry, чтобы runtime не мутировал ассет фракции.
+        static WaveUnitEntry[] CloneWaveUnits(WaveUnitEntry[] src)
         {
             if (src == null) return null;
-            WaveEntry[] dst = new WaveEntry[src.Length];
+            WaveUnitEntry[] dst = new WaveUnitEntry[src.Length];
             for (int i = 0; i < src.Length; i++)
-                dst[i] = src[i] != null ? new WaveEntry { unitToSpawn = src[i].unitToSpawn, count = src[i].count } : null;
+                dst[i] = src[i] != null ? new WaveUnitEntry { unit = src[i].unit, role = src[i].role, count = src[i].count } : null;
             return dst;
+        }
+
+        // Глубокая копия дерева тиров: новые TechTier/TechBigOption/TechNode на КАЖДОМ уровне, чтобы runtime
+        // НЕ мутировал ассет фракции (урок waveComposition) и teamA не делил объекты с teamB. Ссылки на ассеты
+        // (Technology/Texture2D/Unit) и массив цены копируются как есть — их не мутируем.
+        static TechTier[] CloneTechTiers(TechTier[] src)
+        {
+            if (src == null) return null;
+            TechTier[] dst = new TechTier[src.Length];
+            for (int i = 0; i < src.Length; i++)
+            {
+                if (src[i] == null) { dst[i] = null; continue; }
+                dst[i] = new TechTier
+                {
+                    levelUpgrade = CloneTechNode(src[i].levelUpgrade),
+                    optionA      = CloneTechBigOption(src[i].optionA),
+                    optionB      = CloneTechBigOption(src[i].optionB),
+                };
+            }
+            return dst;
+        }
+
+        static TechBigOption CloneTechBigOption(TechBigOption src)
+        {
+            if (src == null) return null;
+            return new TechBigOption
+            {
+                node            = CloneTechNode(src.node),
+                specializationA = CloneTechNode(src.specializationA),
+                specializationB = CloneTechNode(src.specializationB),
+                heroPrefab      = src.heroPrefab, // ссылка на префаб героя — клон не нужен
+            };
+        }
+
+        static TechNode CloneTechNode(TechNode src)
+        {
+            if (src == null) return null;
+            return new TechNode
+            {
+                technology = src.technology,       // ссылка на ассет Technology
+                icon       = src.icon,             // ссылка на Texture2D
+                cost       = CloneArray(src.cost), // новый массив; ResourceWrapper-ссылки не мутируем
+            };
         }
 
         /// <summary>

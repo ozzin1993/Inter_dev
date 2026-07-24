@@ -50,6 +50,7 @@ namespace StrategyCore
             ValidateUnits(issues, units, factions);
             ValidateAbilities(issues, units, factions);
             ValidateFactions(issues, factions);
+            ValidateTechTiers(issues, factions);
             ValidateMatchScene(issues, factions);
             ValidateMisc(issues);
 
@@ -104,8 +105,7 @@ namespace StrategyCore
 
             foreach (var f in factions)
             {
-                if (f.waveComposition != null) foreach (var w in f.waveComposition) Add(w?.unitToSpawn, true);
-                if (f.availableWaveUnits != null) foreach (var u in f.availableWaveUnits) Add(u, true);
+                if (f.waveUnits != null) foreach (var e in f.waveUnits) if (e != null) Add(e.unit, true);
                 Add(f.centreTower); Add(f.defence1Tower); Add(f.defence2Tower);
                 Add(f.heroPrefab);
                 if (f.contentUnlockRules != null)
@@ -329,57 +329,111 @@ namespace StrategyCore
                         CheckSubset(r.hideCentralAbilities);
                     }
 
-                // 3. Техи веток: собрать множество техов из techBranches и проверить «дыры».
-                var branchTechs = new HashSet<Technology>();
-                if (f.techBranches != null)
-                    foreach (var br in f.techBranches)
-                    {
-                        if (br?.levels == null) continue;
-                        foreach (var cell in br.levels)
-                            if (cell != null && cell.technology != null) branchTechs.Add(cell.technology);
-
-                        // Дыра: заполненный уровень выше пустого недостижим (гейт: предыдущий уровень должен быть разблокирован).
-                        bool emptyAbove = false;
-                        for (int i = 0; i < br.levels.Length; i++)
-                        {
-                            bool empty = br.levels[i] == null || br.levels[i].technology == null;
-                            if (empty) { emptyAbove = true; continue; }
-                            if (emptyAbove)
-                            {
-                                issues.Add(new InterflowIssue(InterflowIssueSeverity.Warning,
-                                    $"Фракция «{f.name}»: в ветке техов уровень {i + 1} заполнен, но выше есть пустой — узел недостижим (ветка обрывается до него).",
-                                    "MatchManager.TechUpgrade (гейт по предыдущему уровню ветки)", f));
-                                break;
-                            }
-                        }
-                    }
-
-                // 4. mainBuildingLevelTechs: не должны входить в ветки и обязаны лежать в Resources/Technology (пустой = уровень без техи, ок).
-                if (f.mainBuildingLevelTechs != null)
-                    foreach (var t in f.mainBuildingLevelTechs)
-                    {
-                        if (t == null) continue;
-                        if (branchTechs.Contains(t))
-                            issues.Add(new InterflowIssue(InterflowIssueSeverity.Error,
-                                $"Фракция «{f.name}»: теха уровня ГЗ «{t.name}» также присутствует в techBranches — убери её из веток (эти техи скрыты из угловой таблицы).",
-                                "FactionConfig.mainBuildingLevelTechs (тултип: НЕ добавлять в ветки)", t));
-                        if (!InResourcesSubfolder(AssetDatabase.GetAssetPath(t), "Technology"))
-                            issues.Add(new InterflowIssue(InterflowIssueSeverity.Warning,
-                                $"Фракция «{f.name}»: теха уровня ГЗ «{t.name}» вне Resources/Technology — TechnologyManager её не найдёт.",
-                                "FactionConfig.mainBuildingLevelTechs (тултип: лежать в Resources/Technology)", t));
-                    }
-
-                // 5. Стоимости улучшения ГЗ заданы (структурно). Точная длина ↔ число уровней — вынесено (правило 7, см. лог/диф).
-                if (f.mainBuildingUpgradeCosts == null || f.mainBuildingUpgradeCosts.Length == 0)
-                    issues.Add(new InterflowIssue(InterflowIssueSeverity.Warning,
-                        $"У фракции «{f.name}» не заданы mainBuildingUpgradeCosts — улучшение ГЗ будет без стоимости.",
-                        "FactionConfig.mainBuildingUpgradeCosts (тултип)", f));
 
                 // 6. Герой несёт LevelingUnit (иначе уровни/умения героя по уровню не работают). maxLevel ≥ порога — в блоке «Матч/сцена».
                 if (f.heroPrefab != null && f.heroPrefab.GetComponent<LevelingUnit>() == null)
                     issues.Add(new InterflowIssue(InterflowIssueSeverity.Warning,
                         $"У героя фракции «{f.name}» нет компонента LevelingUnit — опыт/уровни и умения по уровню работать не будут.",
                         "Гайд 06; FactionConfig.heroPrefab (тултип: уровни через LevelingUnit)", f.heroPrefab));
+            }
+        }
+
+        // ======================== БЛОК «ТЕХНОЛОГИИ (тиры)» (Технологии 2.0) ========================
+        // Структурные проверки дерева тиров FactionConfig.techTiers (правило 7 — только структура/ссылки, без порогов).
+        // Источник правил: План_Технологии_2.0 §6; [[concepts/tech-tiers-redesign]]. Пустой тир — ожидаемое состояние
+        // (дизайнер ещё не заполнил) → Info, не ошибка; частично заполненный тир → ошибки по пропущенным узлам.
+
+        static void ValidateTechTiers(List<InterflowIssue> issues, List<FactionConfig> factions)
+        {
+            const string src = "План_Технологии_2.0 §6; tech-tiers-redesign";
+
+            foreach (var f in factions)
+            {
+                if (f.techTiers == null) continue;
+
+                var heroTiers = new List<int>();                              // тиры, где вариант открывает героя (правило 5)
+                var techToNodes = new Dictionary<Technology, List<string>>(); // одна Technology → узлы, где встречается (правило 3)
+
+                for (int t = 0; t < f.techTiers.Length; t++)
+                {
+                    var tier = f.techTiers[t];
+                    if (tier == null) continue;
+                    int tierNo = t + 1;
+
+                    // Все узлы тира с русской подписью пути (для сообщений). optionA/optionB — [Serializable], защищаемся от null.
+                    var nodes = new List<(TechNode node, string label)>
+                    {
+                        (tier.levelUpgrade,             "улучшение уровня"),
+                        (tier.optionA?.node,            "вариант А"),
+                        (tier.optionA?.specializationA, "вариант А · спец. А"),
+                        (tier.optionA?.specializationB, "вариант А · спец. Б"),
+                        (tier.optionB?.node,            "вариант Б"),
+                        (tier.optionB?.specializationA, "вариант Б · спец. А"),
+                        (tier.optionB?.specializationB, "вариант Б · спец. Б"),
+                    };
+
+                    bool anyHero = (tier.optionA != null && tier.optionA.heroPrefab != null)
+                                || (tier.optionB != null && tier.optionB.heroPrefab != null);
+
+                    // Правило 1 — полнота. Пустой тир (ни одной Technology и нет героя) — норма (Info); иначе пропуски → Error.
+                    int filled = nodes.Count(n => n.node != null && n.node.technology != null);
+                    if (filled == 0 && !anyHero)
+                    {
+                        issues.Add(new InterflowIssue(InterflowIssueSeverity.Info,
+                            $"Фракция «{f.name}»: тир {tierNo} ещё не заполнен (все узлы пусты) — норма, если дизайнер до него не дошёл.",
+                            src, f));
+                    }
+                    else
+                    {
+                        foreach (var (node, label) in nodes)
+                            if (node == null || node.technology == null)
+                                issues.Add(new InterflowIssue(InterflowIssueSeverity.Error,
+                                    $"Фракция «{f.name}», тир {tierNo}: не задана Technology у узла «{label}» — тир неполный (обязательны уровень, оба варианта и обе их специализации).",
+                                    src, f));
+                    }
+
+                    if (anyHero) heroTiers.Add(tierNo);
+
+                    // Правила 2 (Resources), 4 (цены ≥ 0) и сбор для правила 3 — по каждому заданному узлу.
+                    foreach (var (node, label) in nodes)
+                    {
+                        if (node == null) continue;
+
+                        // Правило 4 — цена не отрицательна (ResourceWrapper.value — int).
+                        if (node.cost != null)
+                            foreach (var c in node.cost)
+                                if (c != null && c.value < 0)
+                                    issues.Add(new InterflowIssue(InterflowIssueSeverity.Error,
+                                        $"Фракция «{f.name}», тир {tierNo}, узел «{label}»: отрицательная цена ({c.value}) у ресурса «{(c.type != null ? c.type.name : "?")}» — цена не может быть меньше 0.",
+                                        src, f));
+
+                        var tech = node.technology;
+                        if (tech == null) continue;
+
+                        // Правило 2 — Technology лежит в Resources/Technology (требование ядра: загрузка/гейтинг по id).
+                        string path = AssetDatabase.GetAssetPath(tech);
+                        if (!InResourcesSubfolder(path, "Technology"))
+                            issues.Add(new InterflowIssue(InterflowIssueSeverity.Error,
+                                $"Фракция «{f.name}», тир {tierNo}, узел «{label}»: Technology «{tech.name}» вне Resources/Technology ({path}) — ядро её не загрузит.",
+                                src, tech));
+
+                        // Сбор для правила 3 (дубли между узлами).
+                        if (!techToNodes.TryGetValue(tech, out var list)) techToNodes[tech] = list = new List<string>();
+                        list.Add($"тир {tierNo} · {label}");
+                    }
+                }
+
+                // Правило 3 — одна Technology не должна повторяться в разных узлах одной фракции.
+                foreach (var pair in techToNodes.Where(p => p.Value.Count > 1))
+                    issues.Add(new InterflowIssue(InterflowIssueSeverity.Error,
+                        $"Фракция «{f.name}»: Technology «{pair.Key.name}» назначена нескольким узлам ({string.Join("; ", pair.Value)}) — узлы должны ссылаться на разные технологии.",
+                        src, pair.Key));
+
+                // Правило 5 — героев достижимо ≤ 1: heroPrefab в разных тирах → можно открыть >1 героя за матч.
+                if (heroTiers.Count > 1)
+                    issues.Add(new InterflowIssue(InterflowIssueSeverity.Error,
+                        $"Фракция «{f.name}»: префаб героя (heroPrefab) задан в нескольких тирах ({string.Join(", ", heroTiers.Select(n => "тир " + n))}) — за матч открывается только один герой. Оставь героя в вариантах одного тира.",
+                        src, f));
             }
         }
 
@@ -480,21 +534,32 @@ namespace StrategyCore
                     "MatchManager.leadershipResource не назначен — проверки капа лидерства будут пропущены.",
                     "MatchManager.ValidateSetup; MatchManager.LeadershipResource", mm));
 
-            // 4. Соглашение проекта: лимит Лидерства в GameResources = пул волны × 3. ЕДИНСТВЕННАЯ проверка с числом (×3 из тултипа) — правило 7, подтвердить/убрать.
-            var gr = Object.FindObjectOfType<GameResources>();
-            var lead = mm.LeadershipResource;
-            if (gr != null && gr.gameResources != null && lead != null)
+            // 4. Достижимый уровень ГЗ (старт + число тиров) vs таблицы уровня (решение Artsiom 2026-07-24).
+            //    Подписчики клампят индекс (Clamp(level−1, 0, len−1)) — ошибки не будет, но выше последней записи
+            //    прогрессия молча замирает; предупреждаем, чтобы дизайнер дозаполнил таблицы. Пустая таблица —
+            //    фича не используется, не ворним. Прежняя проверка «лимит Лидерства = пул×3» удалена: поле
+            //    waveLeadershipPool снесено Волной 2.0 (лимит лидерства задаёт дизайнер напрямую в GameResources).
+            int mbStart = so.FindProperty("startMainBuildingLevel")?.intValue ?? 1;
+            var mbStats = so.FindProperty("mainBuildingStatsByLevel");
+            int mbStatsLen = (mbStats != null && mbStats.isArray) ? mbStats.arraySize : 0;
+            foreach (var f in factions)
             {
-                int pool = so.FindProperty("waveLeadershipPool")?.intValue ?? 0;
-                foreach (var w in gr.gameResources)
-                {
-                    if (w == null || w.type != lead) continue;
-                    if (pool > 0 && w.value != pool * 3)
-                        issues.Add(new InterflowIssue(InterflowIssueSeverity.Warning,
-                            $"Лимит Лидерства в GameResources ({w.value}) ≠ пул волны×3 ({pool * 3}) — соглашение проекта (тултип leadershipResource).",
-                            "MatchManager.leadershipResource/waveLeadershipPool (тултип: пул×3)", gr));
-                    break;
-                }
+                int tiers = (f != null && f.techTiers != null) ? f.techTiers.Length : 0;
+                if (tiers == 0) continue; // дерево тиров не настроено — уровень ГЗ не растёт
+                int maxLevel = mbStart + tiers; // каждая покупка «уровня тира» = +1 к уровню ГЗ (MatchManager.TechTiers)
+
+                if (mbStatsLen > 0 && mbStatsLen < maxLevel)
+                    issues.Add(new InterflowIssue(InterflowIssueSeverity.Warning,
+                        $"Статов ГЗ (mainBuildingStatsByLevel: {mbStatsLen}) меньше достижимого уровня {maxLevel} (старт {mbStart} + {tiers} тиров «{f.name}») — выше уровня {mbStatsLen} статы замрут на последней записи.",
+                        "MatchManager.mainBuildingStatsByLevel ↔ FactionConfig.techTiers", mm));
+                if (f.mainBuildingShapesByLevel != null && f.mainBuildingShapesByLevel.Length > 0 && f.mainBuildingShapesByLevel.Length < maxLevel)
+                    issues.Add(new InterflowIssue(InterflowIssueSeverity.Warning,
+                        $"Обликов замка (mainBuildingShapesByLevel: {f.mainBuildingShapesByLevel.Length}) у «{f.name}» меньше достижимого уровня {maxLevel} — выше облик перестанет меняться.",
+                        "FactionConfig.mainBuildingShapesByLevel ↔ techTiers", f));
+                if (f.soulsResource != null && f.soulsPerMinuteByMbLevel != null && f.soulsPerMinuteByMbLevel.Length > 0 && f.soulsPerMinuteByMbLevel.Length < maxLevel)
+                    issues.Add(new InterflowIssue(InterflowIssueSeverity.Warning,
+                        $"Генерация душ (soulsPerMinuteByMbLevel: {f.soulsPerMinuteByMbLevel.Length}) у «{f.name}» меньше достижимого уровня {maxLevel} — выше генерация замрёт на последней записи.",
+                        "FactionConfig.soulsPerMinuteByMbLevel ↔ techTiers", f));
             }
 
             // 5. commandGroup кнопок slotPanels в диапазоне MatchManager.commandGroups.
@@ -521,22 +586,37 @@ namespace StrategyCore
                     }
             }
 
-            // 6. Герой: LevelingUnit.maxLevel ≥ макс. порога уровня ГЗ (heroLevelFloorByMainBuildingLevel на MatchManager).
-            int maxFloor = 0;
-            var floor = so.FindProperty("heroLevelFloorByMainBuildingLevel");
-            if (floor != null && floor.isArray)
-                for (int i = 0; i < floor.arraySize; i++)
-                    maxFloor = Mathf.Max(maxFloor, floor.GetArrayElementAtIndex(i).intValue);
-            if (maxFloor > 0)
-                foreach (var f in factions)
-                {
-                    if (f?.heroPrefab == null) continue;
-                    var lu = f.heroPrefab.GetComponent<LevelingUnit>();
-                    if (lu != null && lu.maxLevel < maxFloor)
-                        issues.Add(new InterflowIssue(InterflowIssueSeverity.Warning,
-                            $"Герой фракции «{f.name}»: LevelingUnit.maxLevel={lu.maxLevel} < макс. порога уровня ГЗ ({maxFloor}) — герой не дорастёт до пола уровня.",
-                            "MatchManager.Hero.heroLevelFloorByMainBuildingLevel (тултип)", f.heroPrefab));
-                }
+            // 6. Темп волн: согласованность интервала и окон (иначе рассинхрон таймера и фактической волны).
+            //    Сравниваются заданные поля между собой (не выдуманные пороги, правило 7).
+            float firstDelay = so.FindProperty("firstWaveDelay")?.floatValue ?? 0f;
+            float interval   = so.FindProperty("waveInterval")?.floatValue ?? 0f;
+            float warn       = so.FindProperty("warnSeconds")?.floatValue ?? 0f;
+            float lockS      = so.FindProperty("lockSeconds")?.floatValue ?? 0f;
+
+            if (interval <= 0f)
+                issues.Add(new InterflowIssue(InterflowIssueSeverity.Error,
+                    $"MatchManager.waveInterval = {interval:0.##} ≤ 0 — интервал между волнами должен быть положительным.",
+                    "MatchManager.waveInterval (интервал > 0)", mm));
+            if (firstDelay < 0f)
+                issues.Add(new InterflowIssue(InterflowIssueSeverity.Error,
+                    $"MatchManager.firstWaveDelay = {firstDelay:0.##} < 0 — задержка первой волны не может быть отрицательной.",
+                    "MatchManager.firstWaveDelay", mm));
+            if (lockS < 0f)
+                issues.Add(new InterflowIssue(InterflowIssueSeverity.Error,
+                    $"MatchManager.lockSeconds = {lockS:0.##} < 0 — окно блокировки не может быть отрицательным.",
+                    "MatchManager.lockSeconds", mm));
+            if (warn < lockS)
+                issues.Add(new InterflowIssue(InterflowIssueSeverity.Error,
+                    $"MatchManager.warnSeconds ({warn:0.##}) < lockSeconds ({lockS:0.##}) — окно предупреждения должно быть больше окна блокировки (предупреждение идёт раньше блокировки).",
+                    "MatchManager.warnSeconds/lockSeconds (warn > lock)", mm));
+            if (interval > 0f && warn > interval)
+                issues.Add(new InterflowIssue(InterflowIssueSeverity.Warning,
+                    $"MatchManager.warnSeconds ({warn:0.##}) > waveInterval ({interval:0.##}) — окно предупреждения не помещается в интервал; предупреждение вырождается в момент прошлой волны (темп сохранится, окно сжато).",
+                    "MatchManager.warnSeconds ↔ waveInterval", mm));
+            if (firstDelay > 0f && warn > firstDelay)
+                issues.Add(new InterflowIssue(InterflowIssueSeverity.Warning,
+                    $"MatchManager.warnSeconds ({warn:0.##}) > firstWaveDelay ({firstDelay:0.##}) — перед первой волной окно предупреждения сжимается.",
+                    "MatchManager.warnSeconds ↔ firstWaveDelay", mm));
         }
 
         // ======================== БЛОК «ПРОЧЕЕ» (шаг 3) ========================

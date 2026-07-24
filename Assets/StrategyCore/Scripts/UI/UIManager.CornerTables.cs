@@ -5,36 +5,30 @@ using UnityEngine.UIElements;
 namespace StrategyCore
 {
     /// <summary>
-    /// Партиал UIManager: две угловые таблицы (UI Toolkit, строятся в C# как BottomTables — InGame.uxml не правится).
-    /// Левый верхний угол — кнопка-иконка → таблица технологий (ветки × уровни, 3×3). Правый верхний угол —
-    /// кнопка-иконка → столбец кнопок улучшения главного здания. Команда — локального игрока (как BottomTables).
-    /// Состояния ячеек штатными классами .activeAbility (открыто/достигнуто) и .locked (недоступно). Действия
+    /// Партиал UIManager: левая угловая таблица технологий (UI Toolkit, строится в C# как BottomTables — InGame.uxml не правится).
+    /// Кнопка-иконка → ВРЕМЕННАЯ панель технологий по ТИРАМ (Технологии 2.0): на тир ряд ячеек [уровень] [вариант А]
+    /// [вариант Б] и, после выбора варианта, [спец 1] [спец 2]. Красивый UI — отдельный этап. Команда — локального
+    /// игрока (как BottomTables). Состояния ячеек штатными классами .activeAbility (куплено) и .locked (недоступно). Действия
     /// серверо-авторитетны: хост зовёт MatchManager напрямую, клиент шлёт запрос через NetworkDataSync. Данные и
     /// гейтинг — из MatchManager (единый источник). Размеры/иконки/отступы — в Inspector (без хардкода).
     /// </summary>
     public partial class UIManager : MonoBehaviour
     {
-        [Header("Угловые таблицы (технологии / улучшение ГЗ)")]
+        [Header("Угловые таблицы (технологии)")]
         [Tooltip("Иконка кнопки технологий (левый верхний угол).")]
         [SerializeField] Texture2D techButtonIcon;
-        [Tooltip("Иконка кнопки улучшения главного здания (правый верхний угол).")]
-        [SerializeField] Texture2D upgradeButtonIcon;
         [Tooltip("Размер угловой кнопки, px.")]
         [SerializeField] int cornerButtonSize = 64;
         [Tooltip("Горизонтальный отступ кнопок/таблиц от краёв экрана, px.")]
         [SerializeField] int cornerTablesSideOffset = 10;
         [Tooltip("Вертикальный отступ от верхней кромки экрана, px.")]
         [SerializeField] int cornerTablesTopOffset = 10;
-        [Tooltip("Доп. отступ ПРАВОЙ кнопки сверху: правый верх занят панелью ресурсов — опусти кнопку ниже неё, px.")]
-        [SerializeField] int upgradeButtonTopOffset = 130;
         [Tooltip("Зазор между угловой кнопкой и её таблицей, px.")]
         [SerializeField] int cornerPanelGap = 6;
 
         VisualElement cornerTablesRoot;     // оверлей (прозрачен для кликов, кроме кнопок/таблиц)
         VisualElement techCornerPanel;      // панель технологий (скрыта до нажатия)
         VisualElement techGrid;             // сетка ячеек технологий
-        VisualElement upgradeCornerPanel;   // панель улучшения ГЗ (скрыта до нажатия)
-        VisualElement upgradeGrid;          // столбец кнопок улучшения
 
         int[] subscribedTechPlayers;        // слоты игроков, на OnTechUnlock/OnTechLock которых подписались (для отписки)
 
@@ -59,42 +53,25 @@ namespace StrategyCore
             VisualElement techButton = BuildCornerButton(techButtonIcon);
             techButton.style.left = cornerTablesSideOffset;
             techButton.style.top = cornerTablesTopOffset;
-            techButton.RegisterCallback<ClickEvent>(_ => ToggleCornerPanel(techCornerPanel, true));
+            techButton.RegisterCallback<ClickEvent>(_ => ToggleCornerPanel(techCornerPanel));
             cornerTablesRoot.Add(techButton);
 
             techCornerPanel = BuildCornerPanel();
             techCornerPanel.style.left = cornerTablesSideOffset;
             techCornerPanel.style.top = cornerTablesTopOffset + cornerButtonSize + cornerPanelGap;
             techGrid = new VisualElement { name = "TechGrid" };
-            techGrid.style.flexDirection = FlexDirection.Row;
-            techGrid.style.flexWrap = Wrap.Wrap;
-            techGrid.RegisterCallback<ClickEvent>(OnTechCellClick);
+            techGrid.style.flexDirection = FlexDirection.Column;   // вертикально по тирам; на тир — ряд ячеек
+            techGrid.RegisterCallback<ClickEvent>(OnTierCellClick);
             techCornerPanel.Add(techGrid);
             cornerTablesRoot.Add(techCornerPanel);
-
-            // --- Правый верхний угол: улучшение главного здания ---
-            VisualElement upgradeButton = BuildCornerButton(upgradeButtonIcon);
-            upgradeButton.style.right = cornerTablesSideOffset;
-            upgradeButton.style.top = cornerTablesTopOffset + upgradeButtonTopOffset;
-            upgradeButton.RegisterCallback<ClickEvent>(_ => ToggleCornerPanel(upgradeCornerPanel, false));
-            cornerTablesRoot.Add(upgradeButton);
-
-            upgradeCornerPanel = BuildCornerPanel();
-            upgradeCornerPanel.style.right = cornerTablesSideOffset;
-            upgradeCornerPanel.style.top = cornerTablesTopOffset + upgradeButtonTopOffset + cornerButtonSize + cornerPanelGap;
-            upgradeGrid = new VisualElement { name = "UpgradeGrid" };
-            upgradeGrid.style.flexDirection = FlexDirection.Column;
-            upgradeGrid.RegisterCallback<ClickEvent>(OnUpgradeCellClick);
-            upgradeCornerPanel.Add(upgradeGrid);
-            cornerTablesRoot.Add(upgradeCornerPanel);
 
             SubscribeCornerEvents();
 
             // [Переделка UI, ADR-001] Панели-сетки строим здесь, а не в ядровом UIManager.Start(),
             // чтобы не добавлять новую правку в ассет (правило 1). root/uiDocument к этому моменту готовы.
             InitSlotPanels();
-            InitHeroSummonButton();   // кнопка призыва героя (UIManager.HeroUI.cs)
             InitBranchPanel();        // панель веток Душ (UIManager.BranchPanel.cs) // N4
+            InitWaveTimer();          // таймер до следующей волны сверху по центру (UIManager.WaveTimer.cs)
         }
 
         // Кнопка-иконка в стиле ячейки способности (.AbilityButton), абсолютно позиционирована.
@@ -122,15 +99,14 @@ namespace StrategyCore
             return panel;
         }
 
-        // Переключить видимость панели; при открытии — перерисовать актуальным состоянием. Тоглы независимы.
-        void ToggleCornerPanel(VisualElement panel, bool isTech)
+        // Переключить видимость панели технологий; при открытии — перерисовать актуальным состоянием.
+        void ToggleCornerPanel(VisualElement panel)
         {
             if (panel == null) return;
             bool show = panel.style.display != DisplayStyle.Flex;
             if (show)
             {
-                if (isTech) RenderTechPanel();
-                else RenderUpgradePanel();
+                RenderTechPanel();
                 panel.style.display = DisplayStyle.Flex;
             }
             else
@@ -150,118 +126,111 @@ namespace StrategyCore
             if (mm == null) return;
             int team = CommandTeamForLocalPlayer();
 
-            int branches = mm.TechBranchCount(team);
-            int levels = mm.TechLevelCount(team);
-            techGrid.style.width = Mathf.Max(1, branches) * bottomTableCellFootprint;  // ширина ячейки — единый источник из BottomTables
+            int tiers = mm.TechTierCount(team);
+            // Вертикально: один ряд на тир. Ширина панели — до 5 ячеек ([уровень] [А] [Б] [спец1] [спец2]).
+            techGrid.style.width = 5 * bottomTableCellFootprint;   // ширина ячейки — единый источник из BottomTables
 
-            // Ряды = уровни (верхний ряд = уровень 1), столбцы = ветки.
-            for (int level = 0; level < levels; level++)
-                for (int branch = 0; branch < branches; branch++)
-                    techGrid.Add(BuildTechCell(mm, team, branch, level));
+            for (int tier = 0; tier < tiers; tier++)
+            {
+                var row = new VisualElement { style = { flexDirection = FlexDirection.Row, marginBottom = 1 } };
+
+                // Ступень 1 — улучшение уровня.
+                row.Add(BuildTierCell(mm, team, tier, (int)TechTierStep.Level, 0, 0));
+                // Ступень 2 — большой выбор А/Б.
+                row.Add(BuildTierCell(mm, team, tier, (int)TechTierStep.BigOption, 0, 0));
+                row.Add(BuildTierCell(mm, team, tier, (int)TechTierStep.BigOption, 1, 0));
+                // Ступень 3 — специализации КУПЛЕННОГО варианта (появляются сразу после выбора; §5).
+                if (mm.IsBigOptionUnlocked(team, tier, 0))
+                {
+                    row.Add(BuildTierCell(mm, team, tier, (int)TechTierStep.Specialization, 0, 0));
+                    row.Add(BuildTierCell(mm, team, tier, (int)TechTierStep.Specialization, 0, 1));
+                }
+                else if (mm.IsBigOptionUnlocked(team, tier, 1))
+                {
+                    row.Add(BuildTierCell(mm, team, tier, (int)TechTierStep.Specialization, 1, 0));
+                    row.Add(BuildTierCell(mm, team, tier, (int)TechTierStep.Specialization, 1, 1));
+                }
+
+                techGrid.Add(row);
+            }
         }
 
-        GroupBox BuildTechCell(MatchManager mm, int team, int branch, int level)
+        // Ячейка узла тира: иконка + состояние. userData = координаты узла (тир/ступень/вариант/спец) для клика.
+        GroupBox BuildTierCell(MatchManager mm, int team, int tier, int step, int option, int spec)
         {
             GroupBox cell = new GroupBox();
             cell.AddToClassList("AbilityButton");
-            cell.userData = new Vector2Int(branch, level);
+            cell.userData = new TierCellRef { tier = tier, step = step, option = option, spec = spec };
 
             GroupBox iconElement = new GroupBox();
             iconElement.AddToClassList("AbilityButtonIcon");
-            Texture2D tex = mm.TechIcon(team, branch, level);
+            Texture2D tex = TierCellIcon(mm, team, tier, step, option, spec);
             if (tex != null) iconElement.style.backgroundImage = tex;
             cell.Add(iconElement);
 
-            if (!mm.TechExists(team, branch, level))
-                cell.AddToClassList("locked");              // пустой узел — недоступно
-            else if (mm.IsTechUnlocked(team, branch, level))
-                cell.AddToClassList("activeAbility");       // открыто
-            else if (!mm.IsTechUnlockable(team, branch, level))
-                cell.AddToClassList("locked");              // недоступно (гейт)
-            // иначе — доступно для разблокировки (обычный вид)
+            if (!TierCellExists(mm, team, tier, step, option, spec))
+                cell.AddToClassList("locked");                 // пустой узел — недоступно
+            else if (TierCellUnlocked(mm, team, tier, step, option, spec))
+                cell.AddToClassList("activeAbility");          // куплено
+            else if (!TierCellUnlockable(mm, team, tier, step, option, spec))
+                cell.AddToClassList("locked");                 // недоступно / заблокировано эксклюзивом
+            // иначе — доступно для покупки (обычный вид)
 
             return cell;
         }
 
-        void OnTechCellClick(ClickEvent evt)
+        void OnTierCellClick(ClickEvent evt)
         {
             VisualElement cell = ResolveCornerCell(evt);
-            if (cell == null || !(cell.userData is Vector2Int coord)) return;
+            if (cell == null || !(cell.userData is TierCellRef c)) return;
 
             MatchManager mm = MatchManager.instance;
             if (mm == null) return;
             int team = CommandTeamForLocalPlayer();
-            if (!mm.IsTechUnlockable(team, coord.x, coord.y)) return; // недоступные — молча игнор (сервер тоже валидирует)
+            if (!TierCellUnlockable(mm, team, c.tier, c.step, c.option, c.spec)) return; // недоступные — молча игнор (сервер тоже валидирует)
 
             if (NetworkConnectionHandler.isClient)
             {
-                if (NetworkDataSync.instance != null) NetworkDataSync.instance.UnlockTechServerRpc(team, coord.x, coord.y);
+                if (NetworkDataSync.instance != null)
+                    NetworkDataSync.instance.UnlockTechTierServerRpc(team, c.tier, c.step, c.option, c.spec);
             }
             else
             {
-                mm.TryUnlockTech(team, coord.x, coord.y);
+                mm.TryUnlockTierStep(team, c.tier, c.step, c.option, c.spec);
             }
         }
 
-        // --- Улучшение главного здания ---
-
-        void RenderUpgradePanel()
+        // Диспетчеры «ступень → метод MatchManager» (иконка/наличие/куплено/доступно) для ячейки тира.
+        Texture2D TierCellIcon(MatchManager mm, int team, int tier, int step, int option, int spec) => (TechTierStep)step switch
         {
-            if (upgradeGrid == null) return;
-            upgradeGrid.Clear();
+            TechTierStep.Level     => mm.TierLevelIcon(team, tier),
+            TechTierStep.BigOption => mm.BigOptionIcon(team, tier, option),
+            _                      => mm.SpecIcon(team, tier, option, spec),
+        };
 
-            MatchManager mm = MatchManager.instance;
-            if (mm == null) return;
-            int team = CommandTeamForLocalPlayer();
-
-            int max = mm.MainBuildingMaxLevel(team);
-            int cur = mm.MainBuildingLevel(team);
-            upgradeGrid.style.width = bottomTableCellFootprint;
-
-            for (int level = 0; level < max; level++)
-                upgradeGrid.Add(BuildUpgradeCell(level, cur));
-        }
-
-        GroupBox BuildUpgradeCell(int level, int currentLevel)
+        bool TierCellExists(MatchManager mm, int team, int tier, int step, int option, int spec) => (TechTierStep)step switch
         {
-            GroupBox cell = new GroupBox();
-            cell.AddToClassList("AbilityButton");
-            cell.userData = level;
-            cell.style.justifyContent = Justify.Center;
-            cell.style.alignItems = Align.Center;
+            TechTierStep.Level     => mm.TierLevelExists(team, tier),
+            TechTierStep.BigOption => mm.BigOptionExists(team, tier, option),
+            _                      => mm.SpecExists(team, tier, option, spec),
+        };
 
-            Label label = new Label("Ур. " + (level + 1));
-            label.style.fontSize = bottomCellFontSize;     // переиспользуем стиль из BottomTables (единый источник)
-            label.style.color = bottomCellTextColor;
-            label.style.unityTextAlign = TextAnchor.MiddleCenter;
-            cell.Add(label);
-
-            if (currentLevel > level) cell.AddToClassList("activeAbility");  // уровень достигнут
-            else if (currentLevel < level) cell.AddToClassList("locked");     // ещё недоступен
-            // currentLevel == level → следующий доступный (обычный вид)
-
-            return cell;
-        }
-
-        void OnUpgradeCellClick(ClickEvent evt)
+        bool TierCellUnlocked(MatchManager mm, int team, int tier, int step, int option, int spec) => (TechTierStep)step switch
         {
-            VisualElement cell = ResolveCornerCell(evt);
-            if (cell == null || !(cell.userData is int level)) return;
+            TechTierStep.Level     => mm.IsTierLevelUnlocked(team, tier),
+            TechTierStep.BigOption => mm.IsBigOptionUnlocked(team, tier, option),
+            _                      => mm.IsSpecUnlocked(team, tier, option, spec),
+        };
 
-            MatchManager mm = MatchManager.instance;
-            if (mm == null) return;
-            int team = CommandTeamForLocalPlayer();
-            if (level != mm.MainBuildingLevel(team)) return; // кликабелен только следующий уровень
+        bool TierCellUnlockable(MatchManager mm, int team, int tier, int step, int option, int spec) => (TechTierStep)step switch
+        {
+            TechTierStep.Level     => mm.IsTierLevelUnlockable(team, tier),
+            TechTierStep.BigOption => mm.IsBigOptionUnlockable(team, tier, option),
+            _                      => mm.IsSpecUnlockable(team, tier, option, spec),
+        };
 
-            if (NetworkConnectionHandler.isClient)
-            {
-                if (NetworkDataSync.instance != null) NetworkDataSync.instance.UpgradeMainBuildingServerRpc(team, level);
-            }
-            else
-            {
-                mm.TryUpgradeMainBuilding(team, level);
-            }
-        }
+        // Координаты узла тира в userData ячейки (для обработчика клика).
+        struct TierCellRef { public int tier, step, option, spec; }
 
         // --- Общее ---
 
@@ -280,7 +249,7 @@ namespace StrategyCore
             MatchManager mm = MatchManager.instance;
             if (mm != null) mm.OnMainBuildingLevelChanged += OnMainBuildingLevelChangedHandler;
             if (mm != null) mm.OnTeamContentChanged += OnTeamContentChangedHandler;   // апгрейды: видимый набор способностей ГЗ
-            if (mm != null) mm.OnHeroChanged += OnHeroChangedHandler;                  // кнопка призыва: дизейбл при живом герое
+            if (mm != null) mm.OnHeroChanged += OnHeroChangedHandler;                  // герой призван/погиб: перерисовка ряда его умений (HeroUI)
             if (mm != null) mm.OnSoulsChanged += OnSoulsChangedHandler;                // перерисовка панели веток по Душам // N4
 
             List<int> players = new List<int>();
@@ -307,8 +276,7 @@ namespace StrategyCore
         {
             if (cornerTablesRoot == null) return;
             if (team != CommandTeamForLocalPlayer()) return;
-            // Уровень ГЗ влияет и на правую таблицу, и на гейт технологий.
-            RenderUpgradePanel();
+            // Уровень ГЗ влияет на гейт технологий (открывашки поднимают уровень).
             RenderTechPanel();
         }
 

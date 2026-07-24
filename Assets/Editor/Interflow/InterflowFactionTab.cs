@@ -137,13 +137,24 @@ namespace StrategyCore
             AddStatusBlock(selected);
 
             // Разделы FactionConfig через PropertyField (foldout'ы повторяют [Header] конфига).
-            AddSection(so, "Состав волны", "waveComposition");
-            AddSection(so, "Доступные юниты волны (апгрейды)", "availableWaveUnits");
+
+            // Волна 2.0 — единый список юнитов волны (роль Базовый/Доступный + count) + базовый доход.
+            rightPanel.Add(Hint("Состав волны: каждая запись — юнит + роль + число копий. Роль Базовый — выходит каждую " +
+                                "волну бесплатно; Доступный — игрок помечает [Авто]/[Разовый] за золото (технологии открывают " +
+                                "доп. юнитов поверх, у них по 1 копии). baseWaveIncome — золото в момент призыва волны."));
+            AddSection(so, "Состав волны (Волна 2.0)", "waveUnits", "baseWaveIncome");
             AddSection(so, "Способности центральной таблицы", "centralAbilities");
             AddSection(so, "Герой", "heroPrefab");
 
-            // Технологии — кастомная сетка «ветка × уровень» + мост ГЗ + «Создать тех».
-            AddTechSection(so);
+            // Технологии (тиры) — дерево «Технологии 2.0»: тир = улучшение уровня → большой выбор А/Б → специализация 1 из 2.
+            // Один PropertyField рисует всю вложенную структуру (фолдауты тиров, кнопки +/− тира) с тултипами из FactionConfig.
+            // Technology-ассеты создаются во вкладке «Справочники» (решение §10 — пикер + Hint, без per-cell создания).
+            rightPanel.Add(Hint("Технологии (тиры): каждый тир = улучшение уровня → большой выбор А/Б → специализация 1 из 2 " +
+                                "(невыбранные альтернативы блокируются навсегда в матче). Узлы ссылаются на Technology из " +
+                                "Resources/Technology — создавай их во вкладке «Справочники»; иконка и цена задаются на узле. " +
+                                "Префаб героя (heroPrefab) у варианта — только если вариант открывает героя. " +
+                                "Число тиров = размер массива techTiers (кнопки +/−)."));
+            AddSection(so, "Технологии (тиры)", "techTiers");
 
             AddSection(so, "Башни по типу точки", "centreTower", "defence1Tower", "defence2Tower");
             AddSection(so, "Апгрейды контента (техи / уровень ГЗ)", "contentUnlockRules");
@@ -221,10 +232,8 @@ namespace StrategyCore
         // Игровые юниты, на которые ссылается фракция (для проверки Resources/UnitPrefabs).
         static IEnumerable<Unit> FactionUnits(FactionConfig f)
         {
-            if (f.waveComposition != null)
-                foreach (var w in f.waveComposition) if (w != null) yield return w.unitToSpawn;
-            if (f.availableWaveUnits != null)
-                foreach (var u in f.availableWaveUnits) yield return u;
+            if (f.waveUnits != null)
+                foreach (var e in f.waveUnits) if (e != null) yield return e.unit;
             yield return f.centreTower;
             yield return f.defence1Tower;
             yield return f.defence2Tower;
@@ -234,108 +243,11 @@ namespace StrategyCore
         static bool InResources(string assetPath, string subfolder) =>
             !string.IsNullOrEmpty(assetPath) && assetPath.Replace('\\', '/').Contains("/Resources/" + subfolder + "/");
 
-        // ======================== ТЕХНОЛОГИИ: СЕТКА + МОСТ ГЗ ========================
-
-        static void AddTechSection(SerializedObject so)
-        {
-            var foldout = new Foldout { text = "Технологии / улучшение ГЗ", value = true, style = { marginBottom = 4 } };
-
-            var branchesProp = so.FindProperty("techBranches");
-
-            foldout.Add(new Label("Дерево техов (столбцы — ветки, ряды — уровни). Пустая ячейка → «+тех» или перетащи Technology.")
-                { style = { whiteSpace = WhiteSpace.Normal, marginBottom = 4, color = new Color(0.7f, 0.72f, 0.75f) } });
-
-            if (branchesProp != null && branchesProp.arraySize > 0)
-                foldout.Add(BuildTechGrid(so, branchesProp));
-            else
-                foldout.Add(new Label("Веток нет. Задай размер массива «Ветки (структура…)» ниже, затем жми «Обновить».")
-                    { style = { whiteSpace = WhiteSpace.Normal, marginBottom = 4, color = new Color(0.85f, 0.7f, 0.4f) } });
-
-            // Полный редактор структуры/иконок/цен веток — обычным PropertyField (сетка выше правит только ссылку technology).
-            foldout.Add(new PropertyField(branchesProp, "Ветки (структура, иконки, цены)"));
-
-            // Стоимости улучшения ГЗ.
-            foldout.Add(new PropertyField(so.FindProperty("mainBuildingUpgradeCosts")));
-
-            // Мост «уровень ГЗ → тех».
-            foldout.Add(Hint("Мост «уровень ГЗ → тех»: скрытые техи уровней ГЗ. НЕ добавляй их в ветки выше — они скрыты из " +
-                             "угловой таблицы, их видит только Required Tech. Резолв по индексу: 0 → уровень 2, 1 → 3, 2 → 4, 3 → 5. " +
-                             "Техи должны лежать в Resources/Technology."));
-            foldout.Add(BuildBridge(so));
-
-            rightPanel.Add(foldout);
-            foldout.Bind(so);   // привязка сетки/моста/PropertyField'ов раздела к конфигу фракции (Undo)
-        }
-
-        static VisualElement BuildTechGrid(SerializedObject so, SerializedProperty branchesProp)
-        {
-            const float cellW = 160f;
-            const float rowHeadW = 54f;
-
-            int branchCount = branchesProp.arraySize;
-            int levelCount = 0;
-            for (int b = 0; b < branchCount; b++)
-            {
-                var levels = branchesProp.GetArrayElementAtIndex(b).FindPropertyRelative("levels");
-                if (levels != null) levelCount = Mathf.Max(levelCount, levels.arraySize);
-            }
-
-            var grid = new VisualElement { style = { marginBottom = 6 } };
-
-            // Заголовок столбцов.
-            var header = new VisualElement { style = { flexDirection = FlexDirection.Row, marginBottom = 2 } };
-            header.Add(CellLabel("", rowHeadW));
-            for (int b = 0; b < branchCount; b++)
-                header.Add(CellLabel($"Ветка {b + 1}", cellW));
-            grid.Add(header);
-
-            if (levelCount == 0)
-                grid.Add(new Label("В ветках нет уровней — задай длину «levels» в структуре ниже.")
-                    { style = { color = new Color(0.85f, 0.7f, 0.4f), whiteSpace = WhiteSpace.Normal } });
-
-            for (int l = 0; l < levelCount; l++)
-            {
-                var rowEl = new VisualElement { style = { flexDirection = FlexDirection.Row, marginBottom = 1, alignItems = Align.Center } };
-                rowEl.Add(CellLabel($"Ур. {l + 1}", rowHeadW));
-                for (int b = 0; b < branchCount; b++)
-                {
-                    var levels = branchesProp.GetArrayElementAtIndex(b).FindPropertyRelative("levels");
-                    if (levels == null || l >= levels.arraySize)
-                    {
-                        rowEl.Add(new VisualElement { style = { width = cellW, marginRight = 2 } }); // нет такого уровня в ветке
-                        continue;
-                    }
-                    var techProp = levels.GetArrayElementAtIndex(l).FindPropertyRelative("technology");
-                    rowEl.Add(BuildTechCell(techProp, cellW));
-                }
-                grid.Add(rowEl);
-            }
-
-            return grid;
-        }
-
-        // Ячейка сетки: ObjectField(Technology, bind) + «+тех» когда пусто.
-        static VisualElement BuildTechCell(SerializedProperty techProp, float width)
-        {
-            var cell = new VisualElement { style = { width = width, marginRight = 2, flexDirection = FlexDirection.Row, alignItems = Align.Center } };
-            var of = new ObjectField { objectType = typeof(Technology), bindingPath = techProp.propertyPath, style = { flexGrow = 1 } };
-            cell.Add(of);
-            if (techProp.objectReferenceValue == null)
-            {
-                var path = techProp.propertyPath;   // копия для замыкания
-                cell.Add(new Button(() => CreateTechIntoPath(path)) { text = "+тех", tooltip = "Создать Technology и подставить в ячейку", style = { flexShrink = 0 } });
-            }
-            return cell;
-        }
-
-        static Label CellLabel(string text, float width) => new Label(text)
-        {
-            style =
-            {
-                width = width, flexShrink = 0, marginRight = 2,
-                unityFontStyleAndWeight = FontStyle.Bold, unityTextAlign = TextAnchor.MiddleLeft
-            }
-        };
+        // ======================== ТЕХНОЛОГИИ (тиры) ========================
+        // Секция дерева технологий (тиры, «Технологии 2.0») рисуется в RebuildRightPanel через AddSection("techTiers")
+        // — один PropertyField на всю вложенную структуру (решение §10: пикер + Hint, без per-cell создания;
+        // Technology-ассеты создаются во вкладке «Справочники»). Прежняя рядная сетка «ветка × уровень» снесена
+        // при переходе на тиры (2026-07-21).
 
         // Некликабельная подсказка (приглушённый блок).
         static Label Hint(string text) => new Label(text)
@@ -348,103 +260,6 @@ namespace StrategyCore
             }
         };
 
-        static VisualElement BuildBridge(SerializedObject so)
-        {
-            var bridgeProp = so.FindProperty("mainBuildingLevelTechs");
-            var box = new VisualElement { style = { marginBottom = 4 } };
-
-            if (bridgeProp == null)
-            {
-                box.Add(new Label("[поле mainBuildingLevelTechs не найдено]") { style = { color = new Color(0.95f, 0.5f, 0.5f) } });
-                return box;
-            }
-
-            for (int i = 0; i < bridgeProp.arraySize; i++)
-            {
-                var elemProp = bridgeProp.GetArrayElementAtIndex(i);
-                var rowEl = new VisualElement { style = { flexDirection = FlexDirection.Row, alignItems = Align.Center, marginBottom = 1 } };
-                rowEl.Add(CellLabel($"Уровень ГЗ {i + 2}", 110));
-                var of = new ObjectField { objectType = typeof(Technology), bindingPath = elemProp.propertyPath, style = { flexGrow = 1 } };
-                rowEl.Add(of);
-                if (elemProp.objectReferenceValue == null)
-                {
-                    var path = elemProp.propertyPath;   // копия для замыкания
-                    rowEl.Add(new Button(() => CreateTechIntoPath(path)) { text = "+тех", style = { flexShrink = 0 } });
-                }
-                box.Add(rowEl);
-            }
-
-            var buttons = new VisualElement { style = { flexDirection = FlexDirection.Row, marginTop = 2 } };
-            buttons.Add(new Button(() =>
-            {
-                bridgeProp.arraySize++;
-                bridgeProp.serializedObject.ApplyModifiedProperties();
-                RebuildRightPanel();
-            }) { text = "+ уровень ГЗ" });
-            buttons.Add(new Button(() =>
-            {
-                if (bridgeProp.arraySize > 0)
-                {
-                    bridgeProp.arraySize--;
-                    bridgeProp.serializedObject.ApplyModifiedProperties();
-                    RebuildRightPanel();
-                }
-            }) { text = "– уровень ГЗ" });
-            box.Add(buttons);
-
-            return box;
-        }
-
-        // ======================== СОЗДАНИЕ TECHNOLOGY ИЗ ЯЧЕЙКИ/МОСТА ========================
-
-        // path — propertyPath целевого objectReference поля (ячейка ветки или элемент моста) в ассете выбранной фракции.
-        static void CreateTechIntoPath(string path)
-        {
-            if (selected == null) return;
-
-            var settings = InterflowEditorSettings.GetOrCreate();
-            EnsureFolder(settings.technologyCreateFolder);
-
-            string assetPath = EditorUtility.SaveFilePanelInProject(
-                "Создать технологию", "Technology", "asset",
-                "Имя новой технологии (ляжет в Resources/Technology)", settings.technologyCreateFolder);
-            if (string.IsNullOrEmpty(assetPath)) return;
-
-            var tech = ScriptableObject.CreateInstance<Technology>();
-            tech.id = NextFreeTechId();                 // уникальный id (сверка по всем t:Technology, как валидатор E1)
-            AssetDatabase.CreateAsset(tech, assetPath); // ничего сверх Technology не заполняем (правило 7)
-            AssetDatabase.SaveAssets();
-
-            // Подставить в целевую ячейку через SerializedProperty с Undo.
-            var so = new SerializedObject(selected);
-            var prop = so.FindProperty(path);
-            if (prop != null)
-            {
-                prop.objectReferenceValue = tech;
-                so.ApplyModifiedProperties();           // регистрирует Undo
-            }
-            else
-            {
-                Debug.LogWarning($"[InterflowFactionTab] Не нашёл поле '{path}' у «{selected.name}» — тех создан, но не подставлен.");
-            }
-
-            RebuildRightPanel();
-            EditorGUIUtility.PingObject(tech);
-        }
-
-        // Свободный Technology.id: сверка по ВСЕМ ассетам Technology проекта (как штатный TechnologyIDDrawer, но детерминированно).
-        static int NextFreeTechId()
-        {
-            var used = new HashSet<int>();
-            foreach (var g in AssetDatabase.FindAssets("t:Technology"))
-            {
-                var t = AssetDatabase.LoadAssetAtPath<Technology>(AssetDatabase.GUIDToAssetPath(g));
-                if (t != null) used.Add(t.id);
-            }
-            int id = 1;
-            while (used.Contains(id)) id++;
-            return id;
-        }
 
         // ======================== БЛОК «СЦЕНА» (GameManager.factionData) ========================
 
