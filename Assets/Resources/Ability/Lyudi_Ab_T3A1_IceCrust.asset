@@ -1,0 +1,89 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 23b000023498a4dc405f1e164af22e16, type: 3}
+  m_Name: Lyudi_Ab_T3A1_IceCrust
+  m_EditorClassIdentifier:
+  id: 200108
+  abilityName:
+  - "Ледяная корка"
+  description:
+  - "Раз в 10 сек накрывает союзника-танка щитом; бьющие его враги ближнего боя замораживаются."
+  icon: []
+  slotNumber: -1
+  isItem: 0
+  useUponPickUp: 0
+  dropOnDeath: 0
+  charges: 0
+  maxLevels: 1
+  heroLevelable: 0
+  cooldown:
+  - 10
+  castRange:
+  - 8
+  castTime:
+  - 0
+  radius:
+  - 0
+  unitSelector:
+    isOwn: 1
+    isAlly: 1
+    isEnemy: 0
+    isUnit: 1
+    isBuilding: 0
+    isStaticDestructible: 0
+    isTree: 0
+    isGround: 1
+    isWater: 1
+    isAir: 1
+    includeInvisible: 0
+    includeInvulnerable: 0
+  dontTurn: 0
+  continuous: 0
+  interruptible: 0
+  requiresCastingUnit: 1
+  duration: []
+  requiredTech:
+  - data:
+    - {fileID: 11400000, guid: bddb4323ca2973e160178efde1a34dbb, type: 2}
+  requiredLevel:
+  manaCost: []
+  manaCostPerSecond: []
+  cost: []
+  shieldFlat:
+  - 150
+  shieldPercentOfMaxHp:
+  - 0
+  shieldDuration:
+  - 8
+  skipIfAlreadyShielded: 1
+  incomingDamageMultiplier: 1
+  enemySelector:
+    isOwn: 0
+    isAlly: 0
+    isEnemy: 1
+    isUnit: 1
+    isBuilding: 0
+    isStaticDestructible: 0
+    isTree: 0
+    isGround: 1
+    isWater: 1
+    isAir: 1
+    includeInvisible: 0
+    includeInvulnerable: 0
+  freezeRadius: 2.5
+  freezeStunSeconds: 1
+  freezeOnlyMelee: 1
+  freezeEffectors:
+  - {fileID: 11400000, guid: 33b133c075378dadbcc5feaaf9f15dfe, type: 2}
+  burstRadius: 0
+  burstBlindChance: 0
+  burstBlindDuration: 0

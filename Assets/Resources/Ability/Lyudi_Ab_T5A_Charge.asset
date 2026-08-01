@@ -1,0 +1,73 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5f07146017adc55ed06fc9046f97249d, type: 3}
+  m_Name: Lyudi_Ab_T5A_Charge
+  m_EditorClassIdentifier:
+  id: 200120
+  abilityName:
+  - "Чардж"
+  description:
+  - "Разгон на врага: колоссальный урон с налёта. Оглушение и баф брони включают специализации."
+  icon: []
+  slotNumber: -1
+  isItem: 0
+  useUponPickUp: 0
+  dropOnDeath: 0
+  charges: 0
+  maxLevels: 1
+  heroLevelable: 0
+  cooldown:
+  - 12
+  castRange:
+  - 12
+  castTime:
+  - 0
+  radius:
+  - 0
+  unitSelector:
+    isOwn: 0
+    isAlly: 0
+    isEnemy: 1
+    isUnit: 1
+    isBuilding: 0
+    isStaticDestructible: 0
+    isTree: 0
+    isGround: 1
+    isWater: 1
+    isAir: 1
+    includeInvisible: 0
+    includeInvulnerable: 0
+  dontTurn: 0
+  continuous: 0
+  interruptible: 0
+  requiresCastingUnit: 1
+  duration: []
+  requiredTech:
+  - data:
+    - {fileID: 11400000, guid: 14e7f37be69e2e35accf826b1da48d98, type: 2}
+  requiredLevel:
+  manaCost: []
+  manaCostPerSecond: []
+  cost: []
+  speedBonusPercent: 0.8
+  chargeDuration: 3
+  minChargeDistance: 4
+  impactDamageMultiplier:
+  - 3
+  impactStunSeconds: 1.5
+  stunOnlyCategory: 0
+  stunOnlySelectedCategory: 1
+  selfEffectorsAfterImpact:
+  - {fileID: 11400000, guid: 7d2abd6058894959a55ba415a5361d76, type: 2}
+  targetEffectorsOnImpact: []
+  stunRequiredTech: {fileID: 11400000, guid: a27e3a637e6d869bf3cf076b6faf5896, type: 2}
+  selfBuffRequiredTech: {fileID: 11400000, guid: 1dec320299ab3b49923108dbaaa8ff2b, type: 2}

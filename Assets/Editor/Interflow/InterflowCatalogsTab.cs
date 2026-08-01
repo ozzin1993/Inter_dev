@@ -33,6 +33,7 @@ namespace StrategyCore
             new Catalog("Броня (ArmorType)",         typeof(ArmorType),   false, s => s.armorTypeCreateFolder),
             new Catalog("Урон (DamageType)",         typeof(DamageType),  false, s => s.damageTypeCreateFolder),
             new Catalog("Звук оружия (WeaponSound)", typeof(WeaponSound), false, s => s.weaponSoundCreateFolder),
+            new Catalog("Атрибуты (Attribute)",     typeof(StrategyCore.Attribute), false, s => s.attributeCreateFolder), // [Interflow 2026-08-01] гэп SCEditor
             new Catalog("Снаряды (Projectile)",      typeof(Projectile),  true,  s => s.projectileCreateFolder),
         };
 

@@ -12,5 +12,5 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4fee98b6c46413e4dbfdcfbce145b65c, type: 3}
   m_Name: InterflowEditorSettings
   m_EditorClassIdentifier: Assembly-CSharp-Editor::StrategyCore.InterflowEditorSettings
-  factionCreateFolder: Assets/StrategyCore/Factions
-  technologyCreateFolder: Assets/StrategyCore/Resources/Technology
+  factionCreateFolder: Assets/Configs/Factions
+  technologyCreateFolder: Assets/Resources/Technology

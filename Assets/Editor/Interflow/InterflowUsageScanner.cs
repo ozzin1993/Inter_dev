@@ -37,7 +37,7 @@ namespace StrategyCore
         public static string[] DefaultAuditFolders()
         {
             // Демо-дерево Resources, где живут кандидаты §3.1–3.3.
-            return new[] { "Assets/StrategyCore/Scenes/DemoFiles/Resources" };
+            return new[] { "Assets/Resources" };
         }
 
         // §3.4 — мусор вне графа ассетов (файлы/папки). Пути относительно корня репозитория (папка отчёта).
@@ -52,10 +52,10 @@ namespace StrategyCore
                 "Interflow/Assets/TutorialInfo",
                 "Interflow/Assets/Resources/PerformanceTestRunInfo.json",
                 "Interflow/Assets/Plans",
-                "Interflow/Assets/StrategyCore/AnimatorSamples",
-                "Interflow/Assets/StrategyCore/_BACKUP_TOOLTIPS",
+                "Interflow/Assets/Art/Animators/Samples",
+                "_archive/_BACKUP_TOOLTIPS",
                 "Interflow/Assets/DefaultNetworkPrefabs.asset",
-                "Interflow/Assets/StrategyCore/Prefabs/DefaultNetworkPrefabs.asset",
+                "Interflow/Assets/Prefabs/DefaultNetworkPrefabs.asset",
             };
         }
 

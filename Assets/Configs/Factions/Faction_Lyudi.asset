@@ -1,0 +1,414 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6eab1036be064544e8420029828dc5cd, type: 3}
+  m_Name: Faction_Lyudi
+  m_EditorClassIdentifier: Assembly-CSharp::StrategyCore.FactionConfig
+  waveUnits:
+  - unit: {fileID: 1936979029478643860, guid: 36232623b385cdc4b9c373b6fc2df8ab, type: 3}
+    role: 0
+    count: 1
+  - unit: {fileID: 1165191979987236916, guid: fc96c35709aed154083fc752d414243a, type: 3}
+    role: 0
+    count: 1
+  baseWaveIncome: 50
+  centralAbilities:
+  - {fileID: 11400000, guid: 6c78edcc27864d878c975e036280609b, type: 2}
+  - {fileID: 11400000, guid: cd52d4d6dbb0159499b71362b041352d, type: 2}
+  heroPrefab: {fileID: 0}
+  heroUnlockTech: {fileID: 0}
+  techTiers:
+  - levelUpgrade:
+      technology: {fileID: 11400000, guid: 26a8edcbf980b4c2d32adfcc1032bf18, type: 2}
+      icon: {fileID: 0}
+      cost: []
+      unlockUnits: []
+      unlockAbilities: []
+      unitSwaps: []
+      towerSwaps: []
+    optionA:
+      node:
+        technology: {fileID: 11400000, guid: 23b963724507d92bf0e7e692c44491bc, type: 2}
+        icon: {fileID: 0}
+        cost: []
+        unlockUnits:
+        - {fileID: 1165191979987236916, guid: b983934140286d94f9d91579258b5d7c, type: 3}
+        unlockAbilities: []
+        unitSwaps: []
+        towerSwaps: []
+      specializationA:
+        technology: {fileID: 11400000, guid: c942d37c8fd638eb591c08488b5a4e6f, type: 2}
+        icon: {fileID: 0}
+        cost: []
+        unlockUnits: []
+        unlockAbilities: []
+        unitSwaps: []
+        towerSwaps: []
+      specializationB:
+        technology: {fileID: 11400000, guid: fcb6e27b067ddd826ae08dc47113c874, type: 2}
+        icon: {fileID: 0}
+        cost: []
+        unlockUnits: []
+        unlockAbilities: []
+        unitSwaps: []
+        towerSwaps: []
+      heroPrefab: {fileID: 0}
+    optionB:
+      node:
+        technology: {fileID: 11400000, guid: 2044debedb39d901ecec2f840c648951, type: 2}
+        icon: {fileID: 0}
+        cost: []
+        unlockUnits:
+        - {fileID: 1165191979987236916, guid: fc96c35709aed154083fc752d414243a, type: 3}
+        unlockAbilities: []
+        unitSwaps: []
+        towerSwaps: []
+      specializationA:
+        technology: {fileID: 11400000, guid: ea41872746eabeb798a5146fba344150, type: 2}
+        icon: {fileID: 0}
+        cost: []
+        unlockUnits: []
+        unlockAbilities: []
+        unitSwaps: []
+        towerSwaps: []
+      specializationB:
+        technology: {fileID: 11400000, guid: 428f22b28c3cc449b8eb7494814595d8, type: 2}
+        icon: {fileID: 0}
+        cost: []
+        unlockUnits: []
+        unlockAbilities: []
+        unitSwaps: []
+        towerSwaps: []
+      heroPrefab: {fileID: 0}
+  - levelUpgrade:
+      technology: {fileID: 11400000, guid: 9eb39c4fa20637b61e5f02f2f715b8ea, type: 2}
+      icon: {fileID: 0}
+      cost: []
+      unlockUnits: []
+      unlockAbilities: []
+      unitSwaps: []
+      towerSwaps: []
+    optionA:
+      node:
+        technology: {fileID: 11400000, guid: 8c591da6677777e6b64a4869af18a18e, type: 2}
+        icon: {fileID: 0}
+        cost: []
+        unlockUnits:
+        - {fileID: 1936979029478643860, guid: 032a18439a0816346945e35a72402726, type: 3}
+        unlockAbilities: []
+        unitSwaps: []
+        towerSwaps: []
+      specializationA:
+        technology: {fileID: 11400000, guid: b857edbb846da0cfd1685cabd136e8ad, type: 2}
+        icon: {fileID: 0}
+        cost: []
+        unlockUnits: []
+        unlockAbilities: []
+        unitSwaps: []
+        towerSwaps: []
+      specializationB:
+        technology: {fileID: 11400000, guid: b77155fd5a8eceebd141704eb211118f, type: 2}
+        icon: {fileID: 0}
+        cost: []
+        unlockUnits: []
+        unlockAbilities: []
+        unitSwaps: []
+        towerSwaps: []
+      heroPrefab: {fileID: 0}
+    optionB:
+      node:
+        technology: {fileID: 11400000, guid: bc86af6fb7989fa24a294f49ff4ade94, type: 2}
+        icon: {fileID: 0}
+        cost: []
+        unlockUnits:
+        - {fileID: 1936979029478643860, guid: 36232623b385cdc4b9c373b6fc2df8ab, type: 3}
+        unlockAbilities: []
+        unitSwaps: []
+        towerSwaps: []
+      specializationA:
+        technology: {fileID: 11400000, guid: e966318b77ff642ab1899fce1050fc20, type: 2}
+        icon: {fileID: 0}
+        cost: []
+        unlockUnits: []
+        unlockAbilities: []
+        unitSwaps: []
+        towerSwaps: []
+      specializationB:
+        technology: {fileID: 11400000, guid: b54a8b8a2aeb1136b54c7b489fc5e158, type: 2}
+        icon: {fileID: 0}
+        cost: []
+        unlockUnits: []
+        unlockAbilities: []
+        unitSwaps: []
+        towerSwaps: []
+      heroPrefab: {fileID: 0}
+  - levelUpgrade:
+      technology: {fileID: 11400000, guid: 1f1b059ad771d36401fb554d60afb718, type: 2}
+      icon: {fileID: 0}
+      cost: []
+      unlockUnits: []
+      unlockAbilities: []
+      unitSwaps: []
+      towerSwaps: []
+    optionA:
+      node:
+        technology: {fileID: 11400000, guid: b29fc8ff3543336b47596066345aaa97, type: 2}
+        icon: {fileID: 0}
+        cost: []
+        unlockUnits: []
+        unlockAbilities: []
+        unitSwaps: []
+        towerSwaps: []
+      specializationA:
+        technology: {fileID: 11400000, guid: bddb4323ca2973e160178efde1a34dbb, type: 2}
+        icon: {fileID: 0}
+        cost: []
+        unlockUnits: []
+        unlockAbilities: []
+        unitSwaps: []
+        towerSwaps: []
+      specializationB:
+        technology: {fileID: 11400000, guid: 90bf355be425d4f6e458d6bda0b616df, type: 2}
+        icon: {fileID: 0}
+        cost: []
+        unlockUnits: []
+        unlockAbilities: []
+        unitSwaps: []
+        towerSwaps: []
+      heroPrefab: {fileID: 0}
+    optionB:
+      node:
+        technology: {fileID: 11400000, guid: 664d99372c708889e3dde27155fbcb86, type: 2}
+        icon: {fileID: 0}
+        cost: []
+        unlockUnits: []
+        unlockAbilities: []
+        unitSwaps: []
+        towerSwaps: []
+      specializationA:
+        technology: {fileID: 11400000, guid: ae85c2283f90e53abdea291d9c2058a1, type: 2}
+        icon: {fileID: 0}
+        cost: []
+        unlockUnits: []
+        unlockAbilities: []
+        unitSwaps: []
+        towerSwaps: []
+      specializationB:
+        technology: {fileID: 11400000, guid: 26ce306d65ad5a2e6a8b1000acaf0abe, type: 2}
+        icon: {fileID: 0}
+        cost: []
+        unlockUnits: []
+        unlockAbilities: []
+        unitSwaps: []
+        towerSwaps: []
+      heroPrefab: {fileID: 0}
+  - levelUpgrade:
+      technology: {fileID: 11400000, guid: c141f74cdd198ab4d2906689f2ac55f2, type: 2}
+      icon: {fileID: 0}
+      cost: []
+      unlockUnits: []
+      unlockAbilities: []
+      unitSwaps: []
+      towerSwaps: []
+    optionA:
+      node:
+        technology: {fileID: 11400000, guid: bebd3d63fc713f5f02f7d4410fbcf643, type: 2}
+        icon: {fileID: 0}
+        cost: []
+        unlockUnits: []
+        unlockAbilities: []
+        unitSwaps: []
+        towerSwaps: []
+      specializationA:
+        technology: {fileID: 11400000, guid: e190851c0b2209db967c0a1bcffe00f7, type: 2}
+        icon: {fileID: 0}
+        cost: []
+        unlockUnits: []
+        unlockAbilities: []
+        unitSwaps: []
+        towerSwaps: []
+      specializationB:
+        technology: {fileID: 11400000, guid: 596fb72b038d49a4373cebdc1b624c79, type: 2}
+        icon: {fileID: 0}
+        cost: []
+        unlockUnits: []
+        unlockAbilities: []
+        unitSwaps: []
+        towerSwaps: []
+      heroPrefab: {fileID: 0}
+    optionB:
+      node:
+        technology: {fileID: 11400000, guid: 597416efca1df15895ffb9c2425a0d3b, type: 2}
+        icon: {fileID: 0}
+        cost: []
+        unlockUnits: []
+        unlockAbilities: []
+        unitSwaps: []
+        towerSwaps: []
+      specializationA:
+        technology: {fileID: 11400000, guid: 6acca29b0513af2f04ea4eb4e6a24235, type: 2}
+        icon: {fileID: 0}
+        cost: []
+        unlockUnits: []
+        unlockAbilities: []
+        unitSwaps: []
+        towerSwaps: []
+      specializationB:
+        technology: {fileID: 11400000, guid: 376bf5764f2b0cf94035dd05c9c8505d, type: 2}
+        icon: {fileID: 0}
+        cost: []
+        unlockUnits: []
+        unlockAbilities: []
+        unitSwaps: []
+        towerSwaps: []
+      heroPrefab: {fileID: 0}
+  - levelUpgrade:
+      technology: {fileID: 11400000, guid: 4a77a66951c17d2bc147396fac1cae12, type: 2}
+      icon: {fileID: 0}
+      cost: []
+      unlockUnits: []
+      unlockAbilities: []
+      unitSwaps: []
+      towerSwaps: []
+    optionA:
+      node:
+        technology: {fileID: 11400000, guid: 14e7f37be69e2e35accf826b1da48d98, type: 2}
+        icon: {fileID: 0}
+        cost: []
+        unlockUnits: []
+        unlockAbilities: []
+        unitSwaps: []
+        towerSwaps: []
+      specializationA:
+        technology: {fileID: 11400000, guid: a27e3a637e6d869bf3cf076b6faf5896, type: 2}
+        icon: {fileID: 0}
+        cost: []
+        unlockUnits: []
+        unlockAbilities: []
+        unitSwaps: []
+        towerSwaps: []
+      specializationB:
+        technology: {fileID: 11400000, guid: 1dec320299ab3b49923108dbaaa8ff2b, type: 2}
+        icon: {fileID: 0}
+        cost: []
+        unlockUnits: []
+        unlockAbilities: []
+        unitSwaps: []
+        towerSwaps: []
+      heroPrefab: {fileID: 0}
+    optionB:
+      node:
+        technology: {fileID: 11400000, guid: 98c581980cc7c8f179d684d03dadfaf0, type: 2}
+        icon: {fileID: 0}
+        cost: []
+        unlockUnits: []
+        unlockAbilities: []
+        unitSwaps: []
+        towerSwaps: []
+      specializationA:
+        technology: {fileID: 11400000, guid: f3303120bcf737c3fdd85acfb75cd7a0, type: 2}
+        icon: {fileID: 0}
+        cost: []
+        unlockUnits: []
+        unlockAbilities: []
+        unitSwaps: []
+        towerSwaps: []
+      specializationB:
+        technology: {fileID: 11400000, guid: 734dc9b683f49439ec19c47ac2166fc4, type: 2}
+        icon: {fileID: 0}
+        cost: []
+        unlockUnits: []
+        unlockAbilities: []
+        unitSwaps: []
+        towerSwaps: []
+      heroPrefab: {fileID: 0}
+  - levelUpgrade:
+      technology: {fileID: 11400000, guid: 2ff484b2ec7335e5c937c77e01d340b0, type: 2}
+      icon: {fileID: 0}
+      cost: []
+      unlockUnits: []
+      unlockAbilities: []
+      unitSwaps: []
+      towerSwaps: []
+    optionA:
+      node:
+        technology: {fileID: 11400000, guid: 3875156d2265a28dd8a5ecfbdfcc847a, type: 2}
+        icon: {fileID: 0}
+        cost: []
+        unlockUnits: []
+        unlockAbilities: []
+        unitSwaps: []
+        towerSwaps: []
+      specializationA:
+        technology: {fileID: 11400000, guid: 53fc4664f3c3d2bfa49660130cf6266f, type: 2}
+        icon: {fileID: 0}
+        cost: []
+        unlockUnits: []
+        unlockAbilities: []
+        unitSwaps: []
+        towerSwaps: []
+      specializationB:
+        technology: {fileID: 11400000, guid: ed41952308b6a2a5f698ea8bd1759fbd, type: 2}
+        icon: {fileID: 0}
+        cost: []
+        unlockUnits: []
+        unlockAbilities: []
+        unitSwaps: []
+        towerSwaps: []
+      heroPrefab: {fileID: 0}
+    optionB:
+      node:
+        technology: {fileID: 11400000, guid: 474e7dcbee0378bbda1a224c5177d664, type: 2}
+        icon: {fileID: 0}
+        cost: []
+        unlockUnits: []
+        unlockAbilities: []
+        unitSwaps: []
+        towerSwaps: []
+      specializationA:
+        technology: {fileID: 11400000, guid: 5cf76ead70371443f16ddacea1a49e7a, type: 2}
+        icon: {fileID: 0}
+        cost: []
+        unlockUnits: []
+        unlockAbilities: []
+        unitSwaps: []
+        towerSwaps: []
+      specializationB:
+        technology: {fileID: 11400000, guid: 04b17c63c9b4375ee5fbfa5fc90972ed, type: 2}
+        icon: {fileID: 0}
+        cost: []
+        unlockUnits: []
+        unlockAbilities: []
+        unitSwaps: []
+        towerSwaps: []
+      heroPrefab: {fileID: 0}
+  mainBuildingShapesByLevel: []
+  centreTower: {fileID: 1949225473786359498, guid: a3f868054cba2804a9d217e3d6c684e0, type: 3}
+  defence1Tower: {fileID: 6802366058098623906, guid: 0d1477cd7c1d4f74dbe5a70a84988de4, type: 3}
+  defence2Tower: {fileID: 6802366058098623906, guid: 0d1477cd7c1d4f74dbe5a70a84988de4, type: 3}
+  costModifiers: []
+  gravePrefab: {fileID: 0}
+  graveLifetime: 30
+  soulsResource: {fileID: 0}
+  soulsPerMinuteByMbLevel:
+  - 15
+  - 20
+  - 30
+  - 40
+  - 60
+  soulsPerTier: 010000000200000004000000080000000f000000
+  soulBranches: []
+  soulBranchLimit: 2
+  skvernaStartRadius: 0
+  skvernaGrowthPerSecond: 0
+  skvernaMaxRadius: 0
+  exclusiveTechGroups: []
+  lockedBySouzlessTechs: []

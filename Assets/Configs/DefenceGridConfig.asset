@@ -13,6 +13,6 @@ MonoBehaviour:
   m_Name: DefenceGridConfig
   m_EditorClassIdentifier: Assembly-CSharp::StrategyCore.DefenceGridConfig
   slotRadius: 0.5
-  slotsPerRow: 6
+  slotsPerRow: 4
   rowsPerPriority: 1
   priorities: 3

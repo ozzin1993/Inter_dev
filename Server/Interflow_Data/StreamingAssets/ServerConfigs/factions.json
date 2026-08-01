@@ -1,0 +1,507 @@
+{
+    "version": 1,
+    "factions": [
+        {
+            "name": "Люди",
+            "config": {
+                "waveUnits": [
+                    {
+                        "unit": "UnitPrefabs/Units/Footman_Green",
+                        "role": 0,
+                        "count": 1
+                    },
+                    {
+                        "unit": "UnitPrefabs/Units/Rifleman_Green",
+                        "role": 0,
+                        "count": 1
+                    }
+                ],
+                "baseWaveIncome": 50,
+                "centralAbilities": [
+                    "Ability/CallToArms_active",
+                    "Ability/HeavensBlessingActive"
+                ],
+                "heroPrefab": "",
+                "heroUnlockTech": "",
+                "techTiers": [
+                    {
+                        "levelUpgrade": {
+                            "technology": "Technology/Lyudi_T1_Level",
+                            "cost": [],
+                            "unlockUnits": [],
+                            "unlockAbilities": [],
+                            "unitSwaps": [],
+                            "towerSwaps": []
+                        },
+                        "optionA": {
+                            "node": {
+                                "technology": "Technology/Lyudi_T1_A",
+                                "cost": [],
+                                "unlockUnits": [
+                                    "UnitPrefabs/Units/Rifleman_Red"
+                                ],
+                                "unlockAbilities": [],
+                                "unitSwaps": [],
+                                "towerSwaps": []
+                            },
+                            "specializationA": {
+                                "technology": "Technology/Lyudi_T1_A1",
+                                "cost": [],
+                                "unlockUnits": [],
+                                "unlockAbilities": [],
+                                "unitSwaps": [],
+                                "towerSwaps": []
+                            },
+                            "specializationB": {
+                                "technology": "Technology/Lyudi_T1_A2",
+                                "cost": [],
+                                "unlockUnits": [],
+                                "unlockAbilities": [],
+                                "unitSwaps": [],
+                                "towerSwaps": []
+                            },
+                            "heroPrefab": ""
+                        },
+                        "optionB": {
+                            "node": {
+                                "technology": "Technology/Lyudi_T1_B",
+                                "cost": [],
+                                "unlockUnits": [
+                                    "UnitPrefabs/Units/Rifleman_Green"
+                                ],
+                                "unlockAbilities": [],
+                                "unitSwaps": [],
+                                "towerSwaps": []
+                            },
+                            "specializationA": {
+                                "technology": "Technology/Lyudi_T1_B1",
+                                "cost": [],
+                                "unlockUnits": [],
+                                "unlockAbilities": [],
+                                "unitSwaps": [],
+                                "towerSwaps": []
+                            },
+                            "specializationB": {
+                                "technology": "Technology/Lyudi_T1_B2",
+                                "cost": [],
+                                "unlockUnits": [],
+                                "unlockAbilities": [],
+                                "unitSwaps": [],
+                                "towerSwaps": []
+                            },
+                            "heroPrefab": ""
+                        }
+                    },
+                    {
+                        "levelUpgrade": {
+                            "technology": "Technology/Lyudi_T2_Level",
+                            "cost": [],
+                            "unlockUnits": [],
+                            "unlockAbilities": [],
+                            "unitSwaps": [],
+                            "towerSwaps": []
+                        },
+                        "optionA": {
+                            "node": {
+                                "technology": "Technology/Lyudi_T2_A",
+                                "cost": [],
+                                "unlockUnits": [
+                                    "UnitPrefabs/Units/Footman_Red"
+                                ],
+                                "unlockAbilities": [],
+                                "unitSwaps": [],
+                                "towerSwaps": []
+                            },
+                            "specializationA": {
+                                "technology": "Technology/Lyudi_T2_A1",
+                                "cost": [],
+                                "unlockUnits": [],
+                                "unlockAbilities": [],
+                                "unitSwaps": [],
+                                "towerSwaps": []
+                            },
+                            "specializationB": {
+                                "technology": "Technology/Lyudi_T2_A2",
+                                "cost": [],
+                                "unlockUnits": [],
+                                "unlockAbilities": [],
+                                "unitSwaps": [],
+                                "towerSwaps": []
+                            },
+                            "heroPrefab": ""
+                        },
+                        "optionB": {
+                            "node": {
+                                "technology": "Technology/Lyudi_T2_B",
+                                "cost": [],
+                                "unlockUnits": [
+                                    "UnitPrefabs/Units/Footman_Green"
+                                ],
+                                "unlockAbilities": [],
+                                "unitSwaps": [],
+                                "towerSwaps": []
+                            },
+                            "specializationA": {
+                                "technology": "Technology/Lyudi_T2_B1",
+                                "cost": [],
+                                "unlockUnits": [],
+                                "unlockAbilities": [],
+                                "unitSwaps": [],
+                                "towerSwaps": []
+                            },
+                            "specializationB": {
+                                "technology": "Technology/Lyudi_T2_B2",
+                                "cost": [],
+                                "unlockUnits": [],
+                                "unlockAbilities": [],
+                                "unitSwaps": [],
+                                "towerSwaps": []
+                            },
+                            "heroPrefab": ""
+                        }
+                    },
+                    {
+                        "levelUpgrade": {
+                            "technology": "Technology/Lyudi_T3_Level",
+                            "cost": [],
+                            "unlockUnits": [],
+                            "unlockAbilities": [],
+                            "unitSwaps": [],
+                            "towerSwaps": []
+                        },
+                        "optionA": {
+                            "node": {
+                                "technology": "Technology/Lyudi_T3_A",
+                                "cost": [],
+                                "unlockUnits": [],
+                                "unlockAbilities": [],
+                                "unitSwaps": [],
+                                "towerSwaps": []
+                            },
+                            "specializationA": {
+                                "technology": "Technology/Lyudi_T3_A1",
+                                "cost": [],
+                                "unlockUnits": [],
+                                "unlockAbilities": [],
+                                "unitSwaps": [],
+                                "towerSwaps": []
+                            },
+                            "specializationB": {
+                                "technology": "Technology/Lyudi_T3_A2",
+                                "cost": [],
+                                "unlockUnits": [],
+                                "unlockAbilities": [],
+                                "unitSwaps": [],
+                                "towerSwaps": []
+                            },
+                            "heroPrefab": ""
+                        },
+                        "optionB": {
+                            "node": {
+                                "technology": "Technology/Lyudi_T3_B",
+                                "cost": [],
+                                "unlockUnits": [],
+                                "unlockAbilities": [],
+                                "unitSwaps": [],
+                                "towerSwaps": []
+                            },
+                            "specializationA": {
+                                "technology": "Technology/Lyudi_T3_B1",
+                                "cost": [],
+                                "unlockUnits": [],
+                                "unlockAbilities": [],
+                                "unitSwaps": [],
+                                "towerSwaps": []
+                            },
+                            "specializationB": {
+                                "technology": "Technology/Lyudi_T3_B2",
+                                "cost": [],
+                                "unlockUnits": [],
+                                "unlockAbilities": [],
+                                "unitSwaps": [],
+                                "towerSwaps": []
+                            },
+                            "heroPrefab": ""
+                        }
+                    },
+                    {
+                        "levelUpgrade": {
+                            "technology": "Technology/Lyudi_T4_Level",
+                            "cost": [],
+                            "unlockUnits": [],
+                            "unlockAbilities": [],
+                            "unitSwaps": [],
+                            "towerSwaps": []
+                        },
+                        "optionA": {
+                            "node": {
+                                "technology": "Technology/Lyudi_T4_A",
+                                "cost": [],
+                                "unlockUnits": [],
+                                "unlockAbilities": [],
+                                "unitSwaps": [],
+                                "towerSwaps": []
+                            },
+                            "specializationA": {
+                                "technology": "Technology/Lyudi_T4_A1",
+                                "cost": [],
+                                "unlockUnits": [],
+                                "unlockAbilities": [],
+                                "unitSwaps": [],
+                                "towerSwaps": []
+                            },
+                            "specializationB": {
+                                "technology": "Technology/Lyudi_T4_A2",
+                                "cost": [],
+                                "unlockUnits": [],
+                                "unlockAbilities": [],
+                                "unitSwaps": [],
+                                "towerSwaps": []
+                            },
+                            "heroPrefab": ""
+                        },
+                        "optionB": {
+                            "node": {
+                                "technology": "Technology/Lyudi_T4_B",
+                                "cost": [],
+                                "unlockUnits": [],
+                                "unlockAbilities": [],
+                                "unitSwaps": [],
+                                "towerSwaps": []
+                            },
+                            "specializationA": {
+                                "technology": "Technology/Lyudi_T4_B1",
+                                "cost": [],
+                                "unlockUnits": [],
+                                "unlockAbilities": [],
+                                "unitSwaps": [],
+                                "towerSwaps": []
+                            },
+                            "specializationB": {
+                                "technology": "Technology/Lyudi_T4_B2",
+                                "cost": [],
+                                "unlockUnits": [],
+                                "unlockAbilities": [],
+                                "unitSwaps": [],
+                                "towerSwaps": []
+                            },
+                            "heroPrefab": ""
+                        }
+                    },
+                    {
+                        "levelUpgrade": {
+                            "technology": "Technology/Lyudi_T5_Level",
+                            "cost": [],
+                            "unlockUnits": [],
+                            "unlockAbilities": [],
+                            "unitSwaps": [],
+                            "towerSwaps": []
+                        },
+                        "optionA": {
+                            "node": {
+                                "technology": "Technology/Lyudi_T5_A",
+                                "cost": [],
+                                "unlockUnits": [],
+                                "unlockAbilities": [],
+                                "unitSwaps": [],
+                                "towerSwaps": []
+                            },
+                            "specializationA": {
+                                "technology": "Technology/Lyudi_T5_A1",
+                                "cost": [],
+                                "unlockUnits": [],
+                                "unlockAbilities": [],
+                                "unitSwaps": [],
+                                "towerSwaps": []
+                            },
+                            "specializationB": {
+                                "technology": "Technology/Lyudi_T5_A2",
+                                "cost": [],
+                                "unlockUnits": [],
+                                "unlockAbilities": [],
+                                "unitSwaps": [],
+                                "towerSwaps": []
+                            },
+                            "heroPrefab": ""
+                        },
+                        "optionB": {
+                            "node": {
+                                "technology": "Technology/Lyudi_T5_B",
+                                "cost": [],
+                                "unlockUnits": [],
+                                "unlockAbilities": [],
+                                "unitSwaps": [],
+                                "towerSwaps": []
+                            },
+                            "specializationA": {
+                                "technology": "Technology/Lyudi_T5_B1",
+                                "cost": [],
+                                "unlockUnits": [],
+                                "unlockAbilities": [],
+                                "unitSwaps": [],
+                                "towerSwaps": []
+                            },
+                            "specializationB": {
+                                "technology": "Technology/Lyudi_T5_B2",
+                                "cost": [],
+                                "unlockUnits": [],
+                                "unlockAbilities": [],
+                                "unitSwaps": [],
+                                "towerSwaps": []
+                            },
+                            "heroPrefab": ""
+                        }
+                    },
+                    {
+                        "levelUpgrade": {
+                            "technology": "Technology/Lyudi_T6_Level",
+                            "cost": [],
+                            "unlockUnits": [],
+                            "unlockAbilities": [],
+                            "unitSwaps": [],
+                            "towerSwaps": []
+                        },
+                        "optionA": {
+                            "node": {
+                                "technology": "Technology/Lyudi_T6_A",
+                                "cost": [],
+                                "unlockUnits": [],
+                                "unlockAbilities": [],
+                                "unitSwaps": [],
+                                "towerSwaps": []
+                            },
+                            "specializationA": {
+                                "technology": "Technology/Lyudi_T6_A1",
+                                "cost": [],
+                                "unlockUnits": [],
+                                "unlockAbilities": [],
+                                "unitSwaps": [],
+                                "towerSwaps": []
+                            },
+                            "specializationB": {
+                                "technology": "Technology/Lyudi_T6_A2",
+                                "cost": [],
+                                "unlockUnits": [],
+                                "unlockAbilities": [],
+                                "unitSwaps": [],
+                                "towerSwaps": []
+                            },
+                            "heroPrefab": ""
+                        },
+                        "optionB": {
+                            "node": {
+                                "technology": "Technology/Lyudi_T6_B",
+                                "cost": [],
+                                "unlockUnits": [],
+                                "unlockAbilities": [],
+                                "unitSwaps": [],
+                                "towerSwaps": []
+                            },
+                            "specializationA": {
+                                "technology": "Technology/Lyudi_T6_B1",
+                                "cost": [],
+                                "unlockUnits": [],
+                                "unlockAbilities": [],
+                                "unitSwaps": [],
+                                "towerSwaps": []
+                            },
+                            "specializationB": {
+                                "technology": "Technology/Lyudi_T6_B2",
+                                "cost": [],
+                                "unlockUnits": [],
+                                "unlockAbilities": [],
+                                "unitSwaps": [],
+                                "towerSwaps": []
+                            },
+                            "heroPrefab": ""
+                        }
+                    }
+                ],
+                "mainBuildingShapesByLevel": [],
+                "centreTower": "UnitPrefabs/Buildings/BaseTower",
+                "defence1Tower": "UnitPrefabs/Buildings/CannonTower",
+                "defence2Tower": "UnitPrefabs/Buildings/CannonTower",
+                "costModifiers": [],
+                "gravePrefab": "",
+                "graveLifetime": 30.0,
+                "soulsResource": "",
+                "soulsPerMinuteByMbLevel": [
+                    15.0,
+                    20.0,
+                    30.0,
+                    40.0,
+                    60.0
+                ],
+                "soulsPerTier": [
+                    1,
+                    2,
+                    4,
+                    8,
+                    15
+                ],
+                "soulBranches": [],
+                "soulBranchLimit": 2,
+                "skvernaStartRadius": 0.0,
+                "skvernaGrowthPerSecond": 0.0,
+                "skvernaMaxRadius": 0.0,
+                "exclusiveTechGroups": [],
+                "lockedBySouzlessTechs": []
+            }
+        },
+        {
+            "name": "Орки",
+            "config": {
+                "waveUnits": [
+                    {
+                        "unit": "UnitPrefabs/Units/Footman_Red",
+                        "role": 0,
+                        "count": 0
+                    },
+                    {
+                        "unit": "UnitPrefabs/Units/Rifleman_Red",
+                        "role": 0,
+                        "count": 0
+                    }
+                ],
+                "baseWaveIncome": 0,
+                "centralAbilities": [
+                    "Ability/WAAH",
+                    "Ability/HeavensBlessingActive",
+                    "Ability/Basher"
+                ],
+                "heroPrefab": "UnitPrefabs/Units/orcHERO",
+                "heroUnlockTech": "",
+                "techTiers": [],
+                "mainBuildingShapesByLevel": [],
+                "centreTower": "UnitPrefabs/Buildings/BaseTower",
+                "defence1Tower": "UnitPrefabs/Buildings/CannonTower",
+                "defence2Tower": "UnitPrefabs/Buildings/CannonTower",
+                "costModifiers": [],
+                "gravePrefab": "",
+                "graveLifetime": 30.0,
+                "soulsResource": "",
+                "soulsPerMinuteByMbLevel": [
+                    15.0,
+                    20.0,
+                    30.0,
+                    40.0,
+                    60.0
+                ],
+                "soulsPerTier": [
+                    1,
+                    2,
+                    4,
+                    8,
+                    15
+                ],
+                "soulBranches": [],
+                "soulBranchLimit": 2,
+                "skvernaStartRadius": 0.0,
+                "skvernaGrowthPerSecond": 0.0,
+                "skvernaMaxRadius": 0.0,
+                "exclusiveTechGroups": [],
+                "lockedBySouzlessTechs": []
+            }
+        }
+    ]
+}

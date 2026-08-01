@@ -14,9 +14,39 @@ MonoBehaviour:
   m_EditorClassIdentifier: Unity.DedicatedServer.MultiplayerRoles.Editor::Unity.Multiplayer.Editor.ContentSelectionSettings
   m_EnableSafetyChecks: 1
   m_AutomaticSelectionOptions:
-    m_StripRenderComponents: 0
-    m_StripUIComponents: 0
-    m_StripAudioComponents: 0
+    m_StripRenderComponents: 1
+    m_StripUIComponents: 1
+    m_StripAudioComponents: 1
     m_CustomComponentsList:
-      m_Keys: []
-      m_Values: 
+      m_Keys:
+      - m_TypeName: Camera_TopDownNS.BuildingPlacer, Interflow.Client, Version=0.0.0.0,
+          Culture=neutral, PublicKeyToken=null
+      - m_TypeName: Camera_TopDownNS.Camera_TopDown, Interflow.Client, Version=0.0.0.0,
+          Culture=neutral, PublicKeyToken=null
+      - m_TypeName: StrategyCore.CameraAxisLock, Interflow.Client, Version=0.0.0.0,
+          Culture=neutral, PublicKeyToken=null
+      - m_TypeName: StrategyCore.ClientContentRehydrator, Interflow.Client, Version=0.0.0.0,
+          Culture=neutral, PublicKeyToken=null
+      - m_TypeName: StrategyCore.MatchmakingClient, Interflow.Client, Version=0.0.0.0,
+          Culture=neutral, PublicKeyToken=null
+      - m_TypeName: StrategyCore.MatchmakingMenuUI, Interflow.Client, Version=0.0.0.0,
+          Culture=neutral, PublicKeyToken=null
+      - m_TypeName: StrategyCore.PlayerControl, Interflow.Client, Version=0.0.0.0,
+          Culture=neutral, PublicKeyToken=null
+      - m_TypeName: StrategyCore.SoundFXManager, Interflow.Client, Version=0.0.0.0,
+          Culture=neutral, PublicKeyToken=null
+      - m_TypeName: StrategyCore.SoundMixerManager, Interflow.Client, Version=0.0.0.0,
+          Culture=neutral, PublicKeyToken=null
+      - m_TypeName: StrategyCore.SoundPauser, Interflow.Client, Version=0.0.0.0,
+          Culture=neutral, PublicKeyToken=null
+      - m_TypeName: StrategyCore.UIManager, Interflow.Client, Version=0.0.0.0, Culture=neutral,
+          PublicKeyToken=null
+      - m_TypeName: StrategyCore.UIManagerMenu, Interflow.Client, Version=0.0.0.0,
+          Culture=neutral, PublicKeyToken=null
+      - m_TypeName: StrategyCore.WaveBuilderUI, Interflow.Client, Version=0.0.0.0,
+          Culture=neutral, PublicKeyToken=null
+      - m_TypeName: UnityEngine.LODGroup, UnityEngine.CoreModule, Version=0.0.0.0,
+          Culture=neutral, PublicKeyToken=null
+      - m_TypeName: UnityEngine.MeshFilter, UnityEngine.CoreModule, Version=0.0.0.0,
+          Culture=neutral, PublicKeyToken=null
+      m_Values: 010000000100000001000000010000000100000001000000010000000100000001000000010000000100000001000000010000000100000001000000

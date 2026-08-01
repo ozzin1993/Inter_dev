@@ -1,0 +1,218 @@
+=== Interflow server log === start 2026-08-01 10:00:41 ===
+unityVersion=6000.4.7f1 platform=WindowsServer headless=True args=Interflow.exe -port 7777 -logFile server.log
+10:00:41.082 [Warning] Are you sure you have EventSystem in your scene?
+10:00:41.134 [Log] [ServerBootstrap] Start: headless=True, gfx=Null, batchmode=True, автозапуск=True, injectMenuButton=True.
+10:00:41.135 [Log] [ServerBootstrap] Порт из аргумента -port: 7777.
+10:00:41.137 [Log] [ServerBootstrap] Порт прослушивания: 0.0.0.0:7777.
+10:00:41.307 [Log] [ServerBootstrap] Сервер запущен (StartServer). Ожидание игроков: 2.
+10:00:41.429 [Log] Approved: joined Player0, 1 at slot 0
+10:00:43.341 [Log] Approved: joined Player0, 2 at slot 1
+10:00:43.474 [Log] [ServerBootstrap] Набралось игроков (2) — отсчёт 15с до старта.
+10:00:58.502 [Log] [ServerBootstrap] Отсчёт завершён — старт матча.
+10:00:58.574 [Warning] The referenced script (Unknown) on this Behaviour is missing!
+10:00:58.574 [Warning] The referenced script (Unknown) on this Behaviour is missing!
+10:00:58.579 [Warning] The referenced script (Unknown) on this Behaviour is missing!
+10:00:58.581 [Warning] The referenced script (Unknown) on this Behaviour is missing!
+10:00:58.582 [Warning] The referenced script on this Behaviour (Game Object 'GameManager') is missing!
+10:00:58.585 [Warning] The referenced script on this Behaviour (Game Object 'GameManager') is missing!
+10:00:58.586 [Warning] The referenced script on this Behaviour (Game Object 'GameManager') is missing!
+10:00:58.586 [Warning] The referenced script on this Behaviour (Game Object 'CameraRig') is missing!
+10:00:58.586 [Warning] The referenced script on this Behaviour (Game Object 'GameManager') is missing!
+10:00:58.586 [Warning] The referenced script on this Behaviour (Game Object 'CameraRig') is missing!
+10:00:58.661 [Log] [ServerFactionConfigs] Загружено фракций: 2 (Люди, Орки); неотрезолвленных ссылок: 0.
+10:00:58.745 [Warning] The referenced script (Unknown) on this Behaviour is missing!
+10:00:58.745 [Warning] The referenced script on this Behaviour (Game Object '<null>') is missing!
+10:00:58.746 [Error] A scripted object (script unknown or not yet loaded) has a different serialization layout when loading. (Read 40 bytes but expected 140 bytes)
+Did you #if UNITY_EDITOR a section of your serialized properties in any of your scripts?
+10:00:58.916 [Warning] [MatchManager] GameManager.specificUnitsDead не настроен — победа по уничтожению базы не сработает. Задайте NetID баз и winningTeam в Inspector у GameManager.
+10:01:00.114 [Exception] NullReferenceException: Object reference not set to an instance of an object
+StrategyCore.Unit.Initialize () (at <c2200ee241eb4170af9f1cf1b5373395>:0)
+StrategyCore.Unit.SpawnInternal (StrategyCore.Unit unitRef, UnityEngine.Vector3 position, System.Single rotation, System.Int32 owner, System.UInt16 netID) (at <c2200ee241eb4170af9f1cf1b5373395>:0)
+StrategyCore.Unit.Spawn (StrategyCore.Unit unitRef, UnityEngine.Vector3 position, System.Single rotation, System.Int32 owner, System.Single positionR) (at <c2200ee241eb4170af9f1cf1b5373395>:0)
+StrategyCore.MatchManager+<SpawnTowerForPoint>d__288.MoveNext () (at <c2200ee241eb4170af9f1cf1b5373395>:0)
+UnityEngine.SetupCoroutine.InvokeMoveNext (System.Collections.IEnumerator enumerator, System.IntPtr returnValueAddress) (at <35e503df996e446286377b9defa4cb4d>:0)
+UnityEngine.MonoBehaviour:StartCoroutine(IEnumerator)
+StrategyCore.MatchManager:SpawnInitialTowers()
+StrategyCore.MatchManager:WireContentTriggers()
+StrategyCore.SceneHandler:StartTheGame(Boolean)
+StrategyCore.SceneHandler:SceneManager_OnSceneEvent(SceneEvent)
+Unity.Netcode.NetworkSceneManager:OnSceneEventProgressCompleted(SceneEventProgress)
+Unity.Netcode.SceneEventProgress:TryFinishingSceneEventProgress()
+Unity.Netcode.SceneEventProgress:ClientFinishedSceneEvent(UInt64)
+Unity.Netcode.NetworkSceneManager:HandleSessionOwnerEvent(UInt32, UInt64)
+Unity.Netcode.NetworkSceneManager:HandleSceneEvent(UInt64, FastBufferReader)
+Unity.Netcode.SceneEventMessage:Handle(NetworkContext&)
+Unity.Netcode.NetworkMessageManager:ReceiveMessage(FastBufferReader, NetworkContext&, NetworkMessageManager)
+Unity.Netcode.NetworkMessageManager:HandleMessage(NetworkMessageHeader&, FastBufferReader, UInt64, Single, Int32)
+Unity.Netcode.NetworkMessageManager:ProcessIncomingMessageQueue()
+Unity.Netcode.NetworkManager:NetworkUpdate(NetworkUpdateStage)
+Unity.Netcode.NetworkUpdateLoop:RunNetworkUpdateStage(NetworkUpdateStage)
+Unity.Netcode.<>c:<CreateLoopSystem>b__0_0()
+10:01:00.116 [Exception] NullReferenceException: Object reference not set to an instance of an object
+StrategyCore.Unit.Initialize () (at <c2200ee241eb4170af9f1cf1b5373395>:0)
+StrategyCore.Unit.SpawnInternal (StrategyCore.Unit unitRef, UnityEngine.Vector3 position, System.Single rotation, System.Int32 owner, System.UInt16 netID) (at <c2200ee241eb4170af9f1cf1b5373395>:0)
+StrategyCore.Unit.Spawn (StrategyCore.Unit unitRef, UnityEngine.Vector3 position, System.Single rotation, System.Int32 owner, System.Single positionR) (at <c2200ee241eb4170af9f1cf1b5373395>:0)
+StrategyCore.MatchManager+<SpawnTowerForPoint>d__288.MoveNext () (at <c2200ee241eb4170af9f1cf1b5373395>:0)
+UnityEngine.SetupCoroutine.InvokeMoveNext (System.Collections.IEnumerator enumerator, System.IntPtr returnValueAddress) (at <35e503df996e446286377b9defa4cb4d>:0)
+UnityEngine.MonoBehaviour:StartCoroutine(IEnumerator)
+StrategyCore.MatchManager:SpawnInitialTowers()
+StrategyCore.MatchManager:WireContentTriggers()
+StrategyCore.SceneHandler:StartTheGame(Boolean)
+StrategyCore.SceneHandler:SceneManager_OnSceneEvent(SceneEvent)
+Unity.Netcode.NetworkSceneManager:OnSceneEventProgressCompleted(SceneEventProgress)
+Unity.Netcode.SceneEventProgress:TryFinishingSceneEventProgress()
+Unity.Netcode.SceneEventProgress:ClientFinishedSceneEvent(UInt64)
+Unity.Netcode.NetworkSceneManager:HandleSessionOwnerEvent(UInt32, UInt64)
+Unity.Netcode.NetworkSceneManager:HandleSceneEvent(UInt64, FastBufferReader)
+Unity.Netcode.SceneEventMessage:Handle(NetworkContext&)
+Unity.Netcode.NetworkMessageManager:ReceiveMessage(FastBufferReader, NetworkContext&, NetworkMessageManager)
+Unity.Netcode.NetworkMessageManager:HandleMessage(NetworkMessageHeader&, FastBufferReader, UInt64, Single, Int32)
+Unity.Netcode.NetworkMessageManager:ProcessIncomingMessageQueue()
+Unity.Netcode.NetworkManager:NetworkUpdate(NetworkUpdateStage)
+Unity.Netcode.NetworkUpdateLoop:RunNetworkUpdateStage(NetworkUpdateStage)
+Unity.Netcode.<>c:<CreateLoopSystem>b__0_0()
+10:01:00.117 [Exception] NullReferenceException: Object reference not set to an instance of an object
+StrategyCore.Unit.Initialize () (at <c2200ee241eb4170af9f1cf1b5373395>:0)
+StrategyCore.Unit.SpawnInternal (StrategyCore.Unit unitRef, UnityEngine.Vector3 position, System.Single rotation, System.Int32 owner, System.UInt16 netID) (at <c2200ee241eb4170af9f1cf1b5373395>:0)
+StrategyCore.Unit.Spawn (StrategyCore.Unit unitRef, UnityEngine.Vector3 position, System.Single rotation, System.Int32 owner, System.Single positionR) (at <c2200ee241eb4170af9f1cf1b5373395>:0)
+StrategyCore.MatchManager+<SpawnTowerForPoint>d__288.MoveNext () (at <c2200ee241eb4170af9f1cf1b5373395>:0)
+UnityEngine.SetupCoroutine.InvokeMoveNext (System.Collections.IEnumerator enumerator, System.IntPtr returnValueAddress) (at <35e503df996e446286377b9defa4cb4d>:0)
+UnityEngine.MonoBehaviour:StartCoroutine(IEnumerator)
+StrategyCore.MatchManager:SpawnInitialTowers()
+StrategyCore.MatchManager:WireContentTriggers()
+StrategyCore.SceneHandler:StartTheGame(Boolean)
+StrategyCore.SceneHandler:SceneManager_OnSceneEvent(SceneEvent)
+Unity.Netcode.NetworkSceneManager:OnSceneEventProgressCompleted(SceneEventProgress)
+Unity.Netcode.SceneEventProgress:TryFinishingSceneEventProgress()
+Unity.Netcode.SceneEventProgress:ClientFinishedSceneEvent(UInt64)
+Unity.Netcode.NetworkSceneManager:HandleSessionOwnerEvent(UInt32, UInt64)
+Unity.Netcode.NetworkSceneManager:HandleSceneEvent(UInt64, FastBufferReader)
+Unity.Netcode.SceneEventMessage:Handle(NetworkContext&)
+Unity.Netcode.NetworkMessageManager:ReceiveMessage(FastBufferReader, NetworkContext&, NetworkMessageManager)
+Unity.Netcode.NetworkMessageManager:HandleMessage(NetworkMessageHeader&, FastBufferReader, UInt64, Single, Int32)
+Unity.Netcode.NetworkMessageManager:ProcessIncomingMessageQueue()
+Unity.Netcode.NetworkManager:NetworkUpdate(NetworkUpdateStage)
+Unity.Netcode.NetworkUpdateLoop:RunNetworkUpdateStage(NetworkUpdateStage)
+Unity.Netcode.<>c:<CreateLoopSystem>b__0_0()
+10:01:00.117 [Exception] NullReferenceException: Object reference not set to an instance of an object
+StrategyCore.Unit.Initialize () (at <c2200ee241eb4170af9f1cf1b5373395>:0)
+StrategyCore.Unit.SpawnInternal (StrategyCore.Unit unitRef, UnityEngine.Vector3 position, System.Single rotation, System.Int32 owner, System.UInt16 netID) (at <c2200ee241eb4170af9f1cf1b5373395>:0)
+StrategyCore.Unit.Spawn (StrategyCore.Unit unitRef, UnityEngine.Vector3 position, System.Single rotation, System.Int32 owner, System.Single positionR) (at <c2200ee241eb4170af9f1cf1b5373395>:0)
+StrategyCore.MatchManager+<SpawnTowerForPoint>d__288.MoveNext () (at <c2200ee241eb4170af9f1cf1b5373395>:0)
+UnityEngine.SetupCoroutine.InvokeMoveNext (System.Collections.IEnumerator enumerator, System.IntPtr returnValueAddress) (at <35e503df996e446286377b9defa4cb4d>:0)
+UnityEngine.MonoBehaviour:StartCoroutine(IEnumerator)
+StrategyCore.MatchManager:SpawnInitialTowers()
+StrategyCore.MatchManager:WireContentTriggers()
+StrategyCore.SceneHandler:StartTheGame(Boolean)
+StrategyCore.SceneHandler:SceneManager_OnSceneEvent(SceneEvent)
+Unity.Netcode.NetworkSceneManager:OnSceneEventProgressCompleted(SceneEventProgress)
+Unity.Netcode.SceneEventProgress:TryFinishingSceneEventProgress()
+Unity.Netcode.SceneEventProgress:ClientFinishedSceneEvent(UInt64)
+Unity.Netcode.NetworkSceneManager:HandleSessionOwnerEvent(UInt32, UInt64)
+Unity.Netcode.NetworkSceneManager:HandleSceneEvent(UInt64, FastBufferReader)
+Unity.Netcode.SceneEventMessage:Handle(NetworkContext&)
+Unity.Netcode.NetworkMessageManager:ReceiveMessage(FastBufferReader, NetworkContext&, NetworkMessageManager)
+Unity.Netcode.NetworkMessageManager:HandleMessage(NetworkMessageHeader&, FastBufferReader, UInt64, Single, Int32)
+Unity.Netcode.NetworkMessageManager:ProcessIncomingMessageQueue()
+Unity.Netcode.NetworkManager:NetworkUpdate(NetworkUpdateStage)
+Unity.Netcode.NetworkUpdateLoop:RunNetworkUpdateStage(NetworkUpdateStage)
+Unity.Netcode.<>c:<CreateLoopSystem>b__0_0()
+10:01:00.119 [Exception] NullReferenceException: Object reference not set to an instance of an object
+StrategyCore.Unit.Initialize () (at <c2200ee241eb4170af9f1cf1b5373395>:0)
+StrategyCore.Unit.SpawnInternal (StrategyCore.Unit unitRef, UnityEngine.Vector3 position, System.Single rotation, System.Int32 owner, System.UInt16 netID) (at <c2200ee241eb4170af9f1cf1b5373395>:0)
+StrategyCore.Unit.Spawn (StrategyCore.Unit unitRef, UnityEngine.Vector3 position, System.Single rotation, System.Int32 owner, System.Single positionR) (at <c2200ee241eb4170af9f1cf1b5373395>:0)
+StrategyCore.MatchManager+<SpawnTowerForPoint>d__288.MoveNext () (at <c2200ee241eb4170af9f1cf1b5373395>:0)
+UnityEngine.SetupCoroutine.InvokeMoveNext (System.Collections.IEnumerator enumerator, System.IntPtr returnValueAddress) (at <35e503df996e446286377b9defa4cb4d>:0)
+UnityEngine.MonoBehaviour:StartCoroutine(IEnumerator)
+StrategyCore.MatchManager:SpawnInitialTowers()
+StrategyCore.MatchManager:WireContentTriggers()
+StrategyCore.SceneHandler:StartTheGame(Boolean)
+StrategyCore.SceneHandler:SceneManager_OnSceneEvent(SceneEvent)
+Unity.Netcode.NetworkSceneManager:OnSceneEventProgressCompleted(SceneEventProgress)
+Unity.Netcode.SceneEventProgress:TryFinishingSceneEventProgress()
+Unity.Netcode.SceneEventProgress:ClientFinishedSceneEvent(UInt64)
+Unity.Netcode.NetworkSceneManager:HandleSessionOwnerEvent(UInt32, UInt64)
+Unity.Netcode.NetworkSceneManager:HandleSceneEvent(UInt64, FastBufferReader)
+Unity.Netcode.SceneEventMessage:Handle(NetworkContext&)
+Unity.Netcode.NetworkMessageManager:ReceiveMessage(FastBufferReader, NetworkContext&, NetworkMessageManager)
+Unity.Netcode.NetworkMessageManager:HandleMessage(NetworkMessageHeader&, FastBufferReader, UInt64, Single, Int32)
+Unity.Netcode.NetworkMessageManager:ProcessIncomingMessageQueue()
+Unity.Netcode.NetworkManager:NetworkUpdate(NetworkUpdateStage)
+Unity.Netcode.NetworkUpdateLoop:RunNetworkUpdateStage(NetworkUpdateStage)
+Unity.Netcode.<>c:<CreateLoopSystem>b__0_0()
+10:01:00.119 [Log] [MatchManager] SpawnInitialTowers: запущен спавн 5 башен.
+10:01:00.121 [Exception] NullReferenceException: Object reference not set to an instance of an object
+StrategyCore.Unit.Initialize () (at <c2200ee241eb4170af9f1cf1b5373395>:0)
+StrategyCore.Unit.StartCallback () (at <c2200ee241eb4170af9f1cf1b5373395>:0)
+StrategyCore.SceneHandler.StartTheGame (System.Boolean firstLoad) (at <c2200ee241eb4170af9f1cf1b5373395>:0)
+StrategyCore.SceneHandler.SceneManager_OnSceneEvent (Unity.Netcode.SceneEvent sceneEvent) (at <c2200ee241eb4170af9f1cf1b5373395>:0)
+Unity.Netcode.NetworkSceneManager.OnSceneEventProgressCompleted (Unity.Netcode.SceneEventProgress sceneEventProgress) (at <bfac77e1edfe4dcdbfa640d231cf6680>:0)
+Unity.Netcode.SceneEventProgress.TryFinishingSceneEventProgress () (at <bfac77e1edfe4dcdbfa640d231cf6680>:0)
+Unity.Netcode.SceneEventProgress.ClientFinishedSceneEvent (System.UInt64 clientId) (at <bfac77e1edfe4dcdbfa640d231cf6680>:0)
+Unity.Netcode.NetworkSceneManager.HandleSessionOwnerEvent (System.UInt32 sceneEventId, System.UInt64 clientId) (at <bfac77e1edfe4dcdbfa640d231cf6680>:0)
+Unity.Netcode.NetworkSceneManager.HandleSceneEvent (System.UInt64 clientId, Unity.Netcode.FastBufferReader reader) (at <bfac77e1edfe4dcdbfa640d231cf6680>:0)
+Unity.Netcode.SceneEventMessage.Handle (Unity.Netcode.NetworkContext& context) (at <bfac77e1edfe4dcdbfa640d231cf6680>:0)
+Unity.Netcode.NetworkMessageManager.ReceiveMessage[T] (Unity.Netcode.FastBufferReader reader, Unity.Netcode.NetworkContext& context, Unity.Netcode.NetworkMessageManager manager) (at <bfac77e1edfe4dcdbfa640d231cf6680>:0)
+Unity.Netcode.NetworkMessageManager.HandleMessage (Unity.Netcode.NetworkMessageHeader& header, Unity.Netcode.FastBufferReader reader, System.UInt64 senderId, System.Single timestamp, System.Int32 serializedHeaderSize) (at <bfac77e1edfe4dcdbfa640d231cf6680>:0)
+UnityEngine.Debug:LogException(Exception)
+Unity.Netcode.NetworkMessageManager:HandleMessage(NetworkMessageHeader&, FastBufferReader, UInt64, Single, Int32)
+Unity.Netcode.NetworkMessageManager:ProcessIncomingMessageQueue()
+Unity.Netcode.NetworkManager:NetworkUpdate(NetworkUpdateStage)
+Unity.Netcode.NetworkUpdateLoop:RunNetworkUpdateStage(NetworkUpdateStage)
+Unity.Netcode.<>c:<CreateLoopSystem>b__0_0()
+10:01:00.121 [Exception] NullReferenceException: Object reference not set to an instance of an object
+StrategyCore.Unit.Initialize () (at <c2200ee241eb4170af9f1cf1b5373395>:0)
+StrategyCore.Unit.Start () (at <c2200ee241eb4170af9f1cf1b5373395>:0)
+10:01:00.122 [Exception] NullReferenceException: Object reference not set to an instance of an object
+StrategyCore.Unit.Initialize () (at <c2200ee241eb4170af9f1cf1b5373395>:0)
+StrategyCore.Unit.Start () (at <c2200ee241eb4170af9f1cf1b5373395>:0)
+10:01:00.122 [Exception] NullReferenceException: Object reference not set to an instance of an object
+StrategyCore.Unit.Initialize () (at <c2200ee241eb4170af9f1cf1b5373395>:0)
+StrategyCore.Unit.Start () (at <c2200ee241eb4170af9f1cf1b5373395>:0)
+10:01:00.122 [Exception] NullReferenceException: Object reference not set to an instance of an object
+StrategyCore.Unit.Initialize () (at <c2200ee241eb4170af9f1cf1b5373395>:0)
+StrategyCore.Unit.Start () (at <c2200ee241eb4170af9f1cf1b5373395>:0)
+10:01:00.122 [Exception] NullReferenceException: Object reference not set to an instance of an object
+StrategyCore.Unit.Initialize () (at <c2200ee241eb4170af9f1cf1b5373395>:0)
+StrategyCore.Unit.Start () (at <c2200ee241eb4170af9f1cf1b5373395>:0)
+10:01:00.133 [Log] [MatchManager] Матч начался — запускаем волны.
+10:01:00.133 [Log] [MatchManager] КАРТА КОМАНД: team0(teamA).ownerPlayer=0, team1(teamB).ownerPlayer=1; playerTeam[slot]=[0,1,2,3,4,5,6,7,8,9,10,11,12,13]; СВЕРКА: playerTeam[team0.owner]=0 (ожид 0), playerTeam[team1.owner]=1 (ожид 1).
+10:01:00.136 [Exception] NullReferenceException: Object reference not set to an instance of an object
+StrategyCore.Unit.Initialize () (at <c2200ee241eb4170af9f1cf1b5373395>:0)
+StrategyCore.Unit.StartCallback () (at <c2200ee241eb4170af9f1cf1b5373395>:0)
+StrategyCore.SceneHandler.StartTheGame (System.Boolean firstLoad) (at <c2200ee241eb4170af9f1cf1b5373395>:0)
+StrategyCore.SceneHandler.SceneManager_OnSceneEvent (Unity.Netcode.SceneEvent sceneEvent) (at <c2200ee241eb4170af9f1cf1b5373395>:0)
+Unity.Netcode.NetworkSceneManager.OnSceneEventProgressCompleted (Unity.Netcode.SceneEventProgress sceneEventProgress) (at <bfac77e1edfe4dcdbfa640d231cf6680>:0)
+Unity.Netcode.SceneEventProgress.TryFinishingSceneEventProgress () (at <bfac77e1edfe4dcdbfa640d231cf6680>:0)
+Unity.Netcode.SceneEventProgress+<TimeOutSceneEventProgress>d__34.MoveNext () (at <bfac77e1edfe4dcdbfa640d231cf6680>:0)
+UnityEngine.SetupCoroutine.InvokeMoveNext (System.Collections.IEnumerator enumerator, System.IntPtr returnValueAddress) (at <35e503df996e446286377b9defa4cb4d>:0)
+10:01:05.112 [Log] [MatchManager] Волна #1 — спавним обе команды.
+10:01:05.118 [Log] [MatchManager] Спавн волны команды 0 (player=0): состав 2 юнитов.
+10:01:05.126 [Exception] NullReferenceException: Object reference not set to an instance of an object
+StrategyCore.Unit.Initialize () (at <c2200ee241eb4170af9f1cf1b5373395>:0)
+StrategyCore.Unit.SpawnInternal (StrategyCore.Unit unitRef, UnityEngine.Vector3 position, System.Single rotation, System.Int32 owner, System.UInt16 netID) (at <c2200ee241eb4170af9f1cf1b5373395>:0)
+StrategyCore.Unit.Spawn (StrategyCore.Unit unitRef, UnityEngine.Vector3 position, System.Single rotation, System.Int32 owner, System.Single positionR) (at <c2200ee241eb4170af9f1cf1b5373395>:0)
+StrategyCore.MatchManager+<SpawnWave>d__321.MoveNext () (at <c2200ee241eb4170af9f1cf1b5373395>:0)
+UnityEngine.SetupCoroutine.InvokeMoveNext (System.Collections.IEnumerator enumerator, System.IntPtr returnValueAddress) (at <35e503df996e446286377b9defa4cb4d>:0)
+UnityEngine.MonoBehaviour:StartCoroutine(IEnumerator)
+StrategyCore.<WaveLoop>d__318:MoveNext()
+UnityEngine.SetupCoroutine:InvokeMoveNext(IEnumerator, IntPtr)
+10:01:05.126 [Log] [MatchManager] Спавн волны команды 1 (player=1): состав 2 юнитов.
+10:01:05.129 [Exception] NullReferenceException: Object reference not set to an instance of an object
+StrategyCore.Unit.Initialize () (at <c2200ee241eb4170af9f1cf1b5373395>:0)
+StrategyCore.Unit.SpawnInternal (StrategyCore.Unit unitRef, UnityEngine.Vector3 position, System.Single rotation, System.Int32 owner, System.UInt16 netID) (at <c2200ee241eb4170af9f1cf1b5373395>:0)
+StrategyCore.Unit.Spawn (StrategyCore.Unit unitRef, UnityEngine.Vector3 position, System.Single rotation, System.Int32 owner, System.Single positionR) (at <c2200ee241eb4170af9f1cf1b5373395>:0)
+StrategyCore.MatchManager+<SpawnWave>d__321.MoveNext () (at <c2200ee241eb4170af9f1cf1b5373395>:0)
+UnityEngine.SetupCoroutine.InvokeMoveNext (System.Collections.IEnumerator enumerator, System.IntPtr returnValueAddress) (at <35e503df996e446286377b9defa4cb4d>:0)
+UnityEngine.MonoBehaviour:StartCoroutine(IEnumerator)
+StrategyCore.<WaveLoop>d__318:MoveNext()
+UnityEngine.SetupCoroutine:InvokeMoveNext(IEnumerator, IntPtr)
+10:01:05.129 [Exception] NullReferenceException: Object reference not set to an instance of an object
+StrategyCore.Unit.Initialize () (at <c2200ee241eb4170af9f1cf1b5373395>:0)
+StrategyCore.Unit.Start () (at <c2200ee241eb4170af9f1cf1b5373395>:0)
+10:01:05.134 [Log] [IF] НАБЛЮДАТЕЛЬ включён: Footman_Green(Clone)#-3214 (игрок 0) | урон 10, скорость атаки 1,5, дальность 1, броня 0, скорость бега 4, способностей в списке 4
+10:01:05.134 [Exception] NullReferenceException: Object reference not set to an instance of an object
+StrategyCore.Unit.Initialize () (at <c2200ee241eb4170af9f1cf1b5373395>:0)
+StrategyCore.Unit.Start () (at <c2200ee241eb4170af9f1cf1b5373395>:0)
+10:01:05.136 [Log] [IF] НАБЛЮДАТЕЛЬ включён: Footman_Green(Clone)#-3266 (игрок 1) | урон 10, скорость атаки 1,5, дальность 1, броня 0, скорость бега 4, способностей в списке 4
+=== end 2026-08-01 10:01:16 ===

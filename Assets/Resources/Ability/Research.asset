@@ -1,0 +1,60 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4946ab8e5f77b044990b511164656677, type: 3}
+  m_Name: Research
+  m_EditorClassIdentifier: 
+  id: 97564
+  abilityName:
+  - Research Example
+  description:
+  - 
+  icon: []
+  slotNumber: -1
+  isItem: 0
+  useUponPickUp: 0
+  dropOnDeath: 0
+  charges: 0
+  maxLevels: 0
+  heroLevelable: 0
+  cooldown:
+  - 0
+  castRange:
+  - 0
+  castTime:
+  - 0
+  radius:
+  - 0
+  unitSelector:
+    isOwn: 0
+    isAlly: 0
+    isEnemy: 0
+    isUnit: 0
+    isBuilding: 0
+    isStaticDestructible: 0
+    isTree: 0
+    isGround: 0
+    isWater: 0
+    isAir: 0
+    includeInvisible: 0
+    includeInvulnerable: 0
+  dontTurn: 0
+  continuous: 0
+  interruptible: 0
+  requiresCastingUnit: 1
+  duration: []
+  requiredTech: []
+  requiredLevel: 
+  manaCost: []
+  manaCostPerSecond: []
+  cost: []
+  unlockTech:
+  - {fileID: 11400000, guid: fb162f57ac5f34a43b4caa15f236a09e, type: 2}

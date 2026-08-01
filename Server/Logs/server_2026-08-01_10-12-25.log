@@ -1,0 +1,165 @@
+=== Interflow server log === start 2026-08-01 10:12:25 ===
+unityVersion=6000.4.7f1 platform=WindowsServer headless=True args=Interflow.exe -port 7777 -logFile server.log
+10:12:25.655 [Warning] Are you sure you have EventSystem in your scene?
+10:12:25.750 [Log] [ServerBootstrap] Start: headless=True, gfx=Null, batchmode=True, автозапуск=True, injectMenuButton=True.
+10:12:25.753 [Log] [ServerBootstrap] Порт из аргумента -port: 7777.
+10:12:25.756 [Log] [ServerBootstrap] Порт прослушивания: 0.0.0.0:7777.
+10:12:26.048 [Log] [ServerBootstrap] Сервер запущен (StartServer). Ожидание игроков: 2.
+10:12:26.191 [Log] Approved: joined Player0, 1 at slot 0
+10:12:26.316 [Log] Approved: joined Player0, 2 at slot 1
+10:12:26.390 [Log] [ServerBootstrap] Набралось игроков (2) — отсчёт 15с до старта.
+10:12:41.491 [Log] [ServerBootstrap] Отсчёт завершён — старт матча.
+10:12:41.588 [Warning] The referenced script (Unknown) on this Behaviour is missing!
+10:12:41.588 [Warning] The referenced script (Unknown) on this Behaviour is missing!
+10:12:41.596 [Warning] The referenced script (Unknown) on this Behaviour is missing!
+10:12:41.596 [Warning] The referenced script (Unknown) on this Behaviour is missing!
+10:12:41.598 [Warning] The referenced script on this Behaviour (Game Object 'GameManager') is missing!
+10:12:41.603 [Warning] The referenced script on this Behaviour (Game Object 'GameManager') is missing!
+10:12:41.604 [Warning] The referenced script on this Behaviour (Game Object 'GameManager') is missing!
+10:12:41.604 [Warning] The referenced script on this Behaviour (Game Object 'CameraRig') is missing!
+10:12:41.604 [Warning] The referenced script on this Behaviour (Game Object 'GameManager') is missing!
+10:12:41.604 [Warning] The referenced script on this Behaviour (Game Object 'CameraRig') is missing!
+10:12:41.722 [Log] [ServerFactionConfigs] Загружено фракций: 2 (Люди, Орки); неотрезолвленных ссылок: 0.
+10:12:41.814 [Warning] The referenced script (Unknown) on this Behaviour is missing!
+10:12:41.814 [Warning] The referenced script on this Behaviour (Game Object '<null>') is missing!
+10:12:41.814 [Error] A scripted object (script unknown or not yet loaded) has a different serialization layout when loading. (Read 40 bytes but expected 140 bytes)
+Did you #if UNITY_EDITOR a section of your serialized properties in any of your scripts?
+10:12:42.039 [Warning] [MatchManager] GameManager.specificUnitsDead не настроен — победа по уничтожению базы не сработает. Задайте NetID баз и winningTeam в Inspector у GameManager.
+10:12:43.301 [Log] [MatchManager] Башня отстроена: ArrowTower(Clone) для точки CentralPoint (player=13, netID=36984, prefab=ArrowTower).
+10:12:43.301 [Log] [MatchManager] Подписка на смерть башни ArrowTower(Clone).
+10:12:43.304 [Log] [MatchManager] Башня отстроена: CannonTower(Clone) для точки DefPointA2 (player=0, netID=36264, prefab=CannonTower).
+10:12:43.304 [Log] [MatchManager] Подписка на смерть башни CannonTower(Clone).
+10:12:43.305 [Log] [MatchManager] Башня отстроена: CannonTower(Clone) для точки DefPointA1 (player=0, netID=60568, prefab=CannonTower).
+10:12:43.305 [Log] [MatchManager] Подписка на смерть башни CannonTower(Clone).
+10:12:43.305 [Log] [MatchManager] Башня отстроена: CannonTower(Clone) для точки DefPointB2 (player=1, netID=22085, prefab=CannonTower).
+10:12:43.305 [Log] [MatchManager] Подписка на смерть башни CannonTower(Clone).
+10:12:43.305 [Log] [MatchManager] Башня отстроена: CannonTower(Clone) для точки DefPointB1 (player=1, netID=20921, prefab=CannonTower).
+10:12:43.306 [Log] [MatchManager] Подписка на смерть башни CannonTower(Clone).
+10:12:43.306 [Log] [MatchManager] SpawnInitialTowers: запущен спавн 5 башен.
+10:12:43.326 [Log] [MatchManager] Матч начался — запускаем волны.
+10:12:43.327 [Log] [MatchManager] КАРТА КОМАНД: team0(teamA).ownerPlayer=0, team1(teamB).ownerPlayer=1; playerTeam[slot]=[0,1,2,3,4,5,6,7,8,9,10,11,12,13]; СВЕРКА: playerTeam[team0.owner]=0 (ожид 0), playerTeam[team1.owner]=1 (ожид 1).
+10:12:48.276 [Log] [MatchManager] Волна #1 — спавним обе команды.
+10:12:48.280 [Log] [MatchManager] Спавн волны команды 0 (player=0): состав 2 юнитов.
+10:12:48.358 [Log] [MatchManager] Волна команды 0: заспавнено 2 юнитов.
+10:12:48.363 [Log] [MatchManager] Спавн волны команды 1 (player=1): состав 2 юнитов.
+10:12:48.365 [Log] [MatchManager] Волна команды 1: заспавнено 2 юнитов.
+10:12:48.374 [Log] [IF] НАБЛЮДАТЕЛЬ включён: Footman_Green(Clone)#-3242 (игрок 0) | урон 10, скорость атаки 1,5, дальность 0,5, броня 0, скорость бега 4, способностей в списке 4
+10:12:48.375 [Log] [IF] НАБЛЮДАТЕЛЬ включён: Rifleman_Green(Clone)#-3302 (игрок 0) | урон 99, скорость атаки 2, дальность 4, броня 0, скорость бега 3, способностей в списке 2
+10:12:48.375 [Log] [IF] НАБЛЮДАТЕЛЬ включён: Footman_Green(Clone)#-3360 (игрок 1) | урон 10, скорость атаки 1,5, дальность 0,5, броня 0, скорость бега 4, способностей в списке 4
+10:12:48.375 [Log] [IF] НАБЛЮДАТЕЛЬ включён: Rifleman_Green(Clone)#-3420 (игрок 1) | урон 99, скорость атаки 2, дальность 4, броня 0, скорость бега 3, способностей в списке 2
+10:12:52.219 [Log] [TeamCommand] От sender(slot)=0 clientId=1: team=0 ряд=0 action=Defence ownerPlayer(team0)=0 → принято.
+10:12:52.219 [Log] [MatchManager] Точка защиты команды 0 изменилась → DefPointA2.
+10:12:52.221 [Log] [MatchManager] ЗАЩИТА: команда 0 ряд 0 (player=0), юнитов=2, точка=DefPointA2.
+10:12:53.989 [Log] [TeamCommand] От sender(slot)=0 clientId=1: team=0 ряд=0 action=Attack ownerPlayer(team0)=0 → принято.
+10:12:53.990 [Log] [MatchManager] Точка атаки команды 0 изменилась → CentralPoint.
+10:12:53.991 [Log] [MatchManager] АТАКА: команда 0 ряд 0 (player=0), юнитов=2/2, цель=CentralPoint.
+10:13:00.615 [Log] [MatchManager] УНИЧТОЖЕНА БАШНЯ: ArrowTower(Clone) (owner=13, убийца player=1, юнит=Rifleman_Green(Clone)).
+10:13:00.615 [Log] [MatchManager] Точка CentralPoint захвачена: команда -1 → 1.
+10:13:00.617 [Log] [MatchManager] ЗАХВАТ CentralPoint (ID=20690): towerAlive=False, currentTeam=1. NextAttackTarget(team=1) = (10.67, 16.47)
+10:13:00.621 [Log] [MatchManager] Lane-точки для team=1: [0]CastlePointA(ID=20688) team=0 towerAlive=True type=Castle ownedByAttacker=False, [1]DefPointA1(ID=20694) team=0 towerAlive=True type=Defence1 ownedByAttacker=False, [2]DefPointA2(ID=20696) team=0 towerAlive=True type=Defence2 ownedByAttacker=False, [3]CentralPoint(ID=20690) team=1 towerAlive=False type=Centre ownedByAttacker=True, [4]DefPointB2(ID=20682) team=1 towerAlive=True type=Defence2 ownedByAttacker=True, [5]DefPointB1(ID=20674) team=1 towerAlive=True type=Defence1 ownedByAttacker=True, [6]CastlePointB(ID=20686) team=1 towerAlive=True type=Castle ownedByAttacker=True
+10:13:00.622 [Log] [MatchManager] RefreshTargetPoints: точка атаки команды 1 → DefPointA2.
+10:13:00.622 [Log] [MatchManager] RefreshTargetPoints: точка защиты команды 1 → CentralPoint.
+10:13:00.623 [Log] [MatchManager] Следующие цели команды 0: атака=CentralPoint, защита=DefPointA2.
+10:13:00.623 [Log] [MatchManager] Следующие цели команды 1: атака=DefPointA2, защита=CentralPoint.
+10:13:00.623 [Log] [MatchManager] АТАКА: команда 0 ряд 0 (player=0), юнитов=2/2, цель=CentralPoint.
+10:13:00.626 [Log] [MatchManager] Запускаем отстройку башни для точки CentralPoint (player=1, база=BaseTower, задержка=1 сек).
+10:13:01.621 [Log] [IF] ЭФФЕКТ + на Footman_Green(Clone)#-3242 (игрок 0): «Горение (алхимическое) [Lyudi_Eff_Burn]», источник: Rifleman_Green(Clone) (игрок 1)
+10:13:01.624 [Log] [MatchManager] Башня отстроена: BaseTower(Clone) для точки CentralPoint (player=1, netID=13162, prefab=BaseTower).
+10:13:01.624 [Log] [MatchManager] Подписка на смерть башни BaseTower(Clone).
+10:13:02.821 [Log] [IF] ЭФФЕКТ + на Footman_Green(Clone)#-3360 (игрок 1): «Горение (алхимическое) [Lyudi_Eff_Burn]», источник: Rifleman_Green(Clone) (игрок 0)
+10:13:06.827 [Log] [IF] ЭФФЕКТ + на Rifleman_Green(Clone)#-3420 (игрок 1): «Горение (алхимическое) [Lyudi_Eff_Burn]», источник: Rifleman_Green(Clone) (игрок 0)
+10:13:07.629 [Log] [IF] ЭФФЕКТ + на Rifleman_Green(Clone)#-3302 (игрок 0): «Горение (алхимическое) [Lyudi_Eff_Burn]», источник: Rifleman_Green(Clone) (игрок 1)
+10:13:12.533 [Log] [IF] ЭФФЕКТ − с Rifleman_Green(Clone)#-3302 (игрок 0): «Горение (алхимическое) [Lyudi_Eff_Burn]»
+10:13:16.672 [Log] [MatchManager] УНИЧТОЖЕНА БАШНЯ: BaseTower(Clone) (owner=1, убийца player=0, юнит=Rifleman_Green(Clone)).
+10:13:16.672 [Log] [MatchManager] Точка CentralPoint захвачена: команда 1 → 0.
+10:13:16.672 [Log] [MatchManager] ЗАХВАТ CentralPoint (ID=20690): towerAlive=False, currentTeam=0. NextAttackTarget(team=0) = (37.40, 17.01)
+10:13:16.672 [Log] [MatchManager] Lane-точки для team=0: [0]CastlePointA(ID=20688) team=0 towerAlive=True type=Castle ownedByAttacker=True, [1]DefPointA1(ID=20694) team=0 towerAlive=True type=Defence1 ownedByAttacker=True, [2]DefPointA2(ID=20696) team=0 towerAlive=True type=Defence2 ownedByAttacker=True, [3]CentralPoint(ID=20690) team=0 towerAlive=False type=Centre ownedByAttacker=True, [4]DefPointB2(ID=20682) team=1 towerAlive=True type=Defence2 ownedByAttacker=False, [5]DefPointB1(ID=20674) team=1 towerAlive=True type=Defence1 ownedByAttacker=False, [6]CastlePointB(ID=20686) team=1 towerAlive=True type=Castle ownedByAttacker=False
+10:13:16.673 [Log] [MatchManager] RefreshTargetPoints: точка атаки команды 0 → DefPointB2.
+10:13:16.673 [Log] [MatchManager] RefreshTargetPoints: точка защиты команды 0 → CentralPoint.
+10:13:16.673 [Log] [MatchManager] RefreshTargetPoints: точка атаки команды 1 → CentralPoint.
+10:13:16.673 [Log] [MatchManager] RefreshTargetPoints: точка защиты команды 1 → DefPointB2.
+10:13:16.673 [Log] [MatchManager] Следующие цели команды 0: атака=DefPointB2, защита=CentralPoint.
+10:13:16.673 [Log] [MatchManager] Следующие цели команды 1: атака=CentralPoint, защита=DefPointB2.
+10:13:16.673 [Log] [MatchManager] АТАКА: команда 0 ряд 0 (player=0), юнитов=1/1, цель=DefPointB2.
+10:13:16.673 [Log] [MatchManager] Запускаем отстройку башни для точки CentralPoint (player=0, база=BaseTower, задержка=1 сек).
+10:13:17.678 [Log] [MatchManager] Башня отстроена: BaseTower(Clone) для точки CentralPoint (player=0, netID=55640, prefab=BaseTower).
+10:13:17.678 [Log] [MatchManager] Подписка на смерть башни BaseTower(Clone).
+10:13:18.313 [Log] [MatchManager] Волна #2 — спавним обе команды.
+10:13:18.313 [Log] [MatchManager] Спавн волны команды 0 (player=0): состав 2 юнитов.
+10:13:18.315 [Log] [MatchManager] Волна команды 0: заспавнено 2 юнитов.
+10:13:18.315 [Log] [MatchManager] АТАКА: команда 0 ряд 0 (player=0), юнитов=3/3, цель=DefPointB2.
+10:13:18.315 [Log] [MatchManager] Спавн волны команды 1 (player=1): состав 2 юнитов.
+10:13:18.318 [Log] [MatchManager] Волна команды 1: заспавнено 2 юнитов.
+10:13:18.319 [Log] [IF] НАБЛЮДАТЕЛЬ включён: Footman_Green(Clone)#-4000 (игрок 0) | урон 10, скорость атаки 1,5, дальность 0,5, броня 0, скорость бега 4, способностей в списке 4
+10:13:18.319 [Log] [IF] НАБЛЮДАТЕЛЬ включён: Rifleman_Green(Clone)#-4060 (игрок 0) | урон 99, скорость атаки 2, дальность 4, броня 0, скорость бега 3, способностей в списке 2
+10:13:18.319 [Log] [IF] НАБЛЮДАТЕЛЬ включён: Footman_Green(Clone)#-4118 (игрок 1) | урон 10, скорость атаки 1,5, дальность 0,5, броня 0, скорость бега 4, способностей в списке 4
+10:13:18.319 [Log] [IF] НАБЛЮДАТЕЛЬ включён: Rifleman_Green(Clone)#-4178 (игрок 1) | урон 99, скорость атаки 2, дальность 4, броня 0, скорость бега 3, способностей в списке 2
+10:13:22.229 [Log] [MatchManager] УНИЧТОЖЕНА БАШНЯ: CannonTower(Clone) (owner=1, убийца player=0, юнит=Rifleman_Green(Clone)).
+10:13:22.229 [Log] [MatchManager] Точка DefPointB2 захвачена: команда 1 → 0.
+10:13:22.229 [Log] [MatchManager] ЗАХВАТ DefPointB2 (ID=20682): towerAlive=False, currentTeam=0. NextAttackTarget(team=0) = (41.54, 21.65)
+10:13:22.229 [Log] [MatchManager] Lane-точки для team=0: [0]CastlePointA(ID=20688) team=0 towerAlive=True type=Castle ownedByAttacker=True, [1]DefPointA1(ID=20694) team=0 towerAlive=True type=Defence1 ownedByAttacker=True, [2]DefPointA2(ID=20696) team=0 towerAlive=True type=Defence2 ownedByAttacker=True, [3]CentralPoint(ID=20690) team=0 towerAlive=True type=Centre ownedByAttacker=True, [4]DefPointB2(ID=20682) team=0 towerAlive=False type=Defence2 ownedByAttacker=True, [5]DefPointB1(ID=20674) team=1 towerAlive=True type=Defence1 ownedByAttacker=False, [6]CastlePointB(ID=20686) team=1 towerAlive=True type=Castle ownedByAttacker=False
+10:13:22.230 [Log] [MatchManager] RefreshTargetPoints: точка атаки команды 0 → DefPointB1.
+10:13:22.230 [Log] [MatchManager] RefreshTargetPoints: точка защиты команды 1 → DefPointB1.
+10:13:22.230 [Log] [MatchManager] Следующие цели команды 0: атака=DefPointB1, защита=CentralPoint.
+10:13:22.230 [Log] [MatchManager] Следующие цели команды 1: атака=CentralPoint, защита=DefPointB1.
+10:13:22.230 [Log] [MatchManager] АТАКА: команда 0 ряд 0 (player=0), юнитов=3/3, цель=DefPointB1.
+10:13:27.224 [Log] [IF] ЭФФЕКТ + на Footman_Green(Clone)#-4118 (игрок 1): «Горение (алхимическое) [Lyudi_Eff_Burn]», источник: Rifleman_Green(Clone) (игрок 0)
+10:13:27.324 [Log] [IF] ЭФФЕКТ + на Footman_Green(Clone)#-4000 (игрок 0): «Горение (алхимическое) [Lyudi_Eff_Burn]», источник: Rifleman_Green(Clone) (игрок 1)
+10:13:33.296 [Log] [IF] ЭФФЕКТ + на Rifleman_Green(Clone)#-4178 (игрок 1): «Горение (алхимическое) [Lyudi_Eff_Burn]», источник: Rifleman_Green(Clone) (игрок 0)
+10:13:35.508 [Log] [IF] ЭФФЕКТ + на Rifleman_Green(Clone)#-4060 (игрок 0): «Горение (алхимическое) [Lyudi_Eff_Burn]», источник: Rifleman_Green(Clone) (игрок 1)
+10:13:40.431 [Log] [IF] ЭФФЕКТ − с Rifleman_Green(Clone)#-4060 (игрок 0): «Горение (алхимическое) [Lyudi_Eff_Burn]»
+10:13:43.862 [Log] [MatchManager] УНИЧТОЖЕНА БАШНЯ: CannonTower(Clone) (owner=1, убийца player=0, юнит=Rifleman_Green(Clone)).
+10:13:43.862 [Log] [MatchManager] Точка DefPointB1 захвачена: команда 1 → 0.
+10:13:43.862 [Log] [MatchManager] ЗАХВАТ DefPointB1 (ID=20674): towerAlive=False, currentTeam=0. NextAttackTarget(team=0) = (43.24, 28.12)
+10:13:43.862 [Log] [MatchManager] Lane-точки для team=0: [0]CastlePointA(ID=20688) team=0 towerAlive=True type=Castle ownedByAttacker=True, [1]DefPointA1(ID=20694) team=0 towerAlive=True type=Defence1 ownedByAttacker=True, [2]DefPointA2(ID=20696) team=0 towerAlive=True type=Defence2 ownedByAttacker=True, [3]CentralPoint(ID=20690) team=0 towerAlive=True type=Centre ownedByAttacker=True, [4]DefPointB2(ID=20682) team=0 towerAlive=False type=Defence2 ownedByAttacker=True, [5]DefPointB1(ID=20674) team=0 towerAlive=False type=Defence1 ownedByAttacker=True, [6]CastlePointB(ID=20686) team=1 towerAlive=True type=Castle ownedByAttacker=False
+10:13:43.862 [Log] [MatchManager] RefreshTargetPoints: точка атаки команды 0 → CastlePointB.
+10:13:43.862 [Log] [MatchManager] RefreshTargetPoints: точка защиты команды 1 → CastlePointB.
+10:13:43.862 [Log] [MatchManager] Следующие цели команды 0: атака=CastlePointB, защита=CentralPoint.
+10:13:43.862 [Log] [MatchManager] Следующие цели команды 1: атака=CentralPoint, защита=CastlePointB.
+10:13:43.862 [Log] [MatchManager] АТАКА: команда 0 ряд 0 (player=0), юнитов=1/1, цель=CastlePointB.
+10:13:48.363 [Log] [MatchManager] Волна #3 — спавним обе команды.
+10:13:48.363 [Log] [MatchManager] Спавн волны команды 0 (player=0): состав 2 юнитов.
+10:13:48.364 [Log] [MatchManager] Волна команды 0: заспавнено 2 юнитов.
+10:13:48.364 [Log] [MatchManager] АТАКА: команда 0 ряд 0 (player=0), юнитов=3/3, цель=CastlePointB.
+10:13:48.364 [Log] [MatchManager] Спавн волны команды 1 (player=1): состав 2 юнитов.
+10:13:48.365 [Log] [MatchManager] Волна команды 1: заспавнено 2 юнитов.
+10:13:48.365 [Log] [IF] НАБЛЮДАТЕЛЬ включён: Footman_Green(Clone)#-4980 (игрок 0) | урон 10, скорость атаки 1,5, дальность 0,5, броня 0, скорость бега 4, способностей в списке 4
+10:13:48.365 [Log] [IF] НАБЛЮДАТЕЛЬ включён: Rifleman_Green(Clone)#-5040 (игрок 0) | урон 99, скорость атаки 2, дальность 4, броня 0, скорость бега 3, способностей в списке 2
+10:13:48.365 [Log] [IF] НАБЛЮДАТЕЛЬ включён: Footman_Green(Clone)#-5098 (игрок 1) | урон 10, скорость атаки 1,5, дальность 0,5, броня 0, скорость бега 4, способностей в списке 4
+10:13:48.365 [Log] [IF] НАБЛЮДАТЕЛЬ включён: Rifleman_Green(Clone)#-5158 (игрок 1) | урон 99, скорость атаки 2, дальность 4, броня 0, скорость бега 3, способностей в списке 2
+10:13:54.834 [Log] [MatchManager] УНИЧТОЖЕНА БАШНЯ: BaseTower(Clone) (owner=0, убийца player=1, юнит=Rifleman_Green(Clone)).
+10:13:54.834 [Log] [MatchManager] Точка CentralPoint захвачена: команда 0 → 1.
+10:13:54.834 [Log] [MatchManager] ЗАХВАТ CentralPoint (ID=20690): towerAlive=False, currentTeam=1. NextAttackTarget(team=1) = (10.67, 16.47)
+10:13:54.834 [Log] [MatchManager] Lane-точки для team=1: [0]CastlePointA(ID=20688) team=0 towerAlive=True type=Castle ownedByAttacker=False, [1]DefPointA1(ID=20694) team=0 towerAlive=True type=Defence1 ownedByAttacker=False, [2]DefPointA2(ID=20696) team=0 towerAlive=True type=Defence2 ownedByAttacker=False, [3]CentralPoint(ID=20690) team=1 towerAlive=False type=Centre ownedByAttacker=True, [4]DefPointB2(ID=20682) team=0 towerAlive=False type=Defence2 ownedByAttacker=False, [5]DefPointB1(ID=20674) team=0 towerAlive=False type=Defence1 ownedByAttacker=False, [6]CastlePointB(ID=20686) team=1 towerAlive=True type=Castle ownedByAttacker=True
+10:13:54.834 [Log] [MatchManager] RefreshTargetPoints: точка атаки команды 0 → CentralPoint.
+10:13:54.834 [Log] [MatchManager] RefreshTargetPoints: точка защиты команды 0 → DefPointA2.
+10:13:54.834 [Log] [MatchManager] RefreshTargetPoints: точка атаки команды 1 → DefPointA2.
+10:13:54.834 [Log] [MatchManager] RefreshTargetPoints: точка защиты команды 1 → CentralPoint.
+10:13:54.835 [Log] [MatchManager] Следующие цели команды 0: атака=CentralPoint, защита=DefPointA2.
+10:13:54.835 [Log] [MatchManager] Следующие цели команды 1: атака=DefPointA2, защита=CentralPoint.
+10:13:54.835 [Log] [MatchManager] АТАКА: команда 0 ряд 0 (player=0), юнитов=2/2, цель=CentralPoint.
+10:13:54.835 [Log] [MatchManager] Запускаем отстройку башни для точки CentralPoint (player=1, база=BaseTower, задержка=1 сек).
+10:13:55.835 [Log] [MatchManager] Башня отстроена: BaseTower(Clone) для точки CentralPoint (player=1, netID=45023, prefab=BaseTower).
+10:13:55.835 [Log] [MatchManager] Подписка на смерть башни BaseTower(Clone).
+10:13:55.867 [Log] [IF] ЭФФЕКТ + на Footman_Green(Clone)#-5098 (игрок 1): «Горение (алхимическое) [Lyudi_Eff_Burn]», источник: Rifleman_Green(Clone) (игрок 0)
+10:13:56.886 [Log] [IF] ЭФФЕКТ + на Rifleman_Green(Clone)#-5040 (игрок 0): «Горение (алхимическое) [Lyudi_Eff_Burn]», источник: Rifleman_Green(Clone) (игрок 1)
+10:14:02.695 [Log] [IF] ЭФФЕКТ + на Footman_Green(Clone)#-4980 (игрок 0): «Горение (алхимическое) [Lyudi_Eff_Burn]», источник: Rifleman_Green(Clone) (игрок 1)
+10:14:12.497 [Log] [MatchManager] УНИЧТОЖЕНА БАШНЯ: CannonTower(Clone) (owner=0, убийца player=1, юнит=Rifleman_Green(Clone)).
+10:14:12.497 [Log] [MatchManager] Точка DefPointA2 захвачена: команда 0 → 1.
+10:14:12.497 [Log] [MatchManager] ЗАХВАТ DefPointA2 (ID=20696): towerAlive=False, currentTeam=1. NextAttackTarget(team=1) = (4.65, 13.31)
+10:14:12.497 [Log] [MatchManager] Lane-точки для team=1: [0]CastlePointA(ID=20688) team=0 towerAlive=True type=Castle ownedByAttacker=False, [1]DefPointA1(ID=20694) team=0 towerAlive=True type=Defence1 ownedByAttacker=False, [2]DefPointA2(ID=20696) team=1 towerAlive=False type=Defence2 ownedByAttacker=True, [3]CentralPoint(ID=20690) team=1 towerAlive=True type=Centre ownedByAttacker=True, [4]DefPointB2(ID=20682) team=0 towerAlive=False type=Defence2 ownedByAttacker=False, [5]DefPointB1(ID=20674) team=0 towerAlive=False type=Defence1 ownedByAttacker=False, [6]CastlePointB(ID=20686) team=1 towerAlive=True type=Castle ownedByAttacker=True
+10:14:12.497 [Log] [MatchManager] RefreshTargetPoints: точка защиты команды 0 → DefPointA1.
+10:14:12.497 [Log] [MatchManager] RefreshTargetPoints: точка атаки команды 1 → DefPointA1.
+10:14:12.497 [Log] [MatchManager] Следующие цели команды 0: атака=CentralPoint, защита=DefPointA1.
+10:14:12.497 [Log] [MatchManager] Следующие цели команды 1: атака=DefPointA1, защита=CentralPoint.
+10:14:12.497 [Log] [MatchManager] АТАКА: команда 0 ряд 0 (player=0), юнитов=0/0, цель=CentralPoint.
+10:14:17.169 [Log] [MatchManager] УНИЧТОЖЕНА БАШНЯ: CannonTower(Clone) (owner=0, убийца player=1, юнит=Rifleman_Green(Clone)).
+10:14:17.169 [Log] [MatchManager] Точка DefPointA1 захвачена: команда 0 → 1.
+10:14:17.169 [Log] [MatchManager] ЗАХВАТ DefPointA1 (ID=20694): towerAlive=False, currentTeam=1. NextAttackTarget(team=1) = (5.99, 4.40)
+10:14:17.169 [Log] [MatchManager] Lane-точки для team=1: [0]CastlePointA(ID=20688) team=0 towerAlive=True type=Castle ownedByAttacker=False, [1]DefPointA1(ID=20694) team=1 towerAlive=False type=Defence1 ownedByAttacker=True, [2]DefPointA2(ID=20696) team=1 towerAlive=False type=Defence2 ownedByAttacker=True, [3]CentralPoint(ID=20690) team=1 towerAlive=True type=Centre ownedByAttacker=True, [4]DefPointB2(ID=20682) team=0 towerAlive=False type=Defence2 ownedByAttacker=False, [5]DefPointB1(ID=20674) team=0 towerAlive=False type=Defence1 ownedByAttacker=False, [6]CastlePointB(ID=20686) team=1 towerAlive=True type=Castle ownedByAttacker=True
+10:14:17.169 [Log] [MatchManager] RefreshTargetPoints: точка защиты команды 0 → CastlePointA.
+10:14:17.169 [Log] [MatchManager] RefreshTargetPoints: точка атаки команды 1 → CastlePointA.
+10:14:17.169 [Log] [MatchManager] Следующие цели команды 0: атака=CentralPoint, защита=CastlePointA.
+10:14:17.170 [Log] [MatchManager] Следующие цели команды 1: атака=CastlePointA, защита=CentralPoint.
+10:14:17.170 [Log] [MatchManager] АТАКА: команда 0 ряд 0 (player=0), юнитов=0/0, цель=CentralPoint.
+=== end 2026-08-01 10:14:17 ===

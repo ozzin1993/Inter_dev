@@ -13,7 +13,7 @@ namespace StrategyCore
     // ============================= INTERFLOW EDITOR — ВКЛАДКА «УМЕНИЯ И ЭФФЕКТОРЫ» (E4, шаг 3) ==
     // Список Ability всех типов (скан по CreateAssetMenu, как SCEditor.GetAbilityTypes) + Effectors; создание в путь
     // из настроек с уникальным id; редактор полей по [Header]-блокам (общий InterflowEditorUI); «кто использует»
-    // (юниты abilities[]/autoAbility, фракции centralAbilities/contentUnlockRules) + предупреждение «autoAbility не в
+    // (юниты abilities[]/autoAbility, фракции: стартовые centralAbilities + узлы дерева) + предупреждение «autoAbility не в
     // abilities[]». Правило 1: ассет/SCEditor не правим (паттерн GetAbilityTypes воспроизведён, не вызываем SCEditor).
     // Правило 5: часть окна Interflow Editor. Правило 4: UI по-русски.
     public static class InterflowAbilitiesTab
@@ -298,11 +298,59 @@ namespace StrategyCore
             rightPanel.Add(headRow);
             rightPanel.Add(new Label(path) { style = { color = new Color(0.6f, 0.6f, 0.6f), marginBottom = 6, whiteSpace = WhiteSpace.Normal } });
 
+            AddSummaryCard();
             AddUsageSection();
 
             rightPanel.Add(new Label(selected is Ability ? "Поля умения:" : "Поля эффектора:")
                 { style = { unityFontStyleAndWeight = FontStyle.Bold, marginTop = 4, marginBottom = 2 } });
             rightPanel.Add(InterflowEditorUI.BuildGroupedFields(new SerializedObject(selected)));
+        }
+
+        // Карточка-сводка над полями: чтобы понять скилл, не пришлось раскрывать все блоки (План §5.1).
+        // Для эффектора вместо сводки — бейдж «виден ли значок в панели состояний».
+        static void AddSummaryCard()
+        {
+            if (selected is CompositeSkill skill)
+            {
+                var card = new Label(skill.BuildSummary())
+                {
+                    style =
+                    {
+                        whiteSpace = WhiteSpace.Normal,
+                        marginBottom = 6, paddingTop = 4, paddingBottom = 4, paddingLeft = 6, paddingRight = 6,
+                        backgroundColor = new Color(0.20f, 0.24f, 0.20f),
+                        borderTopLeftRadius = 3, borderTopRightRadius = 3,
+                        borderBottomLeftRadius = 3, borderBottomRightRadius = 3
+                    }
+                };
+                card.tooltip = "Автосводка по включённым блокам скилла. Значения показаны для первого уровня.";
+                rightPanel.Add(card);
+                return;
+            }
+
+            if (selected is Effector eff)
+            {
+                bool visible = !eff.stacks && eff.icon != null;
+                string text = visible
+                    ? "Значок виден в панели состояний"
+                    : eff.stacks
+                        ? "Значок НЕ виден: включён Stacks (в панели показываются только нестакающие эффекторы)"
+                        : "Значок НЕ виден: не задана иконка";
+
+                var badge = new Label(text)
+                {
+                    style =
+                    {
+                        whiteSpace = WhiteSpace.Normal,
+                        marginBottom = 6, paddingTop = 4, paddingBottom = 4, paddingLeft = 6, paddingRight = 6,
+                        backgroundColor = visible ? new Color(0.20f, 0.24f, 0.20f) : new Color(0.28f, 0.22f, 0.18f),
+                        borderTopLeftRadius = 3, borderTopRightRadius = 3,
+                        borderBottomLeftRadius = 3, borderBottomRightRadius = 3
+                    }
+                };
+                badge.tooltip = "Значок состояния рисуется только у эффекторов без Stacks и с заданной иконкой.";
+                rightPanel.Add(badge);
+            }
         }
 
         static void DeleteSelected()
@@ -378,26 +426,42 @@ namespace StrategyCore
                 }
             }
 
-            // Фракции: centralAbilities + contentUnlockRules (show/hide центральных способностей).
+            // Фракции: стартовые умения ГЗ (centralAbilities) + умения, открываемые узлами дерева технологий.
             foreach (var f in AllFactions())
             {
                 var fref = f;
                 if (f.centralAbilities != null)
-                    foreach (var ab in f.centralAbilities)
-                        if (ab != null) AddUsage(ab, $"Фракция «{f.name}»: centralAbilities", () => EditorGUIUtility.PingObject(fref), false);
-
-                if (f.contentUnlockRules != null)
-                    foreach (var rule in f.contentUnlockRules)
+                    for (int i = 0; i < f.centralAbilities.Count; i++)
                     {
-                        if (rule == null) continue;
-                        if (rule.showCentralAbilities != null)
-                            foreach (var ab in rule.showCentralAbilities)
-                                if (ab != null) AddUsage(ab, $"Фракция «{f.name}»: contentUnlockRules (показать)", () => EditorGUIUtility.PingObject(fref), false);
-                        if (rule.hideCentralAbilities != null)
-                            foreach (var ab in rule.hideCentralAbilities)
-                                if (ab != null) AddUsage(ab, $"Фракция «{f.name}»: contentUnlockRules (скрыть)", () => EditorGUIUtility.PingObject(fref), false);
+                        var ab = f.centralAbilities[i];
+                        if (ab != null) AddUsage(ab, $"Фракция «{f.name}»: стартовое умение ГЗ, ячейка {i}", () => EditorGUIUtility.PingObject(fref), false);
                     }
+
+                if (f.techTiers == null) continue;
+                foreach (var tier in f.techTiers)
+                {
+                    if (tier == null) continue;
+                    NodeUsage(tier.levelUpgrade, f, fref);
+                    foreach (var opt in new[] { tier.optionA, tier.optionB })
+                    {
+                        if (opt == null) continue;
+                        NodeUsage(opt.node, f, fref);
+                        NodeUsage(opt.specializationA, f, fref);
+                        NodeUsage(opt.specializationB, f, fref);
+                    }
+                }
             }
+        }
+
+        // Умения, открываемые одним узлом дерева: строка «фракция → узел → ячейка».
+        static void NodeUsage(TechNode node, FactionConfig f, FactionConfig fref)
+        {
+            if (node == null || node.unlockAbilities == null) return;
+            string nodeName = node.technology != null ? node.technology.name : "узел без технологии";
+            foreach (var e in node.unlockAbilities)
+                if (e != null && e.ability != null)
+                    AddUsage(e.ability, $"Фракция «{f.name}»: открывает узел «{nodeName}», ячейка {e.slot}",
+                        () => EditorGUIUtility.PingObject(fref), node.technology == null);
         }
 
         static void AddUsage(Ability key, string text, Action ping, bool warn)

@@ -1,0 +1,73 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 634aee3b2916be74f827df107fae0860, type: 3}
+  m_Name: Lyudi_Ab_T5B1_Chains
+  m_EditorClassIdentifier:
+  id: 200123
+  abilityName:
+  - "Рассекающие цепи"
+  description:
+  - "Каждая третья атака наносит «Глубокую рану»: цель получает урон при движении."
+  icon: []
+  slotNumber: -1
+  isItem: 0
+  useUponPickUp: 0
+  dropOnDeath: 0
+  charges: 0
+  maxLevels: 1
+  heroLevelable: 0
+  cooldown:
+  - 0
+  castRange:
+  - 0
+  castTime:
+  - 0
+  radius:
+  - 0
+  unitSelector:
+    isOwn: 0
+    isAlly: 0
+    isEnemy: 1
+    isUnit: 1
+    isBuilding: 0
+    isStaticDestructible: 0
+    isTree: 0
+    isGround: 1
+    isWater: 1
+    isAir: 1
+    includeInvisible: 0
+    includeInvulnerable: 0
+  dontTurn: 0
+  continuous: 0
+  interruptible: 0
+  requiresCastingUnit: 1
+  duration: []
+  requiredTech:
+  - data:
+    - {fileID: 11400000, guid: f3303120bcf737c3fdd85acfb75cd7a0, type: 2}
+  requiredLevel:
+  manaCost: []
+  manaCostPerSecond: []
+  cost: []
+  everyN: 3
+  bonusDamageMultiplier:
+  - 0
+  bonusDamageType: {fileID: 0}
+  onlyDirectAttack: 1
+  triggerKnockback: 0
+  knockbackDistance: 2
+  knockbackStunTime: 0
+  knockbackRespectControlImmunity: 1
+  triggerBleedOnMove: 1
+  bleedDamagePerMeter: 2
+  bleedDuration: 4
+  bleedDamageType: {fileID: 0}

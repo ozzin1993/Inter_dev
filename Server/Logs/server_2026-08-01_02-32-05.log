@@ -1,0 +1,7 @@
+=== Interflow server log === start 2026-08-01 02:32:05 ===
+unityVersion=6000.4.7f1 platform=WindowsServer headless=True args=Interflow.exe -port 7777 -logFile server.log
+02:32:05.264 [Log] [ServerBootstrap] Start: headless=True, gfx=Null, batchmode=True, автозапуск=True, injectMenuButton=True.
+02:32:05.270 [Log] [ServerBootstrap] Порт из аргумента -port: 7777.
+02:32:05.273 [Log] [ServerBootstrap] Порт прослушивания: 0.0.0.0:7777.
+02:32:05.456 [Log] [ServerBootstrap] Сервер запущен (StartServer). Ожидание игроков: 2.
+=== end 2026-08-01 02:32:57 ===

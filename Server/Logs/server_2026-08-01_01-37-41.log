@@ -1,0 +1,87 @@
+=== Interflow server log === start 2026-08-01 01:37:41 ===
+unityVersion=6000.4.7f1 platform=WindowsServer headless=True args=Interflow.exe -port 7777 -logFile server.log
+01:37:41.539 [Log] [ServerBootstrap] Start: headless=True, gfx=Null, batchmode=True, автозапуск=True, injectMenuButton=True.
+01:37:41.545 [Log] [ServerBootstrap] Порт из аргумента -port: 7777.
+01:37:41.546 [Log] [ServerBootstrap] Порт прослушивания: 0.0.0.0:7777.
+01:37:41.684 [Log] [ServerBootstrap] Сервер запущен (StartServer). Ожидание игроков: 2.
+01:43:57.042 [Log] Approved: joined Player0, 1 at slot 0
+01:43:59.597 [Log] Approved: joined Player0, 2 at slot 1
+01:43:59.731 [Log] [ServerBootstrap] Набралось игроков (2) — отсчёт 15с до старта.
+01:44:14.886 [Log] [ServerBootstrap] Отсчёт завершён — старт матча.
+01:44:15.033 [Warning] The referenced script (Unknown) on this Behaviour is missing!
+01:44:15.033 [Warning] The referenced script (Unknown) on this Behaviour is missing!
+01:44:15.041 [Warning] The referenced script (Unknown) on this Behaviour is missing!
+01:44:15.041 [Warning] The referenced script (Unknown) on this Behaviour is missing!
+01:44:15.043 [Warning] The referenced script on this Behaviour (Game Object 'GameManager') is missing!
+01:44:15.047 [Warning] The referenced script on this Behaviour (Game Object 'GameManager') is missing!
+01:44:15.050 [Warning] The referenced script on this Behaviour (Game Object 'GameManager') is missing!
+01:44:15.050 [Warning] The referenced script on this Behaviour (Game Object 'CameraRig') is missing!
+01:44:15.050 [Warning] The referenced script on this Behaviour (Game Object 'GameManager') is missing!
+01:44:15.050 [Warning] The referenced script on this Behaviour (Game Object 'CameraRig') is missing!
+01:44:15.057 [Warning] No mesh data available for mesh ArrowPlane on particle system Arrow. Make sure Read/Write Enabled is set in the importer to work on the particle system renderer
+01:44:15.086 [Warning] No mesh data available for mesh ArrowPlane on particle system Arrow. Make sure Read/Write Enabled is set in the importer to work on the particle system renderer
+01:44:15.086 [Warning] No mesh data available for mesh ArrowPlane on particle system Arrow. Make sure Read/Write Enabled is set in the importer to work on the particle system renderer
+01:44:15.086 [Warning] No mesh data available for mesh ArrowPlane on particle system Arrow. Make sure Read/Write Enabled is set in the importer to work on the particle system renderer
+01:44:15.086 [Warning] No mesh data available for mesh ArrowPlane on particle system Arrow. Make sure Read/Write Enabled is set in the importer to work on the particle system renderer
+01:44:15.086 [Warning] No mesh data available for mesh ArrowPlane on particle system Arrow. Make sure Read/Write Enabled is set in the importer to work on the particle system renderer
+01:44:15.153 [Warning] [MatchManager] ResolveFaction: раса слота 0 не резолвится — фоллбэк на дефолтную расу (factionData[0].config тоже пуст → null).
+01:44:15.153 [Warning] [MatchManager] ResolveFaction: раса слота 1 не резолвится — фоллбэк на дефолтную расу (factionData[0].config тоже пуст → null).
+01:44:15.272 [Warning] The referenced script (Unknown) on this Behaviour is missing!
+01:44:15.272 [Warning] The referenced script on this Behaviour (Game Object '<null>') is missing!
+01:44:15.272 [Error] A scripted object (script unknown or not yet loaded) has a different serialization layout when loading. (Read 40 bytes but expected 140 bytes)
+Did you #if UNITY_EDITOR a section of your serialized properties in any of your scripts?
+01:44:15.273 [Warning] No mesh data available for mesh cylinder_high_poly on particle system area. Make sure Read/Write Enabled is set in the importer to work on the particle system renderer
+01:44:15.274 [Warning] No mesh data available for mesh cylinder_high_poly on particle system area. Make sure Read/Write Enabled is set in the importer to work on the particle system renderer
+01:44:15.494 [Warning] [MatchManager] GameManager.specificUnitsDead не настроен — победа по уничтожению базы не сработает. Задайте NetID баз и winningTeam в Inspector у GameManager.
+01:44:17.041 [Log] [MatchManager] Башня отстроена: ArrowTower(Clone) для точки CentralPoint (player=13, netID=42492, prefab=ArrowTower).
+01:44:17.041 [Log] [MatchManager] Подписка на смерть башни ArrowTower(Clone).
+01:44:17.044 [Log] [MatchManager] Башня отстроена: CannonTower(Clone) для точки DefPointA2 (player=0, netID=13176, prefab=CannonTower).
+01:44:17.044 [Log] [MatchManager] Подписка на смерть башни CannonTower(Clone).
+01:44:17.044 [Log] [MatchManager] Башня отстроена: CannonTower(Clone) для точки DefPointA1 (player=0, netID=52824, prefab=CannonTower).
+01:44:17.044 [Log] [MatchManager] Подписка на смерть башни CannonTower(Clone).
+01:44:17.045 [Log] [MatchManager] Башня отстроена: CannonTower(Clone) для точки DefPointB2 (player=1, netID=34258, prefab=CannonTower).
+01:44:17.045 [Log] [MatchManager] Подписка на смерть башни CannonTower(Clone).
+01:44:17.045 [Log] [MatchManager] Башня отстроена: CannonTower(Clone) для точки DefPointB1 (player=1, netID=9273, prefab=CannonTower).
+01:44:17.045 [Log] [MatchManager] Подписка на смерть башни CannonTower(Clone).
+01:44:17.045 [Log] [MatchManager] SpawnInitialTowers: запущен спавн 5 башен.
+01:44:17.064 [Log] [MatchManager] Матч начался — запускаем волны.
+01:44:17.066 [Log] [MatchManager] КАРТА КОМАНД: team0(teamA).ownerPlayer=0, team1(teamB).ownerPlayer=1; playerTeam[slot]=[0,1,2,3,4,5,6,7,8,9,10,11,12,13]; СВЕРКА: playerTeam[team0.owner]=0 (ожид 0), playerTeam[team1.owner]=1 (ожид 1).
+01:44:21.619 [Log] [TeamCommand] От sender(slot)=0 clientId=1: team=0 ряд=0 action=Attack ownerPlayer(team0)=0 → принято.
+01:44:21.621 [Log] [MatchManager] Точка атаки команды 0 изменилась → CentralPoint.
+01:44:21.622 [Log] [MatchManager] АТАКА: команда 0 ряд 0 (player=0), юнитов=0/0, цель=CentralPoint.
+01:44:21.983 [Log] [TeamCommand] От sender(slot)=0 clientId=1: team=0 ряд=0 action=Defence ownerPlayer(team0)=0 → принято.
+01:44:21.985 [Log] [MatchManager] Точка защиты команды 0 изменилась → DefPointA2.
+01:44:21.985 [Log] [MatchManager] ЗАЩИТА: команда 0 ряд 0 (player=0), юнитов=0, точка=DefPointA2.
+01:44:22.016 [Log] [MatchManager] Волна #1 — спавним обе команды.
+01:44:22.020 [Log] [MatchManager] Спавн волны команды 0 (player=0): состав 0 юнитов.
+01:44:22.020 [Log] [MatchManager] Волна команды 0: заспавнено 0 юнитов.
+01:44:22.023 [Log] [MatchManager] Спавн волны команды 1 (player=1): состав 0 юнитов.
+01:44:22.023 [Log] [MatchManager] Волна команды 1: заспавнено 0 юнитов.
+01:44:52.052 [Log] [MatchManager] Волна #2 — спавним обе команды.
+01:44:52.052 [Log] [MatchManager] Спавн волны команды 0 (player=0): состав 0 юнитов.
+01:44:52.052 [Log] [MatchManager] Волна команды 0: заспавнено 0 юнитов.
+01:44:52.052 [Log] [MatchManager] Спавн волны команды 1 (player=1): состав 0 юнитов.
+01:44:52.052 [Log] [MatchManager] Волна команды 1: заспавнено 0 юнитов.
+01:45:22.095 [Log] [MatchManager] Волна #3 — спавним обе команды.
+01:45:22.095 [Log] [MatchManager] Спавн волны команды 0 (player=0): состав 0 юнитов.
+01:45:22.095 [Log] [MatchManager] Волна команды 0: заспавнено 0 юнитов.
+01:45:22.096 [Log] [MatchManager] Спавн волны команды 1 (player=1): состав 0 юнитов.
+01:45:22.096 [Log] [MatchManager] Волна команды 1: заспавнено 0 юнитов.
+01:45:52.124 [Log] [MatchManager] Волна #4 — спавним обе команды.
+01:45:52.124 [Log] [MatchManager] Спавн волны команды 0 (player=0): состав 0 юнитов.
+01:45:52.124 [Log] [MatchManager] Волна команды 0: заспавнено 0 юнитов.
+01:45:52.124 [Log] [MatchManager] Спавн волны команды 1 (player=1): состав 0 юнитов.
+01:45:52.124 [Log] [MatchManager] Волна команды 1: заспавнено 0 юнитов.
+01:46:22.150 [Log] [MatchManager] Волна #5 — спавним обе команды.
+01:46:22.150 [Log] [MatchManager] Спавн волны команды 0 (player=0): состав 0 юнитов.
+01:46:22.150 [Log] [MatchManager] Волна команды 0: заспавнено 0 юнитов.
+01:46:22.150 [Log] [MatchManager] Спавн волны команды 1 (player=1): состав 0 юнитов.
+01:46:22.150 [Log] [MatchManager] Волна команды 1: заспавнено 0 юнитов.
+01:46:52.169 [Log] [MatchManager] Волна #6 — спавним обе команды.
+01:46:52.169 [Log] [MatchManager] Спавн волны команды 0 (player=0): состав 0 юнитов.
+01:46:52.169 [Log] [MatchManager] Волна команды 0: заспавнено 0 юнитов.
+01:46:52.169 [Log] [MatchManager] Спавн волны команды 1 (player=1): состав 0 юнитов.
+01:46:52.169 [Log] [MatchManager] Волна команды 1: заспавнено 0 юнитов.
+01:47:02.014 [Log] Approved: joined Player0, 3 at slot 0
+01:47:02.681 [Log] Save file byte size 4335
+=== end 2026-08-01 01:47:19 ===

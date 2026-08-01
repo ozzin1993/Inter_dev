@@ -1,0 +1,70 @@
+=== Interflow server log === start 2026-08-01 02:34:09 ===
+unityVersion=6000.4.7f1 platform=WindowsServer headless=True args=Interflow.exe -port 7777 -logFile server.log
+02:34:09.496 [Log] [ServerBootstrap] Start: headless=True, gfx=Null, batchmode=True, автозапуск=True, injectMenuButton=True.
+02:34:09.501 [Log] [ServerBootstrap] Порт из аргумента -port: 7777.
+02:34:09.502 [Log] [ServerBootstrap] Порт прослушивания: 0.0.0.0:7777.
+02:34:09.652 [Log] [ServerBootstrap] Сервер запущен (StartServer). Ожидание игроков: 2.
+02:34:29.051 [Log] Approved: joined Player0, 1 at slot 0
+02:34:31.643 [Log] Approved: joined Player0, 2 at slot 1
+02:34:31.776 [Log] [ServerBootstrap] Набралось игроков (2) — отсчёт 15с до старта.
+02:34:46.977 [Log] [ServerBootstrap] Отсчёт завершён — старт матча.
+02:34:47.091 [Warning] The referenced script (Unknown) on this Behaviour is missing!
+02:34:47.091 [Warning] The referenced script (Unknown) on this Behaviour is missing!
+02:34:47.096 [Warning] The referenced script (Unknown) on this Behaviour is missing!
+02:34:47.097 [Warning] The referenced script (Unknown) on this Behaviour is missing!
+02:34:47.098 [Warning] The referenced script on this Behaviour (Game Object 'GameManager') is missing!
+02:34:47.101 [Warning] The referenced script on this Behaviour (Game Object 'GameManager') is missing!
+02:34:47.103 [Warning] The referenced script on this Behaviour (Game Object 'GameManager') is missing!
+02:34:47.103 [Warning] The referenced script on this Behaviour (Game Object 'CameraRig') is missing!
+02:34:47.103 [Warning] The referenced script on this Behaviour (Game Object 'GameManager') is missing!
+02:34:47.103 [Warning] The referenced script on this Behaviour (Game Object 'CameraRig') is missing!
+02:34:47.114 [Warning] No mesh data available for mesh ArrowPlane on particle system Arrow. Make sure Read/Write Enabled is set in the importer to work on the particle system renderer
+02:34:47.114 [Warning] No mesh data available for mesh ArrowPlane on particle system Arrow. Make sure Read/Write Enabled is set in the importer to work on the particle system renderer
+02:34:47.114 [Warning] No mesh data available for mesh ArrowPlane on particle system Arrow. Make sure Read/Write Enabled is set in the importer to work on the particle system renderer
+02:34:47.114 [Warning] No mesh data available for mesh ArrowPlane on particle system Arrow. Make sure Read/Write Enabled is set in the importer to work on the particle system renderer
+02:34:47.114 [Warning] No mesh data available for mesh ArrowPlane on particle system Arrow. Make sure Read/Write Enabled is set in the importer to work on the particle system renderer
+02:34:47.114 [Warning] No mesh data available for mesh ArrowPlane on particle system Arrow. Make sure Read/Write Enabled is set in the importer to work on the particle system renderer
+02:34:47.205 [Warning] [MatchManager] ResolveFaction: раса слота 0 не резолвится — фоллбэк на дефолтную расу (factionData[0].config тоже пуст → null).
+02:34:47.205 [Warning] [MatchManager] ResolveFaction: раса слота 1 не резолвится — фоллбэк на дефолтную расу (factionData[0].config тоже пуст → null).
+02:34:47.318 [Warning] The referenced script (Unknown) on this Behaviour is missing!
+02:34:47.318 [Warning] The referenced script on this Behaviour (Game Object '<null>') is missing!
+02:34:47.319 [Error] A scripted object (script unknown or not yet loaded) has a different serialization layout when loading. (Read 40 bytes but expected 140 bytes)
+Did you #if UNITY_EDITOR a section of your serialized properties in any of your scripts?
+02:34:47.320 [Warning] No mesh data available for mesh cylinder_high_poly on particle system area. Make sure Read/Write Enabled is set in the importer to work on the particle system renderer
+02:34:47.321 [Warning] No mesh data available for mesh cylinder_high_poly on particle system area. Make sure Read/Write Enabled is set in the importer to work on the particle system renderer
+02:34:47.532 [Warning] [MatchManager] GameManager.specificUnitsDead не настроен — победа по уничтожению базы не сработает. Задайте NetID баз и winningTeam в Inspector у GameManager.
+02:34:48.810 [Log] [MatchManager] Башня отстроена: ArrowTower(Clone) для точки CentralPoint (player=13, netID=8859, prefab=ArrowTower).
+02:34:48.811 [Log] [MatchManager] Подписка на смерть башни ArrowTower(Clone).
+02:34:48.813 [Log] [MatchManager] Башня отстроена: CannonTower(Clone) для точки DefPointA2 (player=0, netID=25200, prefab=CannonTower).
+02:34:48.813 [Log] [MatchManager] Подписка на смерть башни CannonTower(Clone).
+02:34:48.814 [Log] [MatchManager] Башня отстроена: CannonTower(Clone) для точки DefPointA1 (player=0, netID=49571, prefab=CannonTower).
+02:34:48.814 [Log] [MatchManager] Подписка на смерть башни CannonTower(Clone).
+02:34:48.814 [Log] [MatchManager] Башня отстроена: CannonTower(Clone) для точки DefPointB2 (player=1, netID=36274, prefab=CannonTower).
+02:34:48.814 [Log] [MatchManager] Подписка на смерть башни CannonTower(Clone).
+02:34:48.814 [Log] [MatchManager] Башня отстроена: CannonTower(Clone) для точки DefPointB1 (player=1, netID=17152, prefab=CannonTower).
+02:34:48.814 [Log] [MatchManager] Подписка на смерть башни CannonTower(Clone).
+02:34:48.814 [Log] [MatchManager] SpawnInitialTowers: запущен спавн 5 башен.
+02:34:48.833 [Log] [MatchManager] Матч начался — запускаем волны.
+02:34:48.834 [Log] [MatchManager] КАРТА КОМАНД: team0(teamA).ownerPlayer=0, team1(teamB).ownerPlayer=1; playerTeam[slot]=[0,1,2,3,4,5,6,7,8,9,10,11,12,13]; СВЕРКА: playerTeam[team0.owner]=0 (ожид 0), playerTeam[team1.owner]=1 (ожид 1).
+02:34:53.811 [Log] [MatchManager] Волна #1 — спавним обе команды.
+02:34:53.816 [Log] [MatchManager] Спавн волны команды 0 (player=0): состав 0 юнитов.
+02:34:53.816 [Log] [MatchManager] Волна команды 0: заспавнено 0 юнитов.
+02:34:53.820 [Log] [MatchManager] Спавн волны команды 1 (player=1): состав 0 юнитов.
+02:34:53.820 [Log] [MatchManager] Волна команды 1: заспавнено 0 юнитов.
+02:35:01.723 [Log] [MatchManager] Уровень тира [0/0] отклонён: гейт не пройден.
+02:35:03.923 [Log] [MatchManager] Уровень тира [0/0] отклонён: гейт не пройден.
+02:35:04.323 [Log] [MatchManager] Уровень тира [0/0] отклонён: гейт не пройден.
+02:35:04.490 [Log] [MatchManager] Уровень тира [0/0] отклонён: гейт не пройден.
+02:35:04.657 [Log] [MatchManager] Уровень тира [0/0] отклонён: гейт не пройден.
+02:35:04.824 [Log] [MatchManager] Уровень тира [0/0] отклонён: гейт не пройден.
+02:35:04.991 [Log] [MatchManager] Уровень тира [0/0] отклонён: гейт не пройден.
+02:35:05.159 [Log] [MatchManager] Уровень тира [0/0] отклонён: гейт не пройден.
+02:35:05.326 [Log] [MatchManager] Уровень тира [0/0] отклонён: гейт не пройден.
+02:35:05.493 [Log] [MatchManager] Уровень тира [0/0] отклонён: гейт не пройден.
+02:35:05.660 [Log] [MatchManager] Уровень тира [0/0] отклонён: гейт не пройден.
+02:35:09.836 [Log] [MatchManager] Уровень тира [1/0] отклонён: гейт не пройден.
+02:35:10.170 [Log] [MatchManager] Уровень тира [1/0] отклонён: гейт не пройден.
+02:35:10.337 [Log] [MatchManager] Уровень тира [1/0] отклонён: гейт не пройден.
+02:35:15.608 [Log] [MatchManager] Уровень тира [1/0] отклонён: гейт не пройден.
+02:35:15.808 [Log] [MatchManager] Уровень тира [1/0] отклонён: гейт не пройден.
+=== end 2026-08-01 02:35:20 ===

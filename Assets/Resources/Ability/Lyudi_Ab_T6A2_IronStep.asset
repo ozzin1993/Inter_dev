@@ -1,0 +1,66 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e83e22afb4c7f2f4f702551f161835d0, type: 3}
+  m_Name: Lyudi_Ab_T6A2_IronStep
+  m_EditorClassIdentifier:
+  id: 200127
+  abilityName:
+  - "Железная поступь"
+  description:
+  - "В движении давит и замедляет пехоту в радиусе 2 м."
+  icon: []
+  slotNumber: -1
+  isItem: 0
+  useUponPickUp: 0
+  dropOnDeath: 0
+  charges: 0
+  maxLevels: 1
+  heroLevelable: 0
+  cooldown:
+  - 0
+  castRange:
+  - 0
+  castTime:
+  - 0
+  radius:
+  - 2
+  unitSelector:
+    isOwn: 0
+    isAlly: 0
+    isEnemy: 1
+    isUnit: 1
+    isBuilding: 0
+    isStaticDestructible: 0
+    isTree: 0
+    isGround: 1
+    isWater: 1
+    isAir: 1
+    includeInvisible: 0
+    includeInvulnerable: 0
+  dontTurn: 0
+  continuous: 0
+  interruptible: 0
+  requiresCastingUnit: 1
+  duration: []
+  requiredTech:
+  - data:
+    - {fileID: 11400000, guid: ed41952308b6a2a5f698ea8bd1759fbd, type: 2}
+  requiredLevel:
+  manaCost: []
+  manaCostPerSecond: []
+  cost: []
+  damagePerSecond: 5
+  damageType: {fileID: 0}
+  effectors:
+  - {fileID: 11400000, guid: 2adb293052b5d3f40b2fe46f747d7bf1, type: 2}
+  onlyMeleeUnits: 0
+  movementEpsilon: 0.02

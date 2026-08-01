@@ -1,0 +1,65 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4220be62659e354de944a56e8c6a6aec, type: 3}
+  m_Name: Lyudi_Ab_T4B2_Palisade
+  m_EditorClassIdentifier:
+  id: 200119
+  abilityName:
+  - "Защитный частокол"
+  description:
+  - "Выставляет колья: урон и остановка врагов при лобовом набеге."
+  icon: []
+  slotNumber: -1
+  isItem: 0
+  useUponPickUp: 0
+  dropOnDeath: 0
+  charges: 0
+  maxLevels: 1
+  heroLevelable: 0
+  cooldown:
+  - 15
+  castRange:
+  - 0
+  castTime:
+  - 0
+  radius:
+  - 0
+  unitSelector:
+    isOwn: 0
+    isAlly: 0
+    isEnemy: 1
+    isUnit: 1
+    isBuilding: 0
+    isStaticDestructible: 0
+    isTree: 0
+    isGround: 1
+    isWater: 1
+    isAir: 1
+    includeInvisible: 0
+    includeInvulnerable: 0
+  dontTurn: 0
+  continuous: 0
+  interruptible: 0
+  requiresCastingUnit: 1
+  duration: []
+  requiredTech:
+  - data:
+    - {fileID: 11400000, guid: 376bf5764f2b0cf94035dd05c9c8505d, type: 2}
+  requiredLevel:
+  manaCost: []
+  manaCostPerSecond: []
+  cost: []
+  aroundSelf: 1
+  zonePrefab: {fileID: 0}
+  forwardOffset: 2
+  zoneCount: 1
+  spread: 1.5

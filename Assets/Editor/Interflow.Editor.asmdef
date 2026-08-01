@@ -1,0 +1,29 @@
+{
+    "name": "Interflow.Editor",
+    "rootNamespace": "StrategyCore",
+    "references": [
+        "Interflow.Game",
+        "Interflow.Client",
+        "Interflow.Input",
+        "Unity.Netcode.Runtime",
+        "Unity.AI.Navigation",
+        "Unity.TextMeshPro",
+        "Unity.Collections",
+        "Unity.InputSystem",
+        "Unity.DedicatedServer.MultiplayerRoles",
+        "Unity.DedicatedServer.MultiplayerRoles.Editor"
+    ],
+    "includePlatforms": [
+        "Editor"
+    ],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [
+        "!UNITY_SERVER"
+    ],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

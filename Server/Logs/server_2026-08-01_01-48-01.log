@@ -1,0 +1,87 @@
+=== Interflow server log === start 2026-08-01 01:48:01 ===
+unityVersion=6000.4.7f1 platform=WindowsServer headless=True args=Interflow.exe -port 7777 -logFile server.log
+01:48:01.415 [Log] [ServerBootstrap] Start: headless=True, gfx=Null, batchmode=True, автозапуск=True, injectMenuButton=True.
+01:48:01.419 [Log] [ServerBootstrap] Порт из аргумента -port: 7777.
+01:48:01.421 [Log] [ServerBootstrap] Порт прослушивания: 0.0.0.0:7777.
+01:48:01.550 [Log] [ServerBootstrap] Сервер запущен (StartServer). Ожидание игроков: 2.
+01:48:48.756 [Log] Approved: joined Player0, 1 at slot 0
+01:49:43.614 [Log] Approved: joined Player0, 2 at slot 0
+01:49:47.700 [Log] Approved: joined Player0, 3 at slot 1
+01:49:47.834 [Log] [ServerBootstrap] Набралось игроков (2) — отсчёт 15с до старта.
+01:50:02.956 [Log] [ServerBootstrap] Отсчёт завершён — старт матча.
+01:50:03.140 [Warning] The referenced script (Unknown) on this Behaviour is missing!
+01:50:03.140 [Warning] The referenced script (Unknown) on this Behaviour is missing!
+01:50:03.150 [Warning] The referenced script (Unknown) on this Behaviour is missing!
+01:50:03.151 [Warning] The referenced script (Unknown) on this Behaviour is missing!
+01:50:03.151 [Warning] The referenced script on this Behaviour (Game Object 'GameManager') is missing!
+01:50:03.158 [Warning] The referenced script on this Behaviour (Game Object 'GameManager') is missing!
+01:50:03.160 [Warning] No mesh data available for mesh ArrowPlane on particle system Arrow. Make sure Read/Write Enabled is set in the importer to work on the particle system renderer
+01:50:03.160 [Warning] No mesh data available for mesh ArrowPlane on particle system Arrow. Make sure Read/Write Enabled is set in the importer to work on the particle system renderer
+01:50:03.160 [Warning] No mesh data available for mesh ArrowPlane on particle system Arrow. Make sure Read/Write Enabled is set in the importer to work on the particle system renderer
+01:50:03.160 [Warning] No mesh data available for mesh ArrowPlane on particle system Arrow. Make sure Read/Write Enabled is set in the importer to work on the particle system renderer
+01:50:03.160 [Warning] No mesh data available for mesh ArrowPlane on particle system Arrow. Make sure Read/Write Enabled is set in the importer to work on the particle system renderer
+01:50:03.160 [Warning] No mesh data available for mesh ArrowPlane on particle system Arrow. Make sure Read/Write Enabled is set in the importer to work on the particle system renderer
+01:50:03.163 [Warning] The referenced script on this Behaviour (Game Object 'GameManager') is missing!
+01:50:03.163 [Warning] The referenced script on this Behaviour (Game Object 'CameraRig') is missing!
+01:50:03.163 [Warning] The referenced script on this Behaviour (Game Object 'GameManager') is missing!
+01:50:03.163 [Warning] The referenced script on this Behaviour (Game Object 'CameraRig') is missing!
+01:50:03.253 [Warning] [MatchManager] ResolveFaction: раса слота 0 не резолвится — фоллбэк на дефолтную расу (factionData[0].config тоже пуст → null).
+01:50:03.253 [Warning] [MatchManager] ResolveFaction: раса слота 1 не резолвится — фоллбэк на дефолтную расу (factionData[0].config тоже пуст → null).
+01:50:03.369 [Warning] The referenced script (Unknown) on this Behaviour is missing!
+01:50:03.369 [Warning] The referenced script on this Behaviour (Game Object '<null>') is missing!
+01:50:03.369 [Error] A scripted object (script unknown or not yet loaded) has a different serialization layout when loading. (Read 40 bytes but expected 140 bytes)
+Did you #if UNITY_EDITOR a section of your serialized properties in any of your scripts?
+01:50:03.370 [Warning] No mesh data available for mesh cylinder_high_poly on particle system area. Make sure Read/Write Enabled is set in the importer to work on the particle system renderer
+01:50:03.370 [Warning] No mesh data available for mesh cylinder_high_poly on particle system area. Make sure Read/Write Enabled is set in the importer to work on the particle system renderer
+01:50:03.574 [Warning] [MatchManager] GameManager.specificUnitsDead не настроен — победа по уничтожению базы не сработает. Задайте NetID баз и winningTeam в Inspector у GameManager.
+01:50:04.682 [Log] [MatchManager] Башня отстроена: ArrowTower(Clone) для точки CentralPoint (player=13, netID=22921, prefab=ArrowTower).
+01:50:04.682 [Log] [MatchManager] Подписка на смерть башни ArrowTower(Clone).
+01:50:04.684 [Log] [MatchManager] Башня отстроена: CannonTower(Clone) для точки DefPointA2 (player=0, netID=33031, prefab=CannonTower).
+01:50:04.684 [Log] [MatchManager] Подписка на смерть башни CannonTower(Clone).
+01:50:04.685 [Log] [MatchManager] Башня отстроена: CannonTower(Clone) для точки DefPointA1 (player=0, netID=24858, prefab=CannonTower).
+01:50:04.685 [Log] [MatchManager] Подписка на смерть башни CannonTower(Clone).
+01:50:04.686 [Log] [MatchManager] Башня отстроена: CannonTower(Clone) для точки DefPointB2 (player=1, netID=52650, prefab=CannonTower).
+01:50:04.686 [Log] [MatchManager] Подписка на смерть башни CannonTower(Clone).
+01:50:04.687 [Log] [MatchManager] Башня отстроена: CannonTower(Clone) для точки DefPointB1 (player=1, netID=39378, prefab=CannonTower).
+01:50:04.687 [Log] [MatchManager] Подписка на смерть башни CannonTower(Clone).
+01:50:04.687 [Log] [MatchManager] SpawnInitialTowers: запущен спавн 5 башен.
+01:50:04.704 [Log] [MatchManager] Матч начался — запускаем волны.
+01:50:04.705 [Log] [MatchManager] КАРТА КОМАНД: team0(teamA).ownerPlayer=0, team1(teamB).ownerPlayer=1; playerTeam[slot]=[0,1,2,3,4,5,6,7,8,9,10,11,12,13]; СВЕРКА: playerTeam[team0.owner]=0 (ожид 0), playerTeam[team1.owner]=1 (ожид 1).
+01:50:09.685 [Log] [MatchManager] Волна #1 — спавним обе команды.
+01:50:09.689 [Log] [MatchManager] Спавн волны команды 0 (player=0): состав 0 юнитов.
+01:50:09.690 [Log] [MatchManager] Волна команды 0: заспавнено 0 юнитов.
+01:50:09.691 [Log] [MatchManager] Спавн волны команды 1 (player=1): состав 0 юнитов.
+01:50:09.692 [Log] [MatchManager] Волна команды 1: заспавнено 0 юнитов.
+01:50:33.085 [Exception] RpcException: The NetworkBehaviour must be spawned before calling this method.
+Unity.Netcode.NetworkBehaviour.__beginSendRpc (System.UInt32 rpcMethodId, Unity.Netcode.RpcParams rpcParams, Unity.Netcode.RpcAttribute+RpcAttributeParams attributeParams, Unity.Netcode.SendTo defaultTarget, Unity.Netcode.RpcDelivery rpcDelivery) (at <bfac77e1edfe4dcdbfa640d231cf6680>:0)
+StrategyCore.NetworkDataSync.ServerMsgClientRpc (System.String message) (at <a7704a324cf44e928cb2e6a907542f12>:0)
+StrategyCore.NetworkDataSync.ServerMsgSend (System.String message) (at <a7704a324cf44e928cb2e6a907542f12>:0)
+StrategyCore.Presentation.ChatServerMsg (System.String msg) (at <a7704a324cf44e928cb2e6a907542f12>:0)
+StrategyCore.Presentation.ChatServerMsgAuto (System.String msg) (at <a7704a324cf44e928cb2e6a907542f12>:0)
+StrategyCore.NetworkConnectionHandler.ClientDisconnected (System.UInt64 clientId) (at <a7704a324cf44e928cb2e6a907542f12>:0)
+Unity.Netcode.NetworkConnectionManager.InvokeOnClientDisconnectCallback (System.UInt64 clientId) (at <bfac77e1edfe4dcdbfa640d231cf6680>:0)
+UnityEngine.Debug:LogException(Exception)
+Unity.Netcode.NetworkConnectionManager:InvokeOnClientDisconnectCallback(UInt64)
+Unity.Netcode.NetworkConnectionManager:OnClientDisconnectFromServer(UInt64)
+Unity.Netcode.NetworkConnectionManager:DisconnectRemoteClient(UInt64)
+Unity.Netcode.NetworkConnectionManager:Shutdown()
+Unity.Netcode.NetworkManager:ShutdownInternal()
+Unity.Netcode.NetworkManager:OnDestroy()
+Unity.Netcode.NetworkManager:OnApplicationQuit()
+01:50:33.088 [Exception] RpcException: The NetworkBehaviour must be spawned before calling this method.
+Unity.Netcode.NetworkBehaviour.__beginSendRpc (System.UInt32 rpcMethodId, Unity.Netcode.RpcParams rpcParams, Unity.Netcode.RpcAttribute+RpcAttributeParams attributeParams, Unity.Netcode.SendTo defaultTarget, Unity.Netcode.RpcDelivery rpcDelivery) (at <bfac77e1edfe4dcdbfa640d231cf6680>:0)
+StrategyCore.NetworkDataSync.ServerMsgClientRpc (System.String message) (at <a7704a324cf44e928cb2e6a907542f12>:0)
+StrategyCore.NetworkDataSync.ServerMsgSend (System.String message) (at <a7704a324cf44e928cb2e6a907542f12>:0)
+StrategyCore.Presentation.ChatServerMsg (System.String msg) (at <a7704a324cf44e928cb2e6a907542f12>:0)
+StrategyCore.Presentation.ChatServerMsgAuto (System.String msg) (at <a7704a324cf44e928cb2e6a907542f12>:0)
+StrategyCore.NetworkConnectionHandler.ClientDisconnected (System.UInt64 clientId) (at <a7704a324cf44e928cb2e6a907542f12>:0)
+Unity.Netcode.NetworkConnectionManager.InvokeOnClientDisconnectCallback (System.UInt64 clientId) (at <bfac77e1edfe4dcdbfa640d231cf6680>:0)
+UnityEngine.Debug:LogException(Exception)
+Unity.Netcode.NetworkConnectionManager:InvokeOnClientDisconnectCallback(UInt64)
+Unity.Netcode.NetworkConnectionManager:OnClientDisconnectFromServer(UInt64)
+Unity.Netcode.NetworkConnectionManager:DisconnectRemoteClient(UInt64)
+Unity.Netcode.NetworkConnectionManager:Shutdown()
+Unity.Netcode.NetworkManager:ShutdownInternal()
+Unity.Netcode.NetworkManager:OnDestroy()
+Unity.Netcode.NetworkManager:OnApplicationQuit()
+=== end 2026-08-01 01:50:33 ===

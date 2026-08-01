@@ -49,6 +49,7 @@ namespace StrategyCore
 
             ValidateUnits(issues, units, factions);
             ValidateAbilities(issues, units, factions);
+            ValidateCompositeSkills(issues, units, factions);
             ValidateFactions(issues, factions);
             ValidateTechTiers(issues, factions);
             ValidateMatchScene(issues, factions);
@@ -92,6 +93,25 @@ namespace StrategyCore
             return assetPath.Replace('\\', '/').Contains("/Resources/" + subfolder + "/");
         }
 
+        /// <summary>Все узлы дерева технологий фракции (уровень + вариант + его специализации, по всем тирам).
+        /// Единая точка обхода: эффекты открытия живут на узлах (FactionConfig.TechNode).</summary>
+        static IEnumerable<TechNode> AllTechNodes(FactionConfig f)
+        {
+            if (f == null || f.techTiers == null) yield break;
+            foreach (var tier in f.techTiers)
+            {
+                if (tier == null) continue;
+                if (tier.levelUpgrade != null) yield return tier.levelUpgrade;
+                foreach (var opt in new[] { tier.optionA, tier.optionB })
+                {
+                    if (opt == null) continue;
+                    if (opt.node != null) yield return opt.node;
+                    if (opt.specializationA != null) yield return opt.specializationA;
+                    if (opt.specializationB != null) yield return opt.specializationB;
+                }
+            }
+        }
+
         /// <summary>Юниты, на которые ссылается контент фракций (обязаны лежать в Resources/UnitPrefabs).</summary>
         static HashSet<Unit> CollectFactionUnits(List<FactionConfig> factions, HashSet<Unit> waveOnly = null)
         {
@@ -108,15 +128,13 @@ namespace StrategyCore
                 if (f.waveUnits != null) foreach (var e in f.waveUnits) if (e != null) Add(e.unit, true);
                 Add(f.centreTower); Add(f.defence1Tower); Add(f.defence2Tower);
                 Add(f.heroPrefab);
-                if (f.contentUnlockRules != null)
-                    foreach (var r in f.contentUnlockRules)
-                    {
-                        if (r == null) continue;
-                        if (r.addAvailableUnits != null) foreach (var u in r.addAvailableUnits) Add(u, true);
-                        if (r.removeAvailableUnits != null) foreach (var u in r.removeAvailableUnits) Add(u, true);
-                        if (r.unitSwaps != null) foreach (var s in r.unitSwaps) { Add(s?.from, true); Add(s?.to, true); }
-                        if (r.towerSwaps != null) foreach (var s in r.towerSwaps) Add(s?.to);
-                    }
+                // Юниты, на которые ссылаются УЗЛЫ дерева технологий (открытие + свопы префабов).
+                foreach (var node in AllTechNodes(f))
+                {
+                    if (node.unlockUnits != null) foreach (var u in node.unlockUnits) Add(u, true);
+                    if (node.unitSwaps != null) foreach (var s in node.unitSwaps) { Add(s?.from, true); Add(s?.to, true); }
+                    if (node.towerSwaps != null) foreach (var s in node.towerSwaps) Add(s?.to);
+                }
             }
             return all;
         }
@@ -289,6 +307,281 @@ namespace StrategyCore
             }
         }
 
+        // ======================== БЛОК «КОНСТРУКТОР СКИЛЛОВ» ========================
+        // Правила — План «Универсальная система способностей» §5.2. Числовых порогов не вводим (правило 7):
+        // ловим только такие настройки, при которых блок гарантированно не сработает или сработает не так, как видит ГД.
+
+        static void ValidateCompositeSkills(List<InterflowIssue> issues, List<(Unit unit, string path)> units, List<FactionConfig> factions)
+        {
+            var skills = new List<CompositeSkill>();
+            foreach (string guid in AssetDatabase.FindAssets("t:CompositeSkill"))
+            {
+                var s = AssetDatabase.LoadAssetAtPath<CompositeSkill>(AssetDatabase.GUIDToAssetPath(guid));
+                if (s != null) skills.Add(s);
+            }
+            if (skills.Count == 0) return;
+
+            // Скиллы, подключённые к панели ГЗ или к герою: там нажимается кнопка, а панель
+            // активирует только AbilityType.Active (UIManager.BottomTables → ActivateAbilityCell).
+            var panelAbilities = new HashSet<Ability>();
+            foreach (var f in factions)
+            {
+                if (f.centralAbilities != null)
+                    foreach (var a in f.centralAbilities) if (a != null) panelAbilities.Add(a);
+                if (f.heroPrefab != null && f.heroPrefab.abilities != null)
+                    foreach (var a in f.heroPrefab.abilities) if (a != null) panelAbilities.Add(a);
+                CollectNodeAbilities(f, panelAbilities);
+            }
+
+            foreach (var skill in skills)
+            {
+                string n = skill.name;
+
+                // --- 1. Урон без типа урона — запись молча не сработает. ---
+                if (skill.damage != null && skill.damage.enabled)
+                {
+                    if (skill.damage.entries == null || skill.damage.entries.Length == 0)
+                        issues.Add(new InterflowIssue(InterflowIssueSeverity.Warning,
+                            $"Скилл «{n}»: блок урона включён, но записей нет — блок ничего не делает.",
+                            "План §5.2", skill));
+                    else
+                        for (int i = 0; i < skill.damage.entries.Length; i++)
+                        {
+                            var e = skill.damage.entries[i];
+                            if (e == null) continue;
+                            bool hasAmount = e.amount != null && e.amount.Any(v => v > 0f);
+                            if (hasAmount && e.damageType == null)
+                                issues.Add(new InterflowIssue(InterflowIssueSeverity.Error,
+                                    $"Скилл «{n}»: в записи урона №{i + 1} задано число, но не задан тип урона — урона не будет.",
+                                    "План §5.2", skill));
+                        }
+                }
+
+                // --- 2. Доставка снарядом ---
+                if (skill.delivery == SkillDelivery.Projectile)
+                {
+                    if (skill.projectilePrefab == null)
+                        issues.Add(new InterflowIssue(InterflowIssueSeverity.Error,
+                            $"Скилл «{n}»: доставка снарядом, но префаб снаряда не задан — скилл будет бить мгновенно.",
+                            "План §5.2", skill));
+
+                    if (skill.targetMode != SkillTargetMode.SmartUnit)
+                        issues.Add(new InterflowIssue(InterflowIssueSeverity.Error,
+                            $"Скилл «{n}»: доставка снарядом работает только с режимом цели «Умный выбор юнита». " +
+                            "В остальных режимах штатный снаряд бьёт лишь по площади, а площадного режима у снаряда скилла нет — урона не будет.",
+                            "Projectile.Update / Projectile.Damage", skill));
+
+                    if (!skill.projectileFollowsTarget)
+                        issues.Add(new InterflowIssue(InterflowIssueSeverity.Error,
+                            $"Скилл «{n}»: у снаряда выключено самонаведение — штатный снаряд полетит в мировой ноль и урона не нанесёт. Включи самонаведение.",
+                            "Projectile.InternalSpawn (targetPosition не задаётся)", skill));
+
+                    // Снаряд уносит только урон и оглушение — остальное срабатывает сразу в момент каста.
+                    var notCarried = new List<string>();
+                    if (skill.effectors != null && skill.effectors.enabled) notCarried.Add("эффекторы");
+                    if (skill.statusEffector != null) notCarried.Add("значок состояния");
+                    if (skill.heal != null && skill.heal.enabled) notCarried.Add("лечение");
+                    if (skill.buff != null && skill.buff.enabled) notCarried.Add("баф");
+                    if (skill.shield != null && skill.shield.enabled) notCarried.Add("щит");
+                    if (skill.blind != null && skill.blind.enabled) notCarried.Add("ослепление");
+                    if (notCarried.Count > 0)
+                        issues.Add(new InterflowIssue(InterflowIssueSeverity.Warning,
+                            $"Скилл «{n}»: снаряд переносит только урон и оглушение. Блоки [{string.Join(", ", notCarried)}] сработают сразу при касте, а не при попадании.",
+                            "План §4.3 (ограничение v1)", skill));
+
+                    if (skill.damage != null && skill.damage.enabled && skill.damage.entries != null
+                        && skill.damage.entries.Count(e => e != null && e.damageType != null && e.amount != null && e.amount.Any(v => v > 0f)) > 1)
+                        issues.Add(new InterflowIssue(InterflowIssueSeverity.Warning,
+                            $"Скилл «{n}»: у снаряда одно поле урона — улетит только ПЕРВАЯ запись урона, остальные пропадут.",
+                            "План §4.3 (ограничение v1)", skill));
+                }
+
+                // --- 3. Призыв без префаба ---
+                if (skill.summon != null && skill.summon.enabled
+                    && skill.summon.mode != SkillSummonMode.LastWave && skill.summon.prefab == null)
+                    issues.Add(new InterflowIssue(InterflowIssueSeverity.Error,
+                        $"Скилл «{n}»: блок призыва включён, но префаб юнита не задан — призыва не будет.",
+                        "План §5.2", skill));
+
+                // --- 4. Зона: префаб без компонента ---
+                if (skill.groundZone != null && skill.groundZone.enabled)
+                {
+                    if (skill.groundZone.zonePrefab == null)
+                        issues.Add(new InterflowIssue(InterflowIssueSeverity.Error,
+                            $"Скилл «{n}»: блок зоны включён, но префаб зоны не задан.",
+                            "План §5.2", skill));
+                    else if (skill.groundZone.zonePrefab.GetComponent<GroundDamageZone>() == null)
+                        issues.Add(new InterflowIssue(InterflowIssueSeverity.Error,
+                            $"Скилл «{n}»: на префабе зоны «{skill.groundZone.zonePrefab.name}» нет компонента GroundDamageZone — зона не будет действовать.",
+                            "План §5.2", skill));
+                }
+
+                // --- 5. Баф с нулевой длительностью ---
+                if (skill.buff != null && skill.buff.enabled
+                    && (skill.buff.duration == null || !skill.buff.duration.Any(v => v > 0f)))
+                    issues.Add(new InterflowIssue(InterflowIssueSeverity.Error,
+                        $"Скилл «{n}»: блок бафа включён, но длительность 0/пусто — баф не наложится (исторический кейс FlameCloak_active).",
+                        "План §5.2", skill));
+
+                // --- 6. Скилл панели без галки «Скилл кнопки» ---
+                if (panelAbilities.Contains(skill) && skill.type != AbilityType.Active)
+                    issues.Add(new InterflowIssue(InterflowIssueSeverity.Error,
+                        $"Скилл «{n}» подключён к панели ГЗ/героя, но его тип — {skill.type}. Панель активирует только Active: включи галку «Скилл кнопки».",
+                        "UIManager.BottomTables → ActivateAbilityCell", skill));
+
+                // --- 7. Стратегия «текущая цель атаки» у каста с кнопки ---
+                if (skill.buttonCast && skill.PicksTargetByStrategy
+                    && skill.TargetStrategy == SkillTargetStrategy.CurrentAttackTarget)
+                    issues.Add(new InterflowIssue(InterflowIssueSeverity.Error,
+                        $"Скилл «{n}»: стратегия «текущая цель атаки» у скилла кнопки никогда не найдёт цель: кастер панели не атакует.",
+                        "План §4.3", skill));
+
+                // --- 8. Радиус там, где он обязателен ---
+                bool needsRadius = skill.targetMode == SkillTargetMode.AreaAroundSelf
+                                || skill.targetMode == SkillTargetMode.Cone
+                                || skill.targetMode == SkillTargetMode.SmartPoint;
+
+                // Стратегия «скопление врагов» меряет плотность в этом же radius; при нуле она молча
+                // вырождается в случайный выбор — ГД получит не то поведение и без единого сообщения.
+                if (!needsRadius && skill.PicksTargetByStrategy
+                    && skill.TargetStrategy == SkillTargetStrategy.EnemyCluster
+                    && (skill.radius == null || !skill.radius.Any(v => v > 0f)))
+                    issues.Add(new InterflowIssue(InterflowIssueSeverity.Warning,
+                        $"Скилл «{n}»: стратегия «скопление врагов» считает плотность в radius, а он пуст/0 — цель будет выбираться случайно.",
+                        "SkillTargeting.DensestCluster", skill));
+                if (needsRadius && (skill.radius == null || !skill.radius.Any(v => v > 0f)))
+                    issues.Add(new InterflowIssue(InterflowIssueSeverity.Error,
+                        $"Скилл «{n}»: режим цели требует radius больше нуля, а он пуст/0 — целей не будет никогда.",
+                        "План §5.2", skill));
+
+                // --- 9. Значок состояния ---
+                if (skill.statusEffector != null)
+                {
+                    if (skill.statusEffector.stacks)
+                        issues.Add(new InterflowIssue(InterflowIssueSeverity.Warning,
+                            $"Скилл «{n}»: у эффектора-значка «{skill.statusEffector.name}» включён Stacks — значок в панели состояний не появится.",
+                            "Effector.EffectorAdd → OnStatusUpdate (только нестакающие)", skill));
+
+                    if (skill.statusEffector.icon == null)
+                        issues.Add(new InterflowIssue(InterflowIssueSeverity.Warning,
+                            $"Скилл «{n}»: у эффектора-значка «{skill.statusEffector.name}» не задана иконка — игрок не увидит состояние.",
+                            "План §5.2", skill));
+                }
+
+                // --- 10. Включённые блоки без единого эффекта ---
+                foreach (string empty in EmptyEnabledBlocks(skill))
+                    issues.Add(new InterflowIssue(InterflowIssueSeverity.Warning,
+                        $"Скилл «{n}»: блок «{empty}» включён, но все его значения нулевые/пустые — он ничего не делает.",
+                        "План §5.2", skill));
+
+                // --- 10б. Щит без срока: ядро считает 0 как «без таймера», то есть щит бессрочный ---
+                if (skill.shield != null && skill.shield.enabled
+                    && (skill.shield.duration == null || !skill.shield.duration.Any(v => v > 0f)))
+                    issues.Add(new InterflowIssue(InterflowIssueSeverity.Warning,
+                        $"Скилл «{n}»: у щита не задана длительность — он станет БЕССРОЧНЫМ и сойдёт только при пробитии или смерти носителя.",
+                        "AbsorbShield (duration ≤ 0 = без таймера)", skill));
+
+                // --- 11. Визуал замаха при нулевом времени каста ---
+                if (skill.castVFX != null && (skill.castTime == null || !skill.castTime.Any(v => v > 0f)))
+                    issues.Add(new InterflowIssue(InterflowIssueSeverity.Warning,
+                        $"Скилл «{n}»: задан визуал каста, но castTime = 0 — замах и удар совпадут в один кадр.",
+                        "План §5.2", skill));
+
+                // --- 12. Каст с кнопки с умным выбором: клиент не воспроизведёт выбор цели ---
+                if (skill.buttonCast && skill.PicksTargetByStrategy
+                    && (skill.impactVFX != null || skill.delivery == SkillDelivery.Projectile))
+                    issues.Add(new InterflowIssue(InterflowIssueSeverity.Warning,
+                        $"Скилл «{n}»: цель выбирает стратегия на СЕРВЕРЕ — клиент не увидит визуала попадания и снаряда. " +
+                        "Значки состояний и визуал бафа до клиента доедут: их сервер шлёт отдельным сообщением.",
+                        "CompositeSkill.Execute (ранний выход клиента)", skill));
+
+                // --- 13. Сокет задан, а на носителе нет CharacterSockets ---
+                if (skill.spawnSocket != SkillSocketType.None && (skill.castVFX != null || skill.delivery == SkillDelivery.Projectile))
+                {
+                    foreach (var (unit, _) in units)
+                    {
+                        if (unit.abilities == null || !unit.abilities.Contains(skill)) continue;
+                        if (unit.GetComponent<CharacterSockets>() != null) continue;
+
+                        issues.Add(new InterflowIssue(InterflowIssueSeverity.Warning,
+                            $"Скилл «{n}» стреляет из точки привязки, но на носителе «{unit.name}» нет компонента CharacterSockets — всё пойдёт из центра объекта.",
+                            "План §5.2", unit));
+                    }
+                }
+            }
+        }
+
+        /// <summary>Умения, которые открываются узлами дерева технологий — они тоже попадают в панель ГЗ.</summary>
+        static void CollectNodeAbilities(FactionConfig f, HashSet<Ability> into)
+        {
+            if (f == null || f.techTiers == null) return;
+
+            foreach (var tier in f.techTiers)
+            {
+                if (tier == null) continue;
+                AddNode(tier.levelUpgrade, into);
+                AddOption(tier.optionA, into);
+                AddOption(tier.optionB, into);
+            }
+        }
+
+        static void AddOption(TechBigOption option, HashSet<Ability> into)
+        {
+            if (option == null) return;
+            AddNode(option.node, into);
+            AddNode(option.specializationA, into);
+            AddNode(option.specializationB, into);
+
+            // Герой, который открывается этой веткой, приносит свои умения в панель героя.
+            if (option.heroPrefab != null && option.heroPrefab.abilities != null)
+                foreach (var a in option.heroPrefab.abilities) if (a != null) into.Add(a);
+        }
+
+        static void AddNode(TechNode node, HashSet<Ability> into)
+        {
+            if (node == null || node.unlockAbilities == null) return;
+            foreach (var u in node.unlockAbilities) if (u != null && u.ability != null) into.Add(u.ability);
+        }
+
+        /// <summary>Имена включённых блоков, у которых все числа нулевые или ссылки пусты.</summary>
+        static IEnumerable<string> EmptyEnabledBlocks(CompositeSkill s)
+        {
+            bool Any(float[] a) => a != null && a.Any(v => v > 0f);
+
+            if (s.selfCost != null && s.selfCost.enabled && !Any(s.selfCost.flatHp) && !Any(s.selfCost.percentOfCurrentHp))
+                yield return "стоимость в здоровье";
+
+            if (s.status != null && s.status.enabled
+                && !Any(s.status.stunSeconds) && !Any(s.status.disarmSeconds) && !Any(s.status.muteSeconds))
+                yield return "контроль";
+
+            if (s.effectors != null && s.effectors.enabled
+                && (s.effectors.effectors == null || s.effectors.effectors.All(e => e == null)))
+                yield return "эффекторы";
+
+            if (s.heal != null && s.heal.enabled && !Any(s.heal.flat) && !Any(s.heal.percentOfMaxHp))
+                yield return "лечение";
+
+            if (s.shield != null && s.shield.enabled && !Any(s.shield.flat) && !Any(s.shield.percentOfMaxHp))
+                yield return "щит";
+
+            if (s.summon != null && s.summon.enabled && !Any(s.summon.count))
+                yield return "призыв";
+
+            // Баф с длительностью, но вообще без эффектов — висит значком и не делает ничего.
+            if (s.buff != null && s.buff.enabled && Any(s.buff.duration)
+                && !Any(s.buff.auraDamagePerSecond) && !Any(s.buff.healPerSecond) && !Any(s.buff.healPercentOfMaxPerSecond)
+                && !Any(s.buff.selfBurnPerSecond) && !s.buff.controlImmunity && !s.buff.detonateOnDeath
+                && (s.buff.incomingDamageMultiplier == null || !s.buff.incomingDamageMultiplier.Any(v => v != 1f)))
+                yield return "длящийся баф";
+
+            if (s.blind != null && s.blind.enabled && (!Any(s.blind.chance) || !Any(s.blind.duration)))
+                yield return "ослепление";
+
+            if (s.delegateService != null && s.delegateService.enabled && s.delegateService.service == SkillServerService.None)
+                yield return "серверный сервис";
+        }
+
         // ======================== БЛОК «ФРАКЦИИ» (шаг 3) ========================
 
         static void ValidateFactions(List<InterflowIssue> issues, List<FactionConfig> factions)
@@ -309,25 +602,63 @@ namespace StrategyCore
                         $"У фракции «{f.name}» не задана defence2Tower — защитная точка 2 не будет строиться.",
                         "FactionConfig.defence2Tower (тултип)", f));
 
-                // 2. show/hideCentralAbilities правил контента ⊆ centralAbilities (нельзя показать/скрыть то, чего нет в таблице).
-                var central = new HashSet<Ability>();
-                if (f.centralAbilities != null) foreach (var a in f.centralAbilities) if (a != null) central.Add(a);
-                if (f.contentUnlockRules != null)
-                    foreach (var r in f.contentUnlockRules)
+                // 2. Ячейки панели умений ГЗ (один ряд из MatchManager.CentralAbilitySlotCount ячеек).
+                //    Стартовые умения занимают ячейки по порядку списка; узлы дерева — по своему полю slot.
+                //    Занятая дважды ячейка = в матче покажется только первое умение (см. PlaceCentralAbility).
+                int slotCount = MatchManager.CentralAbilitySlotCount;
+                var slotOwner = new Dictionary<int, string>();   // ячейка → кто её уже занял (для текста ошибки)
+
+                void Occupy(int slot, Ability ab, string where)
+                {
+                    if (ab == null) return;
+                    if (slot < 0 || slot >= slotCount)
                     {
-                        if (r == null) continue;
-                        void CheckSubset(Ability[] arr)
-                        {
-                            if (arr == null) return;
-                            foreach (var a in arr)
-                                if (a != null && !central.Contains(a))
-                                    issues.Add(new InterflowIssue(InterflowIssueSeverity.Warning,
-                                        $"Фракция «{f.name}»: правило контента ссылается на способность «{a.name}», которой нет в centralAbilities — показывать/скрывать нечего.",
-                                        "FactionConfig.ContentUnlockRule.show/hideCentralAbilities", f));
-                        }
-                        CheckSubset(r.showCentralAbilities);
-                        CheckSubset(r.hideCentralAbilities);
+                        issues.Add(new InterflowIssue(InterflowIssueSeverity.Error,
+                            $"Фракция «{f.name}»: умение «{ab.name}» ({where}) метит в ячейку {slot}, а ячеек всего {slotCount} (0..{slotCount - 1}) — в панели не появится.",
+                            "FactionConfig.AbilityUnlock.slot ↔ MatchManager.CentralAbilitySlotCount", f));
+                        return;
                     }
+                    if (slotOwner.TryGetValue(slot, out string taken))
+                    {
+                        issues.Add(new InterflowIssue(InterflowIssueSeverity.Error,
+                            $"Фракция «{f.name}»: ячейка {slot} панели умений ГЗ занята дважды — «{taken}» и «{ab.name}» ({where}). В матче покажется только первое, второе умение потеряется.",
+                            "FactionConfig.AbilityUnlock.slot; MatchManager.PlaceCentralAbility", f));
+                        return;
+                    }
+                    slotOwner[slot] = ab.name;
+                }
+
+                if (f.centralAbilities != null)
+                {
+                    if (f.centralAbilities.Count > slotCount)
+                        issues.Add(new InterflowIssue(InterflowIssueSeverity.Error,
+                            $"Фракция «{f.name}»: стартовых умений ГЗ {f.centralAbilities.Count}, а ячеек в панели {slotCount} — лишние в матч не попадут.",
+                            "FactionConfig.centralAbilities (порядок = номер ячейки)", f));
+                    for (int i = 0; i < f.centralAbilities.Count; i++)
+                        Occupy(i, f.centralAbilities[i], "стартовое, позиция в centralAbilities");
+                }
+
+                foreach (var node in AllTechNodes(f))
+                {
+                    if (node.unlockAbilities == null) continue;
+                    string nodeName = node.technology != null ? node.technology.name : "узел без технологии";
+                    foreach (var e in node.unlockAbilities)
+                    {
+                        if (e == null) continue;
+                        if (e.ability == null)
+                        {
+                            issues.Add(new InterflowIssue(InterflowIssueSeverity.Warning,
+                                $"Фракция «{f.name}»: у узла «{nodeName}» в списке открываемых умений пустая запись — узел ничего не откроет.",
+                                "FactionConfig.TechNode.unlockAbilities", f));
+                            continue;
+                        }
+                        if (node.technology == null)
+                            issues.Add(new InterflowIssue(InterflowIssueSeverity.Error,
+                                $"Фракция «{f.name}»: узел без технологии открывает умение «{e.ability.name}» — купить такой узел нельзя, умение недостижимо.",
+                                "FactionConfig.TechNode.technology", f));
+                        Occupy(e.slot, e.ability, $"узел «{nodeName}»");
+                    }
+                }
 
 
                 // 6. Герой несёт LevelingUnit (иначе уровни/умения героя по уровню не работают). maxLevel ≥ порога — в блоке «Матч/сцена».

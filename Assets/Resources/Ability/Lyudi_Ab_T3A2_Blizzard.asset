@@ -1,0 +1,70 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c14652435ad25f7661792107f4eab4d1, type: 3}
+  m_Name: Lyudi_Ab_T3A2_Blizzard
+  m_EditorClassIdentifier:
+  id: 200109
+  abilityName:
+  - "Арктическая метель"
+  description:
+  - "Зона, замедляющая всех врагов на 40%."
+  icon: []
+  slotNumber: -1
+  isItem: 0
+  useUponPickUp: 0
+  dropOnDeath: 0
+  charges: 0
+  maxLevels: 1
+  heroLevelable: 0
+  cooldown:
+  - 12
+  castRange:
+  - 10
+  castTime:
+  - 0
+  radius:
+  - 5
+  unitSelector:
+    isOwn: 0
+    isAlly: 0
+    isEnemy: 1
+    isUnit: 1
+    isBuilding: 0
+    isStaticDestructible: 0
+    isTree: 0
+    isGround: 1
+    isWater: 1
+    isAir: 1
+    includeInvisible: 0
+    includeInvulnerable: 0
+  dontTurn: 0
+  continuous: 0
+  interruptible: 0
+  requiresCastingUnit: 1
+  duration: []
+  requiredTech:
+  - data:
+    - {fileID: 11400000, guid: 90bf355be425d4f6e458d6bda0b616df, type: 2}
+  requiredLevel:
+  manaCost: []
+  manaCostPerSecond: []
+  cost: []
+  effectors:
+  - {fileID: 11400000, guid: bde052a42bda8d301ff8a9f55b1226a6, type: 2}
+  damage:
+  - 0
+  damageType: {fileID: 0}
+  onlyMeleeUnits: 0
+  blindChance: 0
+  blindDuration: 0
+  areaVFX: {fileID: 0}
+  vfxLifetime: 2

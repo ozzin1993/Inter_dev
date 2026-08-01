@@ -1,0 +1,279 @@
+=== Interflow server log === start 2026-08-01 09:46:47 ===
+unityVersion=6000.4.7f1 platform=WindowsServer headless=True args=Interflow.exe -port 7777 -logFile server.log
+09:46:47.836 [Warning] Are you sure you have EventSystem in your scene?
+09:46:47.880 [Log] [ServerBootstrap] Start: headless=True, gfx=Null, batchmode=True, автозапуск=True, injectMenuButton=True.
+09:46:47.882 [Log] [ServerBootstrap] Порт из аргумента -port: 7777.
+09:46:47.884 [Log] [ServerBootstrap] Порт прослушивания: 0.0.0.0:7777.
+09:46:48.026 [Log] [ServerBootstrap] Сервер запущен (StartServer). Ожидание игроков: 2.
+09:47:09.866 [Log] Approved: joined Player0, 1 at slot 0
+09:47:11.645 [Log] Approved: joined Player0, 2 at slot 1
+09:47:11.846 [Log] [ServerBootstrap] Набралось игроков (2) — отсчёт 15с до старта.
+09:47:27.005 [Log] [ServerBootstrap] Отсчёт завершён — старт матча.
+09:47:27.106 [Warning] The referenced script (Unknown) on this Behaviour is missing!
+09:47:27.106 [Warning] The referenced script (Unknown) on this Behaviour is missing!
+09:47:27.115 [Warning] The referenced script (Unknown) on this Behaviour is missing!
+09:47:27.116 [Warning] The referenced script (Unknown) on this Behaviour is missing!
+09:47:27.117 [Warning] The referenced script on this Behaviour (Game Object 'GameManager') is missing!
+09:47:27.123 [Warning] The referenced script on this Behaviour (Game Object 'GameManager') is missing!
+09:47:27.125 [Warning] The referenced script on this Behaviour (Game Object 'GameManager') is missing!
+09:47:27.125 [Warning] The referenced script on this Behaviour (Game Object 'CameraRig') is missing!
+09:47:27.125 [Warning] The referenced script on this Behaviour (Game Object 'GameManager') is missing!
+09:47:27.125 [Warning] The referenced script on this Behaviour (Game Object 'CameraRig') is missing!
+09:47:27.198 [Log] [ServerFactionConfigs] Загружено фракций: 2 (Люди, Орки); неотрезолвленных ссылок: 0.
+09:47:27.285 [Warning] The referenced script (Unknown) on this Behaviour is missing!
+09:47:27.285 [Warning] The referenced script on this Behaviour (Game Object '<null>') is missing!
+09:47:27.286 [Error] A scripted object (script unknown or not yet loaded) has a different serialization layout when loading. (Read 40 bytes but expected 140 bytes)
+Did you #if UNITY_EDITOR a section of your serialized properties in any of your scripts?
+09:47:27.470 [Exception] NullReferenceException: Object reference not set to an instance of an object
+StrategyCore.Grid.Awake () (at <37d99ff69ef94accb476bd278e0e58a8>:0)
+09:47:27.497 [Warning] [MatchManager] GameManager.specificUnitsDead не настроен — победа по уничтожению базы не сработает. Задайте NetID баз и winningTeam в Inspector у GameManager.
+09:47:28.791 [Exception] KeyNotFoundException: The given key '0' was not present in the dictionary.
+System.Collections.Generic.Dictionary`2[TKey,TValue].get_Item (TKey key) (at <f713e1c3c5f545ce9b1df47230f4f853>:0)
+StrategyCore.Utils.GetIntersectedUnit (UnityEngine.Vector2 position, System.Single radius, StrategyCore.Unit exludeUnit, System.Boolean ignoreAir) (at <37d99ff69ef94accb476bd278e0e58a8>:0)
+StrategyCore.Utils.CircleCheck (UnityEngine.Vector2 location, System.Single locationR, System.Single spawnR, System.Boolean ground, System.Boolean water, System.Boolean air, System.Int32 circleChecks) (at <37d99ff69ef94accb476bd278e0e58a8>:0)
+StrategyCore.Unit.Spawn (StrategyCore.Unit unitRef, UnityEngine.Vector3 position, System.Single rotation, System.Int32 owner, System.Single positionR) (at <37d99ff69ef94accb476bd278e0e58a8>:0)
+StrategyCore.MatchManager+<SpawnTowerForPoint>d__288.MoveNext () (at <37d99ff69ef94accb476bd278e0e58a8>:0)
+UnityEngine.SetupCoroutine.InvokeMoveNext (System.Collections.IEnumerator enumerator, System.IntPtr returnValueAddress) (at <35e503df996e446286377b9defa4cb4d>:0)
+UnityEngine.MonoBehaviour:StartCoroutine(IEnumerator)
+StrategyCore.MatchManager:SpawnInitialTowers()
+StrategyCore.MatchManager:WireContentTriggers()
+StrategyCore.SceneHandler:StartTheGame(Boolean)
+StrategyCore.SceneHandler:SceneManager_OnSceneEvent(SceneEvent)
+Unity.Netcode.NetworkSceneManager:OnSceneEventProgressCompleted(SceneEventProgress)
+Unity.Netcode.SceneEventProgress:TryFinishingSceneEventProgress()
+Unity.Netcode.SceneEventProgress:ClientFinishedSceneEvent(UInt64)
+Unity.Netcode.NetworkSceneManager:HandleSessionOwnerEvent(UInt32, UInt64)
+Unity.Netcode.NetworkSceneManager:HandleSceneEvent(UInt64, FastBufferReader)
+Unity.Netcode.SceneEventMessage:Handle(NetworkContext&)
+Unity.Netcode.NetworkMessageManager:ReceiveMessage(FastBufferReader, NetworkContext&, NetworkMessageManager)
+Unity.Netcode.NetworkMessageManager:HandleMessage(NetworkMessageHeader&, FastBufferReader, UInt64, Single, Int32)
+Unity.Netcode.NetworkMessageManager:ProcessIncomingMessageQueue()
+Unity.Netcode.NetworkManager:NetworkUpdate(NetworkUpdateStage)
+Unity.Netcode.NetworkUpdateLoop:RunNetworkUpdateStage(NetworkUpdateStage)
+Unity.Netcode.<>c:<CreateLoopSystem>b__0_0()
+09:47:28.792 [Exception] KeyNotFoundException: The given key '0' was not present in the dictionary.
+System.Collections.Generic.Dictionary`2[TKey,TValue].get_Item (TKey key) (at <f713e1c3c5f545ce9b1df47230f4f853>:0)
+StrategyCore.Utils.GetIntersectedUnit (UnityEngine.Vector2 position, System.Single radius, StrategyCore.Unit exludeUnit, System.Boolean ignoreAir) (at <37d99ff69ef94accb476bd278e0e58a8>:0)
+StrategyCore.Utils.CircleCheck (UnityEngine.Vector2 location, System.Single locationR, System.Single spawnR, System.Boolean ground, System.Boolean water, System.Boolean air, System.Int32 circleChecks) (at <37d99ff69ef94accb476bd278e0e58a8>:0)
+StrategyCore.Unit.Spawn (StrategyCore.Unit unitRef, UnityEngine.Vector3 position, System.Single rotation, System.Int32 owner, System.Single positionR) (at <37d99ff69ef94accb476bd278e0e58a8>:0)
+StrategyCore.MatchManager+<SpawnTowerForPoint>d__288.MoveNext () (at <37d99ff69ef94accb476bd278e0e58a8>:0)
+UnityEngine.SetupCoroutine.InvokeMoveNext (System.Collections.IEnumerator enumerator, System.IntPtr returnValueAddress) (at <35e503df996e446286377b9defa4cb4d>:0)
+UnityEngine.MonoBehaviour:StartCoroutine(IEnumerator)
+StrategyCore.MatchManager:SpawnInitialTowers()
+StrategyCore.MatchManager:WireContentTriggers()
+StrategyCore.SceneHandler:StartTheGame(Boolean)
+StrategyCore.SceneHandler:SceneManager_OnSceneEvent(SceneEvent)
+Unity.Netcode.NetworkSceneManager:OnSceneEventProgressCompleted(SceneEventProgress)
+Unity.Netcode.SceneEventProgress:TryFinishingSceneEventProgress()
+Unity.Netcode.SceneEventProgress:ClientFinishedSceneEvent(UInt64)
+Unity.Netcode.NetworkSceneManager:HandleSessionOwnerEvent(UInt32, UInt64)
+Unity.Netcode.NetworkSceneManager:HandleSceneEvent(UInt64, FastBufferReader)
+Unity.Netcode.SceneEventMessage:Handle(NetworkContext&)
+Unity.Netcode.NetworkMessageManager:ReceiveMessage(FastBufferReader, NetworkContext&, NetworkMessageManager)
+Unity.Netcode.NetworkMessageManager:HandleMessage(NetworkMessageHeader&, FastBufferReader, UInt64, Single, Int32)
+Unity.Netcode.NetworkMessageManager:ProcessIncomingMessageQueue()
+Unity.Netcode.NetworkManager:NetworkUpdate(NetworkUpdateStage)
+Unity.Netcode.NetworkUpdateLoop:RunNetworkUpdateStage(NetworkUpdateStage)
+Unity.Netcode.<>c:<CreateLoopSystem>b__0_0()
+09:47:28.794 [Exception] KeyNotFoundException: The given key '0' was not present in the dictionary.
+System.Collections.Generic.Dictionary`2[TKey,TValue].get_Item (TKey key) (at <f713e1c3c5f545ce9b1df47230f4f853>:0)
+StrategyCore.Utils.GetIntersectedUnit (UnityEngine.Vector2 position, System.Single radius, StrategyCore.Unit exludeUnit, System.Boolean ignoreAir) (at <37d99ff69ef94accb476bd278e0e58a8>:0)
+StrategyCore.Utils.CircleCheck (UnityEngine.Vector2 location, System.Single locationR, System.Single spawnR, System.Boolean ground, System.Boolean water, System.Boolean air, System.Int32 circleChecks) (at <37d99ff69ef94accb476bd278e0e58a8>:0)
+StrategyCore.Unit.Spawn (StrategyCore.Unit unitRef, UnityEngine.Vector3 position, System.Single rotation, System.Int32 owner, System.Single positionR) (at <37d99ff69ef94accb476bd278e0e58a8>:0)
+StrategyCore.MatchManager+<SpawnTowerForPoint>d__288.MoveNext () (at <37d99ff69ef94accb476bd278e0e58a8>:0)
+UnityEngine.SetupCoroutine.InvokeMoveNext (System.Collections.IEnumerator enumerator, System.IntPtr returnValueAddress) (at <35e503df996e446286377b9defa4cb4d>:0)
+UnityEngine.MonoBehaviour:StartCoroutine(IEnumerator)
+StrategyCore.MatchManager:SpawnInitialTowers()
+StrategyCore.MatchManager:WireContentTriggers()
+StrategyCore.SceneHandler:StartTheGame(Boolean)
+StrategyCore.SceneHandler:SceneManager_OnSceneEvent(SceneEvent)
+Unity.Netcode.NetworkSceneManager:OnSceneEventProgressCompleted(SceneEventProgress)
+Unity.Netcode.SceneEventProgress:TryFinishingSceneEventProgress()
+Unity.Netcode.SceneEventProgress:ClientFinishedSceneEvent(UInt64)
+Unity.Netcode.NetworkSceneManager:HandleSessionOwnerEvent(UInt32, UInt64)
+Unity.Netcode.NetworkSceneManager:HandleSceneEvent(UInt64, FastBufferReader)
+Unity.Netcode.SceneEventMessage:Handle(NetworkContext&)
+Unity.Netcode.NetworkMessageManager:ReceiveMessage(FastBufferReader, NetworkContext&, NetworkMessageManager)
+Unity.Netcode.NetworkMessageManager:HandleMessage(NetworkMessageHeader&, FastBufferReader, UInt64, Single, Int32)
+Unity.Netcode.NetworkMessageManager:ProcessIncomingMessageQueue()
+Unity.Netcode.NetworkManager:NetworkUpdate(NetworkUpdateStage)
+Unity.Netcode.NetworkUpdateLoop:RunNetworkUpdateStage(NetworkUpdateStage)
+Unity.Netcode.<>c:<CreateLoopSystem>b__0_0()
+09:47:28.794 [Exception] KeyNotFoundException: The given key '1' was not present in the dictionary.
+System.Collections.Generic.Dictionary`2[TKey,TValue].get_Item (TKey key) (at <f713e1c3c5f545ce9b1df47230f4f853>:0)
+StrategyCore.Utils.GetIntersectedUnit (UnityEngine.Vector2 position, System.Single radius, StrategyCore.Unit exludeUnit, System.Boolean ignoreAir) (at <37d99ff69ef94accb476bd278e0e58a8>:0)
+StrategyCore.Utils.CircleCheck (UnityEngine.Vector2 location, System.Single locationR, System.Single spawnR, System.Boolean ground, System.Boolean water, System.Boolean air, System.Int32 circleChecks) (at <37d99ff69ef94accb476bd278e0e58a8>:0)
+StrategyCore.Unit.Spawn (StrategyCore.Unit unitRef, UnityEngine.Vector3 position, System.Single rotation, System.Int32 owner, System.Single positionR) (at <37d99ff69ef94accb476bd278e0e58a8>:0)
+StrategyCore.MatchManager+<SpawnTowerForPoint>d__288.MoveNext () (at <37d99ff69ef94accb476bd278e0e58a8>:0)
+UnityEngine.SetupCoroutine.InvokeMoveNext (System.Collections.IEnumerator enumerator, System.IntPtr returnValueAddress) (at <35e503df996e446286377b9defa4cb4d>:0)
+UnityEngine.MonoBehaviour:StartCoroutine(IEnumerator)
+StrategyCore.MatchManager:SpawnInitialTowers()
+StrategyCore.MatchManager:WireContentTriggers()
+StrategyCore.SceneHandler:StartTheGame(Boolean)
+StrategyCore.SceneHandler:SceneManager_OnSceneEvent(SceneEvent)
+Unity.Netcode.NetworkSceneManager:OnSceneEventProgressCompleted(SceneEventProgress)
+Unity.Netcode.SceneEventProgress:TryFinishingSceneEventProgress()
+Unity.Netcode.SceneEventProgress:ClientFinishedSceneEvent(UInt64)
+Unity.Netcode.NetworkSceneManager:HandleSessionOwnerEvent(UInt32, UInt64)
+Unity.Netcode.NetworkSceneManager:HandleSceneEvent(UInt64, FastBufferReader)
+Unity.Netcode.SceneEventMessage:Handle(NetworkContext&)
+Unity.Netcode.NetworkMessageManager:ReceiveMessage(FastBufferReader, NetworkContext&, NetworkMessageManager)
+Unity.Netcode.NetworkMessageManager:HandleMessage(NetworkMessageHeader&, FastBufferReader, UInt64, Single, Int32)
+Unity.Netcode.NetworkMessageManager:ProcessIncomingMessageQueue()
+Unity.Netcode.NetworkManager:NetworkUpdate(NetworkUpdateStage)
+Unity.Netcode.NetworkUpdateLoop:RunNetworkUpdateStage(NetworkUpdateStage)
+Unity.Netcode.<>c:<CreateLoopSystem>b__0_0()
+09:47:28.795 [Exception] KeyNotFoundException: The given key '2' was not present in the dictionary.
+System.Collections.Generic.Dictionary`2[TKey,TValue].get_Item (TKey key) (at <f713e1c3c5f545ce9b1df47230f4f853>:0)
+StrategyCore.Utils.GetIntersectedUnit (UnityEngine.Vector2 position, System.Single radius, StrategyCore.Unit exludeUnit, System.Boolean ignoreAir) (at <37d99ff69ef94accb476bd278e0e58a8>:0)
+StrategyCore.Utils.CircleCheck (UnityEngine.Vector2 location, System.Single locationR, System.Single spawnR, System.Boolean ground, System.Boolean water, System.Boolean air, System.Int32 circleChecks) (at <37d99ff69ef94accb476bd278e0e58a8>:0)
+StrategyCore.Unit.Spawn (StrategyCore.Unit unitRef, UnityEngine.Vector3 position, System.Single rotation, System.Int32 owner, System.Single positionR) (at <37d99ff69ef94accb476bd278e0e58a8>:0)
+StrategyCore.MatchManager+<SpawnTowerForPoint>d__288.MoveNext () (at <37d99ff69ef94accb476bd278e0e58a8>:0)
+UnityEngine.SetupCoroutine.InvokeMoveNext (System.Collections.IEnumerator enumerator, System.IntPtr returnValueAddress) (at <35e503df996e446286377b9defa4cb4d>:0)
+UnityEngine.MonoBehaviour:StartCoroutine(IEnumerator)
+StrategyCore.MatchManager:SpawnInitialTowers()
+StrategyCore.MatchManager:WireContentTriggers()
+StrategyCore.SceneHandler:StartTheGame(Boolean)
+StrategyCore.SceneHandler:SceneManager_OnSceneEvent(SceneEvent)
+Unity.Netcode.NetworkSceneManager:OnSceneEventProgressCompleted(SceneEventProgress)
+Unity.Netcode.SceneEventProgress:TryFinishingSceneEventProgress()
+Unity.Netcode.SceneEventProgress:ClientFinishedSceneEvent(UInt64)
+Unity.Netcode.NetworkSceneManager:HandleSessionOwnerEvent(UInt32, UInt64)
+Unity.Netcode.NetworkSceneManager:HandleSceneEvent(UInt64, FastBufferReader)
+Unity.Netcode.SceneEventMessage:Handle(NetworkContext&)
+Unity.Netcode.NetworkMessageManager:ReceiveMessage(FastBufferReader, NetworkContext&, NetworkMessageManager)
+Unity.Netcode.NetworkMessageManager:HandleMessage(NetworkMessageHeader&, FastBufferReader, UInt64, Single, Int32)
+Unity.Netcode.NetworkMessageManager:ProcessIncomingMessageQueue()
+Unity.Netcode.NetworkManager:NetworkUpdate(NetworkUpdateStage)
+Unity.Netcode.NetworkUpdateLoop:RunNetworkUpdateStage(NetworkUpdateStage)
+Unity.Netcode.<>c:<CreateLoopSystem>b__0_0()
+09:47:28.795 [Log] [MatchManager] SpawnInitialTowers: запущен спавн 5 башен.
+09:47:28.804 [Exception] NullReferenceException: Object reference not set to an instance of an object
+StrategyCore.Unit.Initialize () (at <37d99ff69ef94accb476bd278e0e58a8>:0)
+StrategyCore.Unit.StartCallback () (at <37d99ff69ef94accb476bd278e0e58a8>:0)
+StrategyCore.SceneHandler.StartTheGame (System.Boolean firstLoad) (at <37d99ff69ef94accb476bd278e0e58a8>:0)
+StrategyCore.SceneHandler.SceneManager_OnSceneEvent (Unity.Netcode.SceneEvent sceneEvent) (at <37d99ff69ef94accb476bd278e0e58a8>:0)
+Unity.Netcode.NetworkSceneManager.OnSceneEventProgressCompleted (Unity.Netcode.SceneEventProgress sceneEventProgress) (at <bfac77e1edfe4dcdbfa640d231cf6680>:0)
+Unity.Netcode.SceneEventProgress.TryFinishingSceneEventProgress () (at <bfac77e1edfe4dcdbfa640d231cf6680>:0)
+Unity.Netcode.SceneEventProgress.ClientFinishedSceneEvent (System.UInt64 clientId) (at <bfac77e1edfe4dcdbfa640d231cf6680>:0)
+Unity.Netcode.NetworkSceneManager.HandleSessionOwnerEvent (System.UInt32 sceneEventId, System.UInt64 clientId) (at <bfac77e1edfe4dcdbfa640d231cf6680>:0)
+Unity.Netcode.NetworkSceneManager.HandleSceneEvent (System.UInt64 clientId, Unity.Netcode.FastBufferReader reader) (at <bfac77e1edfe4dcdbfa640d231cf6680>:0)
+Unity.Netcode.SceneEventMessage.Handle (Unity.Netcode.NetworkContext& context) (at <bfac77e1edfe4dcdbfa640d231cf6680>:0)
+Unity.Netcode.NetworkMessageManager.ReceiveMessage[T] (Unity.Netcode.FastBufferReader reader, Unity.Netcode.NetworkContext& context, Unity.Netcode.NetworkMessageManager manager) (at <bfac77e1edfe4dcdbfa640d231cf6680>:0)
+Unity.Netcode.NetworkMessageManager.HandleMessage (Unity.Netcode.NetworkMessageHeader& header, Unity.Netcode.FastBufferReader reader, System.UInt64 senderId, System.Single timestamp, System.Int32 serializedHeaderSize) (at <bfac77e1edfe4dcdbfa640d231cf6680>:0)
+UnityEngine.Debug:LogException(Exception)
+Unity.Netcode.NetworkMessageManager:HandleMessage(NetworkMessageHeader&, FastBufferReader, UInt64, Single, Int32)
+Unity.Netcode.NetworkMessageManager:ProcessIncomingMessageQueue()
+Unity.Netcode.NetworkManager:NetworkUpdate(NetworkUpdateStage)
+Unity.Netcode.NetworkUpdateLoop:RunNetworkUpdateStage(NetworkUpdateStage)
+Unity.Netcode.<>c:<CreateLoopSystem>b__0_0()
+09:47:28.805 [Exception] NullReferenceException: Object reference not set to an instance of an object
+StrategyCore.HealthBar.UpdateHealthBar () (at <37d99ff69ef94accb476bd278e0e58a8>:0)
+StrategyCore.HealthBar.Start () (at <37d99ff69ef94accb476bd278e0e58a8>:0)
+09:47:28.816 [Log] [MatchManager] Матч начался — запускаем волны.
+09:47:28.817 [Log] [MatchManager] КАРТА КОМАНД: team0(teamA).ownerPlayer=0, team1(teamB).ownerPlayer=1; playerTeam[slot]=[0,1,2,3,4,5,6,7,8,9,10,11,12,13]; СВЕРКА: playerTeam[team0.owner]=0 (ожид 0), playerTeam[team1.owner]=1 (ожид 1).
+09:47:28.821 [Exception] NullReferenceException: Object reference not set to an instance of an object
+StrategyCore.Unit.Initialize () (at <37d99ff69ef94accb476bd278e0e58a8>:0)
+StrategyCore.Unit.StartCallback () (at <37d99ff69ef94accb476bd278e0e58a8>:0)
+StrategyCore.SceneHandler.StartTheGame (System.Boolean firstLoad) (at <37d99ff69ef94accb476bd278e0e58a8>:0)
+StrategyCore.SceneHandler.SceneManager_OnSceneEvent (Unity.Netcode.SceneEvent sceneEvent) (at <37d99ff69ef94accb476bd278e0e58a8>:0)
+Unity.Netcode.NetworkSceneManager.OnSceneEventProgressCompleted (Unity.Netcode.SceneEventProgress sceneEventProgress) (at <bfac77e1edfe4dcdbfa640d231cf6680>:0)
+Unity.Netcode.SceneEventProgress.TryFinishingSceneEventProgress () (at <bfac77e1edfe4dcdbfa640d231cf6680>:0)
+Unity.Netcode.SceneEventProgress+<TimeOutSceneEventProgress>d__34.MoveNext () (at <bfac77e1edfe4dcdbfa640d231cf6680>:0)
+UnityEngine.SetupCoroutine.InvokeMoveNext (System.Collections.IEnumerator enumerator, System.IntPtr returnValueAddress) (at <35e503df996e446286377b9defa4cb4d>:0)
+09:47:28.821 [Exception] NullReferenceException: Object reference not set to an instance of an object
+StrategyCore.HealthBar.UpdateHealthBar () (at <37d99ff69ef94accb476bd278e0e58a8>:0)
+StrategyCore.HealthBar.Start () (at <37d99ff69ef94accb476bd278e0e58a8>:0)
+09:47:33.799 [Log] [MatchManager] Волна #1 — спавним обе команды.
+09:47:33.806 [Log] [MatchManager] Спавн волны команды 0 (player=0): состав 2 юнитов.
+09:47:33.811 [Exception] KeyNotFoundException: The given key '0' was not present in the dictionary.
+System.Collections.Generic.Dictionary`2[TKey,TValue].get_Item (TKey key) (at <f713e1c3c5f545ce9b1df47230f4f853>:0)
+StrategyCore.Utils.GetIntersectedUnit (UnityEngine.Vector2 position, System.Single radius, StrategyCore.Unit exludeUnit, System.Boolean ignoreAir) (at <37d99ff69ef94accb476bd278e0e58a8>:0)
+StrategyCore.Utils.CircleCheck (UnityEngine.Vector2 location, System.Single locationR, System.Single spawnR, System.Boolean ground, System.Boolean water, System.Boolean air, System.Int32 circleChecks) (at <37d99ff69ef94accb476bd278e0e58a8>:0)
+StrategyCore.Unit.Spawn (StrategyCore.Unit unitRef, UnityEngine.Vector3 position, System.Single rotation, System.Int32 owner, System.Single positionR) (at <37d99ff69ef94accb476bd278e0e58a8>:0)
+StrategyCore.MatchManager+<SpawnWave>d__321.MoveNext () (at <37d99ff69ef94accb476bd278e0e58a8>:0)
+UnityEngine.SetupCoroutine.InvokeMoveNext (System.Collections.IEnumerator enumerator, System.IntPtr returnValueAddress) (at <35e503df996e446286377b9defa4cb4d>:0)
+UnityEngine.MonoBehaviour:StartCoroutine(IEnumerator)
+StrategyCore.<WaveLoop>d__318:MoveNext()
+UnityEngine.SetupCoroutine:InvokeMoveNext(IEnumerator, IntPtr)
+09:47:33.812 [Log] [MatchManager] Спавн волны команды 1 (player=1): состав 2 юнитов.
+09:47:33.813 [Exception] KeyNotFoundException: The given key '6' was not present in the dictionary.
+System.Collections.Generic.Dictionary`2[TKey,TValue].get_Item (TKey key) (at <f713e1c3c5f545ce9b1df47230f4f853>:0)
+StrategyCore.Utils.GetIntersectedUnit (UnityEngine.Vector2 position, System.Single radius, StrategyCore.Unit exludeUnit, System.Boolean ignoreAir) (at <37d99ff69ef94accb476bd278e0e58a8>:0)
+StrategyCore.Utils.CircleCheck (UnityEngine.Vector2 location, System.Single locationR, System.Single spawnR, System.Boolean ground, System.Boolean water, System.Boolean air, System.Int32 circleChecks) (at <37d99ff69ef94accb476bd278e0e58a8>:0)
+StrategyCore.Unit.Spawn (StrategyCore.Unit unitRef, UnityEngine.Vector3 position, System.Single rotation, System.Int32 owner, System.Single positionR) (at <37d99ff69ef94accb476bd278e0e58a8>:0)
+StrategyCore.MatchManager+<SpawnWave>d__321.MoveNext () (at <37d99ff69ef94accb476bd278e0e58a8>:0)
+UnityEngine.SetupCoroutine.InvokeMoveNext (System.Collections.IEnumerator enumerator, System.IntPtr returnValueAddress) (at <35e503df996e446286377b9defa4cb4d>:0)
+UnityEngine.MonoBehaviour:StartCoroutine(IEnumerator)
+StrategyCore.<WaveLoop>d__318:MoveNext()
+UnityEngine.SetupCoroutine:InvokeMoveNext(IEnumerator, IntPtr)
+09:48:03.840 [Log] [MatchManager] Волна #2 — спавним обе команды.
+09:48:03.840 [Log] [MatchManager] Спавн волны команды 0 (player=0): состав 2 юнитов.
+09:48:03.841 [Exception] KeyNotFoundException: The given key '0' was not present in the dictionary.
+System.Collections.Generic.Dictionary`2[TKey,TValue].get_Item (TKey key) (at <f713e1c3c5f545ce9b1df47230f4f853>:0)
+StrategyCore.Utils.GetIntersectedUnit (UnityEngine.Vector2 position, System.Single radius, StrategyCore.Unit exludeUnit, System.Boolean ignoreAir) (at <37d99ff69ef94accb476bd278e0e58a8>:0)
+StrategyCore.Utils.CircleCheck (UnityEngine.Vector2 location, System.Single locationR, System.Single spawnR, System.Boolean ground, System.Boolean water, System.Boolean air, System.Int32 circleChecks) (at <37d99ff69ef94accb476bd278e0e58a8>:0)
+StrategyCore.Unit.Spawn (StrategyCore.Unit unitRef, UnityEngine.Vector3 position, System.Single rotation, System.Int32 owner, System.Single positionR) (at <37d99ff69ef94accb476bd278e0e58a8>:0)
+StrategyCore.MatchManager+<SpawnWave>d__321.MoveNext () (at <37d99ff69ef94accb476bd278e0e58a8>:0)
+UnityEngine.SetupCoroutine.InvokeMoveNext (System.Collections.IEnumerator enumerator, System.IntPtr returnValueAddress) (at <35e503df996e446286377b9defa4cb4d>:0)
+UnityEngine.MonoBehaviour:StartCoroutine(IEnumerator)
+StrategyCore.<WaveLoop>d__318:MoveNext()
+UnityEngine.SetupCoroutine:InvokeMoveNext(IEnumerator, IntPtr)
+09:48:03.841 [Log] [MatchManager] Спавн волны команды 1 (player=1): состав 2 юнитов.
+09:48:03.841 [Exception] KeyNotFoundException: The given key '6' was not present in the dictionary.
+System.Collections.Generic.Dictionary`2[TKey,TValue].get_Item (TKey key) (at <f713e1c3c5f545ce9b1df47230f4f853>:0)
+StrategyCore.Utils.GetIntersectedUnit (UnityEngine.Vector2 position, System.Single radius, StrategyCore.Unit exludeUnit, System.Boolean ignoreAir) (at <37d99ff69ef94accb476bd278e0e58a8>:0)
+StrategyCore.Utils.CircleCheck (UnityEngine.Vector2 location, System.Single locationR, System.Single spawnR, System.Boolean ground, System.Boolean water, System.Boolean air, System.Int32 circleChecks) (at <37d99ff69ef94accb476bd278e0e58a8>:0)
+StrategyCore.Unit.Spawn (StrategyCore.Unit unitRef, UnityEngine.Vector3 position, System.Single rotation, System.Int32 owner, System.Single positionR) (at <37d99ff69ef94accb476bd278e0e58a8>:0)
+StrategyCore.MatchManager+<SpawnWave>d__321.MoveNext () (at <37d99ff69ef94accb476bd278e0e58a8>:0)
+UnityEngine.SetupCoroutine.InvokeMoveNext (System.Collections.IEnumerator enumerator, System.IntPtr returnValueAddress) (at <35e503df996e446286377b9defa4cb4d>:0)
+UnityEngine.MonoBehaviour:StartCoroutine(IEnumerator)
+StrategyCore.<WaveLoop>d__318:MoveNext()
+UnityEngine.SetupCoroutine:InvokeMoveNext(IEnumerator, IntPtr)
+09:48:33.870 [Log] [MatchManager] Волна #3 — спавним обе команды.
+09:48:33.870 [Log] [MatchManager] Спавн волны команды 0 (player=0): состав 2 юнитов.
+09:48:33.871 [Exception] KeyNotFoundException: The given key '0' was not present in the dictionary.
+System.Collections.Generic.Dictionary`2[TKey,TValue].get_Item (TKey key) (at <f713e1c3c5f545ce9b1df47230f4f853>:0)
+StrategyCore.Utils.GetIntersectedUnit (UnityEngine.Vector2 position, System.Single radius, StrategyCore.Unit exludeUnit, System.Boolean ignoreAir) (at <37d99ff69ef94accb476bd278e0e58a8>:0)
+StrategyCore.Utils.CircleCheck (UnityEngine.Vector2 location, System.Single locationR, System.Single spawnR, System.Boolean ground, System.Boolean water, System.Boolean air, System.Int32 circleChecks) (at <37d99ff69ef94accb476bd278e0e58a8>:0)
+StrategyCore.Unit.Spawn (StrategyCore.Unit unitRef, UnityEngine.Vector3 position, System.Single rotation, System.Int32 owner, System.Single positionR) (at <37d99ff69ef94accb476bd278e0e58a8>:0)
+StrategyCore.MatchManager+<SpawnWave>d__321.MoveNext () (at <37d99ff69ef94accb476bd278e0e58a8>:0)
+UnityEngine.SetupCoroutine.InvokeMoveNext (System.Collections.IEnumerator enumerator, System.IntPtr returnValueAddress) (at <35e503df996e446286377b9defa4cb4d>:0)
+UnityEngine.MonoBehaviour:StartCoroutine(IEnumerator)
+StrategyCore.<WaveLoop>d__318:MoveNext()
+UnityEngine.SetupCoroutine:InvokeMoveNext(IEnumerator, IntPtr)
+09:48:33.871 [Log] [MatchManager] Спавн волны команды 1 (player=1): состав 2 юнитов.
+09:48:33.871 [Exception] KeyNotFoundException: The given key '6' was not present in the dictionary.
+System.Collections.Generic.Dictionary`2[TKey,TValue].get_Item (TKey key) (at <f713e1c3c5f545ce9b1df47230f4f853>:0)
+StrategyCore.Utils.GetIntersectedUnit (UnityEngine.Vector2 position, System.Single radius, StrategyCore.Unit exludeUnit, System.Boolean ignoreAir) (at <37d99ff69ef94accb476bd278e0e58a8>:0)
+StrategyCore.Utils.CircleCheck (UnityEngine.Vector2 location, System.Single locationR, System.Single spawnR, System.Boolean ground, System.Boolean water, System.Boolean air, System.Int32 circleChecks) (at <37d99ff69ef94accb476bd278e0e58a8>:0)
+StrategyCore.Unit.Spawn (StrategyCore.Unit unitRef, UnityEngine.Vector3 position, System.Single rotation, System.Int32 owner, System.Single positionR) (at <37d99ff69ef94accb476bd278e0e58a8>:0)
+StrategyCore.MatchManager+<SpawnWave>d__321.MoveNext () (at <37d99ff69ef94accb476bd278e0e58a8>:0)
+UnityEngine.SetupCoroutine.InvokeMoveNext (System.Collections.IEnumerator enumerator, System.IntPtr returnValueAddress) (at <35e503df996e446286377b9defa4cb4d>:0)
+UnityEngine.MonoBehaviour:StartCoroutine(IEnumerator)
+StrategyCore.<WaveLoop>d__318:MoveNext()
+UnityEngine.SetupCoroutine:InvokeMoveNext(IEnumerator, IntPtr)
+09:49:03.890 [Log] [MatchManager] Волна #4 — спавним обе команды.
+09:49:03.890 [Log] [MatchManager] Спавн волны команды 0 (player=0): состав 2 юнитов.
+09:49:03.890 [Exception] KeyNotFoundException: The given key '0' was not present in the dictionary.
+System.Collections.Generic.Dictionary`2[TKey,TValue].get_Item (TKey key) (at <f713e1c3c5f545ce9b1df47230f4f853>:0)
+StrategyCore.Utils.GetIntersectedUnit (UnityEngine.Vector2 position, System.Single radius, StrategyCore.Unit exludeUnit, System.Boolean ignoreAir) (at <37d99ff69ef94accb476bd278e0e58a8>:0)
+StrategyCore.Utils.CircleCheck (UnityEngine.Vector2 location, System.Single locationR, System.Single spawnR, System.Boolean ground, System.Boolean water, System.Boolean air, System.Int32 circleChecks) (at <37d99ff69ef94accb476bd278e0e58a8>:0)
+StrategyCore.Unit.Spawn (StrategyCore.Unit unitRef, UnityEngine.Vector3 position, System.Single rotation, System.Int32 owner, System.Single positionR) (at <37d99ff69ef94accb476bd278e0e58a8>:0)
+StrategyCore.MatchManager+<SpawnWave>d__321.MoveNext () (at <37d99ff69ef94accb476bd278e0e58a8>:0)
+UnityEngine.SetupCoroutine.InvokeMoveNext (System.Collections.IEnumerator enumerator, System.IntPtr returnValueAddress) (at <35e503df996e446286377b9defa4cb4d>:0)
+UnityEngine.MonoBehaviour:StartCoroutine(IEnumerator)
+StrategyCore.<WaveLoop>d__318:MoveNext()
+UnityEngine.SetupCoroutine:InvokeMoveNext(IEnumerator, IntPtr)
+09:49:03.890 [Log] [MatchManager] Спавн волны команды 1 (player=1): состав 2 юнитов.
+09:49:03.890 [Exception] KeyNotFoundException: The given key '6' was not present in the dictionary.
+System.Collections.Generic.Dictionary`2[TKey,TValue].get_Item (TKey key) (at <f713e1c3c5f545ce9b1df47230f4f853>:0)
+StrategyCore.Utils.GetIntersectedUnit (UnityEngine.Vector2 position, System.Single radius, StrategyCore.Unit exludeUnit, System.Boolean ignoreAir) (at <37d99ff69ef94accb476bd278e0e58a8>:0)
+StrategyCore.Utils.CircleCheck (UnityEngine.Vector2 location, System.Single locationR, System.Single spawnR, System.Boolean ground, System.Boolean water, System.Boolean air, System.Int32 circleChecks) (at <37d99ff69ef94accb476bd278e0e58a8>:0)
+StrategyCore.Unit.Spawn (StrategyCore.Unit unitRef, UnityEngine.Vector3 position, System.Single rotation, System.Int32 owner, System.Single positionR) (at <37d99ff69ef94accb476bd278e0e58a8>:0)
+StrategyCore.MatchManager+<SpawnWave>d__321.MoveNext () (at <37d99ff69ef94accb476bd278e0e58a8>:0)
+UnityEngine.SetupCoroutine.InvokeMoveNext (System.Collections.IEnumerator enumerator, System.IntPtr returnValueAddress) (at <35e503df996e446286377b9defa4cb4d>:0)
+UnityEngine.MonoBehaviour:StartCoroutine(IEnumerator)
+StrategyCore.<WaveLoop>d__318:MoveNext()
+UnityEngine.SetupCoroutine:InvokeMoveNext(IEnumerator, IntPtr)
+=== end 2026-08-01 09:49:04 ===

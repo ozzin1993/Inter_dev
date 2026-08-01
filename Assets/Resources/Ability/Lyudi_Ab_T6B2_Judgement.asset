@@ -1,0 +1,66 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 39bcc7471a95fc9c0da97bee3826addb, type: 3}
+  m_Name: Lyudi_Ab_T6B2_Judgement
+  m_EditorClassIdentifier:
+  id: 200129
+  abilityName:
+  - "Кара еретиков"
+  description:
+  - "Дебафф «Приговор»: цель получает на 40% больше урона от зажигательного оружия."
+  icon: []
+  slotNumber: -1
+  isItem: 0
+  useUponPickUp: 0
+  dropOnDeath: 0
+  charges: 0
+  maxLevels: 1
+  heroLevelable: 0
+  cooldown:
+  - 0
+  castRange:
+  - 0
+  castTime:
+  - 0
+  radius:
+  - 0
+  unitSelector:
+    isOwn: 0
+    isAlly: 0
+    isEnemy: 1
+    isUnit: 1
+    isBuilding: 0
+    isStaticDestructible: 0
+    isTree: 0
+    isGround: 1
+    isWater: 1
+    isAir: 1
+    includeInvisible: 0
+    includeInvulnerable: 0
+  dontTurn: 0
+  continuous: 0
+  interruptible: 0
+  requiresCastingUnit: 1
+  duration: []
+  requiredTech:
+  - data:
+    - {fileID: 11400000, guid: 04b17c63c9b4375ee5fbfa5fc90972ed, type: 2}
+  requiredLevel:
+  manaCost: []
+  manaCostPerSecond: []
+  cost: []
+  incomingMultiplier:
+  - 1.4
+  vulnerabilityDuration: 5
+  onlyDamageType: {fileID: 0}
+  onlyDirectIncoming: 0
+  onlyDirectAttack: 1

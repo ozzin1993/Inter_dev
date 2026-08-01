@@ -1,0 +1,363 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5c0885ec896cd254cbe8a3e931811615, type: 3}
+  m_Name: ClientContentTable
+  m_EditorClassIdentifier: Interflow.Client::StrategyCore.ClientContentTable
+  units:
+  - prefab: {fileID: 1165191979987236916, guid: 622d80cb10378414db05626fc5b18b5e, type: 3}
+    icon: {fileID: 2800000, guid: 43d9445b4e6c81447a3368cdf138293d, type: 3}
+    ready: []
+    move: []
+    click: []
+    death: []
+    attackCommand: []
+    attackStart: []
+    attackEnd: []
+  - prefab: {fileID: 9121133833005996313, guid: cbac68bfa96e3a24698f6af0751939a2, type: 3}
+    icon: {fileID: 2800000, guid: de97c72775c1f6d42ad2ad65128f59e7, type: 3}
+    ready: []
+    move: []
+    click: []
+    death: []
+    attackCommand: []
+    attackStart: []
+    attackEnd: []
+  - prefab: {fileID: 1936979029478643860, guid: 61218a108c411ab48b42524f5837709e, type: 3}
+    icon: {fileID: 2800000, guid: 5808e6697e071fb4395274bc3c57e47e, type: 3}
+    ready: []
+    move: []
+    click: []
+    death: []
+    attackCommand: []
+    attackStart: []
+    attackEnd: []
+  - prefab: {fileID: 1936979029478643860, guid: 29c41dcebada8d942b09feac1b1e978e, type: 3}
+    icon: {fileID: 2800000, guid: 3c2f75107025b464cb43754ee32512cd, type: 3}
+    ready: []
+    move: []
+    click: []
+    death: []
+    attackCommand: []
+    attackStart: []
+    attackEnd: []
+  - prefab: {fileID: 1936979029478643860, guid: ae1deed6d7a8a674ea4f60ce41ac1ca6, type: 3}
+    icon: {fileID: 2800000, guid: ea2224d3c818aa94597ff9eca0243859, type: 3}
+    ready: []
+    move: []
+    click: []
+    death: []
+    attackCommand: []
+    attackStart: []
+    attackEnd: []
+  - prefab: {fileID: 1936979029478643860, guid: 36232623b385cdc4b9c373b6fc2df8ab, type: 3}
+    icon: {fileID: 2800000, guid: 9814742f88e3d3948a7da93c693c5298, type: 3}
+    ready: []
+    move: []
+    click: []
+    death: []
+    attackCommand: []
+    attackStart: []
+    attackEnd: []
+  - prefab: {fileID: 1936979029478643860, guid: 032a18439a0816346945e35a72402726, type: 3}
+    icon: {fileID: 2800000, guid: d04d1af5e191be24394d6886e8f95275, type: 3}
+    ready: []
+    move: []
+    click: []
+    death: []
+    attackCommand: []
+    attackStart: []
+    attackEnd: []
+  - prefab: {fileID: 5777498244358534415, guid: a6dd640619d3394408f37a1b3f7b762a, type: 3}
+    icon: {fileID: 2800000, guid: 8b175d2d842b71f428c4552ac8d4384c, type: 3}
+    ready: []
+    move: []
+    click: []
+    death: []
+    attackCommand: []
+    attackStart: []
+    attackEnd: []
+  - prefab: {fileID: 1936979029478643860, guid: 676303b3a9295e04dbc788ffb96e48b3, type: 3}
+    icon: {fileID: 2800000, guid: 5808e6697e071fb4395274bc3c57e47e, type: 3}
+    ready: []
+    move: []
+    click: []
+    death: []
+    attackCommand: []
+    attackStart: []
+    attackEnd: []
+  - prefab: {fileID: 5186792438009123784, guid: e1d4024dc0818a045a577bdc6a6528e1, type: 3}
+    icon: {fileID: 2800000, guid: 0020c98079d53064dada1a226bf76bd5, type: 3}
+    ready: []
+    move: []
+    click: []
+    death: []
+    attackCommand: []
+    attackStart: []
+    attackEnd: []
+  - prefab: {fileID: 1165191979987236916, guid: 0ee6774d99d07ca44b48c02d47ecee85, type: 3}
+    icon: {fileID: 2800000, guid: 605aa465d33067842a8bc4d1c3faf1e1, type: 3}
+    ready: []
+    move: []
+    click: []
+    death: []
+    attackCommand: []
+    attackStart: []
+    attackEnd: []
+  - prefab: {fileID: 4548537984079817803, guid: 67eb1d6915a06f14fa7dee809b513b89, type: 3}
+    icon: {fileID: 2800000, guid: 0020c98079d53064dada1a226bf76bd5, type: 3}
+    ready: []
+    move: []
+    click: []
+    death: []
+    attackCommand: []
+    attackStart: []
+    attackEnd: []
+  - prefab: {fileID: 1165191979987236916, guid: ffc8b98f7a08c5e40aca087b28870076, type: 3}
+    icon: {fileID: 2800000, guid: 8b175d2d842b71f428c4552ac8d4384c, type: 3}
+    ready: []
+    move: []
+    click: []
+    death: []
+    attackCommand: []
+    attackStart: []
+    attackEnd: []
+  - prefab: {fileID: 1165191979987236916, guid: 6abb21b4aa690ca46b87b1786802067d, type: 3}
+    icon: {fileID: 2800000, guid: df08f294928d0fc46991839349cc9c97, type: 3}
+    ready: []
+    move: []
+    click: []
+    death: []
+    attackCommand: []
+    attackStart: []
+    attackEnd: []
+  - prefab: {fileID: 8022805746920978101, guid: 877e4d419d9a76c4e96121fa8d894ec6, type: 3}
+    icon: {fileID: 2800000, guid: 583c3fd68088b114a8f3cc198e7efe28, type: 3}
+    ready: []
+    move: []
+    click: []
+    death: []
+    attackCommand: []
+    attackStart: []
+    attackEnd: []
+  - prefab: {fileID: 1165191979987236916, guid: 5d9509f28fa78db4b855e5fd340969c0, type: 3}
+    icon: {fileID: 2800000, guid: 605aa465d33067842a8bc4d1c3faf1e1, type: 3}
+    ready: []
+    move: []
+    click: []
+    death: []
+    attackCommand: []
+    attackStart: []
+    attackEnd: []
+  - prefab: {fileID: 1165191979987236916, guid: fc96c35709aed154083fc752d414243a, type: 3}
+    icon: {fileID: 2800000, guid: ecaab7aa47f086f4db951ecf3392f8c6, type: 3}
+    ready: []
+    move: []
+    click: []
+    death: []
+    attackCommand: []
+    attackStart: []
+    attackEnd: []
+  - prefab: {fileID: 1165191979987236916, guid: b983934140286d94f9d91579258b5d7c, type: 3}
+    icon: {fileID: 2800000, guid: 504801f3dca7cab4d9147b9f9380b227, type: 3}
+    ready: []
+    move: []
+    click: []
+    death: []
+    attackCommand: []
+    attackStart: []
+    attackEnd: []
+  - prefab: {fileID: 1165191979987236916, guid: 15592dfc0824b32439910bc9f680dfdc, type: 3}
+    icon: {fileID: 2800000, guid: 605aa465d33067842a8bc4d1c3faf1e1, type: 3}
+    ready: []
+    move: []
+    click: []
+    death: []
+    attackCommand: []
+    attackStart: []
+    attackEnd: []
+  abilities:
+  - ability: {fileID: 11400000, guid: 8bfba2e1310ee844b94b3be55e4b10d0, type: 2}
+    icons:
+    - {fileID: 2800000, guid: 2491b555a060ab14c8cb0563ba3403b4, type: 3}
+  - ability: {fileID: 11400000, guid: 7237120f64d53684ea0ad9b7d723e192, type: 2}
+    icons:
+    - {fileID: 2800000, guid: 491bdfe91f7f83942a6c5ae25671a40a, type: 3}
+  - ability: {fileID: 11400000, guid: b4313e5fa5f364c4e822af87c02e8b74, type: 2}
+    icons:
+    - {fileID: 2800000, guid: 4a1eef41ceb49d742824dada3f9a3126, type: 3}
+  - ability: {fileID: 11400000, guid: 6c78edcc27864d878c975e036280609b, type: 2}
+    icons:
+    - {fileID: 2800000, guid: 29ed497dd9701974c890025362b3d117, type: 3}
+  - ability: {fileID: 11400000, guid: d3c33c015a6642b438a4165d64255ceb, type: 2}
+    icons:
+    - {fileID: 2800000, guid: ce28e91993220734fb2d1e845177e5e7, type: 3}
+  - ability: {fileID: 11400000, guid: 5e89cc8f09da78e42882f30005f12602, type: 2}
+    icons:
+    - {fileID: 2800000, guid: aecc36a7c5baac34382d8dc6f2c44b24, type: 3}
+  - ability: {fileID: 11400000, guid: 299cf12738393ce468408c81bf70cf70, type: 2}
+    icons:
+    - {fileID: 2800000, guid: a59754abb4725624591e0685d1010d29, type: 3}
+  - ability: {fileID: 11400000, guid: 91f8ba67650cdcd479934328c75d4ddf, type: 2}
+    icons:
+    - {fileID: 2800000, guid: 1607e480d5e8b9d40a5ef7f931a72b63, type: 3}
+  - ability: {fileID: 11400000, guid: 9614cb63667865a44922fd1f7be12633, type: 2}
+    icons:
+    - {fileID: 2800000, guid: 9acd8ce0b3be4ed499000b1d355e9736, type: 3}
+  - ability: {fileID: 11400000, guid: adf4595712bf77043856d85847297558, type: 2}
+    icons:
+    - {fileID: 2800000, guid: 3982a13390606c04ab219b33d5266acf, type: 3}
+  - ability: {fileID: 11400000, guid: 902f74b59c2e15c42839dd3228daf0d9, type: 2}
+    icons:
+    - {fileID: 2800000, guid: 3eaa06edc81f584449337fb19956881d, type: 3}
+  - ability: {fileID: 11400000, guid: bfa61134756385e4f97b7606cf8e5b0a, type: 2}
+    icons:
+    - {fileID: 2800000, guid: a9275ca28344f9242bcf6b3c08ec9fcf, type: 3}
+  - ability: {fileID: 11400000, guid: e06c2868b857a864d89d509deaa58968, type: 2}
+    icons:
+    - {fileID: 0}
+  - ability: {fileID: 11400000, guid: 7e8ac0057fe2ea34983af20c4bbfd50f, type: 2}
+    icons:
+    - {fileID: 2800000, guid: 69056004f129b9a459d97c06a64f105f, type: 3}
+  - ability: {fileID: 11400000, guid: 4a0f084af0c3efe469fe2b4731c7256d, type: 2}
+    icons:
+    - {fileID: 2800000, guid: 1d46ebd6786fbd2468fd0d7f79ec8acb, type: 3}
+  - ability: {fileID: 11400000, guid: b94ce295f425e4141aae88805461d5aa, type: 2}
+    icons:
+    - {fileID: 2800000, guid: 7771aea07bc37b648a6b10e8e4a181eb, type: 3}
+  - ability: {fileID: 11400000, guid: 57601904db1b65d43826adbc9ef4ed70, type: 2}
+    icons:
+    - {fileID: 2800000, guid: a9275ca28344f9242bcf6b3c08ec9fcf, type: 3}
+  - ability: {fileID: 11400000, guid: 9fd218f123ce8f54d94bcb5d1a16e913, type: 2}
+    icons:
+    - {fileID: 2800000, guid: a9275ca28344f9242bcf6b3c08ec9fcf, type: 3}
+  - ability: {fileID: 11400000, guid: f3269fb67b237c148be41a47eb682619, type: 2}
+    icons:
+    - {fileID: 2800000, guid: 92b272a0248e11f438e7a1186534bfcc, type: 3}
+  - ability: {fileID: 11400000, guid: c1ce637837fda6241a73f079af1bbd9f, type: 2}
+    icons:
+    - {fileID: 2800000, guid: deab8dd7c362e9e408e4e28b41c43fd7, type: 3}
+  - ability: {fileID: 11400000, guid: 6943dd92457c47941b3d1223f268f80e, type: 2}
+    icons:
+    - {fileID: 2800000, guid: 7d7bb0d799cda46498542addf5fd1414, type: 3}
+  - ability: {fileID: 11400000, guid: c747bb1a93708ef4d83c880fb5d2a761, type: 2}
+    icons:
+    - {fileID: 2800000, guid: f8b75ff7b85f2ba49b4d27037c93cf02, type: 3}
+  - ability: {fileID: 11400000, guid: cd52d4d6dbb0159499b71362b041352d, type: 2}
+    icons:
+    - {fileID: 2800000, guid: 679a43925a73d044bbcabe3ded6ddc87, type: 3}
+  - ability: {fileID: 11400000, guid: 6858c488b37494546869c83c63f119f6, type: 2}
+    icons:
+    - {fileID: 2800000, guid: 8a5869e28666405479dbb0df3105f1c9, type: 3}
+  - ability: {fileID: 11400000, guid: c7325fdafc02a07499711feef16e9939, type: 2}
+    icons:
+    - {fileID: 2800000, guid: 3c4ff4e4d0b454444b59dc7274b9b3c0, type: 3}
+  - ability: {fileID: 11400000, guid: e396c62927c359b41866251f242a85d8, type: 2}
+    icons:
+    - {fileID: 2800000, guid: 5f6a5360851d4a54c840764423a5bc13, type: 3}
+  - ability: {fileID: 11400000, guid: 345cf9cf4fed39e449c2dfb26b1f31b9, type: 2}
+    icons:
+    - {fileID: 0}
+  - ability: {fileID: 11400000, guid: 989b753b2a4860a418afbadc804e083e, type: 2}
+    icons:
+    - {fileID: 2800000, guid: 2364e005b153ce04e88f61a52bf780bf, type: 3}
+  - ability: {fileID: 11400000, guid: afd324706fc7ddb47b96c28c59aec0f4, type: 2}
+    icons:
+    - {fileID: 2800000, guid: 3e50fec4e891dde488f5f20498a88c83, type: 3}
+  - ability: {fileID: 11400000, guid: 3d2bcf0b0582bc747a238a64ddd8cdb1, type: 2}
+    icons:
+    - {fileID: 2800000, guid: 3e50fec4e891dde488f5f20498a88c83, type: 3}
+  - ability: {fileID: 11400000, guid: 89cf4c89e89eaa04aa0760b9fa99caf0, type: 2}
+    icons:
+    - {fileID: 2800000, guid: 54898d804558cc249b6dbe34483ed9cb, type: 3}
+  - ability: {fileID: 11400000, guid: ade8cc8bfd8fd744fad2a3a709c9b0a5, type: 2}
+    icons:
+    - {fileID: 2800000, guid: 727df95d7c15aa74f81901a0a0977bb0, type: 3}
+  - ability: {fileID: 11400000, guid: a09f8a52aa3466c448e9803a4d4277d8, type: 2}
+    icons:
+    - {fileID: 2800000, guid: 3982a13390606c04ab219b33d5266acf, type: 3}
+  - ability: {fileID: 11400000, guid: 188d776a35b669045bb295d717634b9a, type: 2}
+    icons:
+    - {fileID: 2800000, guid: 5f3cedfc86423d54b9f47bb9602002e9, type: 3}
+  - ability: {fileID: 11400000, guid: df3e9571e54f244408aefd4b17247b0a, type: 2}
+    icons:
+    - {fileID: 2800000, guid: 388ba58df6ab63a48a2686d6fe474b7e, type: 3}
+  - ability: {fileID: 11400000, guid: ba3a29bf13e3a524c9768c108c15d17b, type: 2}
+    icons:
+    - {fileID: 2800000, guid: de97c72775c1f6d42ad2ad65128f59e7, type: 3}
+  - ability: {fileID: 11400000, guid: f0961bcfdd693f2418a5af1afe089696, type: 2}
+    icons:
+    - {fileID: 2800000, guid: ea2224d3c818aa94597ff9eca0243859, type: 3}
+  - ability: {fileID: 11400000, guid: 266393e319618fb49887d504f71b9710, type: 2}
+    icons:
+    - {fileID: 2800000, guid: 583c3fd68088b114a8f3cc198e7efe28, type: 3}
+  - ability: {fileID: 11400000, guid: fa2db0d0f2034ea42b911d86be86b01f, type: 2}
+    icons:
+    - {fileID: 2800000, guid: 605aa465d33067842a8bc4d1c3faf1e1, type: 3}
+  - ability: {fileID: 11400000, guid: cd9cda8a5f8b3704e86029520201e365, type: 2}
+    icons:
+    - {fileID: 0}
+    - {fileID: 0}
+    - {fileID: 0}
+  - ability: {fileID: 11400000, guid: 63686dd490ef63a4c95b7b11606b24c5, type: 2}
+    icons:
+    - {fileID: 2800000, guid: d5167ec9b43349c41b5b0f522caa0398, type: 3}
+  - ability: {fileID: 11400000, guid: 7dd6b7407c080dc48ab1bd0e79b7ce98, type: 2}
+    icons:
+    - {fileID: 2800000, guid: dcc4b6460e0e5374bb5b61da9a03ca61, type: 3}
+  - ability: {fileID: 11400000, guid: d8e502982327d574fa5a8df74160b1ed, type: 2}
+    icons:
+    - {fileID: 0}
+  - ability: {fileID: 11400000, guid: 05d4b3a57bd385e4dacaef0c1f0d30da, type: 2}
+    icons:
+    - {fileID: 0}
+  - ability: {fileID: 11400000, guid: 32ff5061dba78ef42b2d5f414360808b, type: 2}
+    icons:
+    - {fileID: 2800000, guid: 2491b555a060ab14c8cb0563ba3403b4, type: 3}
+  - ability: {fileID: 11400000, guid: 11ff0a22942c7cb4ebb23f0d4937c93e, type: 2}
+    icons:
+    - {fileID: 2800000, guid: 2491b555a060ab14c8cb0563ba3403b4, type: 3}
+  - ability: {fileID: 11400000, guid: b3ef30a98df8003469cc2170c1f878c1, type: 2}
+    icons:
+    - {fileID: 2800000, guid: b5a48fe5cfb081f4fbb0f989021c295f, type: 3}
+  - ability: {fileID: 11400000, guid: 6b65b9881d3c064459eceb7fa60f7da8, type: 2}
+    icons:
+    - {fileID: 2800000, guid: b845719fce476a44592688c1cab5a6f9, type: 3}
+  - ability: {fileID: 11400000, guid: f7f43490b7ea247498427398747641b8, type: 2}
+    icons:
+    - {fileID: 2800000, guid: b845719fce476a44592688c1cab5a6f9, type: 3}
+  - ability: {fileID: 11400000, guid: bdf892467984a874a8e50900105520d6, type: 2}
+    icons:
+    - {fileID: 2800000, guid: 1395dba01b827914cb5f4caa5dcbe515, type: 3}
+  soIcons:
+  - asset: {fileID: 11400000, guid: dfacb690ca8bd7f41b614f3280cdaf0c, type: 2}
+    icon: {fileID: 2800000, guid: 7e8043b8ccf72fb42bc9a2f42912de7a, type: 3}
+  - asset: {fileID: 11400000, guid: 0ed14f2f22f398b4ea72e957e05a4707, type: 2}
+    icon: {fileID: 2800000, guid: 134c2a182a5f2ff4c8e101a6a4a85333, type: 3}
+  - asset: {fileID: 11400000, guid: 379c41087fa840d4f901c57b4ad046bd, type: 2}
+    icon: {fileID: 2800000, guid: cd8fc06798bd240429ae1beb137de455, type: 3}
+  - asset: {fileID: 11400000, guid: 391e9946c02d2a145905ba60a04121d0, type: 2}
+    icon: {fileID: 2800000, guid: 7e8043b8ccf72fb42bc9a2f42912de7a, type: 3}
+  - asset: {fileID: 11400000, guid: 58abf54e25713bf4b81112fb3597dcbc, type: 2}
+    icon: {fileID: 2800000, guid: 134c2a182a5f2ff4c8e101a6a4a85333, type: 3}
+  - asset: {fileID: 11400000, guid: 60b6b29110aff1245ac647a92477fa74, type: 2}
+    icon: {fileID: 2800000, guid: cd8fc06798bd240429ae1beb137de455, type: 3}
+  - asset: {fileID: 11400000, guid: deb0baa7df0d4bb4f870676a7ba60908, type: 2}
+    icon: {fileID: 2800000, guid: 1d46ebd6786fbd2468fd0d7f79ec8acb, type: 3}
+  - asset: {fileID: 11400000, guid: 5217fa384b1d45645befc298f62070ae, type: 2}
+    icon: {fileID: 2800000, guid: e340412a34f7f2f45bd600e6d551ee0a, type: 3}
+  weaponSounds: []
+  techIcons:
+  - tech: {fileID: 11400000, guid: 26a8edcbf980b4c2d32adfcc1032bf18, type: 2}
+    icon: {fileID: 2800000, guid: ed354d777d136f9448e04996dc707290, type: 3}
+  factionConfigs:
+  - {fileID: 11400000, guid: 8dcd8a25dce3d6c40a31f0955ca65605, type: 2}
+  - {fileID: 11400000, guid: e4bcd411bcb74721afa33cd0cfca97f2, type: 2}

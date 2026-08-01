@@ -1,0 +1,65 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: bba5da9c93b97934ca0f8a40669a5215, type: 3}
+  m_Name: DragonsBreath
+  m_EditorClassIdentifier: 
+  id: 39597
+  abilityName:
+  - Dragon`s Breath
+  description:
+  - Deal damage in cone-shaped area.
+  icon: []
+  slotNumber: -1
+  isItem: 0
+  useUponPickUp: 0
+  dropOnDeath: 0
+  charges: 0
+  maxLevels: 0
+  heroLevelable: 0
+  cooldown:
+  - 2
+  castRange:
+  - 4
+  castTime:
+  - 0
+  radius:
+  - 0
+  unitSelector:
+    isOwn: 0
+    isAlly: 0
+    isEnemy: 1
+    isUnit: 1
+    isBuilding: 0
+    isStaticDestructible: 0
+    isTree: 0
+    isGround: 1
+    isWater: 1
+    isAir: 1
+    includeInvisible: 1
+    includeInvulnerable: 0
+  dontTurn: 0
+  continuous: 0
+  interruptible: 0
+  requiresCastingUnit: 1
+  duration: []
+  requiredTech: []
+  requiredLevel: 
+  manaCost: []
+  manaCostPerSecond: []
+  cost: []
+  vfx: {fileID: 1922286314694501817, guid: 66a50b5184ef3874d81f46f634f15d9f, type: 3}
+  damage:
+  - 50
+  damageType:
+  - {fileID: 11400000, guid: f9053eb8c43d2b4489895a8f084c16be, type: 2}
+  range:
+  - 6
