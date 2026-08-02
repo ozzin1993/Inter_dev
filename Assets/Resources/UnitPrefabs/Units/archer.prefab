@@ -42,7 +42,6 @@ GameObject:
   - component: {fileID: 4953302071323063503}
   - component: {fileID: 1165191979987236916}
   - component: {fileID: 7848067163205269994}
-  - component: {fileID: -7385583024271055114}
   m_Layer: 0
   m_Name: archer
   m_TagString: Untagged
@@ -324,18 +323,6 @@ NavMeshAgent:
   m_BaseOffset: 0
   m_WalkableMask: 4294967295
   m_ObstacleAvoidanceType: 4
---- !u!114 &-7385583024271055114
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 6797796247634689522}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: fe09e9581d9b476c9e28a8619e957447, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::StrategyCore.FlameCloakBuff
 --- !u!1001 &3442609580940067949
 PrefabInstance:
   m_ObjectHideFlags: 0

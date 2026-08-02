@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using Unity.Netcode;
 using UnityEngine;
@@ -872,6 +872,16 @@ namespace StrategyCore
             // [Interflow] свои поведенческие компоненты — снять вместе с Unit (апгрейд/трансформация/статик-копия)
             if (unit.GetComponent<AutoAbilityUser>()) GameManager.Destroy(unit.GetComponent<AutoAbilityUser>());
             if (unit.GetComponent<FlameCloakBuff>()) GameManager.Destroy(unit.GetComponent<FlameCloakBuff>());
+            // [Interflow fix 2026-08-02 skillbuff-cleanup] Конструктор скиллов вешает на юнита свои временные
+            // компоненты: SkillBuff (геймплей, только сервер) и SkillVisualStatus (презентация). В этом списке
+            // их не было — юнит, апгрейднутый/трансформированный под бафом, уносил их с собой вместе с
+            // зарегистрированным колбэком входящего урона и рефкаунтом иммунитета к контролю.
+            // Тот же случай, что строкой выше у FlameCloakBuff, ради которого эта уборка и заводилась.
+            // SkillBuff'ов может быть несколько: один компонент = один скилл-источник.
+            // Прямой Destroy безопасен: OnDestroy бафа только снимает эффекты и отписывается,
+            // детонация висит на Unit.OnDie и здесь не срабатывает (юнит не умирает, а конвертируется).
+            foreach (SkillBuff skillBuff in unit.GetComponents<SkillBuff>()) GameManager.Destroy(skillBuff);
+            if (unit.GetComponent<SkillVisualStatus>()) GameManager.Destroy(unit.GetComponent<SkillVisualStatus>());
             DestroyUnitDependents(unit); // [Interflow fix 2026-08-01 require-component-die] снять [RequireComponent(Unit)]-компоненты, иначе Unit не удалится
             if (unit.GetComponent<Unit>()) GameManager.Destroy(unit.GetComponent<Unit>());
 

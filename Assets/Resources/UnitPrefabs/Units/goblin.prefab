@@ -133,30 +133,10 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: 5193938567919496680, guid: ae1deed6d7a8a674ea4f60ce41ac1ca6, type: 3}
       insertIndex: -1
       addedObject: {fileID: 2149935263299394996}
-    m_AddedComponents:
-    - targetCorrespondingSourceObject: {fileID: 3413404270985750867, guid: ae1deed6d7a8a674ea4f60ce41ac1ca6, type: 3}
-      insertIndex: -1
-      addedObject: {fileID: -6730028195739953291}
+    m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: ae1deed6d7a8a674ea4f60ce41ac1ca6, type: 3}
 --- !u!4 &3699357050797751293 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 5193938567919496680, guid: ae1deed6d7a8a674ea4f60ce41ac1ca6, type: 3}
   m_PrefabInstance: {fileID: 8881751819360409109}
   m_PrefabAsset: {fileID: 0}
---- !u!1 &6060872174913208134 stripped
-GameObject:
-  m_CorrespondingSourceObject: {fileID: 3413404270985750867, guid: ae1deed6d7a8a674ea4f60ce41ac1ca6, type: 3}
-  m_PrefabInstance: {fileID: 8881751819360409109}
-  m_PrefabAsset: {fileID: 0}
---- !u!114 &-6730028195739953291
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 6060872174913208134}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: fe09e9581d9b476c9e28a8619e957447, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::StrategyCore.FlameCloakBuff

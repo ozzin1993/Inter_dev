@@ -360,7 +360,11 @@ namespace StrategyCore
                 // --- 1.1. Селектор целей не заполнен — целей всегда ноль. ---
                 // UnitSelector — struct: по умолчанию все флаги false, а IsUnitCompatible при этом всегда даёт false.
                 // В режимах «на себя» и «вся команда» селектор не участвует — там пустой это норма.
+                // Блокам 9–11 (призыв, зона, серверный сервис) набор целей не нужен: они исполняются
+                // ОДИН раз за каст вне цикла по целям. Скиллу, где включены только они, селектор не нужен
+                // ровно так же, как и radius (см. правило 8) — иначе это ложная ошибка на рабочем контенте.
                 if (skill.targetMode != SkillTargetMode.Self && skill.targetMode != SkillTargetMode.WholeTeam
+                    && HasPerTargetBlock(skill)
                     && !skill.unitSelector.AnySelectors())
                     issues.Add(new InterflowIssue(InterflowIssueSeverity.Error,
                         $"Скилл «{n}»: не заполнен селектор целей (кто может быть целью) — целей всегда будет ноль, " +

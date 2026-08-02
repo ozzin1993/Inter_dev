@@ -11,7 +11,7 @@ GameObject:
   - component: {fileID: 5741001857411224930}
   - component: {fileID: 1526241182521751945}
   - component: {fileID: 5186792438009123784}
-  - component: {fileID: 5218463950151786462}
+  - component: {fileID: 7339970038069368820}
   m_Layer: 0
   m_Name: knightNEW
   m_TagString: Untagged
@@ -69,7 +69,17 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b166e7a81d9bcf940a22cc4c185f0e45, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::StrategyCore.Unit
-  abilities: []
+  abilities:
+  - {fileID: 11400000, guid: ff1c9d3e638fbf54b84e4b3e93374d65, type: 2}
+  - {fileID: 11400000, guid: 562328c7facab3942954491eb03846c4, type: 2}
+  - {fileID: 11400000, guid: 7b047359ac36f564ab5e6c52e5dc18b0, type: 2}
+  - {fileID: 11400000, guid: ac10ed1803ec5184abe2c3405ab3686f, type: 2}
+  - {fileID: 11400000, guid: b0cf6410b0ccd3f40b92a0f0a3cd79b5, type: 2}
+  - {fileID: 11400000, guid: cf5403aeb9e251e47854469d0799476b, type: 2}
+  - {fileID: 11400000, guid: 1de7c1fae6cc4834c9f0c88bacc75beb, type: 2}
+  - {fileID: 11400000, guid: f7d3a45b30b0f2b42ada8a890752ccb5, type: 2}
+  - {fileID: 11400000, guid: d31ae17a625c35440b4bc83a1b2cceee, type: 2}
+  - {fileID: 11400000, guid: 66d268c2783b224419d1ac8fd236b2f3, type: 2}
   abilityLevel: 
   abilityLocked: 
   everyFrameAbilities: []
@@ -292,7 +302,7 @@ MonoBehaviour:
   removeFromPosSync: 0
   spawned: 0
   initialized: 0
---- !u!114 &5218463950151786462
+--- !u!114 &7339970038069368820
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -301,9 +311,30 @@ MonoBehaviour:
   m_GameObject: {fileID: 7159909171149085634}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: fe09e9581d9b476c9e28a8619e957447, type: 3}
+  m_Script: {fileID: 11500000, guid: eeacf01fdd4e6784fbaffd8a2682fac0, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::StrategyCore.FlameCloakBuff
+  m_EditorClassIdentifier: Interflow.Game::StrategyCore.AutoAbilityUser
+  targetingStrategy: 2
+  searchRadius: 8
+  candidateSelector:
+    isOwn: 0
+    isAlly: 0
+    isEnemy: 1
+    isUnit: 1
+    isBuilding: 0
+    isStaticDestructible: 0
+    isTree: 0
+    isGround: 1
+    isWater: 1
+    isAir: 1
+    includeInvisible: 0
+    includeInvulnerable: 0
+  priorityCategory: 3
+  strengthMetric: 0
+  allyAheadMode: 0
+  allyCategory: 1
+  allyHpThreshold: 0.3
+  autoAbility: {fileID: 11400000, guid: 66d268c2783b224419d1ac8fd236b2f3, type: 2}
 --- !u!1 &8777438878885008182
 GameObject:
   m_ObjectHideFlags: 0
