@@ -46,18 +46,32 @@ namespace StrategyCore
 
         // ============================================================== ПОКАЗ ==
 
-        /// <summary>Показать значок и VFX эффектора. Длительность берётся из самого эффектора.</summary>
-        public static void ShowEffector(Unit target, Effector effector)
+        /// <summary>Показать значок и VFX эффектора.</summary>
+        /// <param name="durationOverride">Фактическая длительность наложения, присланная сервером.
+        /// Значение ≤ 0 — брать из ассета. С 2026-08-02 числа задаёт умение, и один и тот же эффектор
+        /// от разных умений живёт разное время — считать по ассету больше нельзя.</param>
+        public static void ShowEffector(Unit target, Effector effector, float durationOverride = -1f)
         {
             if (Utils.Headless) return; // выделенному серверу показывать некому
             if (target == null || target.dead || effector == null) return;
 
+            // Формула стакинга ровно та же, что у сервера в Effector.EffectorAdd: невидимость стакаться
+            // не может. Иначе клиент решал бы про значок иначе, чем сервер, на том же эффекторе.
+            bool stacks = effector.stacks && !effector.makeInvisible;
+
             // Значок в панели состояний штатно рисуется только у НЕстакающих эффекторов с иконкой —
             // у остальных показываем один VFX, без записи значка.
-            Effector iconSource = (!effector.stacks && effector.icon != null) ? effector : null;
+            Effector iconSource = (!stacks && effector.icon != null) ? effector : null;
             if (iconSource == null && effector.VFX == null) return;
 
-            float duration = effector.permanent ? float.PositiveInfinity : effector.duration;
+            float duration;
+            if (effector.permanent) duration = float.PositiveInfinity;
+            else
+            {
+                duration = durationOverride > 0f ? durationOverride : effector.duration;
+                // Тот же нижний предел, что и на сервере: короче двух тиков эффектор не живёт.
+                if (duration < GameManager.tickRate * 2) duration = GameManager.tickRate * 2;
+            }
 
             // unitCentre = false: ровно так же вешает VFX эффектора само ядро (`Effector.EffectorAdd`
             // зовёт `AddVFX(VFX, aboveHead)`), иначе у клиента и хоста визуал был бы на разной высоте.

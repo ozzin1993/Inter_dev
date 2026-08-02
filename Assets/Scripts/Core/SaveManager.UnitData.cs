@@ -412,7 +412,12 @@ namespace StrategyCore
 
                     for (int i = 0; i < unit.Value.effectors.Count; i++)
                     {
-                        newUnitData["effectors"] += "-" + unit.Value.effectors[i].effector.id + ":" + unit.Value.effectors[i].currentTime.ToString("F2");
+                        // [Interflow fix 2026-08-02 effector-unify] Сила и фактическая длительность наложения:
+                        // без них восстановленный эффектор вернулся бы с базовыми числами ассета.
+                        // Формат: id:время:сила:длительность (старые записи — только id:время, читаются по-прежнему).
+                        newUnitData["effectors"] += "-" + unit.Value.effectors[i].effector.id + ":" + unit.Value.effectors[i].currentTime.ToString("F2")
+                                                  + ":" + unit.Value.effectors[i].powerMultiplier.ToString("F3")
+                                                  + ":" + unit.Value.effectors[i].duration.ToString("F3");
                         if (unit.Value.effectors[i].unitOwner == null)
                         {
                             newUnitData["effectorOwner"] += "-_" + unit.Value.effectors[i].owner;
@@ -875,17 +880,22 @@ namespace StrategyCore
                     {
                         string[] idCurrentTime = eff[i].Split(':');
 
+                        // [Interflow fix 2026-08-02 effector-unify] Сила и длительность появились 2026-08-02.
+                        // В записях до этой даты их нет — тогда берём то, что в ассете (как и было).
+                        float savedPower = idCurrentTime.Length > 2 ? float.Parse(idCurrentTime[2]) : 1f;
+                        float savedDuration = idCurrentTime.Length > 3 ? float.Parse(idCurrentTime[3]) : -1f;
+
                         // If starts with "_" no owner unit
                         if (owner[i][0] == '_')
                         {
                             // no owner unit
-                            Effector.EffectorAdd(u, GameManager.instance.gameEffectors[int.Parse(idCurrentTime[0])], null, int.Parse(owner[i].Substring(1)), float.Parse(idCurrentTime[1]));
+                            Effector.EffectorAdd(u, GameManager.instance.gameEffectors[int.Parse(idCurrentTime[0])], null, int.Parse(owner[i].Substring(1)), float.Parse(idCurrentTime[1]), savedPower, savedDuration);
                         }
                         else
                         {
                             // owner unit
                             Unit ownerUnit = SlotManager.instance.unitNetID[UInt16.Parse(owner[i])];
-                            Effector.EffectorAdd(u, GameManager.instance.gameEffectors[int.Parse(idCurrentTime[0])], ownerUnit, ownerUnit.owner, float.Parse(idCurrentTime[1]));
+                            Effector.EffectorAdd(u, GameManager.instance.gameEffectors[int.Parse(idCurrentTime[0])], ownerUnit, ownerUnit.owner, float.Parse(idCurrentTime[1]), savedPower, savedDuration);
                         }
                     }
                 }

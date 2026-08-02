@@ -101,6 +101,10 @@ MonoBehaviour:
     targetCategories: 
   effectors:
     enabled: 1
+    records:
+    - effector: {fileID: 11400000, guid: bde052a42bda8d301ff8a9f55b1226a6, type: 2}
+      power: []
+      duration: []
     effectors:
     - {fileID: 11400000, guid: bde052a42bda8d301ff8a9f55b1226a6, type: 2}
   heal:

@@ -96,6 +96,26 @@ namespace StrategyCore
         public Unit.UnitCategory[] targetCategories;
     }
 
+    /// <summary>
+    /// Одна запись блока эффекторов. Ассет говорит ЧТО происходит (какие статы, урон в секунду,
+    /// VFX, иконка, стакинг), умение — СКОЛЬКО и КАК ДОЛГО. ADR-006 §5.2.
+    /// </summary>
+    [Serializable]
+    public class SkillEffectorRecord
+    {
+        [Tooltip("Ассет эффектора: ЧТО он делает — какие статы меняет, урон в секунду, VFX, иконку, стакинг.")]
+        public Effector effector;
+
+        [Tooltip("Множитель силы по уровням. Масштабирует и пассивные изменения статов, и урон в секунду. " +
+                 "Пусто или 0 — брать силу как в ассете. Отрицательные значения ЗАПРЕЩЕНЫ: разделитель " +
+                 "записей в формате сохранения — дефис, минус ломает сейв (SaveManager.UnitData).")]
+        public float[] power;
+
+        [Tooltip("Длительность в секундах по уровням. Пусто или 0 — брать длительность из ассета. " +
+                 "У бессрочных эффекторов не действует: длительности у них нет по определению.")]
+        public float[] duration;
+    }
+
     /// <summary>4. Эффекторы на цели — именно они дают значок в панели состояний.</summary>
     [Serializable]
     public class SkillEffectorsBlock
@@ -103,8 +123,15 @@ namespace StrategyCore
         [Tooltip("Включить блок: скилл вешает эффекторы.")]
         public bool enabled;
 
-        [Tooltip("Эффекторы, накладываемые каждой цели (замедление, яд, бафы статов). " +
-                 "Значок в панели состояний появляется только у НЕстакающихся эффекторов с иконкой.")]
+        [Tooltip("Эффекторы, накладываемые каждой цели (замедление, яд, бафы статов), у каждого своя " +
+                 "сила и длительность по уровням. Значок в панели состояний появляется только " +
+                 "у НЕстакающихся эффекторов с иконкой.")]
+        public SkillEffectorRecord[] records;
+
+        // УСТАРЕЛО. Плоский список до 2026-08-02. Поле СПЕЦИАЛЬНО оставлено сериализуемым: пока оно есть,
+        // Unity продолжает читать старые ассеты, и миграция в records выполняется скриптом без потери
+        // данных. Удалить вместе с миграцией после её приёмки в игре.
+        [HideInInspector]
         public Effector[] effectors;
     }
 
@@ -418,7 +445,7 @@ namespace StrategyCore
                     if (t.dead) continue; // погиб от этого же урона — дальше по нему не работаем
 
                     ApplyStatus(level, t, skipProjectileCarried);
-                    ApplyEffectors(castingPlayer, t); // эффекторы снарядом не переносятся — вешаем сами
+                    ApplyEffectors(castingPlayer, level, t); // эффекторы снарядом не переносятся — вешаем сами
                     ApplyHeal(level, t);
                     ApplyBuff(castingUnit, level, t);
                     ApplyShield(castingPlayer, level, t);
@@ -497,14 +524,44 @@ namespace StrategyCore
         }
 
         // ------------------------------------------------------------- 4. ЭФФЕКТОРЫ --
-        // Здесь же вешается эффектор-значок состояния: набор собирается в одном месте, потому что
-        // тот же набор уходит клиентам в сообщении презентации.
-        void ApplyEffectors(int castingPlayer, Unit target)
+        // Ассет эффектора говорит ЧТО происходит, умение — СКОЛЬКО и КАК ДОЛГО (ADR-006 §5.2).
+        // Здесь же вешается эффектор-значок состояния: он тоже эффектор, только своих чисел не имеет.
+        void ApplyEffectors(int castingPlayer, int level, Unit target)
         {
-            Effector[] set = EffectorsForTargets();
-            if (set == null || set.Length == 0) return;
+            if (effectors != null && effectors.enabled && effectors.records != null)
+            {
+                for (int i = 0; i < effectors.records.Length; i++)
+                {
+                    SkillEffectorRecord r = effectors.records[i];
+                    if (r == null || r.effector == null) continue;
 
-            Effector.EffectorAdd(castingPlayer, target, set);
+                    // unitOwner = null: тот же владелец, что был у прежнего массивного вызова
+                    // Effector.EffectorAdd(castingPlayer, target, set) — поведение не меняется.
+                    Effector.EffectorAdd(target, r.effector, null, castingPlayer, 0f,
+                                         RecordPower(r, level), RecordDuration(r, level));
+                }
+            }
+
+            if (statusEffector != null)
+                Effector.EffectorAdd(target, statusEffector, null, castingPlayer);
+        }
+
+        /// <summary>Множитель силы записи на уровне. Пусто или 0 — как в ассете (множитель 1).</summary>
+        /// Выборка с КЛАМПОМ к последнему элементу (LevelValue) — семантика по умолчанию
+        /// для нового кода, см. InterflowAbility.
+        public static float RecordPower(SkillEffectorRecord r, int level)
+        {
+            if (r == null) return 1f;
+            float v = LevelValue(r.power, level);
+            return v > 0f ? v : 1f;
+        }
+
+        /// <summary>Длительность записи на уровне, секунды. Пусто или 0 — «не переопределять» (−1).</summary>
+        public static float RecordDuration(SkillEffectorRecord r, int level)
+        {
+            if (r == null) return -1f;
+            float v = LevelValue(r.duration, level);
+            return v > 0f ? v : -1f;
         }
 
         // ---------------------------------------------------------------- 5. ЛЕЧЕНИЕ --

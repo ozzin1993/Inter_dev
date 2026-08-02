@@ -334,7 +334,7 @@ MonoBehaviour:
   allyAheadMode: 0
   allyCategory: 1
   allyHpThreshold: 0.3
-  autoAbility: {fileID: 11400000, guid: 66d268c2783b224419d1ac8fd236b2f3, type: 2}
+  autoAbility: {fileID: 11400000, guid: 7d8151646b52584419f170ab7c2c3a10, type: 2}
 --- !u!1 &8777438878885008182
 GameObject:
   m_ObjectHideFlags: 0

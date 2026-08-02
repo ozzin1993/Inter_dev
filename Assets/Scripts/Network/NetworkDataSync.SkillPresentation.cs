@@ -22,11 +22,14 @@ namespace StrategyCore
         /// у себя напрямую, как обычный локальный зритель.
         /// </summary>
         /// <param name="netIDs">Юниты, которых задел скилл.</param>
-        /// <param name="effectorIds">Эффекторы скилла — по ним клиент возьмёт значок и VFX; длительность у эффектора своя.</param>
+        /// <param name="effectorIds">Эффекторы скилла — по ним клиент возьмёт значок и VFX.</param>
+        /// <param name="effectorDurations">Фактическая длительность каждого эффектора из effectorIds, тот же порядок.
+        /// Значение ≤ 0 — брать из ассета. С 2026-08-02 числа эффектора задаёт умение, поэтому клиентский
+        /// таймер значка нельзя считать по ассету: у другого умения тот же эффектор живёт другое время.</param>
         /// <param name="buffAbilityId">Скилл, чей VFX длящегося бафа показать. −1 — бафа нет.</param>
         /// <param name="buffDuration">Сколько секунд держать VFX бафа.</param>
         /// <param name="level">Уровень скилла — нужен, чтобы клиент посчитал размер визуала ауры.</param>
-        public void SkillPresentationSend(UInt16[] netIDs, int[] effectorIds, int buffAbilityId, float buffDuration, int level)
+        public void SkillPresentationSend(UInt16[] netIDs, int[] effectorIds, float[] effectorDurations, int buffAbilityId, float buffDuration, int level)
         {
             if (netIDs == null || netIDs.Length == 0) return;
             if (NetworkManager.Singleton == null || !NetworkManager.Singleton.IsServer) return; // одиночный прогон — RPC не шлём
@@ -34,11 +37,21 @@ namespace StrategyCore
             bool hasEffectors = effectorIds != null && effectorIds.Length > 0;
             if (!hasEffectors && buffAbilityId < 0) return; // показывать нечего — сообщение не шлём
 
-            SkillPresentationClientRpc(netIDs, effectorIds ?? Array.Empty<int>(), buffAbilityId, buffDuration, level);
+            // Массивы обязаны быть одной длины: клиент читает их по одному индексу. Рассогласование —
+            // ошибка вызывающего кода, а не контента, поэтому падаем шумно, а не подгоняем молча.
+            float[] durations = effectorDurations ?? Array.Empty<float>();
+            if (hasEffectors && durations.Length != effectorIds.Length)
+            {
+                Debug.LogError("SkillPresentationSend: длины массивов не совпадают — id " + effectorIds.Length +
+                               ", длительностей " + durations.Length + ". Презентация не отправлена.");
+                return;
+            }
+
+            SkillPresentationClientRpc(netIDs, effectorIds ?? Array.Empty<int>(), durations, buffAbilityId, buffDuration, level);
         }
 
         [Rpc(SendTo.NotServer)]
-        private void SkillPresentationClientRpc(UInt16[] netIDs, int[] effectorIds, int buffAbilityId, float buffDuration, int level)
+        private void SkillPresentationClientRpc(UInt16[] netIDs, int[] effectorIds, float[] effectorDurations, int buffAbilityId, float buffDuration, int level)
         {
             // Подключение в середине матча: принимаем только данные сцены (штатное правило всех RPC этого хаба).
             if (NetworkConnectionHandler.instance.connectionStage == 2) return;
@@ -73,7 +86,9 @@ namespace StrategyCore
                     Effector effector = Effector.GetEffectorByID(effectorIds[e]);
                     if (effector != null)
                     {
-                        SkillVisualStatus.ShowEffector(unit, effector);
+                        // Длительности может не быть только у старого отправителя — тогда −1 и ассетное число.
+                        float shown = e < effectorDurations.Length ? effectorDurations[e] : -1f;
+                        SkillVisualStatus.ShowEffector(unit, effector, shown);
                         continue;
                     }
 

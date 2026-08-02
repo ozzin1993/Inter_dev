@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: Faction_Lyudi
   m_EditorClassIdentifier: Assembly-CSharp::StrategyCore.FactionConfig
   waveUnits:
-  - unit: {fileID: 1936979029478643860, guid: 36232623b385cdc4b9c373b6fc2df8ab, type: 3}
+  - unit: {fileID: 5186792438009123784, guid: e1d4024dc0818a045a577bdc6a6528e1, type: 3}
     role: 0
     count: 1
   - unit: {fileID: 1165191979987236916, guid: fc96c35709aed154083fc752d414243a, type: 3}

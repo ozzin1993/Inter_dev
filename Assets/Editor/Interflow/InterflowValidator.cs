@@ -529,6 +529,62 @@ namespace StrategyCore
                             "План §5.2", skill));
                 }
 
+                // --- 9.1 Числа записей блока эффекторов (с 2026-08-02 сила и длительность живут в умении) ---
+                if (skill.effectors != null && skill.effectors.enabled && skill.effectors.records != null)
+                {
+                    for (int ri = 0; ri < skill.effectors.records.Length; ri++)
+                    {
+                        var rec = skill.effectors.records[ri];
+
+                        if (rec == null || rec.effector == null)
+                        {
+                            issues.Add(new InterflowIssue(InterflowIssueSeverity.Error,
+                                $"Скилл «{n}»: в блоке эффекторов запись №{ri + 1} без ассета эффектора — слот ничего не сделает.",
+                                "CompositeSkill.ApplyEffectors (пустые записи пропускаются)", skill));
+                            continue;
+                        }
+
+                        string en = rec.effector.name;
+
+                        // Минус ломает формат сохранения: записи там разделяются дефисом.
+                        if (rec.power != null && rec.power.Any(x => x < 0f))
+                            issues.Add(new InterflowIssue(InterflowIssueSeverity.Error,
+                                $"Скилл «{n}»: у эффектора «{en}» отрицательный множитель силы. Запрещено: разделитель записей " +
+                                "в формате сохранения — дефис, минус сломает сейв и восстановление юнита.",
+                                "SaveManager.UnitData (строка effectors)", skill));
+
+                        if (rec.duration != null && rec.duration.Any(x => x < 0f))
+                            issues.Add(new InterflowIssue(InterflowIssueSeverity.Error,
+                                $"Скилл «{n}»: у эффектора «{en}» отрицательная длительность. Пусто или 0 — «брать из ассета»; " +
+                                "минус ломает сейв тем же дефисом-разделителем.",
+                                "SaveManager.UnitData (строка effectors)", skill));
+
+                        // Множитель масштабирует ровно две вещи: пассивные изменения статов и урон в секунду.
+                        bool scalable = rec.effector.passiveEffectsOn || rec.effector.damageAmount != 0;
+                        bool powerSet = rec.power != null && rec.power.Any(x => x > 0f && Mathf.Abs(x - 1f) > 0.0001f);
+                        if (powerSet && !scalable)
+                            issues.Add(new InterflowIssue(InterflowIssueSeverity.Warning,
+                                $"Скилл «{n}»: у эффектора «{en}» задан множитель силы, но масштабировать нечего — " +
+                                "пассивные изменения выключены и урона в секунду нет.",
+                                "Effector.EffectorAdd (множитель идёт в passiveEffects и damageAmount)", skill));
+
+                        if (rec.effector.permanent && rec.duration != null && rec.duration.Any(x => x > 0f))
+                            issues.Add(new InterflowIssue(InterflowIssueSeverity.Warning,
+                                $"Скилл «{n}»: у эффектора «{en}» включён Permanent — заданная длительность будет проигнорирована.",
+                                "Effector.EffectorAdd (у бессрочных durationOverride не применяется)", skill));
+                    }
+                }
+
+                // Хвост старого формата проверяется ВНЕ цикла: у немигрированного ассета records пуст,
+                // цикл не исполняется ни разу — проверка внутри промолчала бы ровно там, где нужна.
+                // Полностью мигрированный хвост НЕ трогаем: он оставлен намеренно, как страховка отката.
+                if (skill.effectors != null && skill.effectors.effectors != null && skill.effectors.effectors.Length > 0
+                    && (skill.effectors.records == null || skill.effectors.records.Length < skill.effectors.effectors.Length))
+                    issues.Add(new InterflowIssue(InterflowIssueSeverity.Error,
+                        $"Скилл «{n}»: устаревший массив эффекторов ({skill.effectors.effectors.Length} шт.) не перенесён в записи " +
+                        $"({(skill.effectors.records == null ? 0 : skill.effectors.records.Length)} шт.) — эти эффекторы больше НЕ накладываются.",
+                        "SkillEffectorsBlock.records (миграция 2026-08-02)", skill));
+
                 // --- 10. Включённые блоки без единого эффекта ---
                 foreach (string empty in EmptyEnabledBlocks(skill))
                     issues.Add(new InterflowIssue(InterflowIssueSeverity.Warning,
@@ -662,7 +718,7 @@ namespace StrategyCore
                 yield return "контроль";
 
             if (s.effectors != null && s.effectors.enabled
-                && (s.effectors.effectors == null || s.effectors.effectors.All(e => e == null)))
+                && (s.effectors.records == null || s.effectors.records.All(r => r == null || r.effector == null)))
                 yield return "эффекторы";
 
             if (s.heal != null && s.heal.enabled && !Any(s.heal.flat) && !Any(s.heal.percentOfMaxHp))

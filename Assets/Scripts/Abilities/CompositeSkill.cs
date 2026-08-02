@@ -527,9 +527,10 @@ namespace StrategyCore
             if (effectorSetBuilt) return cachedEffectorSet;
 
             List<Effector> list = new List<Effector>();
-            if (effectors != null && effectors.enabled && effectors.effectors != null)
-                for (int i = 0; i < effectors.effectors.Length; i++)
-                    if (effectors.effectors[i] != null) list.Add(effectors.effectors[i]);
+            if (effectors != null && effectors.enabled && effectors.records != null)
+                for (int i = 0; i < effectors.records.Length; i++)
+                    if (effectors.records[i] != null && effectors.records[i].effector != null)
+                        list.Add(effectors.records[i].effector);
 
             if (statusEffector != null) list.Add(statusEffector);
 
@@ -648,13 +649,31 @@ namespace StrategyCore
 
             // Пустые слоты массива эффекторов в сообщение НЕ кладём: клиент теперь логирует ненайденный
             // эффектор как рассинхрон, а незаполненный слот в ассете — это ошибка контента, а не рассинхрон.
-            List<int> effectorIdList = new List<int>(hasEffectors ? set.Length : 0);
-            for (int e = 0; e < (hasEffectors ? set.Length : 0); e++)
-                if (set[e] != null) effectorIdList.Add(set[e].id);
+            // Рядом с id едет ФАКТИЧЕСКАЯ длительность наложения: с 2026-08-02 её задаёт умение,
+            // и клиентский таймер значка обязан считать по ней, а не по числу из ассета.
+            List<int> effectorIdList = new List<int>();
+            List<float> effectorDurationList = new List<float>();
+
+            if (effectors != null && effectors.enabled && effectors.records != null)
+                for (int e = 0; e < effectors.records.Length; e++)
+                {
+                    SkillEffectorRecord r = effectors.records[e];
+                    if (r == null || r.effector == null) continue;
+
+                    effectorIdList.Add(r.effector.id);
+                    effectorDurationList.Add(RecordDuration(r, level));
+                }
+
+            if (statusEffector != null)
+            {
+                effectorIdList.Add(statusEffector.id);
+                effectorDurationList.Add(-1f); // значок своих чисел не имеет — длительность из его ассета
+            }
 
             int[] effectorIds = effectorIdList.ToArray();
+            float[] effectorDurations = effectorDurationList.ToArray();
 
-            NetworkDataSync.instance.SkillPresentationSend(netIDs.ToArray(), effectorIds,
+            NetworkDataSync.instance.SkillPresentationSend(netIDs.ToArray(), effectorIds, effectorDurations,
                                                            hasBuffVfx ? id : -1, buffDuration, level);
         }
 
@@ -706,8 +725,14 @@ namespace StrategyCore
                 if (pct > 0f) sb.Append(" • лечение ").Append(pct.ToString("0.#")).Append("% макс. ХП");
             }
 
-            if (effectors != null && effectors.enabled && effectors.effectors != null && effectors.effectors.Length > 0)
-                sb.Append(" • эффекторов: ").Append(effectors.effectors.Length);
+            if (effectors != null && effectors.enabled && effectors.records != null)
+            {
+                int liveRecords = 0;
+                for (int i = 0; i < effectors.records.Length; i++)
+                    if (effectors.records[i] != null && effectors.records[i].effector != null) liveRecords++;
+
+                if (liveRecords > 0) sb.Append(" • эффекторов: ").Append(liveRecords);
+            }
 
             if (buff != null && buff.enabled)
                 sb.Append(" • баф ").Append(LevelValue(buff.duration, 0).ToString("0.#")).Append(" с");

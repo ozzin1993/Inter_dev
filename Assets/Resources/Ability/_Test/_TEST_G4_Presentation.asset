@@ -10,11 +10,11 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: e15fcca452434ea4c96c2cd743b313b0, type: 3}
-  m_Name: _TEST_G3_04_Effectors
+  m_Name: _TEST_G4_Presentation
   m_EditorClassIdentifier: Interflow.Game::StrategyCore.CompositeSkill
-  id: 6
+  id: 12
   abilityName:
-  - "_TEST_\u042D\u0444\u0444\u0435\u043A\u0442\u043E\u0440\u044B_\u0432\u043E\u043A\u0440\u0443\u0433"
+  - "_TEST_\u0412\u043E\u0440\u043E\u0442\u04304_\u041F\u0440\u0435\u0437\u0435\u043D\u0442\u0430\u0446\u0438\u044F"
   description: []
   icon: []
   slotNumber: -1
@@ -25,24 +25,22 @@ MonoBehaviour:
   maxLevels: 1
   heroLevelable: 0
   cooldown:
-  - 10
-  castRange:
-  - 0
+  - 20
+  castRange: []
   castTime:
   - 0.5
-  radius:
-  - 6
+  radius: []
   unitSelector:
     isOwn: 0
     isAlly: 0
-    isEnemy: 1
-    isUnit: 1
+    isEnemy: 0
+    isUnit: 0
     isBuilding: 0
     isStaticDestructible: 0
     isTree: 0
-    isGround: 1
-    isWater: 1
-    isAir: 1
+    isGround: 0
+    isWater: 0
+    isAir: 0
     includeInvisible: 0
     includeInvulnerable: 0
   dontTurn: 0
@@ -55,7 +53,7 @@ MonoBehaviour:
   manaCost: []
   manaCostPerSecond: []
   cost: []
-  targetMode: 2
+  targetMode: 1
   buttonCast: 0
   targetStrategy: 0
   searchOrigin: 0
@@ -80,7 +78,7 @@ MonoBehaviour:
   castSound: {fileID: 0}
   impactSound: {fileID: 0}
   soundVolume: 1
-  statusEffector: {fileID: 0}
+  statusEffector: {fileID: 11400000, guid: 484bebed8052a834e8a911c9e7b97c0d, type: 2}
   selfCost:
     enabled: 0
     flatHp: []
@@ -96,20 +94,17 @@ MonoBehaviour:
     muteSeconds: []
     targetCategories: 
   effectors:
-    enabled: 1
-    records:
-    - effector: {fileID: 11400000, guid: bde052a42bda8d301ff8a9f55b1226a6, type: 2}
-      power: []
-      duration: []
-    effectors:
-    - {fileID: 11400000, guid: bde052a42bda8d301ff8a9f55b1226a6, type: 2}
+    enabled: 0
+    records: []
+    effectors: []
   heal:
     enabled: 0
     flat: []
     percentOfMaxHp: []
   buff:
-    enabled: 0
-    duration: []
+    enabled: 1
+    duration:
+    - 15
     auraDamagePerSecond: []
     auraDamageType: {fileID: 0}
     auraRadius: []
@@ -126,12 +121,13 @@ MonoBehaviour:
       isAir: 0
       includeInvisible: 0
       includeInvulnerable: 0
-    healPerSecond: []
+    healPerSecond:
+    - 3
     healPercentOfMaxPerSecond: []
     selfBurnPerSecond: []
     incomingDamageMultiplier: []
     controlImmunity: 0
-    buffVFX: {fileID: 0}
+    buffVFX: {fileID: 6059242011858388830, guid: 325c5d5f58f88a44b853d89dba45742e, type: 3}
     detonateOnDeath: 0
     detonationRadius: []
     detonationDamage: []

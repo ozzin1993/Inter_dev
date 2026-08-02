@@ -55,7 +55,7 @@ namespace StrategyCore
                             hint = "оглушение, обезоруживание, немота",
                             keys = new[]{ "контроль" } },
             new BlockDesc { order = 4,  field = "effectors",       title = "Эффекторы",                kind = StepKind.State, perTarget = true,
-                            hint = "именно они дают значок в панели состояний; длительность и сила — в ассете эффектора",
+                            hint = "сила и длительность задаются ЗДЕСЬ, по уровням; ассет отвечает только за то, ЧТО происходит",
                             keys = new[]{ "эффектор" } },
             new BlockDesc { order = 5,  field = "heal",            title = "Лечение",                  kind = StepKind.Event, perTarget = true,
                             hint = "мгновенное; лечение во времени — это баф или эффектор",

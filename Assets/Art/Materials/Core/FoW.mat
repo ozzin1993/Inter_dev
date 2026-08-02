@@ -144,7 +144,7 @@ Material:
     - _Glossiness: 0.5
     - _GlossyReflections: 1
     - _KernelSize: 6.4
-    - _LerpTime: 0.037427507
+    - _LerpTime: 0.64574504
     - _Metallic: 0
     - _Mode: 0
     - _OcclusionStrength: 1

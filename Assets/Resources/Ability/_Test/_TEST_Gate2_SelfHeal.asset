@@ -26,10 +26,12 @@ MonoBehaviour:
   heroLevelable: 0
   cooldown:
   - 8
-  castRange: []
+  castRange:
+  - 0
   castTime:
   - 1
-  radius: []
+  radius:
+  - 0
   unitSelector:
     isOwn: 0
     isAlly: 0
@@ -99,7 +101,7 @@ MonoBehaviour:
   heal:
     enabled: 1
     flat:
-    - 50
+    - 100
     percentOfMaxHp: []
   buff:
     enabled: 0
