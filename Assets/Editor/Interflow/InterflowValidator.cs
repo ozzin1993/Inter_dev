@@ -323,6 +323,19 @@ namespace StrategyCore
 
             // Скиллы, подключённые к панели ГЗ или к герою: там нажимается кнопка, а панель
             // активирует только AbilityType.Active (UIManager.BottomTables → ActivateAbilityCell).
+            var panelAbilities = CollectPanelAbilities(factions);
+
+            foreach (var skill in skills)
+                ValidateSkill(issues, skill, panelAbilities, units);
+        }
+
+
+        /// <summary>
+        /// Скиллы, подключённые к панели ГЗ или к герою: там нажимается кнопка, а панель
+        /// активирует только AbilityType.Active.
+        /// </summary>
+        static HashSet<Ability> CollectPanelAbilities(List<FactionConfig> factions)
+        {
             var panelAbilities = new HashSet<Ability>();
             foreach (var f in factions)
             {
@@ -332,9 +345,18 @@ namespace StrategyCore
                     foreach (var a in f.heroPrefab.abilities) if (a != null) panelAbilities.Add(a);
                 CollectNodeAbilities(f, panelAbilities);
             }
+            return panelAbilities;
+        }
 
-            foreach (var skill in skills)
-            {
+        /// <summary>
+        /// Проверки ОДНОГО скилла конструктора. Вынесено из цикла, чтобы вкладка «Конструктор скиллов»
+        /// могла проверять скилл по месту, в момент правки, а не гонять весь проект (правило 5:
+        /// правила живут в одном месте, вкладка их не дублирует).
+        /// </summary>
+        internal static void ValidateSkill(List<InterflowIssue> issues, CompositeSkill skill,
+                                          HashSet<Ability> panelAbilities, List<(Unit unit, string path)> units)
+        {
+            if (skill == null) return;
                 string n = skill.name;
 
                 // --- 1. Урон без типа урона — запись молча не сработает. ---
@@ -547,9 +569,38 @@ namespace StrategyCore
                             "План §5.2", unit));
                     }
                 }
-            }
         }
 
+        /// <summary>
+        /// Проверки ВСЕХ скиллов конструктора за один сбор контекста: вкладке нужны и точки статуса в списке,
+        /// и сообщения по выбранному скиллу. Отдельный вызов на каждый скилл перечитывал бы все префабы проекта.
+        /// </summary>
+        public static Dictionary<CompositeSkill, List<InterflowIssue>> ValidateAllSkills()
+        {
+            var map = new Dictionary<CompositeSkill, List<InterflowIssue>>();
+            var factions = LoadAllFactions();
+            var units = LoadAllUnitPrefabs();
+            var panel = CollectPanelAbilities(factions);
+
+            foreach (string guid in AssetDatabase.FindAssets("t:CompositeSkill"))
+            {
+                var s = AssetDatabase.LoadAssetAtPath<CompositeSkill>(AssetDatabase.GUIDToAssetPath(guid));
+                if (s == null) continue;
+                var list = new List<InterflowIssue>();
+                ValidateSkill(list, s, panel, units);
+                map[s] = list;
+            }
+            return map;
+        }
+
+        /// <summary>Проверки одного скилла со сбором контекста «с нуля» — точка входа для вкладки.</summary>
+        public static List<InterflowIssue> ValidateSkillAlone(CompositeSkill skill)
+        {
+            var issues = new List<InterflowIssue>();
+            if (skill == null) return issues;
+            ValidateSkill(issues, skill, CollectPanelAbilities(LoadAllFactions()), LoadAllUnitPrefabs());
+            return issues;
+        }
         /// <summary>Умения, которые открываются узлами дерева технологий — они тоже попадают в панель ГЗ.</summary>
         static void CollectNodeAbilities(FactionConfig f, HashSet<Ability> into)
         {

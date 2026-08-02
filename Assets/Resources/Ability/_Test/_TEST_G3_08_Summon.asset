@@ -26,10 +26,12 @@ MonoBehaviour:
   heroLevelable: 0
   cooldown:
   - 10
-  castRange: []
+  castRange:
+  - 0
   castTime:
   - 0.5
-  radius: []
+  radius:
+  - 0
   unitSelector:
     isOwn: 0
     isAlly: 0
@@ -155,14 +157,16 @@ MonoBehaviour:
     chance: []
     duration: []
   summon:
-    enabled: 0
+    enabled: 1
     mode: 0
-    prefab: {fileID: 0}
-    count: []
-    lifetime: []
-    obeyCommands: 0
+    prefab: {fileID: 1936979029478643860, guid: ae1deed6d7a8a674ea4f60ce41ac1ca6, type: 3}
+    count:
+    - 2
+    lifetime:
+    - 30
+    obeyCommands: 1
     command: 1
-    maxAlivePerCaster: 0
+    maxAlivePerCaster: 4
     killSummonsOnOwnerDeath: 0
     maxAlivePerPlayer: 0
     spawnSpread: 1.5

@@ -26,21 +26,23 @@ MonoBehaviour:
   heroLevelable: 0
   cooldown:
   - 10
-  castRange: []
+  castRange:
+  - 0
   castTime:
   - 0.5
-  radius: []
+  radius:
+  - 6
   unitSelector:
     isOwn: 0
     isAlly: 0
-    isEnemy: 0
-    isUnit: 0
+    isEnemy: 1
+    isUnit: 1
     isBuilding: 0
     isStaticDestructible: 0
     isTree: 0
-    isGround: 0
-    isWater: 0
-    isAir: 0
+    isGround: 1
+    isWater: 1
+    isAir: 1
     includeInvisible: 0
     includeInvulnerable: 0
   dontTurn: 0
@@ -94,8 +96,9 @@ MonoBehaviour:
     muteSeconds: []
     targetCategories: 
   effectors:
-    enabled: 0
-    effectors: []
+    enabled: 1
+    effectors:
+    - {fileID: 11400000, guid: bde052a42bda8d301ff8a9f55b1226a6, type: 2}
   heal:
     enabled: 0
     flat: []

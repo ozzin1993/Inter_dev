@@ -26,21 +26,23 @@ MonoBehaviour:
   heroLevelable: 0
   cooldown:
   - 10
-  castRange: []
+  castRange:
+  - 0
   castTime:
   - 0.5
-  radius: []
+  radius:
+  - 5
   unitSelector:
     isOwn: 0
     isAlly: 0
-    isEnemy: 0
-    isUnit: 0
+    isEnemy: 1
+    isUnit: 1
     isBuilding: 0
     isStaticDestructible: 0
     isTree: 0
-    isGround: 0
-    isWater: 0
-    isAir: 0
+    isGround: 1
+    isWater: 1
+    isAir: 1
     includeInvisible: 0
     includeInvulnerable: 0
   dontTurn: 0
@@ -88,8 +90,9 @@ MonoBehaviour:
     enabled: 0
     entries: []
   status:
-    enabled: 0
-    stunSeconds: []
+    enabled: 1
+    stunSeconds:
+    - 2
     disarmSeconds: []
     muteSeconds: []
     targetCategories: 

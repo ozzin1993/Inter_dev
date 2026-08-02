@@ -26,21 +26,23 @@ MonoBehaviour:
   heroLevelable: 0
   cooldown:
   - 10
-  castRange: []
+  castRange:
+  - 10
   castTime:
   - 0.5
-  radius: []
+  radius:
+  - 4
   unitSelector:
     isOwn: 0
     isAlly: 0
-    isEnemy: 0
-    isUnit: 0
+    isEnemy: 1
+    isUnit: 1
     isBuilding: 0
     isStaticDestructible: 0
     isTree: 0
-    isGround: 0
-    isWater: 0
-    isAir: 0
+    isGround: 1
+    isWater: 1
+    isAir: 1
     includeInvisible: 0
     includeInvulnerable: 0
   dontTurn: 0
@@ -62,7 +64,7 @@ MonoBehaviour:
   strategyHpThreshold: 0.3
   targetCategories: 
   onlyMelee: 0
-  maxTargets: 0
+  maxTargets: 3
   multiPick: 0
   includeSelf: 0
   coneAngle: 90
@@ -85,8 +87,12 @@ MonoBehaviour:
     percentOfCurrentHp: []
     blockIfLethal: 1
   damage:
-    enabled: 0
-    entries: []
+    enabled: 1
+    entries:
+    - amount:
+      - 100
+      damageType: {fileID: 11400000, guid: f9053eb8c43d2b4489895a8f084c16be, type: 2}
+      targets: 0
   status:
     enabled: 0
     stunSeconds: []

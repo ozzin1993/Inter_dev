@@ -26,10 +26,12 @@ MonoBehaviour:
   heroLevelable: 0
   cooldown:
   - 10
-  castRange: []
+  castRange:
+  - 0
   castTime:
   - 0.5
-  radius: []
+  radius:
+  - 0
   unitSelector:
     isOwn: 0
     isAlly: 0
@@ -143,10 +145,12 @@ MonoBehaviour:
       includeInvisible: 0
       includeInvulnerable: 0
   shield:
-    enabled: 0
-    flat: []
+    enabled: 1
+    flat:
+    - 100
     percentOfMaxHp: []
-    duration: []
+    duration:
+    - 10
     onDepletedEffectors: []
     onDepletedBlindChance: 0
     onDepletedBlindDuration: 0

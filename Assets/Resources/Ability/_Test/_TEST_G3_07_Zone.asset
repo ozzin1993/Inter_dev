@@ -26,10 +26,12 @@ MonoBehaviour:
   heroLevelable: 0
   cooldown:
   - 10
-  castRange: []
+  castRange:
+  - 0
   castTime:
   - 0.5
-  radius: []
+  radius:
+  - 0
   unitSelector:
     isOwn: 0
     isAlly: 0
@@ -170,11 +172,11 @@ MonoBehaviour:
     summonSound: {fileID: 0}
     summonSoundVolume: 1
   groundZone:
-    enabled: 0
-    zonePrefab: {fileID: 0}
-    zoneCount: 1
-    spread: 1.5
-    forwardOffset: 0
+    enabled: 1
+    zonePrefab: {fileID: 9188480852853961222, guid: a4df1ee90a0ae214dad830ee880fa06b, type: 3}
+    zoneCount: 3
+    spread: 2
+    forwardOffset: 2
   delegateService:
     enabled: 0
     service: 0

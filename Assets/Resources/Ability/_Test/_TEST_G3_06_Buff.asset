@@ -26,10 +26,12 @@ MonoBehaviour:
   heroLevelable: 0
   cooldown:
   - 10
-  castRange: []
+  castRange:
+  - 0
   castTime:
   - 0.5
-  radius: []
+  radius:
+  - 0
   unitSelector:
     isOwn: 0
     isAlly: 0
@@ -101,8 +103,9 @@ MonoBehaviour:
     flat: []
     percentOfMaxHp: []
   buff:
-    enabled: 0
-    duration: []
+    enabled: 1
+    duration:
+    - 10
     auraDamagePerSecond: []
     auraDamageType: {fileID: 0}
     auraRadius: []
@@ -119,7 +122,8 @@ MonoBehaviour:
       isAir: 0
       includeInvisible: 0
       includeInvulnerable: 0
-    healPerSecond: []
+    healPerSecond:
+    - 5
     healPercentOfMaxPerSecond: []
     selfBurnPerSecond: []
     incomingDamageMultiplier: []

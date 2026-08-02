@@ -26,10 +26,12 @@ MonoBehaviour:
   heroLevelable: 0
   cooldown:
   - 10
-  castRange: []
+  castRange:
+  - 0
   castTime:
   - 0.5
-  radius: []
+  radius:
+  - 0
   unitSelector:
     isOwn: 0
     isAlly: 0
@@ -176,13 +178,13 @@ MonoBehaviour:
     spread: 1.5
     forwardOffset: 0
   delegateService:
-    enabled: 0
-    service: 0
+    enabled: 1
+    service: 1
     meteorDurationSeconds: 5
     meteorsPerSecond: 4
     meteorImpactRadius: 2
-    meteorPhysicalDamage: 0
-    meteorPhysicalDamageType: {fileID: 0}
+    meteorPhysicalDamage: 30
+    meteorPhysicalDamageType: {fileID: 11400000, guid: f9053eb8c43d2b4489895a8f084c16be, type: 2}
     meteorFireDamage: 0
     meteorFireDamageType: {fileID: 0}
     meteorStunSeconds: 0
@@ -190,14 +192,14 @@ MonoBehaviour:
     meteorTargetSelector:
       isOwn: 0
       isAlly: 0
-      isEnemy: 0
-      isUnit: 0
+      isEnemy: 1
+      isUnit: 1
       isBuilding: 0
       isStaticDestructible: 0
       isTree: 0
-      isGround: 0
-      isWater: 0
-      isAir: 0
+      isGround: 1
+      isWater: 1
+      isAir: 1
       includeInvisible: 0
       includeInvulnerable: 0
     meteorSplashSelector:
