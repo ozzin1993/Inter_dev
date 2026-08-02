@@ -150,9 +150,14 @@ namespace StrategyCore
             float heal = healFlat + healPercent / 100f * unit.maxHealth; // проценты целым числом: 2 = 2%/с
             if (heal > 0f) unit.ChangeHP(heal * dt);
 
-            // Самосожжение носителя.
+            // Самосожжение носителя. Через PayHealth: штатный ChangeHP только зажимает здоровье в ноль
+            // и не убивает — иначе сгоревший носитель оставался ходячим с нулём ХП и регенился обратно.
+            // Кастер передаётся как убийца: баф можно повесить и на врага — тогда это урон-во-времени,
+            // и убийство должно засчитаться ему (решение Artsiom 2026-08-02). Самосожжение на себе
+            // наград не даёт: PayHealth сам отсекает случай «убийца равен жертве». Та же атрибуция,
+            // что у детонации этого же бафа — урон взрыва тоже идёт от `caster`.
             float burn = InterflowAbility.LevelValue(cfg.selfBurnPerSecond, level);
-            if (burn > 0f) unit.ChangeHP(-burn * dt);
+            if (burn > 0f) InterflowAbility.PayHealth(unit, burn * dt, caster);
 
             remaining -= dt;
             if (remaining <= 0f) Cleanup();

@@ -400,8 +400,10 @@ namespace StrategyCore
                 float pct = LevelValue(selfCost.percentOfCurrentHp, level);
                 float flat = LevelValue(selfCost.flatHp, level);
 
+                // Списание через PayHealth: штатный ChangeHP только зажимает здоровье в ноль и не убивает,
+                // поэтому кастер с выключенным «Запретить каст, если стоимость добьёт» оставался жив с нулём ХП.
                 if (pct > 0f) PercentHpCost.PayFromCaster(castingUnit, pct);
-                if (flat > 0f && !castingUnit.dead) castingUnit.ChangeHP(-flat);
+                if (flat > 0f) PayHealth(castingUnit, flat);
             }
 
             // ---------- 2..8. Блоки по каждой цели (порядок фиксирован) ----------

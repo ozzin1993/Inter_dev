@@ -43,10 +43,14 @@ namespace StrategyCore
             // Подключение в середине матча: принимаем только данные сцены (штатное правило всех RPC этого хаба).
             if (NetworkConnectionHandler.instance.connectionStage == 2) return;
 
+            // Без GameManager показывать нечего и некуда: по нему идёт и поиск эффектора (`GetEffectorByID`),
+            // и подписка на тик у `SkillVisualStatus`. Сообщение может прийти в кадр выгрузки сцены.
+            if (GameManager.instance == null) return;
+
             // Разбираем описание бафа один раз на всё сообщение, а не на каждую цель.
             VFXReferencer buffVfx = null;
             float auraRadius = 0f;
-            if (buffAbilityId >= 0 && GameManager.instance != null
+            if (buffAbilityId >= 0
                 && GameManager.instance.gameAbilities.TryGetValue(buffAbilityId, out Ability ability)
                 && ability is CompositeSkill skill && skill.buff != null)
             {
@@ -67,7 +71,16 @@ namespace StrategyCore
                 for (int e = 0; e < effectorIds.Length; e++)
                 {
                     Effector effector = Effector.GetEffectorByID(effectorIds[e]);
-                    if (effector != null) SkillVisualStatus.ShowEffector(unit, effector);
+                    if (effector != null)
+                    {
+                        SkillVisualStatus.ShowEffector(unit, effector);
+                        continue;
+                    }
+
+                    // Молча пропускать нельзя: у сервера значок есть, у клиента нет, и без сообщения
+                    // расхождение не диагностируется. Тот же шаблон, что у рассинхрона по netID выше.
+                    Debug.LogError("Desync! Effector id:" + effectorIds[e] +
+                                   " should exist on client, but does not! (SkillPresentationSend NetworkDataSync)");
                 }
 
                 if (buffVfx != null) SkillVisualStatus.ShowBuffVfx(unit, buffAbilityId, buffVfx, buffDuration, auraRadius);

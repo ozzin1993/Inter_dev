@@ -357,6 +357,36 @@ namespace StrategyCore
                         }
                 }
 
+                // --- 1.1. Селектор целей не заполнен — целей всегда ноль. ---
+                // UnitSelector — struct: по умолчанию все флаги false, а IsUnitCompatible при этом всегда даёт false.
+                // В режимах «на себя» и «вся команда» селектор не участвует — там пустой это норма.
+                if (skill.targetMode != SkillTargetMode.Self && skill.targetMode != SkillTargetMode.WholeTeam
+                    && !skill.unitSelector.AnySelectors())
+                    issues.Add(new InterflowIssue(InterflowIssueSeverity.Error,
+                        $"Скилл «{n}»: не заполнен селектор целей (кто может быть целью) — целей всегда будет ноль, " +
+                        "но откат и стоимость спишутся, а VFX и звук проиграются. " +
+                        "Отметь хотя бы отношение (свой/союзник/враг) и тип цели.",
+                        "UnitSelector.IsUnitCompatible", skill));
+
+                // --- 1.2. Аура и детонация бафа без типа урона — молча не сработают. ---
+                if (skill.buff != null && skill.buff.enabled)
+                {
+                    if (skill.buff.auraDamagePerSecond != null && skill.buff.auraDamagePerSecond.Any(v => v > 0f)
+                        && skill.buff.auraDamageType == null)
+                        issues.Add(new InterflowIssue(InterflowIssueSeverity.Error,
+                            $"Скилл «{n}»: у бафа задан урон ауры, но не задан тип урона ауры — урона не будет. " +
+                            "Баф при этом повиснет со значком и визуалом, будто работает.",
+                            "SkillBuff.OnTick", skill));
+
+                    if (skill.buff.detonateOnDeath
+                        && skill.buff.detonationDamage != null && skill.buff.detonationDamage.Any(v => v > 0f)
+                        && skill.buff.detonationDamageType == null)
+                        issues.Add(new InterflowIssue(InterflowIssueSeverity.Error,
+                            $"Скилл «{n}»: включена детонация при смерти носителя и задан урон взрыва, " +
+                            "но не задан тип урона взрыва — взрыва не будет.",
+                            "SkillBuff (детонация)", skill));
+                }
+
                 // --- 2. Доставка снарядом ---
                 if (skill.delivery == SkillDelivery.Projectile)
                 {
@@ -437,9 +467,14 @@ namespace StrategyCore
                         "План §4.3", skill));
 
                 // --- 8. Радиус там, где он обязателен ---
-                bool needsRadius = skill.targetMode == SkillTargetMode.AreaAroundSelf
+                // Радиус нужен только тому, кто СОБИРАЕТ ЦЕЛИ. Блоки 9–11 (призыв, зона на земле,
+                // серверный сервис) исполняются один раз за каст ВНЕ цикла по целям
+                // (CompositeSkill.ApplyEffects), поэтому скиллу, где включены только они,
+                // набор целей не нужен и radius ни на что не влияет.
+                bool areaMode = skill.targetMode == SkillTargetMode.AreaAroundSelf
                                 || skill.targetMode == SkillTargetMode.Cone
                                 || skill.targetMode == SkillTargetMode.SmartPoint;
+                bool needsRadius = areaMode && HasPerTargetBlock(skill);
 
                 // Стратегия «скопление врагов» меряет плотность в этом же radius; при нуле она молча
                 // вырождается в случайный выбор — ГД получит не то поведение и без единого сообщения.
@@ -543,6 +578,22 @@ namespace StrategyCore
             foreach (var u in node.unlockAbilities) if (u != null && u.ability != null) into.Add(u.ability);
         }
 
+        /// <summary>
+        /// Есть ли хотя бы один блок, который применяется К ЦЕЛИ (блоки 2..8 в CompositeSkill.ApplyEffects:
+        /// урон, контроль, эффекторы, лечение, баф, щит, ослепление). Значок состояния считается тоже:
+        /// CompositeSkill.EffectorsForTargets добавляет его целям даже при выключенном блоке эффекторов.
+        /// Блоки 9–11 (призыв, зона, серверный сервис) исполняются вне цикла по целям — им цели не нужны.
+        /// </summary>
+        static bool HasPerTargetBlock(CompositeSkill s) =>
+               (s.damage != null && s.damage.enabled)
+            || (s.status != null && s.status.enabled)
+            || (s.effectors != null && s.effectors.enabled)
+            || s.statusEffector != null
+            || (s.heal != null && s.heal.enabled)
+            || (s.buff != null && s.buff.enabled)
+            || (s.shield != null && s.shield.enabled)
+            || (s.blind != null && s.blind.enabled);
+
         /// <summary>Имена включённых блоков, у которых все числа нулевые или ссылки пусты.</summary>
         static IEnumerable<string> EmptyEnabledBlocks(CompositeSkill s)
         {
@@ -565,7 +616,11 @@ namespace StrategyCore
             if (s.shield != null && s.shield.enabled && !Any(s.shield.flat) && !Any(s.shield.percentOfMaxHp))
                 yield return "щит";
 
-            if (s.summon != null && s.summon.enabled && !Any(s.summon.count))
+            // Режим «дубль последней волны» состав отряда берёт из самой волны: count и prefab
+            // ему не нужны по определению — CompositeSkill.ApplySummon их в MatchManager.SummonLastWave
+            // даже не передаёт. Правило 3 выше этот режим уже исключает — здесь так же.
+            if (s.summon != null && s.summon.enabled && s.summon.mode != SkillSummonMode.LastWave
+                && !Any(s.summon.count))
                 yield return "призыв";
 
             // Баф с длительностью, но вообще без эффектов — висит значком и не делает ничего.

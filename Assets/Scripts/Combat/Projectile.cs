@@ -26,15 +26,15 @@ namespace StrategyCore
         [Header("Parameters")]
         [Tooltip("Speed of projectile.")]
         public float speed = 8.5f;
-        [Tooltip("Defines the projectile�s collision detection radius.")]
+        [Tooltip("Defines the projectile�s collision detection radius.")]
         public float radius = 0.01f;
 
         [Space(10)]
-        [Tooltip("Disable for better performance. When enabled, adds an arc trajectory and speed variation over the projectile�s lifetime.")]
+        [Tooltip("Disable for better performance. When enabled, adds an arc trajectory and speed variation over the projectile�s lifetime.")]
         public bool ArcSpeedCurve = false;
-        [Tooltip("Ignored if ArcSpeedCurve is off. Controls how the projectile�s speed changes over time. \nNOTE: Units default this curve to 0; set it to 1 for proper functionality.")]
+        [Tooltip("Ignored if ArcSpeedCurve is off. Controls how the projectile�s speed changes over time. \nNOTE: Units default this curve to 0; set it to 1 for proper functionality.")]
         public AnimationCurve speedCurve = new AnimationCurve(new Keyframe(0, 1), new Keyframe(1, 1));
-        [Tooltip("Ignored if ArcSpeedCurve is off. Defines the curvature of the projectile�s trajectory.")]
+        [Tooltip("Ignored if ArcSpeedCurve is off. Defines the curvature of the projectile�s trajectory.")]
         [Range(0, 1)]
         public float arcFactor = 0.25f;
 
@@ -64,7 +64,12 @@ namespace StrategyCore
         [HideInInspector] public float damage; // Damage of the projectile
         [HideInInspector] public DamageType damageType; // Damage type of the projectile
         [HideInInspector] public Effector[] attackEffectors; // Effector that will be applied to target unit
-        [HideInInspector] public List<AfterDamageDealCallback> OnAfterDamageDealCallbacks;
+        // [Interflow fix 2026-08-01 projectile-callbacks] Инициализация списка. Поле заполняется ТОЛЬКО в ветке
+        // !manualParameterSet, а все перегрузки Spawn (путь способностей) передают manualParameterSet = true —
+        // значит у снаряда способности список оставался null. В Damage() ветка «кастер погиб» делает по нему
+        // foreach: если кастер умирал, пока снаряд летел, ловили NullReferenceException, который обрывал Update
+        // ДО Destroy(gameObject) — снаряд зависал и каждый кадр заново станил и бил цель.
+        [HideInInspector] public List<AfterDamageDealCallback> OnAfterDamageDealCallbacks = new();
 
         [Tooltip("Should projectile follow target")]
         [HideInInspector] public bool followTarget = true;
@@ -335,7 +340,28 @@ namespace StrategyCore
         public static Projectile Spawn(int owner, Unit whoSent, Projectile prefab, Vector3 position, Quaternion rotation, Unit target, bool directAttack, float damage, DamageType dmgType, bool followTarget = true, bool FoWVisibilityCheck = true)
         {
             Projectile p = InternalSpawn(whoSent, owner, prefab, position, rotation, target, Vector3.zero, new UnitSelector(), new UnitSelector(), damage, directAttack, true, FoWVisibilityCheck);
-            p.followTarget = followTarget;
+
+            // [Interflow fix 2026-08-01 projectile-followtarget] Согласуем флаг и состояние.
+            // InternalSpawn решает «лететь за целью или в точку» по параметрам АВТОАТАКИ кастера
+            // (isSplash + projectileFollowTarget), а не по параметрам способности. Прежняя строка
+            // «p.followTarget = followTarget» перебивала это решение, не трогая p.target и p.targetPosition:
+            //  - кастер площадной и без самонаведения → p.target не присвоен, а флаг вернулся в true →
+            //    Update первым же условием (!target && followTarget) уничтожал снаряд на точке вылета;
+            //  - followTarget = false при обычном кастере → p.targetPosition остался нулём → полёт в мировой ноль.
+            if (followTarget && target != null)
+            {
+                p.followTarget = true;
+                p.target = target;
+                p.SetCollisionRadius(target.unitRadius);
+            }
+            else
+            {
+                p.followTarget = false;
+                p.target = null;
+                if (target != null) p.targetPosition = target.transform.position;
+                p.SetCollisionRadius(0.01f);
+            }
+
             p.damageType = dmgType;
 
             return p;

@@ -9,14 +9,15 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: c14652435ad25f7661792107f4eab4d1, type: 3}
+  m_Script: {fileID: 11500000, guid: e15fcca452434ea4c96c2cd743b313b0, type: 3}
   m_Name: Lyudi_Ab_T3A2_Blizzard
-  m_EditorClassIdentifier:
+  m_EditorClassIdentifier: 
   id: 200109
   abilityName:
-  - "Арктическая метель"
+  - "\u0410\u0440\u043A\u0442\u0438\u0447\u0435\u0441\u043A\u0430\u044F \u043C\u0435\u0442\u0435\u043B\u044C"
   description:
-  - "Зона, замедляющая всех врагов на 40%."
+  - "\u0417\u043E\u043D\u0430, \u0437\u0430\u043C\u0435\u0434\u043B\u044F\u044E\u0449\u0430\u044F
+    \u0432\u0441\u0435\u0445 \u0432\u0440\u0430\u0433\u043E\u0432 \u043D\u0430 40%."
   icon: []
   slotNumber: -1
   isItem: 0
@@ -54,17 +55,177 @@ MonoBehaviour:
   requiredTech:
   - data:
     - {fileID: 11400000, guid: 90bf355be425d4f6e458d6bda0b616df, type: 2}
-  requiredLevel:
+  requiredLevel: 
   manaCost: []
   manaCostPerSecond: []
   cost: []
-  effectors:
-  - {fileID: 11400000, guid: bde052a42bda8d301ff8a9f55b1226a6, type: 2}
+  targetMode: 5
+  buttonCast: 0
+  targetStrategy: 0
+  searchOrigin: 0
+  strategyCategory: 1
+  strategyUseCurrentHealth: 0
+  strategyHpThreshold: 0.3
+  targetCategories: 
+  onlyMelee: 0
+  maxTargets: 0
+  multiPick: 0
+  includeSelf: 0
+  coneAngle: 90
+  delivery: 0
+  projectilePrefab: {fileID: 0}
+  projectileFollowsTarget: 1
+  spawnSocket: 1
+  localOffset: {x: 0, y: 0, z: 0}
+  castVFX: {fileID: 0}
+  castVfxLifetime: 2
+  impactVFX: {fileID: 0}
+  impactVfxLifetime: 2
+  castSound: {fileID: 0}
+  impactSound: {fileID: 0}
+  soundVolume: 1
+  statusEffector: {fileID: 0}
+  selfCost:
+    enabled: 0
+    flatHp: []
+    percentOfCurrentHp: []
+    blockIfLethal: 1
   damage:
-  - 0
-  damageType: {fileID: 0}
-  onlyMeleeUnits: 0
-  blindChance: 0
-  blindDuration: 0
-  areaVFX: {fileID: 0}
-  vfxLifetime: 2
+    enabled: 0
+    entries: []
+  status:
+    enabled: 0
+    stunSeconds: []
+    disarmSeconds: []
+    muteSeconds: []
+    targetCategories: 
+  effectors:
+    enabled: 1
+    effectors:
+    - {fileID: 11400000, guid: bde052a42bda8d301ff8a9f55b1226a6, type: 2}
+  heal:
+    enabled: 0
+    flat: []
+    percentOfMaxHp: []
+  buff:
+    enabled: 0
+    duration: []
+    auraDamagePerSecond: []
+    auraDamageType: {fileID: 0}
+    auraRadius: []
+    auraSelector:
+      isOwn: 0
+      isAlly: 0
+      isEnemy: 0
+      isUnit: 0
+      isBuilding: 0
+      isStaticDestructible: 0
+      isTree: 0
+      isGround: 0
+      isWater: 0
+      isAir: 0
+      includeInvisible: 0
+      includeInvulnerable: 0
+    healPerSecond: []
+    healPercentOfMaxPerSecond: []
+    selfBurnPerSecond: []
+    incomingDamageMultiplier: []
+    controlImmunity: 0
+    buffVFX: {fileID: 0}
+    detonateOnDeath: 0
+    detonationRadius: []
+    detonationDamage: []
+    detonationDamageType: {fileID: 0}
+    detonationSelector:
+      isOwn: 0
+      isAlly: 0
+      isEnemy: 0
+      isUnit: 0
+      isBuilding: 0
+      isStaticDestructible: 0
+      isTree: 0
+      isGround: 0
+      isWater: 0
+      isAir: 0
+      includeInvisible: 0
+      includeInvulnerable: 0
+  shield:
+    enabled: 0
+    flat: []
+    percentOfMaxHp: []
+    duration: []
+    onDepletedEffectors: []
+    onDepletedBlindChance: 0
+    onDepletedBlindDuration: 0
+  blind:
+    enabled: 0
+    chance: []
+    duration: []
+  summon:
+    enabled: 0
+    mode: 0
+    prefab: {fileID: 0}
+    count: []
+    lifetime: []
+    obeyCommands: 0
+    command: 1
+    maxAlivePerCaster: 0
+    killSummonsOnOwnerDeath: 0
+    maxAlivePerPlayer: 0
+    spawnSpread: 1.5
+    summonVFX: {fileID: 0}
+    summonSound: {fileID: 0}
+    summonSoundVolume: 1
+  groundZone:
+    enabled: 0
+    zonePrefab: {fileID: 0}
+    zoneCount: 1
+    spread: 1.5
+    forwardOffset: 0
+  delegateService:
+    enabled: 0
+    service: 0
+    meteorDurationSeconds: 5
+    meteorsPerSecond: 4
+    meteorImpactRadius: 2
+    meteorPhysicalDamage: 0
+    meteorPhysicalDamageType: {fileID: 0}
+    meteorFireDamage: 0
+    meteorFireDamageType: {fileID: 0}
+    meteorStunSeconds: 0
+    meteorUseDensityTargeting: 1
+    meteorTargetSelector:
+      isOwn: 0
+      isAlly: 0
+      isEnemy: 0
+      isUnit: 0
+      isBuilding: 0
+      isStaticDestructible: 0
+      isTree: 0
+      isGround: 0
+      isWater: 0
+      isAir: 0
+      includeInvisible: 0
+      includeInvulnerable: 0
+    meteorSplashSelector:
+      isOwn: 0
+      isAlly: 0
+      isEnemy: 0
+      isUnit: 0
+      isBuilding: 0
+      isStaticDestructible: 0
+      isTree: 0
+      isGround: 0
+      isWater: 0
+      isAir: 0
+      includeInvisible: 0
+      includeInvulnerable: 0
+    meteorVFX: {fileID: 0}
+    meteorImpactSound: {fileID: 0}
+    meteorImpactVolume: 1
+    resurrectRadius: 8
+    resurrectCount: 3
+    resurrectHighestTierFirst: 1
+    resurrectTemporary: 1
+    resurrectLifetime: 30
+    resurrectObeyCommands: 1

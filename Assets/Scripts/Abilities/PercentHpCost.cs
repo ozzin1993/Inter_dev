@@ -20,7 +20,7 @@ namespace StrategyCore
             if (NetworkConnectionHandler.isClient) return 0f;   // списание — только сервер (правило 6)
             if (caster == null || caster.dead || pct <= 0f) return 0f;
             float cost = pct * caster.health;
-            caster.ChangeHP(-cost);                             // клампит/синкает
+            InterflowAbility.PayHealth(caster, cost);           // клампит/синкает; смертельная стоимость — честная смерть
             return cost;
         }
 

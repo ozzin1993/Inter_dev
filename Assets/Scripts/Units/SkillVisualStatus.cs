@@ -14,9 +14,15 @@ namespace StrategyCore
     /// строгое разделение: состояние живёт только на сервере, а клиенту приходит явное «покажи вот это»
     /// (тем же путём, каким ядро реплицирует стан). Здесь и хранится то, что пришло.
     ///
-    /// Компонент добавляется по требованию и самоуничтожается, когда показывать нечего.
+    /// Компонент добавляется по требованию и живёт до конца жизни юнита. Опустев (показывать нечего),
+    /// он отписывается от тика, но СЕБЯ НЕ УНИЧТОЖАЕТ: `Destroy(this)` сносит компонент лишь в конце
+    /// кадра, а `GetComponent` всё это время продолжает его возвращать — статус, пришедший в том же кадре, лёг бы
+    /// в обречённый компонент и умер вместе с ним. Пустой компонент ничего не стоит: подписки нет, записей нет.
     /// Движение юнита серверное (позиции синхронизируются), поэтому замедление и прочие модификаторы
     /// статов клиенту применять не нужно — он и так получит уже изменённое движение.
+    ///
+    /// На выделенном сервере компонент не создаётся вовсе — показывать некому (гейт `Utils.Headless`,
+    /// та же конвенция, что у хелсбара, иконки миникарты и аниматора в `Unit.Init`).
     /// </summary>
     public class SkillVisualStatus : MonoBehaviour
     {
@@ -43,6 +49,7 @@ namespace StrategyCore
         /// <summary>Показать значок и VFX эффектора. Длительность берётся из самого эффектора.</summary>
         public static void ShowEffector(Unit target, Effector effector)
         {
+            if (Utils.Headless) return; // выделенному серверу показывать некому
             if (target == null || target.dead || effector == null) return;
 
             // Значок в панели состояний штатно рисуется только у НЕстакающих эффекторов с иконкой —
@@ -51,15 +58,22 @@ namespace StrategyCore
             if (iconSource == null && effector.VFX == null) return;
 
             float duration = effector.permanent ? float.PositiveInfinity : effector.duration;
-            Get(target).Add(effector.id, iconSource, effector.VFX, duration, 0f, effector.aboveHead);
+
+            // unitCentre = false: ровно так же вешает VFX эффектора само ядро (`Effector.EffectorAdd`
+            // зовёт `AddVFX(VFX, aboveHead)`), иначе у клиента и хоста визуал был бы на разной высоте.
+            Get(target).Add(effector.id, iconSource, effector.VFX, duration, 0f, effector.aboveHead, false);
         }
 
         /// <summary>Показать VFX длящегося бафа. Значка у него нет — значок даёт отдельный эффектор-статус.</summary>
         public static void ShowBuffVfx(Unit target, int abilityId, VFXReferencer vfx, float duration, float auraRadius)
         {
+            if (Utils.Headless) return; // выделенному серверу показывать некому
             if (target == null || target.dead || vfx == null || duration <= 0f) return;
 
-            Get(target).Add(BuffKey(abilityId), null, vfx, duration, auraRadius, false);
+            // unitCentre = true ВСЕГДА: все четыре старых буфа звали `AddVFX(vfx, false, true)`,
+            // то есть визуал стоял на середине юнита, а не у ног. Привязывать это к наличию ауры нельзя:
+            // у «Благословения Небес» и «Железного приговора» ауры нет, а визуал был по центру.
+            Get(target).Add(BuffKey(abilityId), null, vfx, duration, auraRadius, false, true);
         }
 
         static SkillVisualStatus Get(Unit target)
@@ -69,7 +83,7 @@ namespace StrategyCore
             return holder;
         }
 
-        void Add(int key, Effector iconSource, VFXReferencer vfx, float duration, float auraRadius, bool aboveHead)
+        void Add(int key, Effector iconSource, VFXReferencer vfx, float duration, float auraRadius, bool aboveHead, bool unitCentre)
         {
             if (unit == null) unit = GetComponent<Unit>();
             if (unit == null) return;
@@ -79,6 +93,15 @@ namespace StrategyCore
             {
                 // Повтор того же статуса продлевает показ, но не плодит второй значок и второй VFX.
                 entry.remaining = Mathf.Max(entry.remaining, duration);
+
+                // Перекаст мог прийти с ДРУГОГО уровня скилла: размер ауры и источник значка берём свежие,
+                // иначе сервер считал бы ауру по новому радиусу, а кольцо у клиента оставалось от первого каста.
+                if (iconSource != null && entry.iconSource != iconSource)
+                {
+                    entry.iconSource = iconSource;
+                    unit.OnStatusUpdate?.Invoke();
+                }
+                ApplyAuraScale(entry, auraRadius);
                 return;
             }
 
@@ -88,10 +111,8 @@ namespace StrategyCore
             {
                 // VFX цепляется к юниту: когда юнит скрыт туманом войны, его дети скрыты вместе с ним —
                 // отдельная проверка видимости не нужна, этим занимается сам механизм VFX-холдера.
-                entry.vfxInstance = unit.AddVFX(vfx, aboveHead, auraRadius > 0f);
-                if (entry.vfxInstance != null && auraRadius > 0f)
-                    entry.vfxInstance.transform.SetGlobalScale(new Vector3(
-                        unit.unitRadius * 2f + auraRadius, unit.unitHeight, unit.unitRadius * 2f + auraRadius));
+                entry.vfxInstance = unit.AddVFX(vfx, aboveHead, unitCentre);
+                ApplyAuraScale(entry, auraRadius);
             }
 
             entries.Add(entry);
@@ -110,6 +131,15 @@ namespace StrategyCore
             for (int i = 0; i < entries.Count; i++)
                 if (entries[i].key == key) return entries[i];
             return null;
+        }
+
+        /// <summary>Растянуть визуал под радиус ауры. Ноль — ауры нет, визуал остаётся авторского размера.</summary>
+        void ApplyAuraScale(Entry e, float auraRadius)
+        {
+            if (e.vfxInstance == null || auraRadius <= 0f) return;
+
+            e.vfxInstance.transform.SetGlobalScale(new Vector3(
+                unit.unitRadius * 2f + auraRadius, unit.unitHeight, unit.unitRadius * 2f + auraRadius));
         }
 
         // ================================================================ ТИК ==
@@ -182,6 +212,11 @@ namespace StrategyCore
             e.vfxInstance = null;
         }
 
+        /// <summary>
+        /// Показывать больше нечего: сносим VFX и отписываемся от тика. Компонент остаётся на юните пустым:
+        /// `Destroy(this)` выполнился бы только в конце кадра, а `GetComponent` до того момента продолжает
+        /// возвращать обречённый экземпляр — статус, пришедший в том же кадре, бесследно умирал бы в `OnDestroy`.
+        /// </summary>
         void Cleanup()
         {
             for (int i = 0; i < entries.Count; i++) DestroyVfx(entries[i]);
@@ -189,8 +224,6 @@ namespace StrategyCore
 
             if (subscribed && GameManager.instance != null) GameManager.instance.Tick -= OnTick;
             subscribed = false;
-
-            Destroy(this);
         }
 
         void OnDestroy()

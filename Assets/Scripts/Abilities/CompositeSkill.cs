@@ -646,8 +646,13 @@ namespace StrategyCore
 
             if (netIDs.Count == 0 || NetworkDataSync.instance == null) return;
 
-            int[] effectorIds = new int[hasEffectors ? set.Length : 0];
-            for (int e = 0; e < effectorIds.Length; e++) effectorIds[e] = set[e] != null ? set[e].id : -1;
+            // Пустые слоты массива эффекторов в сообщение НЕ кладём: клиент теперь логирует ненайденный
+            // эффектор как рассинхрон, а незаполненный слот в ассете — это ошибка контента, а не рассинхрон.
+            List<int> effectorIdList = new List<int>(hasEffectors ? set.Length : 0);
+            for (int e = 0; e < (hasEffectors ? set.Length : 0); e++)
+                if (set[e] != null) effectorIdList.Add(set[e].id);
+
+            int[] effectorIds = effectorIdList.ToArray();
 
             NetworkDataSync.instance.SkillPresentationSend(netIDs.ToArray(), effectorIds,
                                                            hasBuffVfx ? id : -1, buffDuration, level);
