@@ -10,9 +10,9 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: e15fcca452434ea4c96c2cd743b313b0, type: 3}
-  m_Name: _TEST_G3_03_Control
+  m_Name: _TEST_G5_StunAllies
   m_EditorClassIdentifier: Interflow.Game::StrategyCore.CompositeSkill
-  id: 5
+  id: 13
   abilityName:
   - "_TEST_\u041E\u0433\u043B\u0443\u0448\u0435\u043D\u0438\u0435_\u043A\u043E\u043D\u0443\u0441"
   description:
@@ -27,17 +27,17 @@ MonoBehaviour:
   maxLevels: 1
   heroLevelable: 0
   cooldown:
-  - 2
+  - 10
   castRange:
   - 0
   castTime:
-  - 0.5
+  - 0
   radius:
   - 15
   unitSelector:
-    isOwn: 0
-    isAlly: 0
-    isEnemy: 1
+    isOwn: 1
+    isAlly: 1
+    isEnemy: 0
     isUnit: 1
     isBuilding: 0
     isStaticDestructible: 0
@@ -57,7 +57,7 @@ MonoBehaviour:
   manaCost: []
   manaCostPerSecond: []
   cost: []
-  targetMode: 3
+  targetMode: 2
   buttonCast: 0
   targetStrategy: 0
   searchOrigin: 0
@@ -94,7 +94,7 @@ MonoBehaviour:
   status:
     enabled: 1
     stunSeconds:
-    - 2
+    - 5
     disarmSeconds: []
     muteSeconds: []
     targetCategories: 

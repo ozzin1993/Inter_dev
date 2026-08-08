@@ -26,10 +26,12 @@ MonoBehaviour:
   heroLevelable: 0
   cooldown:
   - 20
-  castRange: []
+  castRange:
+  - 0
   castTime:
   - 0.5
-  radius: []
+  radius:
+  - 0
   unitSelector:
     isOwn: 0
     isAlly: 0
@@ -64,7 +66,7 @@ MonoBehaviour:
   onlyMelee: 0
   maxTargets: 0
   multiPick: 0
-  includeSelf: 0
+  includeSelf: 1
   coneAngle: 90
   delivery: 0
   projectilePrefab: {fileID: 0}

@@ -871,12 +871,13 @@ namespace StrategyCore
             if (unit.GetComponent<NetworkObject>()) GameManager.Destroy(unit.GetComponent<NetworkObject>());
             // [Interflow] свои поведенческие компоненты — снять вместе с Unit (апгрейд/трансформация/статик-копия)
             if (unit.GetComponent<AutoAbilityUser>()) GameManager.Destroy(unit.GetComponent<AutoAbilityUser>());
-            if (unit.GetComponent<FlameCloakBuff>()) GameManager.Destroy(unit.GetComponent<FlameCloakBuff>());
             // [Interflow fix 2026-08-02 skillbuff-cleanup] Конструктор скиллов вешает на юнита свои временные
             // компоненты: SkillBuff (геймплей, только сервер) и SkillVisualStatus (презентация). В этом списке
             // их не было — юнит, апгрейднутый/трансформированный под бафом, уносил их с собой вместе с
             // зарегистрированным колбэком входящего урона и рефкаунтом иммунитета к контролю.
-            // Тот же случай, что строкой выше у FlameCloakBuff, ради которого эта уборка и заводилась.
+            // [Interflow fix 2026-08-03 old-skill-classes] Строкой выше здесь стояло снятие FlameCloakBuff —
+            // ради него уборка и заводилась. Класс удалён вместе с остальными старыми классами скиллов
+            // (их работу выполняет конструктор CompositeSkill), поэтому строка снята.
             // SkillBuff'ов может быть несколько: один компонент = один скилл-источник.
             // Прямой Destroy безопасен: OnDestroy бафа только снимает эффекты и отписывается,
             // детонация висит на Unit.OnDie и здесь не срабатывает (юнит не умирает, а конвертируется).

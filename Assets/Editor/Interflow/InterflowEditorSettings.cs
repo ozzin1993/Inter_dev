@@ -1,3 +1,4 @@
+using System;
 using UnityEditor;
 using UnityEngine;
 
@@ -45,6 +46,48 @@ namespace StrategyCore
 
         [Tooltip("Папки билдов (относительно корня проекта), куда при экспорте автоматически копируются серверные конфиги (StreamingAssets/ServerConfigs). Пример: Server; Builds/Server.")]
         public string[] serverBuildFolders = new string[] { "Server" };
+
+        // ======================== ПОДПИСИ ТИПОВ УМЕНИЙ (К2, вариант «б») ========================
+
+        /// <summary>
+        /// Одна строка таблицы подписей: как называть тип умения в редакторе.
+        /// Ключ — ИМЯ КЛАССА (CompositeSkill, UnitTraining…): оно не зависит от переименования ассетов
+        /// и не требует правки [CreateAssetMenu] в коде ассета (правило 1: ядро не трогаем).
+        /// </summary>
+        [Serializable]
+        public class AbilityTypeLabel
+        {
+            [Tooltip("Имя класса умения — ключ строки. Например: CompositeSkill, UnitTraining, Construction.")]
+            public string className;
+
+            [Tooltip("Русское название типа для карточки создания. Пусто — покажется пункт меню из кода класса.")]
+            public string title;
+
+            [Tooltip("Одна строка «что получится» — чем этот тип отличается от соседних. Пусто — строка не показывается.")]
+            [TextArea(1, 3)]
+            public string note;
+        }
+
+        [Tooltip("Как подписывать типы умений при создании. Строки, которых здесь нет, показываются пунктом меню из кода класса — таблица ничего не ломает, если пуста.")]
+        public AbilityTypeLabel[] abilityTypeLabels = new AbilityTypeLabel[0];
+
+        /// <summary>Русское название типа из таблицы; null — записи нет или она пуста.</summary>
+        public string AbilityTypeTitle(string className) => Find(className)?.title;
+
+        /// <summary>Строка «что получится» из таблицы; null — записи нет или она пуста.</summary>
+        public string AbilityTypeNote(string className) => Find(className)?.note;
+
+        AbilityTypeLabel Find(string className)
+        {
+            if (string.IsNullOrEmpty(className) || abilityTypeLabels == null) return null;
+            for (int i = 0; i < abilityTypeLabels.Length; i++)
+            {
+                var e = abilityTypeLabels[i];
+                if (e != null && e.className == className)
+                    return string.IsNullOrEmpty(e.title) && string.IsNullOrEmpty(e.note) ? null : e;
+            }
+            return null;
+        }
 
         // Путь по умолчанию для самого ассета настроек (папка инструмента E1 уже существует).
         const string SettingsAssetPath = "Assets/Editor/Interflow/InterflowEditorSettings.asset";

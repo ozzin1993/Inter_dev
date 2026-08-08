@@ -66,6 +66,7 @@ namespace StrategyCore
                 ("Юниты", InterflowUnitsTab.CreateTabUI),
                 ("Умения и эффекторы", InterflowAbilitiesTab.CreateTabUI),
                 ("Конструктор скиллов", InterflowSkillBuilderTab.CreateTabUI),
+                ("Производство", InterflowProductionTab.CreateTabUI),
                 ("Справочники", InterflowCatalogsTab.CreateTabUI),
                 ("Приоритет цели", InterflowTargetPriorityTab.CreateTabUI),
                 ("Матч", InterflowMatchTab.CreateTabUI),

@@ -1,106 +1,56 @@
-using System.Collections.Generic;
 using UnityEngine;
 
 namespace StrategyCore
 {
     /// <summary>
-    /// Авто-применение способности юнитом: поиск цели по выбранной стратегии и каст
-    /// штатным Unit.UseAbilityItem. Серверо-авторитетно — на клиенте бездействует (правило 6).
-    /// Тик — на штатном GameManager.Tick (0.1 с); КД, ману, muted и требования проверяет
-    /// сам UseAbilityItem, своих проверок не дублируем (правило 2).
-    /// Класс/категория юнита и фильтры приказов — поля Unit (unitCategory, respondsTo…; перенесены из UnitClass в Unit.cs, план §4.3).
-    /// После каста с прерыванием юнит возвращается к команде через MatchManager.ReissueCurrentCommand.
+    /// Авто-применение умений юнитом. Компонент СВОЕГО поиска цели не ведёт: и условие срабатывания,
+    /// и отбор целей живут в самом умении (конструктор скиллов) — решение Artsiom 2026-08-08.
+    /// До этого настройки поиска стояли дважды, на юните и в умении, и расходились между собой.
     ///
-    /// Сами алгоритмы выбора цели вынесены в общий <see cref="SkillTargeting"/> (правило 5) — их же
-    /// переиспользует конструктор скиллов. Здесь остались только настройки на юните и диспетчеризация;
-    /// поведение стратегий не менялось.
+    /// Здесь осталось ровно три вещи: список умений (порядок = приоритет), гейт по откату
+    /// и возврат к команде после каста. Серверо-авторитетно — на клиенте бездействует (правило 6).
+    /// Тик — штатный GameManager.Tick (0.1 с); ману, muted и требования проверяет сам UseAbilityItem.
     /// </summary>
     // Без [RequireComponent(typeof(Unit))]: ассет снимает Unit через Utils.UnitRemoveComponents
     // (апгрейд/трансформация/статик-копия), а зависимость блокировала бы удаление Unit.
     // Unit берём через GetComponent в Awake; если его нет — компонент бездействует (гарды).
     public class AutoAbilityUser : MonoBehaviour
     {
-        // Стратегия выбора цели. Один тип на юнит, задаётся в инспекторе.
-        public enum TargetingStrategy
-        {
-            [InspectorName("Самый раненый союзник в радиусе")]
-            MostWoundedAlly,
-            [InspectorName("Случайный враг в радиусе (с приоритетом по категории)")]
-            RandomEnemyWithTypePriority,
-            [InspectorName("Ближайший враг в радиусе")]
-            NearestEnemy,
-            [InspectorName("Союзник впереди (в сторону вражеской точки)")]
-            AllyAhead,
-            [InspectorName("Сильнейший враг в радиусе (по метрике)")]
-            StrongestEnemy,
-            [InspectorName("Текущая цель атаки юнита")]
-            CurrentAttackTarget,
-            [InspectorName("Ближайший союзник заданной категории")]
-            AllyOfCategory,
-            [InspectorName("Раненый союзник ниже порога ХП")]
-            WoundedAllyBelowThreshold
-        }
+        [Header("Авто-умения")]
+        [Tooltip("Умения, которые юнит применяет сам. ПОРЯДОК = ПРИОРИТЕТ: за один тик применяется ПЕРВОЕ " +
+                 "готовое, остальные ждут следующего тика (0.1 с). Два каста за тик невозможны: второй прервал бы первый.\n\n" +
+                 "Каждое умение обязано также стоять в списке Abilities этого юнита — применение идёт по индексу в пуле.\n\n" +
+                 "Кого бить, где искать и когда срабатывать настраивается В САМОМ УМЕНИИ (Interflow Editor), " +
+                 "здесь этих настроек нет намеренно: иначе одно и то же умение вело бы себя по-разному на разных юнитах.")]
+        [SerializeField] private CompositeSkill[] autoAbilities = new CompositeSkill[0];
 
-        // Метрика «силы» для StrongestEnemy (B6). Стат «урон» — не простое public-поле Unit → отложен.
-        public enum StrengthMetric
-        {
-            [InspectorName("Макс. ХП")] MaxHealth,
-            [InspectorName("Текущее ХП")] CurrentHealth
-        }
-
-        // Как выбирать «союзника впереди» (B6).
-        public enum AllyAheadMode
-        {
-            [InspectorName("Самый продвинутый к точке")] MostAdvanced,
-            [InspectorName("Ближайший впереди носителя")] NearestAhead
-        }
-
-        [Header("Целеискание")]
-        [Tooltip("Стратегия выбора цели для авто-каста.")]
-        [SerializeField] private TargetingStrategy targetingStrategy = TargetingStrategy.RandomEnemyWithTypePriority;
-
-        [Tooltip("Радиус поиска цели, мировые единицы.")]
-        [SerializeField] private float searchRadius = 8f;
-
-        [Tooltip("Кого считать кандидатами на цель (свой/союзник/враг + тип передвижения). " +
-                 "Стратегия выбирает уже среди них. Для 'раненый союзник' — поставьте союзник+свой; для врага — враг.")]
-        [SerializeField] private UnitSelector candidateSelector =
-            new UnitSelector(false, false, true, true, false, false, false, true, true, true, false, false);
-
-        [Tooltip("Только для стратегии 'Случайный враг': какую категорию врага предпочитать. " +
-                 "Категория читается напрямую из Unit.unitCategory.")]
-        [SerializeField] private Unit.UnitCategory priorityCategory = Unit.UnitCategory.Mage;
-
-        [Tooltip("Для стратегии 'Сильнейший враг': по какому стату мерить силу (макс./текущее ХП).")]
-        [SerializeField] private StrengthMetric strengthMetric = StrengthMetric.MaxHealth;
-
-        [Tooltip("Для стратегии 'Союзник впереди': самый продвинутый к вражеской точке или ближайший впереди носителя.")]
-        [SerializeField] private AllyAheadMode allyAheadMode = AllyAheadMode.MostAdvanced;
-
-        [Tooltip("Только для стратегии 'Ближайший союзник заданной категории': какую категорию прикрывать " +
-                 "(например Танк — для щита Мага Льда). Категория читается из Unit.unitCategory.")]
-        [SerializeField] private Unit.UnitCategory allyCategory = Unit.UnitCategory.Tank;
-
-        [Tooltip("Только для стратегии 'Раненый союзник ниже порога ХП': доля здоровья, ниже которой союзник считается целью " +
-                 "(0.3 = каст только по тем, у кого меньше 30% ХП). Если таких нет — каста не будет.")]
-        [Range(0f, 1f)]
-        [SerializeField] private float allyHpThreshold = 0.3f;
-
-        [Header("Способность")]
-        [Tooltip("Способность для авто-каста. Должна также присутствовать в списке Abilities этого юнита " +
-                 "(каст идёт по индексу в пуле). Тип (Active/Unit/Area/Location) определяется автоматически.")]
-        [SerializeField] private Ability autoAbility;
+        // ---------------------------------------------------------------------------------------
+        // Настройки поиска (радиус, селектор кандидатов, боевые роли, стратегия и её параметры)
+        // УДАЛЕНЫ 2026-08-08 вместе с классом-записью AutoAbilityEntry: источник истины — умение.
+        // Обычные Ability (не конструктор) компонент больше не принимает: три класса, проходивших
+        // по типу (ShieldAlly, HolyFire, CorruptionBurstActive), переводятся в конструктор.
 
         // --- внутреннее состояние ---
         private Unit unit;
         private bool subscribed;
-        private bool abilityResolved;
-        private int cachedAbilityIndex = -1;
         private UnitStates prevState = UnitStates.Idle;
+
+        // Рантайм-кэш индексов в пуле умений юнита — по элементу на каждое умение, не сериализуется.
+        private int[] cachedIndex;
+        private bool[] resolved;
 
         private void Awake()
         {
             unit = GetComponent<Unit>();
+            ResetCache();
+        }
+
+        private void ResetCache()
+        {
+            int count = autoAbilities != null ? autoAbilities.Length : 0;
+            cachedIndex = new int[count];
+            resolved = new bool[count];
+            for (int i = 0; i < count; i++) cachedIndex[i] = -1;
         }
 
         private void OnEnable() => TrySubscribe();
@@ -124,14 +74,14 @@ namespace StrategyCore
             subscribed = false;
         }
 
-        // Штатный тик ассета (0.1 с). Решение о цели — только на сервере (правило 6).
+        // Штатный тик ассета (0.1 с). Решение о касте — только на сервере (правило 6).
         private void OnTick()
         {
             if (NetworkConnectionHandler.isClient) return;
             if (unit == null || unit.dead) return;
 
             // 1) Возврат к команде после завершения каста (переход AbilityCasting → не-каст).
-            //    Мгновенные способности (без castRange/castTime) в AbilityCasting не входят,
+            //    Мгновенные умения (без castRange/castTime) в AbilityCasting не входят,
             //    движение не прерывают — для них этот блок не срабатывает, что и нужно.
             if (prevState == UnitStates.AbilityCasting && unit.unitState != UnitStates.AbilityCasting)
             {
@@ -139,7 +89,7 @@ namespace StrategyCore
                     MatchManager.instance.ReissueCurrentCommand(unit);
             }
 
-            // 2) Попытка авто-каста. Если КД не готов / нет маны / muted — UseAbilityItem вернёт false.
+            // 2) Попытка авто-каста.
             TryAutoCast();
 
             prevState = unit.unitState;
@@ -147,128 +97,91 @@ namespace StrategyCore
 
         private void TryAutoCast()
         {
-            if (autoAbility == null) return;
             if (unit.unitState == UnitStates.AbilityCasting) return; // уже кастует
+            if (autoAbilities == null) return;
 
-            int idx = ResolveAbilityIndex();
-            if (idx < 0) return;
+            // Кэш мог не совпасть по длине, если список поменяли в Inspector в режиме игры.
+            if (resolved == null || resolved.Length != autoAbilities.Length) ResetCache();
 
-            // Уровень способности у ЭТОГО юнита — нужен стратегии скилла (например радиус скопления).
-            int level = (unit.abilityLevel != null && idx < unit.abilityLevel.Length) ? unit.abilityLevel[idx] : 0;
+            // Порядок = приоритет. За тик применяем ОДНО умение: второй каст в том же тике
+            // всё равно прервал бы первый (юнит уходит в AbilityCasting).
+            for (int i = 0; i < autoAbilities.Length; i++)
+                if (TryCastEntry(i)) return;
+        }
 
-            Unit[] candidates = SkillTargeting.Candidates(unit, searchRadius, candidateSelector);
-            Unit target = PickTarget(candidates, level);
+        /// <summary>Попытаться применить одно умение из списка. true — каст состоялся.</summary>
+        private bool TryCastEntry(int entry)
+        {
+            CompositeSkill skill = autoAbilities[entry];
+            if (skill == null) return false;
 
-            switch (autoAbility.type)
+            int idx = ResolveAbilityIndex(entry);
+            if (idx < 0) return false;
+
+            // Гейт по откату ДО того, как умение начнёт искать цель: поиск — самая дорогая часть тика,
+            // а на откате он всё равно пропал бы впустую.
+            // Берём GetAbilityCooldown, а НЕ IsCooldownGood: у второго побочный эффект — сообщение
+            // игроку «Wait until the cooldown is over», когда юнит выделен (Unit.Ability.cs:500).
+            if (unit.GetAbilityCooldown(idx, false) > 0f) return false;
+
+            // Уровень умения у ЭТОГО юнита — нужен стратегии и дальности.
+            int level = (unit.abilityLevel != null && idx < unit.abilityLevel.Length)
+                        ? Mathf.Max(0, unit.abilityLevel[idx]) : 0;
+
+            // Условие срабатывания и цель определяет само умение.
+            if (!skill.AutoCastReady(unit, level, out Unit target)) return false;
+
+            // Умение цель не подставило — либо она ему не нужна («на себя», «вся команда», «область»,
+            // «конус»), либо оно ищет её само в момент каста (умное умение без заданной дальности).
+            // Ни цели, ни точки не передаём намеренно: точка включила бы штатную проверку дистанции
+            // с подходом к цели (Unit.State.cs:176).
+            if (target == null) return unit.UseAbilityItem(idx, false, null, Vector3.zero);
+
+            // Тип умения вычисляется из его режима цели (CompositeSkill.type).
+            switch (skill.type)
             {
                 case AbilityType.Unit:
-                    if (target == null) return;
-                    unit.UseAbilityItem(idx, false, target, Vector3.zero);
-                    break;
-                case AbilityType.Area:
+                    return unit.UseAbilityItem(idx, false, target, Vector3.zero);
+
                 case AbilityType.Location:
-                    if (target == null) return;
-                    unit.UseAbilityItem(idx, false, null, target.transform.position);
-                    break;
+                    return unit.UseAbilityItem(idx, false, null, target.transform.position);
+
                 case AbilityType.Active:
-                    // Active не имеет цели — кастуем при наличии подходящего кандидата в радиусе.
-                    if (target == null) return;
-                    unit.UseAbilityItem(idx, false, null, Vector3.zero);
-                    break;
-                // Прочие типы (Toggle/Aura/Passive/Process/...) — вне объёма авто-каста.
+                    return unit.UseAbilityItem(idx, false, null, Vector3.zero);
             }
+
+            return false;
         }
 
-        // Выбор цели среди кандидатов по стратегии. null — если подходящих нет.
-        // Алгоритмы живут в SkillTargeting (правило 5); здесь — только подстановка настроек юнита.
-        private Unit PickTarget(Unit[] candidates, int level)
-        {
-            // Скилл-конструктор с режимом «умный выбор» несёт стратегию В СЕБЕ: тогда настройка
-            // на юните не используется — один и тот же скилл должен вести себя одинаково на всех носителях.
-            // Прочие способности продолжают работать по стратегии этого компонента (поведение как раньше).
-            if (autoAbility is CompositeSkill skill && skill.PicksTargetByStrategy)
-            {
-                if (skill.TargetStrategy == SkillTargetStrategy.CurrentAttackTarget)
-                    return SkillTargeting.CurrentAttackTarget(unit);
-
-                if (candidates == null || candidates.Length == 0) return null;
-
-                // Кандидатов набрал СВОЙ селектор компонента, а фильтры цели живут в скилле.
-                // Без этого отсева лечащий скилл на юните с настройками по умолчанию (кандидаты = враги)
-                // спокойно выбрал бы противника.
-                List<Unit> eligible = new List<Unit>(candidates.Length);
-                for (int i = 0; i < candidates.Length; i++)
-                    if (skill.IsEligibleTarget(candidates[i], unit.owner)) eligible.Add(candidates[i]);
-                if (eligible.Count == 0) return null;
-
-                return SkillTargeting.Pick(skill.TargetStrategy, eligible.ToArray(), unit,
-                                           skill.TargetingOptions(level, transform.position));
-            }
-
-            // «Текущая цель атаки юнита»: цель берётся не из кандидатов в searchRadius, а из штатного
-            // поля Unit.target; дальность каста проверит сам UseAbilityItem (castRange). Мёртвая/пустая
-            // цель → null (каст не идёт). Не зависит от кандидатов в searchRadius (DoD «кастует по unit.target»).
-            if (targetingStrategy == TargetingStrategy.CurrentAttackTarget)
-                return SkillTargeting.CurrentAttackTarget(unit);
-
-            if (candidates == null || candidates.Length == 0) return null;
-
-            Vector3 origin = transform.position;
-
-            switch (targetingStrategy)
-            {
-                case TargetingStrategy.MostWoundedAlly:
-                    return SkillTargeting.MostWounded(candidates, unit);
-
-                case TargetingStrategy.RandomEnemyWithTypePriority:
-                    return SkillTargeting.RandomWithCategoryPriority(candidates, unit, priorityCategory);
-
-                case TargetingStrategy.NearestEnemy:
-                    // «Первого зашедшего в радиус» обеспечивает тик: как только враг входит
-                    // в радиус, он становится ближайшим и по нему идёт каст.
-                    return SkillTargeting.Nearest(candidates, unit, origin);
-
-                case TargetingStrategy.AllyAhead:
-                    return SkillTargeting.AllyAhead(candidates, unit, allyAheadMode == AllyAheadMode.MostAdvanced);
-
-                case TargetingStrategy.StrongestEnemy:
-                    return SkillTargeting.Strongest(candidates, unit, strengthMetric == StrengthMetric.CurrentHealth);
-
-                case TargetingStrategy.AllyOfCategory:
-                    return SkillTargeting.NearestOfCategory(candidates, unit, origin, allyCategory);
-
-                case TargetingStrategy.WoundedAllyBelowThreshold:
-                    return SkillTargeting.MostWoundedBelowThreshold(candidates, unit, allyHpThreshold);
-            }
-
-            return null;
-        }
-
-        // Индекс способности в пуле юнита (кэш). Обход бага Utils.GetAbilityIndex
+        // Индекс умения в пуле юнита (кэш). Обход бага Utils.GetAbilityIndex
         // (при «не найдено» возвращает не -1) кросс-проверкой GetAbilityByIndex — как в UIManager.BottomTables.
-        private int ResolveAbilityIndex()
+        private int ResolveAbilityIndex(int entry)
         {
-            // [CR1 fix 2026-07-10] Кэш валиден, пока по индексу всё ещё лежит наша способность.
+            CompositeSkill skill = autoAbilities[entry];
+
+            // [CR1 fix 2026-07-10] Кэш валиден, пока по индексу всё ещё лежит наше умение.
             // Пул мог измениться (тех-анлок/трансформация сдвигают индексы) → перерезолвим.
             // «Не найдено» (-1) не перерешаем каждый тик (иначе спам-лог/лишний перебор).
-            if (abilityResolved)
+            if (resolved[entry])
             {
-                if (cachedAbilityIndex < 0) return -1;
-                if (unit != null && Utils.GetAbilityByIndex(unit, cachedAbilityIndex) == autoAbility)
-                    return cachedAbilityIndex;
+                if (cachedIndex[entry] < 0) return -1;
+                if (unit != null && Utils.GetAbilityByIndex(unit, cachedIndex[entry]) == skill)
+                    return cachedIndex[entry];
                 // индекс устарел — перерезолвим ниже
             }
-            abilityResolved = true;
-            cachedAbilityIndex = -1;
-            if (autoAbility == null || unit.abilities == null) return -1;
 
-            int idx = Utils.GetAbilityIndex(unit.abilities, autoAbility);
-            if (idx >= 0 && Utils.GetAbilityByIndex(unit, idx) == autoAbility)
-                cachedAbilityIndex = idx;
+            resolved[entry] = true;
+            cachedIndex[entry] = -1;
+            if (skill == null || unit.abilities == null) return -1;
+
+            int idx = Utils.GetAbilityIndex(unit.abilities, skill);
+            if (idx >= 0 && Utils.GetAbilityByIndex(unit, idx) == skill)
+                cachedIndex[entry] = idx;
             else
-                Debug.LogWarning($"[AutoAbilityUser] У '{unit.unitName}' способность '{autoAbility.name}' " +
-                                 "не найдена в списке Abilities — авто-каст отключён.");
-            return cachedAbilityIndex;
+                Debug.LogWarning($"[AutoAbilityUser] У '{unit.unitName}' умение '{skill.name}' " +
+                                 "не найдено в списке Abilities — авто-применение этого умения отключено.");
+
+            return cachedIndex[entry];
         }
     }
 }

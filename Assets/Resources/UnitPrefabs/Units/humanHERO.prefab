@@ -350,27 +350,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: eeacf01fdd4e6784fbaffd8a2682fac0, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::StrategyCore.AutoAbilityUser
-  targetingStrategy: 2
-  searchRadius: 8
-  candidateSelector:
-    isOwn: 0
-    isAlly: 0
-    isEnemy: 1
-    isUnit: 1
-    isBuilding: 0
-    isStaticDestructible: 0
-    isTree: 0
-    isGround: 1
-    isWater: 1
-    isAir: 1
-    includeInvisible: 0
-    includeInvulnerable: 0
-  priorityCategory: 3
-  strengthMetric: 0
-  allyAheadMode: 0
-  allyCategory: 1
-  allyHpThreshold: 0.3
-  autoAbility: {fileID: 11400000, guid: ade8cc8bfd8fd744fad2a3a709c9b0a5, type: 2}
+  autoAbilities:
+  - {fileID: 11400000, guid: ade8cc8bfd8fd744fad2a3a709c9b0a5, type: 2}
 --- !u!1001 &3553614418513829962
 PrefabInstance:
   m_ObjectHideFlags: 0

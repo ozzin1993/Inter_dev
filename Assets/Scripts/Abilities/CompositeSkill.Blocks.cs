@@ -91,9 +91,6 @@ namespace StrategyCore
 
         [Tooltip("Немота целей (нельзя кастовать), секунды. По уровням. 0 — не заглушать.")]
         public float[] muteSeconds;
-
-        [Tooltip("Задевать только эти боевые роли. Пусто — фильтра нет, задевает всех подходящих.")]
-        public Unit.UnitCategory[] targetCategories;
     }
 
     /// <summary>
@@ -234,12 +231,40 @@ namespace StrategyCore
         [Tooltip("Эффекторы, которые получит носитель в момент ПРОБИТИЯ щита (объём исчерпан). Пусто — ничего не происходит.")]
         public Effector[] onDepletedEffectors;
 
+        [Tooltip("Радиус ВСПЫШКИ при пробитии щита, метры. 0 — вспышки нет, реакция достаётся только носителю. " +
+                 "Больше нуля — эффекторы и ослепление ниже получают все вокруг носителя по селектору ответа.")]
+        public float onDepletedRadius;
+
+        [Tooltip("ОТВЕТ НА УДАР, пока щит держится: радиус вокруг носителя, метры. 0 — ответа нет.")]
+        public float retaliationRadius;
+
+        [Tooltip("Ответ на удар: оглушение задетых, секунды. 0 — не оглушать. Штатный стан уважает иммунитет к контролю.")]
+        public float retaliationStunSeconds;
+
+        [Tooltip("Ответ на удар: эффекторы задетым (например заморозка). Пусто — только оглушение.")]
+        public Effector[] retaliationEffectors;
+
+        [Tooltip("Ответ на удар: задевать только юнитов ближнего боя. ВЫКЛ — всех подходящих в радиусе.")]
+        public bool retaliationOnlyMelee = true;
+
+        [Tooltip("Кого задевают ответ на удар и вспышка при пробитии (обычно враги носителя щита).")]
+        public UnitSelector reactionSelector;
+
         [Tooltip("Ослепить носителя при пробитии щита: шанс промаха 0..1. 0 — не ослеплять.")]
         [Range(0f, 1f)]
         public float onDepletedBlindChance;
 
         [Tooltip("Длительность ослепления при пробитии щита, секунды.")]
         public float onDepletedBlindDuration;
+
+        [Tooltip("Множитель ВХОДЯЩЕГО урона носителя, пока щит держится: 0.5 — минус половина. 1 — без изменений. " +
+                 "Живёт ровно столько, сколько сам щит: пробили раньше срока — снижение снимается вместе с ним. " +
+                 "Тем и отличается от такого же поля в блоке длящегося бафа, где оно идёт по своему таймеру.\n\n" +
+                 "ТРЕБУЕТ ненулевой длительности щита: у бессрочного щита снижение не ставится.")]
+        public float incomingDamageMultiplier = 1f;
+
+        [Tooltip("Не накладывать щит на цель, у которой он уже висит. ВЫКЛ — новый щит заменит прежний.")]
+        public bool skipIfAlreadyShielded = true;
     }
 
     /// <summary>8. Ослепление целей (шанс промаха).</summary>
@@ -433,7 +458,7 @@ namespace StrategyCore
                 if (flat > 0f) PayHealth(castingUnit, flat);
             }
 
-            // ---------- 2..8. Блоки по каждой цели (порядок фиксирован) ----------
+            // ---------- 2..14. Блоки по каждой цели (порядок фиксирован) ----------
             if (targets != null)
             {
                 for (int i = 0; i < targets.Count; i++)
@@ -441,38 +466,63 @@ namespace StrategyCore
                     Unit t = targets[i];
                     if (t == null || t.dead) continue;
 
-                    if (!skipProjectileCarried) ApplyDamage(castingUnit, castingPlayer, level, t, origin);
+                    // Рывок идёт ПЕРВЫМ: не притянулась — цель выпадает из каста целиком
+                    // (решение Artsiom 2026-08-06), КД и мана при этом списаны штатно.
+                    if (!ApplyPull(castingUnit, t)) continue;
+
+                    // Урон запоминаем: из него блок вторичных целей берёт долю на лечение.
+                    float baseDamageToTarget = skipProjectileCarried
+                        ? 0f
+                        : ApplyDamage(castingUnit, castingPlayer, level, t, origin);
                     if (t.dead) continue; // погиб от этого же урона — дальше по нему не работаем
+
+                    ApplyDrain(castingUnit, level, t);
+                    if (t.dead) continue; // высасывание добило — дальше по нему не работаем
 
                     ApplyStatus(level, t, skipProjectileCarried);
                     ApplyEffectors(castingPlayer, level, t); // эффекторы снарядом не переносятся — вешаем сами
                     ApplyHeal(level, t);
+                    ApplyMana(level, t);
                     ApplyBuff(castingUnit, level, t);
                     ApplyShield(castingPlayer, level, t);
                     ApplyBlind(level, t);
+                    ApplyMorph(level, t);
+                    ApplyOwnership(castingUnit, t);          // после всех эффектов: меняет сторону цели
+                    ApplySecondary(castingPlayer, level, t, baseDamageToTarget); // своя выборка вокруг этой цели
                 }
             }
 
-            // ---------- 9. Призыв ----------
+            // ---------- 15. Призыв ----------
             if (summon != null && summon.enabled) ApplySummon(castingUnit, castingPlayer, level);
 
-            // ---------- 10. Зона на земле ----------
-            if (groundZone != null && groundZone.enabled) ApplyGroundZone(castingUnit, castingPlayer, origin);
+            // ---------- 16. Зона на земле ----------
+            if (groundZone != null && groundZone.enabled) ApplyGroundZone(castingUnit, castingPlayer, level, origin);
 
-            // ---------- 11. Серверный сервис ----------
+            // ---------- 17. Перемещение кастера ----------
+            ApplyCasterMove(castingUnit, origin);
+
+            // ---------- 18. Серверный сервис ----------
             if (delegateService != null && delegateService.enabled) ApplyDelegate(castingUnit, castingPlayer, origin);
         }
 
         // ------------------------------------------------------------------ 2. УРОН --
-        void ApplyDamage(Unit castingUnit, int castingPlayer, int level, Unit target, Vector3 origin)
+        /// <returns>
+        /// Сумма урона, ЗАПИСАННОГО в блоке для этой цели (по всем сработавшим записям), — до брони,
+        /// сопротивлений и щитов. Нужна блоку вторичных целей: он лечит долей от неё.
+        /// Фактически прошедший урон здесь не считается — так же вёл себя класс HolyFire, чьё поведение
+        /// блок повторяет; смена на фактический молча изменила бы силу лечения на бронированных целях.
+        /// </returns>
+        float ApplyDamage(Unit castingUnit, int castingPlayer, int level, Unit target, Vector3 origin)
         {
-            if (damage == null || !damage.enabled || damage.entries == null) return;
+            if (damage == null || !damage.enabled || damage.entries == null) return 0f;
+
+            float dealt = 0f;
 
             for (int e = 0; e < damage.entries.Length; e++)
             {
                 SkillDamageEntry entry = damage.entries[e];
                 if (entry == null || entry.damageType == null) continue;
-                if (target.dead) return;
+                if (target.dead) return dealt;
 
                 float amount = LevelValue(entry.amount, level);
                 if (amount <= 0f) continue;
@@ -485,7 +535,11 @@ namespace StrategyCore
                     castingUnit.DealDamage(target, amount, entry.damageType, false, origin); // false: способность, не прямая атака
                 else
                     target.GetDamage(amount, entry.damageType, castingPlayer, null, false, out float _);
+
+                dealt += amount;
             }
+
+            return dealt;
         }
 
         /// <summary>
@@ -507,7 +561,6 @@ namespace StrategyCore
         void ApplyStatus(int level, Unit target, bool stunCarriedByProjectile)
         {
             if (status == null || !status.enabled) return;
-            if (!CategoryAllowed(target, status.targetCategories)) return;
 
             // Оглушение переносится снарядом (штатное поле stunTime) — мгновенно его не вешаем.
             if (!stunCarriedByProjectile)
@@ -590,6 +643,11 @@ namespace StrategyCore
         {
             if (shield == null || !shield.enabled) return;
 
+            // Поверх живого щита не накладываем (поведение класса ShieldAlly). Откат и мана при этом
+            // уже списаны — как и раньше: проверка стоит в применении, а не в выборе цели, потому что
+            // блок работает и по области, где целей несколько.
+            if (shield.skipIfAlreadyShielded && AbsorbShield.IsActiveOn(target)) return;
+
             float amount = LevelValue(shield.flat, level)
                          + LevelValue(shield.percentOfMaxHp, level) * target.maxHealth;
             if (amount <= 0f) return;
@@ -599,26 +657,120 @@ namespace StrategyCore
             Effector[] onDepletedEffectors = shield.onDepletedEffectors;
             float blindChance = shield.onDepletedBlindChance;
             float blindDuration = shield.onDepletedBlindDuration;
+            float burstRadius = shield.onDepletedRadius;
             bool hasReaction = (onDepletedEffectors != null && onDepletedEffectors.Length > 0)
                                || (blindChance > 0f && blindDuration > 0f);
+            bool hasRetaliation = shield.retaliationRadius > 0f
+                                  && (shield.retaliationStunSeconds > 0f
+                                      || (shield.retaliationEffectors != null && shield.retaliationEffectors.Length > 0));
 
-            if (!hasReaction)
+            // Снижение входящего урона привязано к ЖИЗНИ ЩИТА, а не к своему таймеру: ставим вместе
+            // со щитом, снимаем в onEnded (пробит, истёк или носитель погиб). Тем и отличается
+            // от такого же поля в блоке бафа.
+            // Длительность обязательна: штатный IncomingDamageModifier.Apply при нулевой молча ничего
+            // не ставит (IncomingDamageModifier.cs:43). У бессрочного щита снижения не будет — ровно так же
+            // вёл себя класс ShieldAlly, поведение не меняем.
+            float incomingMultiplier = shield.incomingDamageMultiplier;
+            bool hasIncomingRule = !Mathf.Approximately(incomingMultiplier, 1f)
+                                   && incomingMultiplier > 0f
+                                   && duration > 0f;
+
+            if (!hasReaction && !hasRetaliation && !hasIncomingRule)
             {
                 AbsorbShield.Apply(target, amount, duration);
                 return;
             }
 
             // Реакция на ПРОБИТИЕ (объём исчерпан), а не на любое снятие — паттерн ShieldAlly.
+            // При заданном радиусе она достаётся не носителю, а всем вокруг него по селектору ответа.
             Action<Unit> onDepleted = carrier =>
             {
                 if (carrier == null || carrier.dead) return;
-                if (onDepletedEffectors != null && onDepletedEffectors.Length > 0)
-                    Effector.EffectorAdd(castingPlayer, carrier, onDepletedEffectors);
-                if (blindChance > 0f && blindDuration > 0f)
-                    BlindDebuff.Apply(carrier, blindChance, blindDuration);
+
+                if (burstRadius <= 0f)
+                {
+                    if (onDepletedEffectors != null && onDepletedEffectors.Length > 0)
+                        Effector.EffectorAdd(castingPlayer, carrier, onDepletedEffectors);
+                    if (blindChance > 0f && blindDuration > 0f)
+                        BlindDebuff.Apply(carrier, blindChance, blindDuration);
+                    return;
+                }
+
+                Unit[] around = UnitsAroundCarrier(carrier, burstRadius);
+                if (around == null) return;
+
+                for (int i = 0; i < around.Length; i++)
+                {
+                    Unit u = around[i];
+                    if (u == null || u.dead) continue;
+
+                    if (onDepletedEffectors != null && onDepletedEffectors.Length > 0)
+                        Effector.EffectorAdd(castingPlayer, u, onDepletedEffectors);
+                    if (blindChance > 0f && blindDuration > 0f)
+                        BlindDebuff.Apply(u, blindChance, blindDuration);
+                }
             };
 
-            AbsorbShield.Apply(target, amount, duration, onDepleted);
+            if (!hasRetaliation && !hasIncomingRule)
+            {
+                AbsorbShield.Apply(target, amount, duration, onDepleted);
+                return;
+            }
+
+            // Ответ на удар и снижение урона живут ровно столько, сколько щит: снимаем их в onEnded
+            // (любая причина снятия). ПОРЯДОК КАК В ShieldAlly: сначала щит, потом подписка — перекаст
+            // поверх живого щита дёргает прежний onEnded, и тот снёс бы только что поставленную подписку.
+            InterflowCombat.DamagedHandler retaliation = null;
+            Action<Unit> onEnded = carrier =>
+            {
+                if (carrier == null) return;
+
+                if (retaliation != null) InterflowCombat.DamagedListenerRemove(carrier, retaliation);
+                if (hasIncomingRule) IncomingDamageModifier.RemoveRule(carrier, incomingMultiplier);
+            };
+
+            AbsorbShield.Apply(target, amount, duration, onDepleted, onEnded);
+
+            if (hasRetaliation)
+            {
+                retaliation = (victim, attacker, damageType, damageDealt, directAttack) =>
+                    RetaliateAround(victim, castingPlayer);
+                InterflowCombat.DamagedListenerAdd(target, retaliation);
+            }
+
+            // Ставим ПОСЛЕ щита по той же причине, что и подписку: onEnded прежнего щита снял бы новое правило.
+            // Таймер здесь страховочный — обычно правило снимает onEnded, когда щит сходит.
+            if (hasIncomingRule) IncomingDamageModifier.Apply(target, incomingMultiplier, duration);
+        }
+
+        /// <summary>Кого задевают вспышка и ответ щита: враги носителя по селектору ответа.</summary>
+        Unit[] UnitsAroundCarrier(Unit carrier, float radius)
+        {
+            if (carrier == null || radius <= 0f) return null;
+
+            Vector2 center = new Vector2(carrier.transform.position.x, carrier.transform.position.z);
+            return Utils.GetUnitsInRadius(center, radius, carrier.owner, shield.reactionSelector, -1, carrier);
+        }
+
+        /// <summary>Ответ щита на удар по носителю: оглушение и эффекторы тем, кто рядом.</summary>
+        void RetaliateAround(Unit carrier, int castingPlayer)
+        {
+            if (IsClientPeer) return;
+            if (carrier == null || carrier.dead) return;
+
+            Unit[] around = UnitsAroundCarrier(carrier, shield.retaliationRadius);
+            if (around == null) return;
+
+            for (int i = 0; i < around.Length; i++)
+            {
+                Unit u = around[i];
+                if (u == null || u.dead) continue;
+                if (shield.retaliationOnlyMelee && !u.melee) continue;
+
+                if (shield.retaliationStunSeconds > 0f) u.Stun(shield.retaliationStunSeconds);
+                if (shield.retaliationEffectors != null && shield.retaliationEffectors.Length > 0)
+                    Effector.EffectorAdd(castingPlayer, u, shield.retaliationEffectors);
+            }
         }
 
         // ------------------------------------------------------------- 8. ОСЛЕПЛЕНИЕ --
@@ -663,7 +815,7 @@ namespace StrategyCore
         }
 
         // -------------------------------------------------------------------- 10. ЗОНА --
-        void ApplyGroundZone(Unit castingUnit, int castingPlayer, Vector3 origin)
+        void ApplyGroundZone(Unit castingUnit, int castingPlayer, int level, Vector3 origin)
         {
             if (groundZone.zonePrefab == null)
             {
@@ -689,6 +841,10 @@ namespace StrategyCore
                 GroundDamageZone zone = go.GetComponent<GroundDamageZone>();
                 if (zone != null) zone.SetOwner(castingPlayer);
                 else Debug.LogWarning($"[{name}] На префабе зоны нет компонента GroundDamageZone — зона не будет действовать.");
+
+                // Клиенты узнают о зоне фактом из серверного реестра: позиция уже с учётом разброса,
+                // префаб клиент берёт из этого же ассета по id умения. Реестр сам разошлёт сообщение.
+                if (MatchManager.instance != null) MatchManager.instance.RegisterGroundZone(go, id, level, pos);
             }
         }
 

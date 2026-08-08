@@ -80,7 +80,23 @@ MonoBehaviour:
   - {fileID: 11400000, guid: f7d3a45b30b0f2b42ada8a890752ccb5, type: 2}
   - {fileID: 11400000, guid: d31ae17a625c35440b4bc83a1b2cceee, type: 2}
   - {fileID: 11400000, guid: 66d268c2783b224419d1ac8fd236b2f3, type: 2}
-  abilityLevel: 
+  - {fileID: 11400000, guid: 7d8151646b52584419f170ab7c2c3a10, type: 2}
+  - {fileID: 11400000, guid: c892f70eda189bf4f98b2e2f81c0df27, type: 2}
+  - {fileID: 11400000, guid: d3f785c41dbc13146be94876a3b88d7e, type: 2}
+  - {fileID: 11400000, guid: 912cd2cc5ccb24e458d943a6234c8487, type: 2}
+  - {fileID: 11400000, guid: 58cce04098db0184ea59b0352f4c0407, type: 2}
+  - {fileID: 11400000, guid: bb8f0015b3f6b1279dee0547e7afd02e, type: 2}
+  - {fileID: 11400000, guid: f94b50bc062b6d70ad9954b57c64fba9, type: 2}
+  - {fileID: 11400000, guid: 69cf1700f0b0cd9c2881b4255e53d721, type: 2}
+  - {fileID: 11400000, guid: a84b47db56717047e2175188685d1a61, type: 2}
+  - {fileID: 11400000, guid: 42601e9f86a16305d9ed7d9f0e24f582, type: 2}
+  - {fileID: 11400000, guid: 38e97e0ba77b973ea205d9fb82d4a714, type: 2}
+  - {fileID: 11400000, guid: 246912cf8b5d8e823f4d9a8a655d8a61, type: 2}
+  - {fileID: 11400000, guid: 72d09e01d70fd5a0008875faaaa8346e, type: 2}
+  - {fileID: 11400000, guid: af693062ccec6b0d65e5a2a5923f6e89, type: 2}
+  - {fileID: 11400000, guid: 49581bd96c4718c49a43e26ecd003a56, type: 2}
+  - {fileID: 11400000, guid: 945b52f0caf6ddd43876a5a640cc7880, type: 2}
+  abilityLevel: 000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
   abilityLocked: 
   everyFrameAbilities: []
   everyFrameAbilityIndex: 
@@ -120,7 +136,7 @@ MonoBehaviour:
   netID: 0
   owner: 0
   unitName: KNIGHTNEW
-  icon: {fileID: 0}
+  icon: {fileID: 2800000, guid: 0020c98079d53064dada1a226bf76bd5, type: 3}
   description: 
   isSelectable: 1
   unitType: 0
@@ -314,27 +330,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: eeacf01fdd4e6784fbaffd8a2682fac0, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Interflow.Game::StrategyCore.AutoAbilityUser
-  targetingStrategy: 2
-  searchRadius: 8
-  candidateSelector:
-    isOwn: 0
-    isAlly: 0
-    isEnemy: 1
-    isUnit: 1
-    isBuilding: 0
-    isStaticDestructible: 0
-    isTree: 0
-    isGround: 1
-    isWater: 1
-    isAir: 1
-    includeInvisible: 0
-    includeInvulnerable: 0
-  priorityCategory: 3
-  strengthMetric: 0
-  allyAheadMode: 0
-  allyCategory: 1
-  allyHpThreshold: 0.3
-  autoAbility: {fileID: 11400000, guid: 7d8151646b52584419f170ab7c2c3a10, type: 2}
+  autoAbilities:
+  - {fileID: 11400000, guid: 7b047359ac36f564ab5e6c52e5dc18b0, type: 2}
 --- !u!1 &8777438878885008182
 GameObject:
   m_ObjectHideFlags: 0

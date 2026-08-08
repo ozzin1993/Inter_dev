@@ -24,24 +24,114 @@ namespace StrategyCore
             var so = new SerializedObject(selected);
             var box = Section("Цель и доставка", new Color(0.24f, 0.24f, 0.26f));
 
-            foreach (var f in new[] { "targetMode", "buttonCast", "targetStrategy", "searchOrigin",
-                                      "strategyCategory", "strategyUseCurrentHealth", "strategyHpThreshold",
-                                      "coneAngle", "targetCategories", "onlyMelee", "maxTargets", "multiPick",
+            // Ц4: две строки простыми словами — кого заденет и что в этом режиме не читается.
+            box.Add(AimExplanation());
+
+            AddField(box, so, "targetMode");
+            AddField(box, so, "buttonCast");
+
+            // Ц2: стратегия и её параметры читаются ТОЛЬКО в режимах «умный выбор».
+            // Предикат берём из самого скилла (`PicksTargetByStrategy`), а не повторяем условие —
+            // тот же предикат читают рантайм и автокаст (правила 2 и 5).
+            if (selected.PicksTargetByStrategy)
+                foreach (var f in new[] { "targetStrategy", "searchOrigin", "strategyCategory",
+                                          "strategyUseCurrentHealth", "strategyHpThreshold" })
+                    AddField(box, so, f);
+
+            // Ц2: угол конуса читается только в режиме «конус» (CollectTargets: fullCircle).
+            if (selected.targetMode == SkillTargetMode.Cone) AddField(box, so, "coneAngle");
+
+            foreach (var f in new[] { "targetCategories", "onlyMelee", "maxTargets", "multiPick",
                                       "includeSelf", "radius", "castRange", "unitSelector" })
                 AddField(box, so, f);
 
             box.Add(Hint("Радиус и селектор целей нужны только тем блокам, что применяются К ЦЕЛИ. " +
                          "Призыв, зона и серверный сервис исполняются один раз за каст — им набор целей не требуется."));
 
-            foreach (var f in new[] { "delivery", "projectilePrefab", "projectileFollowsTarget" })
-                AddField(box, so, f);
+            AddField(box, so, "delivery");
 
-            box.Add(Hint("Штатный снаряд несёт только урон и оглушение. Всё остальное срабатывает в момент каста, " +
-                         "а не при попадании."));
+            // Ц2: поля снаряда нужны только при доставке снарядом.
+            if (selected.delivery == SkillDelivery.Projectile)
+            {
+                AddField(box, so, "projectilePrefab");
+                AddField(box, so, "projectileFollowsTarget");
+                box.Add(Hint("Штатный снаряд несёт только урон и оглушение. Всё остальное срабатывает в момент каста, " +
+                             "а не при попадании."));
+            }
 
             box.Bind(so);
             TrackEdits(box, so);
+
+            // Правка этих двух полей меняет СОСТАВ секции — панель пересобирается. Фокус терять не жалко:
+            // оба — выпадающие списки, а не ввод числа. Пересборка отложена на кадр: нельзя сносить элементы
+            // изнутри их же колбэка.
+            RebuildOnChange(box, so, "targetMode");
+            RebuildOnChange(box, so, "delivery");
+
             rightPanel.Add(box);
+        }
+
+        /// <summary>Ц4: что режим цели сделает и что в нём не читается. Сверено по CompositeSkill.CollectTargets.</summary>
+        static VisualElement AimExplanation()
+        {
+            int lvl = previewLevel;
+            float r = InterflowAbility.LevelValue(selected.radius, lvl);
+            string self = selected.includeSelf ? "включая кастера" : "кроме кастера";
+            string strategy = InterflowEditorUI.EnumLabel(typeof(SkillTargetStrategy), selected.targetStrategy.ToString());
+
+            string what, unused;
+            switch (selected.targetMode)
+            {
+                case SkillTargetMode.Self:
+                    what = "Заденет только самого кастера.";
+                    unused = "радиус, селектор целей, фильтры ролей, лимит целей, угол конуса";
+                    break;
+
+                case SkillTargetMode.WholeTeam:
+                    what = "Заденет всех боевых юнитов своей команды, " + self +
+                           ". Замок, башни и не подчиняющиеся приказам призванные в список не входят.";
+                    unused = "радиус, селектор целей, угол конуса";
+                    break;
+
+                case SkillTargetMode.AreaAroundSelf:
+                    what = r > 0f
+                        ? "Заденет всех в радиусе " + r + " вокруг кастера, кто проходит селектор и фильтры, " + self + "."
+                        : "Радиус ноль — целей НЕ БУДЕТ. Блоки по целям не сработают; призыв, зона и сервис — сработают.";
+                    unused = "угол конуса";
+                    break;
+
+                case SkillTargetMode.Cone:
+                    what = "Заденет всех в конусе " + selected.coneAngle + "° перед кастером в радиусе " + r + ", " + self + ".";
+                    if (r <= 0f) what += " Радиус ноль — целей не будет.";
+                    unused = "—";
+                    break;
+
+                case SkillTargetMode.SmartUnit:
+                    what = "Заденет ОДНУ цель, выбранную стратегией «" + strategy + "».";
+                    unused = "угол конуса, лимит целей; радиус нужен только стратегии «скопление врагов»";
+                    break;
+
+                default: // SmartPoint
+                    what = r > 0f
+                        ? "Стратегия «" + strategy + "» выбирает точку; заденет всех в радиусе " + r + " вокруг неё, " + self + "."
+                        : "Радиус ноль — целей НЕ БУДЕТ.";
+                    unused = "угол конуса";
+                    break;
+            }
+
+            if (!selected.PicksTargetByStrategy) unused = "стратегия выбора цели, " + unused;
+            if (selected.delivery != SkillDelivery.Projectile) unused += ", настройки снаряда";
+
+            var box = new VisualElement
+            {
+                style = { marginBottom = 6, paddingTop = 4, paddingBottom = 4, paddingLeft = 7, paddingRight = 7,
+                          backgroundColor = new Color(0.19f, 0.22f, 0.19f),
+                          borderLeftWidth = 3, borderLeftColor = COL_OK }
+            };
+            box.Add(new Label(what) { style = { whiteSpace = WhiteSpace.Normal } });
+            box.Add(new Label("Не используется в этом режиме: " + unused)
+                { style = { whiteSpace = WhiteSpace.Normal, color = COL_DIM, fontSize = 10 } });
+            return box;
         }
 
         // ======================== ШКАЛА КАСТА ========================
@@ -279,7 +369,24 @@ namespace StrategyCore
         static void AddField(VisualElement parent, SerializedObject so, string field)
         {
             var p = so.FindProperty(field);
-            if (p != null) parent.Add(new PropertyField(p));
+            if (p == null) return;
+
+            // Ц1: подпись — из общего словаря (правило 5); null — остаётся подпись Unity.
+            // Декоратор прячем только у cooldown: там [Header("Parameters")] базового Ability —
+            // единственная английская надпись в этой вкладке, а перевести её — правка ядра.
+            // Русские заголовки наших блоков («Цель», «Фильтры целей», «Доставка») остаются — они полезны.
+            parent.Add(InterflowEditorUI.MakeField(p, InterflowEditorUI.FieldLabel(field), field == "cooldown"));
+        }
+
+        /// <summary>
+        /// Поле, правка которого меняет состав панели: пересобрать НА СЛЕДУЮЩЕМ кадре.
+        /// Прямой вызов из колбэка снёс бы элемент, внутри которого мы сейчас находимся.
+        /// </summary>
+        static void RebuildOnChange(VisualElement scope, SerializedObject so, string field)
+        {
+            var p = so.FindProperty(field);
+            if (p == null || rightPanel == null) return;
+            scope.TrackPropertyValue(p, _ => rightPanel.schedule.Execute(RebuildRightPanel));
         }
 
         /// <summary>

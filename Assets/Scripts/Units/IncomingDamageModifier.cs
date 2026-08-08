@@ -22,6 +22,11 @@ namespace StrategyCore
         {
             public InterflowCombat.IncomingRule rule;
             public float remaining;
+
+            // Сколько источников сейчас держат это правило. Одинаковые правила (тот же множитель и тип)
+            // не стакаются, а разделяются: два щита с −50% дают одно правило на двоих. Без счётчика
+            // снятие ОДНОГО щита убирало бы снижение и у второго.
+            public int holders;
         }
 
         Unit unit;
@@ -56,6 +61,9 @@ namespace StrategyCore
         /// <summary>
         /// Снять раньше срока изменение входящего урона с заданным множителем и типом.
         /// Нужно тем, у кого эффект живёт не по таймеру, а пока держится что-то ещё (например щит).
+        ///
+        /// Снимает ОДНОГО владельца: пока правило держит кто-то ещё (второй щит с тем же множителем),
+        /// снижение остаётся. Уходит, когда отпустил последний.
         /// </summary>
         public static void RemoveRule(Unit target, float multiplier, DamageType onlyType = null)
         {
@@ -73,8 +81,12 @@ namespace StrategyCore
                     if (entry.rule == null) continue;
                     if (!Mathf.Approximately(entry.rule.multiplier, multiplier) || entry.rule.onlyType != onlyType) continue;
 
+                    entry.holders--;
+                    if (entry.holders > 0) return; // держит кто-то ещё — правило остаётся
+
                     InterflowCombat.IncomingRuleRemove(target, entry.rule);
                     mod.entries.RemoveAt(e);
+                    return; // снимаем ровно одно совпадение, а не все сразу
                 }
             }
         }
@@ -83,13 +95,15 @@ namespace StrategyCore
         {
             unit = target;
 
-            // Не стакаем одинаковые: тот же множитель и тот же тип — только продлеваем
+            // Не стакаем одинаковые: тот же множитель и тот же тип — только продлеваем.
+            // Владельца при этом считаем: снимать правило можно лишь когда его отпустил последний.
             for (int i = 0; i < entries.Count; i++)
             {
                 Entry e = entries[i];
                 if (e.rule != null && Mathf.Approximately(e.rule.multiplier, multiplier) && e.rule.onlyType == onlyType)
                 {
                     e.remaining = Mathf.Max(e.remaining, duration);
+                    e.holders++;
                     return;
                 }
             }
@@ -102,7 +116,7 @@ namespace StrategyCore
             };
 
             InterflowCombat.IncomingRuleAdd(unit, rule);
-            entries.Add(new Entry { rule = rule, remaining = duration });
+            entries.Add(new Entry { rule = rule, remaining = duration, holders = 1 });
 
             if (!subscribed && GameManager.instance != null)
             {

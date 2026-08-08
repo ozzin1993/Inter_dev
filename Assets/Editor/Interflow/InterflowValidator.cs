@@ -257,7 +257,7 @@ namespace StrategyCore
                         $"Дубль Ability.id={pair.Key}: «{a.name}» — игра УПАДЁТ на старте (Dictionary.Add без проверки).",
                         "GameManager.cs:211", a));
 
-            // 3. Иконка UI-умений: centralAbilities фракций и умения героя рисуются из icon[0].
+            // 3. Иконка UI-умений: centralAbilities фракций и умения героя рисуются из icon.
             var uiAbilities = new HashSet<Ability>();
             foreach (var f in factions)
             {
@@ -267,10 +267,10 @@ namespace StrategyCore
             }
             foreach (var a in uiAbilities)
             {
-                if (a.icon == null || a.icon.Length == 0 || a.icon[0] == null)
+                if (a.icon == null || a.icon == null)
                     issues.Add(new InterflowIssue(InterflowIssueSeverity.Warning,
-                        $"У UI-умения «{a.name}» не задана иконка icon[0] — в таблице будет пустая ячейка.",
-                        "Гайд 03 часть 1 (иконка из icon[0])", a));
+                        $"У UI-умения «{a.name}» не задана иконка icon — в таблице будет пустая ячейка.",
+                        "Гайд 03 часть 1 (иконка из icon)", a));
 
                 // 4. Длительность 0 у умения из таблицы: если умение длящееся — оно молча «не работает»
                 //    (исторический кейс FlameCloak_active). Info: мгновенным активкам длительность не нужна.
@@ -279,31 +279,43 @@ namespace StrategyCore
                         $"У UI-умения «{a.name}» duration = 0/пусто — если умение длящееся, задай длительность (иначе эффект не применится).",
                         "Гайд 03 часть 2 (кейс FlameCloak_active)", a));
 
-                // 6. Согласованность уровней: requiredLevel[] по уровням против maxLevels.
-                if (a.maxLevels > 0 && a.requiredLevel != null && a.requiredLevel.Length > 0 && a.requiredLevel.Length != a.maxLevels)
-                    issues.Add(new InterflowIssue(InterflowIssueSeverity.Warning,
-                        $"У умения «{a.name}» длина requiredLevel[] ({a.requiredLevel.Length}) ≠ maxLevels ({a.maxLevels}).",
-                        "Гайд 06 шаг 1 (уровни умений героя)", a));
             }
 
-            // 5. AutoAbilityUser: autoAbility задан и продублирован в abilities[] юнита (обязательное правило ассета).
+            // 5. AutoAbilityUser: КАЖДАЯ авто-способность задана и продублирована в abilities[] юнита
+            //    (обязательное правило ассета: каст идёт по индексу в пуле способностей).
             //    Поле приватное [SerializeField] — читаем ШТАТНЫМ SerializedObject (не reflection-хак; правило 9 соблюдено).
             foreach (var (unit, _) in units)
             {
                 var auto = unit.GetComponent<AutoAbilityUser>();
                 if (auto == null) continue;
 
+                // С 2026-08-04 авто-способностей может быть НЕСКОЛЬКО: читаем список, а не одно поле.
+                // С 2026-08-08 элемент списка — сама ссылка на умение (конструктор скиллов), а не запись
+                // с полем «ability»: настройки поиска убраны с компонента, источник истины — умение.
                 var so = new SerializedObject(auto);
-                var ability = so.FindProperty("autoAbility")?.objectReferenceValue as Ability;
+                var entries = so.FindProperty("autoAbilities");
 
-                if (ability == null)
+                if (entries == null || entries.arraySize == 0)
+                {
                     issues.Add(new InterflowIssue(InterflowIssueSeverity.Warning,
-                        $"На юните «{unit.name}» висит AutoAbilityUser без autoAbility — компонент ничего не делает.",
+                        $"На юните «{unit.name}» висит AutoAbilityUser с пустым списком авто-способностей — компонент ничего не делает.",
                         "Гайд 03 часть 3", unit));
-                else if (unit.abilities == null || !unit.abilities.Contains(ability))
-                    issues.Add(new InterflowIssue(InterflowIssueSeverity.Error,
-                        $"У юнита «{unit.name}» autoAbility «{ability.name}» НЕ добавлена в список Abilities юнита — авто-каст не сработает.",
-                        "Гайд 03 часть 3 (двойная запись обязательна)", unit));
+                    continue;
+                }
+
+                for (int i = 0; i < entries.arraySize; i++)
+                {
+                    var ability = entries.GetArrayElementAtIndex(i).objectReferenceValue as Ability;
+
+                    if (ability == null)
+                        issues.Add(new InterflowIssue(InterflowIssueSeverity.Warning,
+                            $"На юните «{unit.name}» запись авто-способности №{i + 1} пуста — она ничего не делает.",
+                            "Гайд 03 часть 3", unit));
+                    else if (unit.abilities == null || !unit.abilities.Contains(ability))
+                        issues.Add(new InterflowIssue(InterflowIssueSeverity.Error,
+                            $"У юнита «{unit.name}» авто-способность «{ability.name}» НЕ добавлена в список Abilities юнита — авто-каст не сработает.",
+                            "Гайд 03 часть 3 (двойная запись обязательна)", unit));
+                }
             }
         }
 
@@ -393,6 +405,23 @@ namespace StrategyCore
                         "но откат и стоимость спишутся, а VFX и звук проиграются. " +
                         "Отметь хотя бы отношение (свой/союзник/враг) и тип цели.",
                         "UnitSelector.IsUnitCompatible", skill));
+
+                // --- 1.3. Настройки стратегии изменены, но режим цели их не читает. ---
+                // Стратегия и её параметры участвуют ТОЛЬКО в режимах «умный выбор»
+                // (предикат CompositeSkill.PicksTargetByStrategy — тот же, что читают рантайм и вкладка).
+                // В остальных режимах изменённые значения выглядят настройкой, но ни на что не влияют.
+                // Вкладка такие поля прячет — но в ДАННЫХ они остаются, поэтому правило нужно отдельно.
+                if (!skill.PicksTargetByStrategy)
+                {
+                    var changed = ChangedStrategyFields(skill);
+                    if (changed.Count > 0)
+                        issues.Add(new InterflowIssue(InterflowIssueSeverity.Info,
+                            $"Скилл «{n}»: режим цели «{InterflowEditorUI.EnumLabel(typeof(SkillTargetMode), skill.targetMode.ToString())}» " +
+                            $"не использует стратегию выбора цели, а её настройки изменены ({string.Join(", ", changed)}) — " +
+                            "они ни на что не влияют. Не ошибка, но и не настройка: либо верни значения по умолчанию, " +
+                            "либо смени режим на «умный выбор».",
+                            "CompositeSkill.PicksTargetByStrategy", skill));
+                }
 
                 // --- 1.2. Аура и детонация бафа без типа урона — молча не сработают. ---
                 if (skill.buff != null && skill.buff.enabled)
@@ -505,10 +534,10 @@ namespace StrategyCore
                 // Стратегия «скопление врагов» меряет плотность в этом же radius; при нуле она молча
                 // вырождается в случайный выбор — ГД получит не то поведение и без единого сообщения.
                 if (!needsRadius && skill.PicksTargetByStrategy
-                    && skill.TargetStrategy == SkillTargetStrategy.EnemyCluster
+                    && skill.TargetStrategy == SkillTargetStrategy.Cluster
                     && (skill.radius == null || !skill.radius.Any(v => v > 0f)))
                     issues.Add(new InterflowIssue(InterflowIssueSeverity.Warning,
-                        $"Скилл «{n}»: стратегия «скопление врагов» считает плотность в radius, а он пуст/0 — цель будет выбираться случайно.",
+                        $"Скилл «{n}»: стратегия «скопление» считает плотность в radius, а он пуст/0 — цель будет выбираться случайно.",
                         "SkillTargeting.DensestCluster", skill));
                 if (needsRadius && (skill.radius == null || !skill.radius.Any(v => v > 0f)))
                     issues.Add(new InterflowIssue(InterflowIssueSeverity.Error,
@@ -590,6 +619,13 @@ namespace StrategyCore
                     issues.Add(new InterflowIssue(InterflowIssueSeverity.Warning,
                         $"Скилл «{n}»: блок «{empty}» включён, но все его значения нулевые/пустые — он ничего не делает.",
                         "План §5.2", skill));
+
+                // --- 10а. Разовые блоки в режиме, который зовёт их каждый тик ---
+                foreach (string misuse in EveryTickMisuse(skill))
+                    issues.Add(new InterflowIssue(InterflowIssueSeverity.Error,
+                        $"Скилл «{n}»: режим срабатывания повторяет блоки каждый тик, а блок «{misuse}» разовый — " +
+                        "он будет исполняться по десять раз в секунду.",
+                        "CompositeSkill.IsEveryTick", skill));
 
                 // --- 10б. Щит без срока: ядро считает 0 как «без таймера», то есть щит бессрочный ---
                 if (skill.shield != null && skill.shield.enabled
@@ -689,6 +725,35 @@ namespace StrategyCore
             foreach (var u in node.unlockAbilities) if (u != null && u.ability != null) into.Add(u.ability);
         }
 
+        // Эталон значений по умолчанию.
+        // Сначала здесь был `ScriptableObject.CreateInstance<CompositeSkill>()` — красивее, но НЕЛЬЗЯ:
+        // `Ability.OnEnable` на свежем экземпляре бросает NullReferenceException (гвард написан как
+        // `if (abilityName == null || cooldown.Length == 0)` — первая часть всегда false, вторая падает).
+        // Unity льёт это в консоль и не пробрасывает вызывающему — try/catch не спасает.
+        //
+        // Цена решения, честно: если дефолт в CompositeSkill поменяют, эти числа надо поменять руками.
+        // Последствие рассинхрона мягкое: правило Info сработает лишний раз или промолчит.
+        // Источник — объявления полей в `CompositeSkill.cs`, блок [Header("Цель")].
+        const SkillTargetStrategy DEF_STRATEGY = SkillTargetStrategy.Nearest;
+        const SkillSearchOrigin DEF_ORIGIN = SkillSearchOrigin.Caster;
+        const bool DEF_USE_CURRENT_HP = false;
+        const float DEF_HP_THRESHOLD = 0.3f;
+
+        /// <summary>Какие настройки стратегии отличаются от значений по умолчанию (для правила 1.3).</summary>
+        static List<string> ChangedStrategyFields(CompositeSkill s)
+        {
+            var changed = new List<string>();
+            if (s == null) return changed;
+
+            if (s.targetStrategy != DEF_STRATEGY) changed.Add("как выбрать одну цель");
+            if (s.searchOrigin != DEF_ORIGIN) changed.Add("откуда считать «ближайшего»");
+            if (s.targetCategories != null && s.targetCategories.Length > 0) changed.Add("селектор ролей");
+            if (s.strategyUseCurrentHealth != DEF_USE_CURRENT_HP) changed.Add("мерить текущее ХП");
+            if (!Mathf.Approximately(s.strategyHpThreshold, DEF_HP_THRESHOLD)) changed.Add("порог ХП");
+
+            return changed;
+        }
+
         /// <summary>
         /// Есть ли хотя бы один блок, который применяется К ЦЕЛИ (блоки 2..8 в CompositeSkill.ApplyEffects:
         /// урон, контроль, эффекторы, лечение, баф, щит, ослепление). Значок состояния считается тоже:
@@ -696,14 +761,20 @@ namespace StrategyCore
         /// Блоки 9–11 (призыв, зона, серверный сервис) исполняются вне цикла по целям — им цели не нужны.
         /// </summary>
         static bool HasPerTargetBlock(CompositeSkill s) =>
-               (s.damage != null && s.damage.enabled)
+               (s.pull != null && s.pull.enabled)
+            || (s.damage != null && s.damage.enabled)
+            || (s.drain != null && s.drain.enabled)
             || (s.status != null && s.status.enabled)
             || (s.effectors != null && s.effectors.enabled)
             || s.statusEffector != null
             || (s.heal != null && s.heal.enabled)
+            || (s.mana != null && s.mana.enabled)
             || (s.buff != null && s.buff.enabled)
             || (s.shield != null && s.shield.enabled)
-            || (s.blind != null && s.blind.enabled);
+            || (s.blind != null && s.blind.enabled)
+            || (s.morph != null && s.morph.enabled)
+            || (s.ownership != null && s.ownership.enabled)
+            || (s.secondary != null && s.secondary.enabled);
 
         /// <summary>Имена включённых блоков, у которых все числа нулевые или ссылки пусты.</summary>
         static IEnumerable<string> EmptyEnabledBlocks(CompositeSkill s)
@@ -746,6 +817,37 @@ namespace StrategyCore
 
             if (s.delegateService != null && s.delegateService.enabled && s.delegateService.service == SkillServerService.None)
                 yield return "серверный сервис";
+
+            if (s.drain != null && s.drain.enabled
+                && !Any(s.drain.flat) && !Any(s.drain.percentOfMaxHp) && !Any(s.drain.percentOfCurrentHp))
+                yield return "высасывание ХП";
+
+            if (s.mana != null && s.mana.enabled && !Any(s.mana.flat) && !Any(s.mana.percentOfMaxMana))
+                yield return "восстановление маны";
+
+            if (s.morph != null && s.morph.enabled && (s.morph.shapeUnit == null || !Any(s.morph.duration)))
+                yield return "подмена облика";
+
+            if (s.secondary != null && s.secondary.enabled
+                && (s.secondary.radius <= 0f
+                    || (!Any(s.secondary.healFlat) && (s.secondary.effectors == null || s.secondary.effectors.Length == 0))))
+                yield return "вторичные цели";
+        }
+
+        /// <summary>
+        /// Правила режимов срабатывания (переключатель и аура зовут блоки каждый тик).
+        /// Разовые по смыслу блоки в таком режиме — почти всегда ошибка настройки контента.
+        /// </summary>
+        static IEnumerable<string> EveryTickMisuse(CompositeSkill s)
+        {
+            if (s == null || !s.IsEveryTick) yield break;
+
+            if (s.summon != null && s.summon.enabled) yield return "призыв";
+            if (s.groundZone != null && s.groundZone.enabled) yield return "зона на земле";
+            if (s.delegateService != null && s.delegateService.enabled) yield return "серверный сервис";
+            if (s.ownership != null && s.ownership.enabled) yield return "смена владельца";
+            if (s.casterMove != null && s.casterMove.enabled) yield return "перемещение кастера";
+            if (s.pull != null && s.pull.enabled) yield return "рывок цели";
         }
 
         // ======================== БЛОК «ФРАКЦИИ» (шаг 3) ========================
