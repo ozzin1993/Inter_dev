@@ -80,7 +80,7 @@ MonoBehaviour:
   castSound: {fileID: 0}
   impactSound: {fileID: 0}
   soundVolume: 1
-  statusEffector: {fileID: 0}
+  statusEffector: {fileID: 11400000, guid: 33b133c075378dadbcc5feaaf9f15dfe, type: 2}
   selfCost:
     enabled: 0
     flatHp: []

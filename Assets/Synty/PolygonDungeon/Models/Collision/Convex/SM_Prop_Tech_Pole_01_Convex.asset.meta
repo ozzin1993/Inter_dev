@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: 95c1c6105f38b4f42a0d864e4b6b5d78
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 43195645985327100
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 102677
+  packageName: POLYGON - Dungeons Pack - Art by Synty
+  packageVersion: 1.10.1
+  assetPath: Assets/Synty/PolygonDungeon/Models/Collision/Convex/SM_Prop_Tech_Pole_01_Convex.asset
+  uploadId: 924204

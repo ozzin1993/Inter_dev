@@ -8,7 +8,6 @@ namespace StrategyCore
     // Passive-SO (образец Crit/Basher, правило 2). Урон — OnDamageDealModify (без состояния, читает HP вживую).
     // Броня — пересчёт на OnHPChange (ТОЛЬКО сервер, правило 6): храним свой вклад и снимаем старый перед новым
     // (аддитивно с тех-грейдами, без накопления). Ассет не трогаем (правило 1). Кривые/числа — в Inspector (правило 3).
-    [CreateAssetMenu(fileName = "RageFromMissingHp", menuName = "StrategyCore/Abilities/Interflow/RageFromMissingHp (B5)")]
     public class RageFromMissingHp : InterflowAbility
     {
         public override AbilityType type => AbilityType.Passive;

@@ -11,7 +11,6 @@ namespace StrategyCore
     /// (кирпич B17 <see cref="AbsorbShield"/>) и «цель оглушена». Другие условия добавляются полем,
     /// а не новым скриптом.
     /// </summary>
-    [CreateAssetMenu(fileName = "BonusDamageVsCondition", menuName = "StrategyCore/Abilities/Interflow/BonusDamageVsCondition (Бонус по состоянию цели)")]
     public class BonusDamageVsCondition : InterflowAbility
     {
         public override AbilityType type { get { return AbilityType.Passive; } }

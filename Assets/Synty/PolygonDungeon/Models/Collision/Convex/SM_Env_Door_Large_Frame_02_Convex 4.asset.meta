@@ -1,0 +1,16 @@
+fileFormatVersion: 2
+guid: a659479fedf8b8e46acf8f8ff3bbc078
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 43196783159070178
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 102677
+  packageName: POLYGON - Dungeons Pack - Art by Synty
+  packageVersion: 1.10.1
+  assetPath: Assets/Synty/PolygonDungeon/Models/Collision/Convex/SM_Env_Door_Large_Frame_02_Convex
+    4.asset
+  uploadId: 924204

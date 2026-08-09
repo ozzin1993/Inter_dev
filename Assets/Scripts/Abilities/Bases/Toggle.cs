@@ -6,7 +6,6 @@ using UnityEngine;
 namespace StrategyCore
 {
     // Asset menu
-    // [CreateAssetMenu(fileName = "Toggle", menuName = "StrategyCore/Abilities/Toggle")]
     public class Toggle : Ability
     {
         // Level 0 means first level. If you want to damage based on level do not forget to add 1. Example: (damage * (level + 1)

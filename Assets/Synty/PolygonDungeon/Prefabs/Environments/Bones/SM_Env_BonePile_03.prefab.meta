@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: d74d4ec61fec68b42bdb97019a7926ad
+timeCreated: 1507583540
+licenseType: Store
+NativeFormatImporter:
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 102677
+  packageName: POLYGON - Dungeons Pack - Art by Synty
+  packageVersion: 1.10.1
+  assetPath: Assets/Synty/PolygonDungeon/Prefabs/Environments/Bones/SM_Env_BonePile_03.prefab
+  uploadId: 924204

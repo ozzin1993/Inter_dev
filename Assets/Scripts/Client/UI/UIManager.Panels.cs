@@ -54,8 +54,6 @@ namespace StrategyCore
             // PlayerControl mode reset
             pc.ChangeMode(PCMode.Default);
 
-            // Ability leveling off
-            LevellingToggle(false);
             RedrawAbilityView();
 
             // If a building being built, cancel the construction
@@ -346,23 +344,14 @@ namespace StrategyCore
                 viewingEffectorDescriptor = false;
             }
 
-            for (int i = 0; i < pc.activeUnit.effectors.Count; i++)
-            {
-                if (pc.activeUnit.effectors[i].effector.stacks) continue; // We skip stackable effectors
-                StatusEffectorCreate(pc.activeUnit.effectors[i].effector.id, pc.activeUnit.effectors[i].effector.icon);
-            }
-
-            // [Interflow fix 2026-08-01] Значки статусов от скиллов-конструкторов. На клиенте геймплейного
-            // эффектора нет — состояние живёт только на сервере, а значок приезжает отдельным сообщением
-            // и лежит в SkillVisualStatus. На хосте этот список пуст (у него настоящие эффекторы выше),
-            // поэтому дублей не будет.
-            SkillVisualStatus visualStatus = pc.activeUnit.GetComponent<SkillVisualStatus>();
-            if (visualStatus != null)
-            {
-                for (int i = 0; i < visualStatus.IconCount; i++)
-                    if (visualStatus.TryGetIcon(i, out int visualEffectorId, out Texture2D visualIcon))
-                        StatusEffectorCreate(visualEffectorId, visualIcon);
-            }
+            // [Interflow fix 2026-08-05 unit-status-sync] Состав значков считает ЕДИНЫЙ перечислитель
+            // UnitStatusIcons (он же кормит шкалу над полоской здоровья) — панель и шкала не расходятся.
+            // Заменяет два цикла (локальные эффекторы + SkillVisualStatus от 2026-08-01): теперь тут же
+            // видны статусы ядра (стан/немота/безоружие) и флаги (слепота) из каталога иконок.
+            List<UnitStatusIcons.Entry> statusIcons = new List<UnitStatusIcons.Entry>();
+            UnitStatusIcons.Collect(pc.activeUnit, statusIcons);
+            for (int i = 0; i < statusIcons.Count; i++)
+                StatusEffectorCreate(statusIcons[i].key, statusIcons[i].icon);
         }
 
         public void HideStatusTab()

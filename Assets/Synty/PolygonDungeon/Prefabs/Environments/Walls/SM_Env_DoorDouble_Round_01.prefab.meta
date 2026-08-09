@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: 7b2cf94cdab0ced489fd2a15c809d7b3
+timeCreated: 1505956621
+licenseType: Store
+NativeFormatImporter:
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 102677
+  packageName: POLYGON - Dungeons Pack - Art by Synty
+  packageVersion: 1.10.1
+  assetPath: Assets/Synty/PolygonDungeon/Prefabs/Environments/Walls/SM_Env_DoorDouble_Round_01.prefab
+  uploadId: 924204

@@ -2,7 +2,6 @@ using UnityEngine;
 
 namespace StrategyCore
 {
-    //[CreateAssetMenu(fileName = "Unit", menuName = "StrategyCore/Abilities/Unit")]
     public class UnitAbility : Ability
     {
         // What should happen when this ability is used

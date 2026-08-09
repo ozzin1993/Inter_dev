@@ -14,3 +14,170 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp-Editor::StrategyCore.InterflowEditorSettings
   factionCreateFolder: Assets/Configs/Factions
   technologyCreateFolder: Assets/Resources/Technology
+  unitPrefabCreateFolder: Assets/Resources/UnitPrefabs
+  unitTemplatePrefab: {fileID: 0}
+  abilityCreateFolder: Assets/Resources/Ability
+  effectorCreateFolder: Assets/Resources/Effectors
+  resourceCreateFolder: Assets/Resources/Resource
+  armorTypeCreateFolder: Assets/Resources/ArmorTypes
+  damageTypeCreateFolder: Assets/Resources/DamageTypes
+  attributeCreateFolder: Assets/Resources/Attributes
+  weaponSoundCreateFolder: Assets/Resources/WeaponSound
+  projectileCreateFolder: Assets/Resources/Projectiles
+  statusIconCatalogFolder: Assets/Resources/Catalogs
+  serverBuildFolders:
+  - Server
+  abilityTypeLabels:
+  - className: ApplyVulnerabilityOnHit
+    title: 
+    note: 
+  - className: ArmorPierce
+    title: 
+    note: 
+  - className: Basher
+    title: 
+    note: 
+  - className: Blink
+    title: 
+    note: 
+  - className: BonusDamageVsCondition
+    title: 
+    note: 
+  - className: BonusDamageVsUnitType
+    title: 
+    note: 
+  - className: ChargeAttack
+    title: 
+    note: 
+  - className: CompositeSkill
+    title: 
+    note: 
+  - className: Construction
+    title: 
+    note: 
+  - className: Container
+    title: 
+    note: 
+  - className: ControlImmunityPassive
+    title: 
+    note: 
+  - className: CorruptionBurstActive
+    title: 
+    note: 
+  - className: Counterattack
+    title: 
+    note: 
+  - className: Crit
+    title: 
+    note: 
+  - className: DisarmArea
+    title: 
+    note: 
+  - className: DragonsBreath
+    title: 
+    note: 
+  - className: EffectorAura
+    title: 
+    note: 
+  - className: EffectorSpread
+    title: 
+    note: 
+  - className: Evasion
+    title: 
+    note: 
+  - className: EveryNthAttack
+    title: 
+    note: 
+  - className: ExtraAttackEffectors
+    title: 
+    note: 
+  - className: FlameCloak
+    title: 
+    note: 
+  - className: FlameRing
+    title: 
+    note: 
+  - className: FlatDamageBlock
+    title: 
+    note: 
+  - className: Gem
+    title: 
+    note: 
+  - className: Hex
+    title: 
+    note: 
+  - className: HolyFire
+    title: 
+    note: 
+  - className: InvisibilityBase
+    title: 
+    note: 
+  - className: LifestealPassive
+    title: 
+    note: 
+  - className: LifeTransfer
+    title: 
+    note: 
+  - className: MovementAura
+    title: 
+    note: 
+  - className: MuteArea
+    title: 
+    note: 
+  - className: OnCombatStartCry
+    title: 
+    note: 
+  - className: OnKillCryPassive
+    title: 
+    note: 
+  - className: Passive
+    title: 
+    note: 
+  - className: PassiveInvisibility
+    title: 
+    note: 
+  - className: PiercingLine
+    title: 
+    note: 
+  - className: Potion
+    title: 
+    note: 
+  - className: RageFromMissingHp
+    title: 
+    note: 
+  - className: Research
+    title: 
+    note: 
+  - className: ScalingAura
+    title: 
+    note: 
+  - className: ShieldAlly
+    title: 
+    note: 
+  - className: SlowImmunity
+    title: 
+    note: 
+  - className: SplashModifier
+    title: 
+    note: 
+  - className: StunTarget
+    title: 
+    note: 
+  - className: Transformation
+    title: 
+    note: 
+  - className: TransportTakeIn
+    title: 
+    note: 
+  - className: TransportTakeOut
+    title: 
+    note: 
+  - className: UnitTraining
+    title: 
+    note: 
+  - className: UpgradeBuilding
+    title: 
+    note: 
+  - className: Wololo
+    title: 
+    note: 

@@ -11,6 +11,10 @@ namespace StrategyCore
 
         public static void MsgAdded(string msg, int owner)
         {
+            // [Interflow fix 2026-08-07 status-cheats] Читы проверки шкалы статусов (status/skill/nostatus/dummy/bld/rows).
+            // Вся логика — в нашем Diagnostics/InterflowStatusCheats.cs; здесь только точка входа.
+            if (InterflowStatusCheats.Handle(msg, NetworkConnectionHandler.isClient)) return;
+
             if (msg == "stats") Stats();
             else if (msg == "edge") EdgeScroll();
             else if (msg.StartsWith("sub ")) Sub(msg);

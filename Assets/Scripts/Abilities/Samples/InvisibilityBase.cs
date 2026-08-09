@@ -5,7 +5,6 @@ using static UnityEngine.UI.GridLayoutGroup;
 
 namespace StrategyCore
 {
-    [CreateAssetMenu(fileName = "Invisibility", menuName = "StrategyCore/Abilities/Invisibility")]
     public class InvisibilityBase : Ability
     {
         // Makes the casting unit invisible, it adds the Effector that makes the unit invisible

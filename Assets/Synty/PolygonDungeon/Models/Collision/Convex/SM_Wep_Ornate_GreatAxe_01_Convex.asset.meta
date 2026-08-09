@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: b056f23f4146ce54bba9b87c13edf87e
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 43003105720357740
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 102677
+  packageName: POLYGON - Dungeons Pack - Art by Synty
+  packageVersion: 1.10.1
+  assetPath: Assets/Synty/PolygonDungeon/Models/Collision/Convex/SM_Wep_Ornate_GreatAxe_01_Convex.asset
+  uploadId: 924204

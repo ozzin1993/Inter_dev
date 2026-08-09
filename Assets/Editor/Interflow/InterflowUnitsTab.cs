@@ -324,6 +324,9 @@ namespace StrategyCore
             var so = new SerializedObject(selected);
             rightPanel.Add(InterflowEditorUI.BuildGroupedFields(so));
 
+            // --- Секция пассивных умений (задача Artsiom 2026-08-05) ---
+            AddPassivesSection();
+
             // --- Секция доп. компонентов ---
             AddComponentsSection(path);
         }
@@ -354,6 +357,137 @@ namespace StrategyCore
             }
 
             rightPanel.Add(box);
+        }
+
+        // ======================== ПАССИВНЫЕ УМЕНИЯ ЮНИТА ========================
+
+        // Пассивка «надевается» на юнита штатно — элементом общего массива Unit.abilities (правило 2):
+        // открытие/закрытие делает ядро по requiredTech/requiredLevel самой пассивки.
+        // Здесь — удобный блок поверх того же массива: видны только пассивки (классификация —
+        // общий InterflowAbilityGroups, правило 5), остальные элементы массива не трогаются.
+        static void AddPassivesSection()
+        {
+            var box = new VisualElement { style = { marginTop = 8 } };
+            box.Add(new Label("Пассивные умения:") { style = { unityFontStyleAndWeight = FontStyle.Bold, marginBottom = 2 } });
+
+            // Текущие пассивки юнита — строками с кнопками «→» (показать) и «Убрать».
+            int shown = 0;
+            var abilities = selected.abilities;
+            if (abilities != null)
+            {
+                for (int i = 0; i < abilities.Length; i++)
+                {
+                    var a = abilities[i];
+                    if (a == null || InterflowAbilityGroups.Of(a) != InterflowAbilityGroups.Group.Passive) continue;
+                    shown++;
+
+                    int index = i;      // замыкание на копию индекса
+                    var ability = a;
+                    var row = new VisualElement { style = { flexDirection = FlexDirection.Row, alignItems = Align.Center, marginBottom = 1 } };
+                    string title = ability.abilityName != null && ability.abilityName.Length > 0 && !string.IsNullOrEmpty(ability.abilityName[0])
+                        ? ability.abilityName[0] : ability.name;
+                    row.Add(new Label($"● {title}  ·  {ability.GetType().Name}") { style = { whiteSpace = WhiteSpace.Normal, flexGrow = 1 } });
+                    row.Add(new Button(() => EditorGUIUtility.PingObject(ability)) { text = "→", tooltip = "Показать в Project" });
+                    row.Add(new Button(() => RemoveAbilityAt(index, ability)) { text = "Убрать", tooltip = "Снять пассивку с юнита (элемент массива abilities)" });
+                    box.Add(row);
+                }
+            }
+
+            if (shown == 0)
+                box.Add(new Label("Пассивок у юнита нет.")
+                    { style = { color = new Color(0.7f, 0.7f, 0.7f), marginBottom = 2 } });
+
+            // Добавление: выпадающий список всех пассивок проекта, которых на юните ещё нет.
+            var candidates = AllPassives().Where(p => abilities == null || !abilities.Contains(p)).ToList();
+            if (candidates.Count == 0)
+            {
+                box.Add(new Label("Добавлять нечего: все пассивки проекта уже на юните либо их нет в проекте.")
+                    { style = { color = new Color(0.7f, 0.7f, 0.7f), whiteSpace = WhiteSpace.Normal } });
+            }
+            else
+            {
+                var addRow = new VisualElement { style = { flexDirection = FlexDirection.Row, alignItems = Align.Center, marginTop = 2 } };
+                var choices = candidates.Select(p =>
+                {
+                    string t = p.abilityName != null && p.abilityName.Length > 0 && !string.IsNullOrEmpty(p.abilityName[0]) ? p.abilityName[0] : p.name;
+                    return $"{t}  ·  {p.GetType().Name}";
+                }).ToList();
+                var dd = new DropdownField(choices, 0) { style = { flexGrow = 1 } };
+                addRow.Add(dd);
+                addRow.Add(new Button(() =>
+                {
+                    // Выбор по ИНДЕКСУ, а не по тексту: два ассета с одинаковым названием и классом
+                    // дали бы одинаковые строки, и IndexOf(текст) добавил бы не тот ассет (правило 8).
+                    int idx = dd.index;
+                    if (idx >= 0 && idx < candidates.Count) AddAbilityToUnit(candidates[idx]);
+                }) { text = "Добавить", tooltip = "Добавить выбранную пассивку в abilities юнита" });
+                box.Add(addRow);
+            }
+
+            box.Add(new Label("Пассивка живёт в общем списке умений юнита (поле abilities выше). " +
+                              "Когда она включится — решают её собственные поля «Требуемые технологии» и «Требуемый уровень» — " +
+                              "настраиваются во вкладке «Пассивные умения».")
+                { style = { whiteSpace = WhiteSpace.Normal, color = new Color(0.7f, 0.72f, 0.75f), fontSize = 10, marginTop = 2 } });
+
+            rightPanel.Add(box);
+        }
+
+        static List<Ability> AllPassives() =>
+            AllAbilities().Where(a => InterflowAbilityGroups.Of(a) == InterflowAbilityGroups.Group.Passive)
+                .OrderBy(a => a.name).ToList();
+
+        // Добавить/убрать элемент массива abilities на АССЕТЕ префаба штатным SerializedObject
+        // (тот же механизм, что у привязанных полей редактора; Undo штатный).
+        static void AddAbilityToUnit(Ability ability)
+        {
+            if (selected == null || ability == null) return;
+
+            // Идемпотентность (правило 8): дубль в abilities не нужен — Unlock идемпотентен по (Ability, Level),
+            // второй экземпляр ничего не даст, а панель умений покажет две одинаковые ячейки.
+            if (selected.abilities != null && selected.abilities.Contains(ability))
+            {
+                EditorUtility.DisplayDialog("Пассивные умения", "Эта пассивка уже есть у юнита.", "OK");
+                return;
+            }
+
+            var so = new SerializedObject(selected);
+            var prop = so.FindProperty("abilities");
+            if (prop == null || !prop.isArray)
+            {
+                Debug.LogWarning("[InterflowUnitsTab] Не найдено поле abilities у Unit — пассивка не добавлена.");
+                return;
+            }
+
+            int i = prop.arraySize;
+            prop.InsertArrayElementAtIndex(i);
+            prop.GetArrayElementAtIndex(i).objectReferenceValue = ability;
+            so.ApplyModifiedProperties();
+            // Точечное сохранение одного префаба: SaveAssets() без аргументов сохранил бы ВСЕ грязные
+            // ассеты проекта — чужие несохранённые правки уехали бы на диск побочкой (правило 8).
+            AssetDatabase.SaveAssetIfDirty(selected);
+            RebuildRightPanel();
+        }
+
+        static void RemoveAbilityAt(int index, Ability expected)
+        {
+            if (selected == null) return;
+
+            var so = new SerializedObject(selected);
+            var prop = so.FindProperty("abilities");
+            if (prop == null || !prop.isArray || index < 0 || index >= prop.arraySize) return;
+
+            // Защита от устаревшего индекса (правило 8): массив могли поменять через привязанные поля
+            // выше после построения блока — тогда по индексу стоит уже ДРУГОЙ элемент. Не угадываем — перестраиваем.
+            if (prop.GetArrayElementAtIndex(index).objectReferenceValue != expected)
+            {
+                RebuildRightPanel();
+                return;
+            }
+
+            prop.DeleteArrayElementAtIndex(index);
+            so.ApplyModifiedProperties();
+            AssetDatabase.SaveAssetIfDirty(selected); // точечно, не весь проект (правило 8)
+            RebuildRightPanel();
         }
 
         // ======================== «ГДЕ ИСПОЛЬЗУЕТСЯ» ========================

@@ -15,7 +15,6 @@ namespace StrategyCore
     /// Штатные поля Ability: <c>cooldown</c> — откат чарджа, <c>castRange</c> — с какой дистанции начинается разгон,
     /// <c>unitSelector</c> — на кого можно чарджить.
     /// </summary>
-    [CreateAssetMenu(fileName = "ChargeAttack", menuName = "StrategyCore/Abilities/Interflow/ChargeAttack (Чардж)")]
     public class ChargeAttack : InterflowAbility
     {
         public override AbilityType type { get { return AbilityType.Passive; } }

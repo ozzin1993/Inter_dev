@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: 26219b56c0086f34596a7f7ca4702fb4
+timeCreated: 1507519740
+licenseType: Store
+NativeFormatImporter:
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 102677
+  packageName: POLYGON - Dungeons Pack - Art by Synty
+  packageVersion: 1.10.1
+  assetPath: Assets/Synty/PolygonDungeon/Prefabs/Environments/Walls/SM_Env_Ceiling_Stone_Curved_End_01.prefab
+  uploadId: 924204

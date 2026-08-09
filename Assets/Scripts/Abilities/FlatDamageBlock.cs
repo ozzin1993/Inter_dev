@@ -8,7 +8,6 @@ namespace StrategyCore
     // Хук — ЖЕРТВА: Unit.OnBeforeGetDamageCallbacks (DamageModifyCallback, входящий урон, как Evasion).
     // Ассет StrategyCore не трогаем (правило 1). Числа — в Inspector (правило 3).
     // Ограничение канала: колбэк НЕ передаёт тип урона → блок применяется к ЛЮБОМУ типу (штатное ограничение).
-    [CreateAssetMenu(fileName = "FlatDamageBlock", menuName = "StrategyCore/Abilities/Interflow/FlatDamageBlock (B13)")]
     public class FlatDamageBlock : InterflowAbility
     {
         public override AbilityType type => AbilityType.Passive;

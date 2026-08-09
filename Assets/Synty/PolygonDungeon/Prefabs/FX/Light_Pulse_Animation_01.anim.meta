@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: bef94c75514300347a74498742c666af
+timeCreated: 1506568646
+licenseType: Store
+NativeFormatImporter:
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 102677
+  packageName: POLYGON - Dungeons Pack - Art by Synty
+  packageVersion: 1.10.1
+  assetPath: Assets/Synty/PolygonDungeon/Prefabs/FX/Light_Pulse_Animation_01.anim
+  uploadId: 924204

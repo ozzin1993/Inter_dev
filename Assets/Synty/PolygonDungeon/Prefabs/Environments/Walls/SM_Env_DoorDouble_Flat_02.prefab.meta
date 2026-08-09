@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: 99ccc99de12ffe040be3b530f06e7eed
+timeCreated: 1505956626
+licenseType: Store
+NativeFormatImporter:
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 102677
+  packageName: POLYGON - Dungeons Pack - Art by Synty
+  packageVersion: 1.10.1
+  assetPath: Assets/Synty/PolygonDungeon/Prefabs/Environments/Walls/SM_Env_DoorDouble_Flat_02.prefab
+  uploadId: 924204

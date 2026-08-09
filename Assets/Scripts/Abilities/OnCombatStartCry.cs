@@ -11,7 +11,6 @@ namespace StrategyCore
     /// «начал бой» в ассете нет, а состояние <c>unitState</c> меняется и при простом марше.
     /// Пауза и откат настраиваются в Inspector.
     /// </summary>
-    [CreateAssetMenu(fileName = "OnCombatStartCry", menuName = "StrategyCore/Abilities/Interflow/OnCombatStartCry (Клич при вступлении в бой)")]
     public class OnCombatStartCry : InterflowAbility
     {
         public override AbilityType type { get { return AbilityType.Passive; } }

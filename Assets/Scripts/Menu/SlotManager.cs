@@ -661,6 +661,9 @@ namespace StrategyCore
             {
                 SlotManager.instance.unitNetID.Remove(netID);
 
+                // Презентация: снять постоянный круг радиуса, если он был.
+                SkillPresentationEvents.RaiseUnitGone(unit);
+
                 if (NetworkManager.Singleton.IsServer)
                 {
                     // Remove from sync lists

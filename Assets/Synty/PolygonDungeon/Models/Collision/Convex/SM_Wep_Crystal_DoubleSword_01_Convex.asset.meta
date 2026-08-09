@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: 59447c218a1585b40bc6aabb3a596a2a
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 43873360945913592
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 102677
+  packageName: POLYGON - Dungeons Pack - Art by Synty
+  packageVersion: 1.10.1
+  assetPath: Assets/Synty/PolygonDungeon/Models/Collision/Convex/SM_Wep_Crystal_DoubleSword_01_Convex.asset
+  uploadId: 924204

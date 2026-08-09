@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: 6cfd09de39cd13c439c6262184d83190
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 43377419461235678
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 102677
+  packageName: POLYGON - Dungeons Pack - Art by Synty
+  packageVersion: 1.10.1
+  assetPath: Assets/Synty/PolygonDungeon/Models/Collision/Convex/SM_Prop_Crate_Wood_03_Convex.asset
+  uploadId: 924204

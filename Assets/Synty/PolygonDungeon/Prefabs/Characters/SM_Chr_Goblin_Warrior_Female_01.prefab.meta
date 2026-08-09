@@ -1,0 +1,16 @@
+fileFormatVersion: 2
+guid: 851e8547e58372347b1fc5cbc7bf3930
+timeCreated: 1545006154
+licenseType: Store
+NativeFormatImporter:
+  mainObjectFileID: 100100000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 102677
+  packageName: POLYGON - Dungeons Pack - Art by Synty
+  packageVersion: 1.10.1
+  assetPath: Assets/Synty/PolygonDungeon/Prefabs/Characters/SM_Chr_Goblin_Warrior_Female_01.prefab
+  uploadId: 924204

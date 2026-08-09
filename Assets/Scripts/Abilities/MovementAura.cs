@@ -12,7 +12,6 @@ namespace StrategyCore
     /// поэтому нужен свой тик (движение определяем по смещению позиции между тиками, а не по состоянию,
     /// чтобы работало и в бою, и в марше).
     /// </summary>
-    [CreateAssetMenu(fileName = "MovementAura", menuName = "StrategyCore/Abilities/Interflow/MovementAura (Аура в движении)")]
     public class MovementAura : InterflowAbility
     {
         public override AbilityType type { get { return AbilityType.Passive; } }

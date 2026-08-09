@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: 5e1487ba20da9884a95f1ecf7acfb2b9
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 43517192500828480
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 102677
+  packageName: POLYGON - Dungeons Pack - Art by Synty
+  packageVersion: 1.10.1
+  assetPath: Assets/Synty/PolygonDungeon/Models/Collision/Convex/SM_Prop_Metal_Fence_Post_01_Convex.asset
+  uploadId: 924204

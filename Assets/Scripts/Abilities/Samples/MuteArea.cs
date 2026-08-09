@@ -5,7 +5,6 @@ using UnityEngine;
 namespace StrategyCore
 {
     // Asset menu
-    [CreateAssetMenu(fileName = "MuteArea", menuName = "StrategyCore/Abilities/MuteArea")]
     public class MuteArea : Ability
     {
         public override AbilityType type { get { return AbilityType.Area; } } // Specify type

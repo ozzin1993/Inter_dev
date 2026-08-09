@@ -64,9 +64,10 @@ namespace StrategyCore
             {
                 ("Фракции", InterflowFactionTab.CreateTabUI),
                 ("Юниты", InterflowUnitsTab.CreateTabUI),
-                ("Умения и эффекторы", InterflowAbilitiesTab.CreateTabUI),
+                ("Эффекторы", InterflowAbilitiesTab.CreateTabUI),   // умения переехали в конструкторы (09.08)
                 ("Конструктор скиллов", InterflowSkillBuilderTab.CreateTabUI),
                 ("Производство", InterflowProductionTab.CreateTabUI),
+                ("Пассивные умения", InterflowPassivesTab.CreateTabUI),
                 ("Справочники", InterflowCatalogsTab.CreateTabUI),
                 ("Приоритет цели", InterflowTargetPriorityTab.CreateTabUI),
                 ("Матч", InterflowMatchTab.CreateTabUI),

@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier:
   id: 200500
   displayName: "Горение (алхимическое)"
-  icon: {fileID: 0}
+  icon: {fileID: 2800000, guid: ccd834679a04c084db65a4eac0cabf4b, type: 3}
   description: ""
   VFX: {fileID: 0}
   aboveHead: 0

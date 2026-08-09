@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: 147b6b6ba34bf4c40b347ea367ba99ab
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 43712392100316178
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 102677
+  packageName: POLYGON - Dungeons Pack - Art by Synty
+  packageVersion: 1.10.1
+  assetPath: Assets/Synty/PolygonDungeon/Models/Collision/Convex/SM_Prop_Crate_Metal_Open_01_Convex.asset
+  uploadId: 924204

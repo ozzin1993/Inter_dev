@@ -2,7 +2,6 @@ using UnityEngine;
 
 namespace StrategyCore
 {
-    [CreateAssetMenu(fileName = "Wololo", menuName = "StrategyCore/Abilities/Wololo")]
     public class Wololo : Ability
     {
         // Changes the owner of the target

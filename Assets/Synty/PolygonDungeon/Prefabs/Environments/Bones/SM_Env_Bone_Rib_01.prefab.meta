@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: 554e600a25c88fa4599825614a29d9f0
+timeCreated: 1506042998
+licenseType: Store
+NativeFormatImporter:
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 102677
+  packageName: POLYGON - Dungeons Pack - Art by Synty
+  packageVersion: 1.10.1
+  assetPath: Assets/Synty/PolygonDungeon/Prefabs/Environments/Bones/SM_Env_Bone_Rib_01.prefab
+  uploadId: 924204

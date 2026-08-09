@@ -5,7 +5,6 @@ using UnityEngine;
 
 namespace StrategyCore
 {
-    [CreateAssetMenu(fileName = "PassiveInvisibility", menuName = "StrategyCore/Abilities/PassiveInvisibility")]
     public class PassiveInvisibility : Ability
     {
         public override AbilityType type { get { return AbilityType.Passive; } } // Specify type

@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: 464033f3eac2ef64e912cb8b1163e79a
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 43111466668466182
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 102677
+  packageName: POLYGON - Dungeons Pack - Art by Synty
+  packageVersion: 1.10.1
+  assetPath: Assets/Synty/PolygonDungeon/Models/Collision/Convex/SM_Wep_Greatsword_Round_01_Convex.asset
+  uploadId: 924204

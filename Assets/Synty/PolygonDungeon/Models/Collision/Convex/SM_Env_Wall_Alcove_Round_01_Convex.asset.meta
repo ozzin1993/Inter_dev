@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: e448bc64ca85c8c48b4c1326db7c21e6
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 43805811041259914
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 102677
+  packageName: POLYGON - Dungeons Pack - Art by Synty
+  packageVersion: 1.10.1
+  assetPath: Assets/Synty/PolygonDungeon/Models/Collision/Convex/SM_Env_Wall_Alcove_Round_01_Convex.asset
+  uploadId: 924204

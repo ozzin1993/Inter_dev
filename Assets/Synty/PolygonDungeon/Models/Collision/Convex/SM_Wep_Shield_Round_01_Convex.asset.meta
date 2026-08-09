@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: d377537d6624f374497d1906bb6a7bdd
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 43970609166897040
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 102677
+  packageName: POLYGON - Dungeons Pack - Art by Synty
+  packageVersion: 1.10.1
+  assetPath: Assets/Synty/PolygonDungeon/Models/Collision/Convex/SM_Wep_Shield_Round_01_Convex.asset
+  uploadId: 924204

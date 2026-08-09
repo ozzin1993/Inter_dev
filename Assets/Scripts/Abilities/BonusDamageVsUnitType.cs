@@ -13,7 +13,6 @@ namespace StrategyCore
     /// добивается недостающая часть урона тем же типом. Урон проходит через броню как обычно,
     /// поэтому в поле указывается множитель ИТОГОВОГО урона (2 = вдвое больше).
     /// </summary>
-    [CreateAssetMenu(fileName = "BonusDamageVsUnitType", menuName = "StrategyCore/Abilities/Interflow/BonusDamageVsUnitType (Урон по типу цели)")]
     public class BonusDamageVsUnitType : InterflowAbility
     {
         public override AbilityType type { get { return AbilityType.Passive; } }

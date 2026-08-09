@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: 91f21d47c2b9b7d4e946b81b5b39f0af
+timeCreated: 1508121481
+licenseType: Store
+NativeFormatImporter:
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 102677
+  packageName: POLYGON - Dungeons Pack - Art by Synty
+  packageVersion: 1.10.1
+  assetPath: Assets/Synty/PolygonDungeon/Materials/FX/FX_LightRay_01.mat
+  uploadId: 924204

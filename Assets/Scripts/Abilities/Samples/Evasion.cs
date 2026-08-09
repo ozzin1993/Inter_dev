@@ -5,7 +5,6 @@ using UnityEngine;
 
 namespace StrategyCore
 {
-    [CreateAssetMenu(fileName = "Evasion", menuName = "StrategyCore/Abilities/Evasion")]
     public class Evasion : Ability
     {
         // Allows the unit to evade the upcoming direct attacks receiving no damage. DirectAttack means the damage was caused by the enemy unit`s attack, not by ability or effector.

@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: 02d2c75a4570d134ead2e542c7036a0f
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 43613082702253508
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 102677
+  packageName: POLYGON - Dungeons Pack - Art by Synty
+  packageVersion: 1.10.1
+  assetPath: Assets/Synty/PolygonDungeon/Models/Collision/Convex/SM_Env_Basement_Support_Beam_01_Convex.asset
+  uploadId: 924204

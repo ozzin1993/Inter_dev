@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: ad90f91a24034b94d9d8e31a1ab17766
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 43119604825895222
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 102677
+  packageName: POLYGON - Dungeons Pack - Art by Synty
+  packageVersion: 1.10.1
+  assetPath: Assets/Synty/PolygonDungeon/Models/Collision/Convex/SM_Env_Stone_Vessel_01_Convex.asset
+  uploadId: 924204

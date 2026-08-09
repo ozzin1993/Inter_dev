@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: 65cf445b05bb86e4b938e09dbad9e389
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 43318618366214756
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 102677
+  packageName: POLYGON - Dungeons Pack - Art by Synty
+  packageVersion: 1.10.1
+  assetPath: Assets/Synty/PolygonDungeon/Models/Collision/Convex/SM_Prop_Wall_Banner_03_Convex.asset
+  uploadId: 924204

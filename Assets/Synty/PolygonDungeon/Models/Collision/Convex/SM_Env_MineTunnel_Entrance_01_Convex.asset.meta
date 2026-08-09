@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: 2c9e264fd5e214543a5ff4c903d1f798
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 43627489689806682
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 102677
+  packageName: POLYGON - Dungeons Pack - Art by Synty
+  packageVersion: 1.10.1
+  assetPath: Assets/Synty/PolygonDungeon/Models/Collision/Convex/SM_Env_MineTunnel_Entrance_01_Convex.asset
+  uploadId: 924204

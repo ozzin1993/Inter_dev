@@ -5,8 +5,9 @@ namespace StrategyCore
     // Кирпич B8 — длящаяся зона урона на земле. ПРОСТОЙ префаб (НЕ Unit → нет NavMeshObstacle/carving, путей не
     // перекрывает; прецедент graves). Каждый штатный тик бьёт врагов владельца в радиусе; живёт duration, затем
     // самоудаляется. Цикл — образец FlameCloakBuff; лайфтайм — свой (как graves/CallToArms). Урон — только сервер
-    // (правило 6). Клиентский синк визуала ОТЛОЖЕН (§6.3): визуал = сам префаб (виден на хосте), RPC — будущее.
-    // Ассет StrategyCore не трогаем (правило 1). Числа — в Inspector (правило 3).
+    // (правило 6). Клиентский синк визуала СДЕЛАН 2026-08-06: сервер держит реестр (MatchManager.GroundZones),
+    // клиент получает факт и спавнит ТОТ ЖЕ префаб — на клиенте Start выходит сразу, остаётся чистый визуал.
+    // Числа — в Inspector (правило 3).
     public class GroundDamageZone : MonoBehaviour
     {
         [Header("Зона урона (B8)")]
@@ -40,8 +41,15 @@ namespace StrategyCore
         private bool subscribed;
         private bool started;
 
+        // id зоны в серверном реестре (MatchManager.GroundZones); 0 — не зарегистрирована.
+        // На клиентской копии остаётся нулём: реестр ведётся только на сервере.
+        private int zoneId;
+
         /// <summary>Задать владельца до старта (серверный спавнер зовёт сразу после Instantiate).</summary>
         public void SetOwner(int owner) { ownerPlayer = owner; }
+
+        /// <summary>Задать id реестра. Зовёт серверный реестр сразу после регистрации зоны.</summary>
+        public void SetZoneId(int id) { zoneId = id; }
 
         // Старт отсчёта/тика — только сервер (правило 6). Зона спавнится по ходу матча (GameManager готов).
         private void Start()
@@ -102,6 +110,15 @@ namespace StrategyCore
         {
             if (subscribed && GameManager.instance != null) GameManager.instance.Tick -= OnTick;
             subscribed = false;
+
+            // Единственная точка смерти зоны — здесь же гасим её копию у клиентов.
+            // Cleanup достижим только на сервере (на клиенте тик не подписан), отдельный гейт не нужен.
+            if (zoneId != 0)
+            {
+                if (MatchManager.instance != null) MatchManager.instance.UnregisterGroundZone(zoneId);
+                zoneId = 0;
+            }
+
             Destroy(gameObject);
         }
 

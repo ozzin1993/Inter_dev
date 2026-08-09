@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: 722c071ab465885478de9491dfd22a73
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 43801432879149342
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 102677
+  packageName: POLYGON - Dungeons Pack - Art by Synty
+  packageVersion: 1.10.1
+  assetPath: Assets/Synty/PolygonDungeon/Models/Collision/Convex/SM_Trap_Saw_02_Convex.asset
+  uploadId: 924204

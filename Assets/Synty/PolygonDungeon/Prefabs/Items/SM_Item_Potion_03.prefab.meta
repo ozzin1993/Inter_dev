@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: 03eb254be55316240929244bd19caa02
+timeCreated: 1505956626
+licenseType: Store
+NativeFormatImporter:
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 102677
+  packageName: POLYGON - Dungeons Pack - Art by Synty
+  packageVersion: 1.10.1
+  assetPath: Assets/Synty/PolygonDungeon/Prefabs/Items/SM_Item_Potion_03.prefab
+  uploadId: 924204

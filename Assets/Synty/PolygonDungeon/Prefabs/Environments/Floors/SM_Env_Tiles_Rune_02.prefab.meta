@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: ecc04ca84d1c2ad4ba575f3e7b65830a
+timeCreated: 1505956620
+licenseType: Store
+NativeFormatImporter:
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 102677
+  packageName: POLYGON - Dungeons Pack - Art by Synty
+  packageVersion: 1.10.1
+  assetPath: Assets/Synty/PolygonDungeon/Prefabs/Environments/Floors/SM_Env_Tiles_Rune_02.prefab
+  uploadId: 924204

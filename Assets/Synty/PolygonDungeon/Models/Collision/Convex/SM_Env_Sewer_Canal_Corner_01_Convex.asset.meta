@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: f81e4f27cbfde6141a579c434974471e
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 43861287414902962
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 102677
+  packageName: POLYGON - Dungeons Pack - Art by Synty
+  packageVersion: 1.10.1
+  assetPath: Assets/Synty/PolygonDungeon/Models/Collision/Convex/SM_Env_Sewer_Canal_Corner_01_Convex.asset
+  uploadId: 924204

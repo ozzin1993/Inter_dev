@@ -2,10 +2,9 @@ using UnityEngine;
 
 namespace StrategyCore
 {
-    // Effectors are temporary effects that modify a unit�s parameters, either buffing or nerfing them. They can be applied through attacks or abilities and are commonly used in auras.
-    // Effectors appear in the unit�s Status UI and last for a specified duration.
+    // Effectors are temporary effects that modify a unit�s parameters, either buffing or nerfing them. They can be applied through attacks or abilities and are commonly used in auras.
+    // Effectors appear in the unit�s Status UI and last for a specified duration.
 
-    [CreateAssetMenu(fileName = "Effector", menuName = "StrategyCore/Effectors/Create")]
     public class Effector : ScriptableObject
     {
         [EffectorID]
@@ -108,6 +107,13 @@ namespace StrategyCore
                 if (EH.effector.revealInvisible) unitHolder.CanBeSeen(false, EH.owner);
 
                 if (!EH.stacks) unitHolder.OnStatusUpdate?.Invoke();
+
+                // [Interflow fix 2026-08-05 unit-status-sync] Эффектор истёк — сообщить клиентам «снят»
+                // (фикс §8.6), но только если на юните не осталось других наложений того же эффектора
+                // (разная сила/длительность сосуществуют — значок ещё заслужен).
+                if ((EH.effector.icon != null || EH.effector.VFX != null) && NetworkDataSync.instance != null
+                    && !HasEffectorWithId(unitHolder, EH.effector.id))
+                    NetworkDataSync.instance.UnitStatusEffectorRemoveSend(unitHolder, EH.effector.id);
             }
         }
 
@@ -120,6 +126,11 @@ namespace StrategyCore
         public static void EffectorAdd(Unit unit, Effector effector, Unit unitOwner, int owner, float currentTime = 0,
                                        float powerMultiplier = 1f, float durationOverride = -1f)
         {
+            // [Interflow fix 2026-08-06 no-effectors-on-buildings] Решение Artsiom: на здания эффекты
+            // не вешаются. Заодно закрывает краш ядра: slow-эффектор звал ChangeMoveSpeed, а у зданий
+            // нет NavMeshAgent — EffectorAdd обрывался исключением на полпути (воспроизведено 2026-08-06).
+            if (unit.unitType == UnitType.Building) return;
+
             // [Interflow fix 2026-08-02 effector-unify]
             // Раньше здесь правились поля САМОГО ассета (общего для всех носителей): наложение на одного юнита
             // молча меняло эффектор всем остальным и переживало выход из Play Mode. Теперь фактические
@@ -148,6 +159,10 @@ namespace StrategyCore
                     if (!Mathf.Approximately(existing.duration, duration)) continue;
 
                     existing.currentTime = 0;
+                    // [Interflow fix 2026-08-05 unit-status-sync] Продление наложения — сообщить клиентам
+                    // (единый канал статусов; внутри гейт «только сервер» — локальные ауры клиента не шлют).
+                    if ((effector.icon != null || effector.VFX != null) && NetworkDataSync.instance != null)
+                        NetworkDataSync.instance.UnitStatusEffectorSend(unit, effector.id, duration);
                     return;
                 }
             }
@@ -169,6 +184,13 @@ namespace StrategyCore
             if (newEH.effector.revealInvisible) unit.CanBeSeen(true, owner);
 
             if (!newEH.stacks) unit.OnStatusUpdate?.Invoke();
+
+            // [Interflow fix 2026-08-05 unit-status-sync] Единый канал статусов: отправка «эффектор
+            // появился» из ОДНОЙ точки — покрывает атаки, ауры и скиллы одинаково (решение Artsiom
+            // 2026-08-05). Шлём только то, что клиенту есть чем показать (значок или VFX);
+            // гейт «только сервер» живёт внутри UnitStatusEffectorSend.
+            if ((newEH.effector.icon != null || newEH.effector.VFX != null) && NetworkDataSync.instance != null)
+                NetworkDataSync.instance.UnitStatusEffectorSend(unit, newEH.effector.id, duration);
         }
 
         // Add Effector[] by unitOwner
@@ -221,6 +243,21 @@ namespace StrategyCore
             if (EH.effector.revealInvisible) unitHolder.CanBeSeen(false, EH.owner);
 
             if (!EH.stacks) unitHolder.OnStatusUpdate?.Invoke();
+
+            // [Interflow fix 2026-08-05 unit-status-sync] Досрочное снятие (диспел) — сообщить клиентам
+            // «снят» (фикс §8.6: раньше досрочное снятие и permanent-эффекторы висели у клиента вечно).
+            if ((EH.effector.icon != null || EH.effector.VFX != null) && NetworkDataSync.instance != null
+                && !HasEffectorWithId(unitHolder, EH.effector.id))
+                NetworkDataSync.instance.UnitStatusEffectorRemoveSend(unitHolder, EH.effector.id);
+        }
+
+        // [Interflow fix 2026-08-05 unit-status-sync] Остались ли на юните наложения эффектора с этим id
+        // (для решения, можно ли слать клиентам «статус снят»).
+        private static bool HasEffectorWithId(Unit unit, int effectorId)
+        {
+            for (int i = 0; i < unit.effectors.Count; i++)
+                if (unit.effectors[i].effector != null && unit.effectors[i].effector.id == effectorId) return true;
+            return false;
         }
 
         // Returns the effector by its ID

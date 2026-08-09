@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: 1e90d943cdd77ec468a6c24fa8f2d2ca
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 43099653831002778
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 102677
+  packageName: POLYGON - Dungeons Pack - Art by Synty
+  packageVersion: 1.10.1
+  assetPath: Assets/Synty/PolygonDungeon/Models/Collision/Convex/SM_Prop_Tech_Turbine_01_Convex.asset
+  uploadId: 924204

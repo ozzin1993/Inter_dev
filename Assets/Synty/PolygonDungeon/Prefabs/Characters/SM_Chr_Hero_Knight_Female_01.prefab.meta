@@ -1,0 +1,16 @@
+fileFormatVersion: 2
+guid: 45608daf8c357ac4883238b3247d64b7
+timeCreated: 1545006151
+licenseType: Store
+NativeFormatImporter:
+  mainObjectFileID: 100100000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 102677
+  packageName: POLYGON - Dungeons Pack - Art by Synty
+  packageVersion: 1.10.1
+  assetPath: Assets/Synty/PolygonDungeon/Prefabs/Characters/SM_Chr_Hero_Knight_Female_01.prefab
+  uploadId: 924204

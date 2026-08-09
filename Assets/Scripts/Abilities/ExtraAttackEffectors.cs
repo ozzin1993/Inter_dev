@@ -14,7 +14,6 @@ namespace StrategyCore
     ///
     /// Открывается технологией: положить в <c>abilities[]</c> префаба, заполнить <c>Required Tech</c>.
     /// </summary>
-    [CreateAssetMenu(fileName = "ExtraAttackEffectors", menuName = "StrategyCore/Abilities/Interflow/ExtraAttackEffectors (Эффекторы к атакам)")]
     public class ExtraAttackEffectors : InterflowAbility
     {
         public override AbilityType type { get { return AbilityType.Passive; } }

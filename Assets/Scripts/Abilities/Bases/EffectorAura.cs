@@ -4,7 +4,6 @@ using UnityEngine;
 
 namespace StrategyCore
 {
-    [CreateAssetMenu(fileName = "EffectorAura", menuName = "StrategyCore/Abilities/EffectorAura")]
     public class EffectorAura : Ability
     {
         public override AbilityType type { get { return AbilityType.Aura; } }

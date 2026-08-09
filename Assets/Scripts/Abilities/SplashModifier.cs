@@ -10,7 +10,6 @@ namespace StrategyCore
     /// Реализация: штатный <c>Unit.ChangeSplash</c>. Исходные значения запоминаются,
     /// чтобы при блокировке способности вернуть их точно (а не «вычесть обратно»).
     /// </summary>
-    [CreateAssetMenu(fileName = "SplashModifier", menuName = "StrategyCore/Abilities/Interflow/SplashModifier (Изменение сплеша)")]
     public class SplashModifier : InterflowAbility
     {
         public override AbilityType type { get { return AbilityType.Passive; } }

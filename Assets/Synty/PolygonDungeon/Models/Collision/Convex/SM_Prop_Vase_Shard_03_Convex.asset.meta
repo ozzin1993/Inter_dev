@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: 43b85fd1b29c8994da0a6689dda18283
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 43083794748410284
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 102677
+  packageName: POLYGON - Dungeons Pack - Art by Synty
+  packageVersion: 1.10.1
+  assetPath: Assets/Synty/PolygonDungeon/Models/Collision/Convex/SM_Prop_Vase_Shard_03_Convex.asset
+  uploadId: 924204

@@ -4,7 +4,6 @@ using UnityEngine;
 
 namespace StrategyCore
 {
-    [CreateAssetMenu(fileName = "UnitTraining(Process)", menuName = "StrategyCore/Abilities/UnitTraining(Process)")]
     public class UnitTraining : Ability
     {
         public override AbilityType type { get { return AbilityType.Process; } } // Specify type

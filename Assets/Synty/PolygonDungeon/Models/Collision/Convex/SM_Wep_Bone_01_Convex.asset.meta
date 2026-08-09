@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: 814c25646f9d7724eaefb0b0dea02f6b
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 43661156935770654
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 102677
+  packageName: POLYGON - Dungeons Pack - Art by Synty
+  packageVersion: 1.10.1
+  assetPath: Assets/Synty/PolygonDungeon/Models/Collision/Convex/SM_Wep_Bone_01_Convex.asset
+  uploadId: 924204

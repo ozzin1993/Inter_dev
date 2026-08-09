@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: 248146043d07ee748833c74e4795ef59
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 43627729148760698
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 102677
+  packageName: POLYGON - Dungeons Pack - Art by Synty
+  packageVersion: 1.10.1
+  assetPath: Assets/Synty/PolygonDungeon/Models/Collision/Convex/SM_Env_Vine_Spikes_02_Convex.asset
+  uploadId: 924204

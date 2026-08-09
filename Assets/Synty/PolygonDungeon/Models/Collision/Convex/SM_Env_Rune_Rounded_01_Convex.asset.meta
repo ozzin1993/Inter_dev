@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: 2a72bee89ccb51f4aa64b74dd6922d57
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 43854961728075190
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 102677
+  packageName: POLYGON - Dungeons Pack - Art by Synty
+  packageVersion: 1.10.1
+  assetPath: Assets/Synty/PolygonDungeon/Models/Collision/Convex/SM_Env_Rune_Rounded_01_Convex.asset
+  uploadId: 924204

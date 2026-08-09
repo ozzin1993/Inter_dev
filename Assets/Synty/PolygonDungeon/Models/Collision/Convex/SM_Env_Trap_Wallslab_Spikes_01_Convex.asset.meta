@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: c8539b9dccfb4bf46a8e3264cce40639
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 43368791642882124
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 102677
+  packageName: POLYGON - Dungeons Pack - Art by Synty
+  packageVersion: 1.10.1
+  assetPath: Assets/Synty/PolygonDungeon/Models/Collision/Convex/SM_Env_Trap_Wallslab_Spikes_01_Convex.asset
+  uploadId: 924204

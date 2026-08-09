@@ -8,21 +8,23 @@ namespace StrategyCore
     /// цель всегда выбирает стратегия — либо компонент автокаста у юнита, либо сам скилл при касте с кнопки.
     /// Хранится в ассете скилла (CompositeSkill); исполняется <see cref="SkillTargeting"/>.
     ///
+    /// ЗДЕСЬ ТОЛЬКО АЛГОРИТМ — «как выбираем». Кого выбираем, задают два независимых селектора умения:
+    /// принадлежность (штатный <see cref="UnitSelector"/>) и боевые роли (массив ролей у скилла).
+    /// Кандидаты приходят сюда уже отфильтрованными обоими, поэтому «враг»/«союзник»/«заданной категории»
+    /// из названий убраны — раньше они были подписями, а не поведением (решение Artsiom 2026-08-06).
+    ///
     /// НЕ путать с приоритетом цели АТАКИ (Unit.targetPriority / InterflowTargeting) — то отдельная система
     /// про то, кого юнит бьёт оружием, и она здесь не участвует.
     /// </summary>
     public enum SkillTargetStrategy
     {
-        [InspectorName("Ближайший враг")]                          NearestEnemy,
-        [InspectorName("Ближайший враг заданной категории")]       NearestEnemyOfCategory,
-        [InspectorName("Самый раненый враг")]                      MostWoundedEnemy,
-        [InspectorName("Самый раненый союзник")]                   MostWoundedAlly,
-        [InspectorName("Враг с наибольшим запасом ХП")]            StrongestEnemy,
-        [InspectorName("Текущая цель атаки кастера")]              CurrentAttackTarget,
-        [InspectorName("Случайный враг (приоритет по категории)")] RandomEnemyWithCategoryPriority,
-        [InspectorName("Скопление врагов")]                        EnemyCluster,
-        [InspectorName("Ближайший союзник заданной категории")]    AllyOfCategory,
-        [InspectorName("Раненый союзник ниже порога ХП")]          WoundedAllyBelowThreshold
+        [InspectorName("Ближайший")]                   Nearest,
+        [InspectorName("Самый раненый")]               MostWounded,
+        [InspectorName("Раненый ниже порога ХП")]      WoundedBelowThreshold,
+        [InspectorName("С наибольшим запасом ХП")]     Strongest,
+        [InspectorName("Случайный")]                   RandomOne,
+        [InspectorName("Скопление")]                   Cluster,
+        [InspectorName("Текущая цель атаки кастера")]  CurrentAttackTarget
     }
 
     /// <summary>
@@ -91,23 +93,27 @@ namespace StrategyCore
         }
 
         /// <summary>Ближайший юнит заданной боевой роли. Роли нет среди кандидатов — null (каст не идёт).</summary>
-        public static Unit NearestOfCategory(Unit[] candidates, Unit self, Vector3 origin, Unit.UnitCategory category)
+        /// <summary>
+        /// Отсев кандидатов по боевым ролям. Пустой набор ролей — пропускает всех (селектор выключен).
+        /// Единая точка: и скилл, и компонент автокаста фильтруют кандидатов только здесь.
+        /// </summary>
+        public static Unit[] FilterByCategories(Unit[] candidates, Unit.UnitCategory[] categories)
         {
             if (candidates == null) return null;
+            // Пустой набор ролей роль не ограничивает — отдаём кандидатов как есть, без копии.
+            if (categories == null || categories.Length == 0) return candidates;
 
-            Unit best = null;
-            float bestSqr = float.MaxValue;
+            List<Unit> kept = new List<Unit>(candidates.Length);
             for (int i = 0; i < candidates.Length; i++)
             {
                 Unit c = candidates[i];
-                if (c == null || c.dead || c == self) continue;
-                if (c.unitCategory != category) continue;
+                if (c == null) continue;
 
-                float sqr = (c.transform.position - origin).sqrMagnitude;
-                if (sqr < bestSqr) { bestSqr = sqr; best = c; }
+                for (int k = 0; k < categories.Length; k++)
+                    if (categories[k] == c.unitCategory) { kept.Add(c); break; }
             }
 
-            return best;
+            return kept.ToArray();
         }
 
         /// <summary>
@@ -178,25 +184,22 @@ namespace StrategyCore
         }
 
         /// <summary>
-        /// Случайный из кандидатов с приоритетом боевой роли: сначала пул нужной категории,
-        /// и только если он пуст — все валидные кандидаты.
+        /// Равномерно случайный из кандидатов. Сужение по ролям сюда уже применено селектором ролей
+        /// умения — приоритета по категории больше нет (решение Artsiom 2026-08-06).
         /// </summary>
-        public static Unit RandomWithCategoryPriority(Unit[] candidates, Unit self, Unit.UnitCategory priorityCategory)
+        public static Unit AnyRandom(Unit[] candidates, Unit self)
         {
             if (candidates == null) return null;
 
-            List<Unit> all = new List<Unit>();
-            List<Unit> priority = new List<Unit>();
+            List<Unit> pool = new List<Unit>();
             for (int i = 0; i < candidates.Length; i++)
             {
                 Unit c = candidates[i];
                 if (c == null || c.dead || c == self) continue;
 
-                all.Add(c);
-                if (c.unitCategory == priorityCategory) priority.Add(c);
+                pool.Add(c);
             }
 
-            List<Unit> pool = priority.Count > 0 ? priority : all;
             if (pool.Count == 0) return null;
 
             return pool[Random.Range(0, pool.Count)];
@@ -307,8 +310,6 @@ namespace StrategyCore
         /// <summary>Настройки стратегий, которым нужны параметры сверх набора кандидатов.</summary>
         public struct Options
         {
-            /// <summary>Категория для «ближайший враг/союзник заданной категории» и приоритета случайного выбора.</summary>
-            public Unit.UnitCategory category;
             /// <summary>Для «наибольший запас ХП»: мерить текущее здоровье вместо максимального.</summary>
             public bool useCurrentHealth;
             /// <summary>Для «раненый союзник ниже порога»: доля ХП, ниже которой юнит считается целью.</summary>
@@ -329,32 +330,27 @@ namespace StrategyCore
         {
             switch (strategy)
             {
-                case SkillTargetStrategy.NearestEnemy:
+                case SkillTargetStrategy.Nearest:
                     return Nearest(candidates, self, options.origin);
 
-                case SkillTargetStrategy.NearestEnemyOfCategory:
-                case SkillTargetStrategy.AllyOfCategory:
-                    return NearestOfCategory(candidates, self, options.origin, options.category);
-
-                case SkillTargetStrategy.MostWoundedEnemy:
-                case SkillTargetStrategy.MostWoundedAlly:
+                case SkillTargetStrategy.MostWounded:
                     return MostWounded(candidates, self);
 
-                case SkillTargetStrategy.StrongestEnemy:
+                case SkillTargetStrategy.WoundedBelowThreshold:
+                    return MostWoundedBelowThreshold(candidates, self, options.hpThreshold);
+
+                case SkillTargetStrategy.Strongest:
                     return Strongest(candidates, self, options.useCurrentHealth);
 
-                case SkillTargetStrategy.CurrentAttackTarget:
-                    return CurrentAttackTarget(self);
+                case SkillTargetStrategy.RandomOne:
+                    return AnyRandom(candidates, self);
 
-                case SkillTargetStrategy.RandomEnemyWithCategoryPriority:
-                    return RandomWithCategoryPriority(candidates, self, options.category);
-
-                case SkillTargetStrategy.EnemyCluster:
+                case SkillTargetStrategy.Cluster:
                     return DensestCluster(candidates, self != null ? self.owner : -1,
                                           options.clusterRadius, options.clusterSelector);
 
-                case SkillTargetStrategy.WoundedAllyBelowThreshold:
-                    return MostWoundedBelowThreshold(candidates, self, options.hpThreshold);
+                case SkillTargetStrategy.CurrentAttackTarget:
+                    return CurrentAttackTarget(self);
             }
 
             return null;

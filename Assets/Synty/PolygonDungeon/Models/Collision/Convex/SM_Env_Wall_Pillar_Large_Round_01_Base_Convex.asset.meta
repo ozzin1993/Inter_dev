@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: 248b5800ace0dde44aa3c8d2fa98b3a1
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 43085957869345910
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 102677
+  packageName: POLYGON - Dungeons Pack - Art by Synty
+  packageVersion: 1.10.1
+  assetPath: Assets/Synty/PolygonDungeon/Models/Collision/Convex/SM_Env_Wall_Pillar_Large_Round_01_Base_Convex.asset
+  uploadId: 924204

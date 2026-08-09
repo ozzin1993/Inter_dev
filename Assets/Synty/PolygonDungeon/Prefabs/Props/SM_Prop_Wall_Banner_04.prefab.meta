@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: 643180c044ccb6245a6a235c6ad5867d
+timeCreated: 1506984595
+licenseType: Store
+NativeFormatImporter:
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 102677
+  packageName: POLYGON - Dungeons Pack - Art by Synty
+  packageVersion: 1.10.1
+  assetPath: Assets/Synty/PolygonDungeon/Prefabs/Props/SM_Prop_Wall_Banner_04.prefab
+  uploadId: 924204

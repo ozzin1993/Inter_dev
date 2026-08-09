@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: 6c269a3dba1a5a6489647606d3914c01
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 43663620509986840
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 102677
+  packageName: POLYGON - Dungeons Pack - Art by Synty
+  packageVersion: 1.10.1
+  assetPath: Assets/Synty/PolygonDungeon/Models/Collision/Convex/SM_Prop_Log_Spike_07_Convex.asset
+  uploadId: 924204

@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: 64a476dc1f6ac7a4488817de8463b1a6
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 43911270640623860
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 102677
+  packageName: POLYGON - Dungeons Pack - Art by Synty
+  packageVersion: 1.10.1
+  assetPath: Assets/Synty/PolygonDungeon/Models/Collision/Convex/SM_Wep_Shield_Gravestone_01_Convex.asset
+  uploadId: 924204

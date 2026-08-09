@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: 57e93cab9ec4bed4ba32225f32cbee92
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 43307243701191004
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 102677
+  packageName: POLYGON - Dungeons Pack - Art by Synty
+  packageVersion: 1.10.1
+  assetPath: Assets/Synty/PolygonDungeon/Models/Collision/Convex/SM_Trap_FlameHead_01_Convex.asset
+  uploadId: 924204

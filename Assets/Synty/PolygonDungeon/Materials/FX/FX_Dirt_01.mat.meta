@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: 1b4ac7f29d5087d489765315ce98b634
+timeCreated: 1507693657
+licenseType: Store
+NativeFormatImporter:
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 102677
+  packageName: POLYGON - Dungeons Pack - Art by Synty
+  packageVersion: 1.10.1
+  assetPath: Assets/Synty/PolygonDungeon/Materials/FX/FX_Dirt_01.mat
+  uploadId: 924204

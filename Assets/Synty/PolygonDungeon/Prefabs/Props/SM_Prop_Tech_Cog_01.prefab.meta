@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: 59976cdd835d06540973d1ea0d98d9bb
+timeCreated: 1505956633
+licenseType: Store
+NativeFormatImporter:
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 102677
+  packageName: POLYGON - Dungeons Pack - Art by Synty
+  packageVersion: 1.10.1
+  assetPath: Assets/Synty/PolygonDungeon/Prefabs/Props/SM_Prop_Tech_Cog_01.prefab
+  uploadId: 924204

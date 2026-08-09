@@ -19,6 +19,11 @@ namespace StrategyCore
         {
             if (abilityTarget) AbilityCastStartClientRpc(castingUnit.netID, activeAbility.id, abilityTarget.netID);
             else AbilityCastStartClientRpc(castingUnit.netID, activeAbility.id, abilityLocation);
+
+            // Презентация: сообщение уходит только клиентам (SendTo.NotServer), поэтому ХОСТУ поднимаем
+            // факт локально — иначе область действия была бы видна на клиенте и не видна на хосте.
+            SkillPresentationEvents.RaiseCastStarted(castingUnit, activeAbility.id, abilityTarget,
+                                                    abilityTarget != null ? abilityTarget.transform.position : abilityLocation);
         }
 
         // Client receives command to cast an ability
@@ -36,6 +41,9 @@ namespace StrategyCore
                     castingUnit.activeAbilityUnit = targetUnit;
                     castingUnit.activeAbilityUnit.OnReferenceChange += castingUnit.AbilityUnitReferenceChange;
                     castingUnit.activeAbility = GameManager.instance.gameAbilities[abilityID];
+
+                    // Презентация: показать область действия с начала замаха. Сам приёмник ничего не рисует.
+                    SkillPresentationEvents.RaiseCastStarted(castingUnit, abilityID, targetUnit, targetUnit.transform.position);
                 }
                 else
                 {
@@ -60,6 +68,9 @@ namespace StrategyCore
                 castingUnit.activeAbilityCastTime = 1;
                 castingUnit.activeAbilityLocation = abilityLocation;
                 castingUnit.activeAbility = GameManager.instance.gameAbilities[abilityID];
+
+                // Презентация: показать область действия с начала замаха.
+                SkillPresentationEvents.RaiseCastStarted(castingUnit, abilityID, null, abilityLocation);
             }
             else
             {
@@ -73,6 +84,9 @@ namespace StrategyCore
         public void AbilityStopCastSend(Unit castingUnit)
         {
             AbilityStopCastClientRpc(castingUnit.netID);
+
+            // Презентация: то же, что и у начала каста — хосту факт поднимаем локально.
+            SkillPresentationEvents.RaiseCastStopped(castingUnit);
         }
 
         // Client receives command to cast an ability
@@ -89,6 +103,9 @@ namespace StrategyCore
                 if (castingUnit.activeAbilityUnit != null) castingUnit.activeAbilityUnit.OnReferenceChange -= castingUnit.AbilityUnitReferenceChange;
                 castingUnit.activeAbilityUnit = null;
                 castingUnit.activeAbility = null;
+
+                // Презентация: погасить область действия немедленно.
+                SkillPresentationEvents.RaiseCastStopped(castingUnit);
             }
             else
             {

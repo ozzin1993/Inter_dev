@@ -13,7 +13,6 @@ namespace StrategyCore
     /// Открывается технологией: положить в <c>abilities[]</c> префаба и заполнить <c>Required Tech</c>
     /// технологией узла специализации. До покупки узла способность залочена, эффекта нет.
     /// </summary>
-    [CreateAssetMenu(fileName = "ArmorPierce", menuName = "StrategyCore/Abilities/Interflow/ArmorPierce (Пробитие брони)")]
     public class ArmorPierce : InterflowAbility
     {
         public override AbilityType type { get { return AbilityType.Passive; } }

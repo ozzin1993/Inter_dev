@@ -43,6 +43,8 @@ namespace StrategyCore
         public string weaponSoundCreateFolder = "Assets/Resources/WeaponSound";
         [Tooltip("Папка по умолчанию для новых снарядов (Projectile — префаб с компонентом).")]
         public string projectileCreateFolder = "Assets/Resources/Projectiles";
+        [Tooltip("Папка каталога иконок статусов (StatusIconCatalog — иконки стана/немоты/безоружия/слепоты + настройки шкалы над полоской здоровья). [Interflow 2026-08-05]")]
+        public string statusIconCatalogFolder = "Assets/Resources/Catalogs";
 
         [Tooltip("Папки билдов (относительно корня проекта), куда при экспорте автоматически копируются серверные конфиги (StreamingAssets/ServerConfigs). Пример: Server; Builds/Server.")]
         public string[] serverBuildFolders = new string[] { "Server" };

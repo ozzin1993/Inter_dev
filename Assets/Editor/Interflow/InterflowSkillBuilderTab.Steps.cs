@@ -17,6 +17,65 @@ namespace StrategyCore
         // не пересобирая панель целиком (иначе при правке поля терялся бы фокус ввода).
         static readonly Dictionary<string, VisualElement> issueHolders = new Dictionary<string, VisualElement>();
 
+        // ======================== ПОДПИСЬ, ТРЕБОВАНИЯ, ПРОЧЕЕ ========================
+        // Штатные поля Ability, которых у вкладки раньше не было: их правили в «Умениях и эффекторах».
+        // По решению Artsiom 2026-08-09 все поля умения живут в конструкторе — старая вкладка
+        // становится «Эффекторами». Правило 7: ничего не прячем безвозвратно, редкое — в свёрнутом фолде.
+
+        /// <summary>Что игрок видит: имя, описание, иконка, ячейка панели. Плюс сам id.</summary>
+        static void AddIdentitySection()
+        {
+            var so = new SerializedObject(selected);
+            var box = Section("Подпись и иконка", new Color(0.24f, 0.24f, 0.26f));
+
+            foreach (var f in new[] { "id", "abilityName", "description", "icon", "slotNumber" })
+                AddField(box, so, f);
+
+            box.Add(Hint("Название, описание и иконка — массивы по уровням: заполнен один элемент — " +
+                         "он используется для всех уровней."));
+
+            box.Bind(so);
+            TrackEdits(box, so);
+            rightPanel.Add(box);
+        }
+
+        /// <summary>Когда умение открывается и сколько стоит.</summary>
+        static void AddRequirementsSection()
+        {
+            var so = new SerializedObject(selected);
+            var box = Section("Условия открытия и цена", new Color(0.22f, 0.24f, 0.22f));
+
+            foreach (var f in new[] { "requiredTech", "requiredLevel", "cost", "manaCostPerSecond" })
+                AddField(box, so, f);
+
+            box.Add(Hint("Пусто в требованиях — умение открыто сразу, как только попало юниту в abilities[]. " +
+                         "Замки считает ядро, руками включать ничего не надо."));
+
+            box.Bind(so);
+            TrackEdits(box, so);
+            rightPanel.Add(box);
+        }
+
+        /// <summary>Предмет, уровни и редкие флаги — свёрнуто: нужны единицам умений, но доступны.</summary>
+        static void AddMiscFoldout()
+        {
+            var so = new SerializedObject(selected);
+            var fold = new Foldout { text = "Прочие поля умения", value = false, style = { marginTop = 8 } };
+
+            foreach (var f in new[] { "maxLevels", "heroLevelable",
+                                      "isItem", "useUponPickUp", "dropOnDeath", "charges",
+                                      "showRadiusCircle", "dontTurn",
+                                      "continuous", "interruptible", "requiresCastingUnit" })
+                AddField(fold, so, f);
+
+            fold.Add(Hint("«Канал» — это штатный флаг continuous: умение держится, пока хватает маны. " +
+                          "Переключатель и аура задаются полем «Срабатывание» выше, а не здесь."));
+
+            fold.Bind(so);
+            TrackEdits(fold, so);
+            rightPanel.Add(fold);
+        }
+
         // ======================== ЦЕЛЬ И ДОСТАВКА ========================
 
         static void AddAimSection()
@@ -27,6 +86,7 @@ namespace StrategyCore
             // Ц4: две строки простыми словами — кого заденет и что в этом режиме не читается.
             box.Add(AimExplanation());
 
+            AddField(box, so, "trigger");
             AddField(box, so, "targetMode");
             AddField(box, so, "buttonCast");
 
@@ -34,15 +94,19 @@ namespace StrategyCore
             // Предикат берём из самого скилла (`PicksTargetByStrategy`), а не повторяем условие —
             // тот же предикат читают рантайм и автокаст (правила 2 и 5).
             if (selected.PicksTargetByStrategy)
-                foreach (var f in new[] { "targetStrategy", "searchOrigin", "strategyCategory",
+                foreach (var f in new[] { "targetStrategy", "searchOrigin",
                                           "strategyUseCurrentHealth", "strategyHpThreshold" })
                     AddField(box, so, f);
 
             // Ц2: угол конуса читается только в режиме «конус» (CollectTargets: fullCircle).
             if (selected.targetMode == SkillTargetMode.Cone) AddField(box, so, "coneAngle");
 
-            foreach (var f in new[] { "targetCategories", "onlyMelee", "maxTargets", "multiPick",
-                                      "includeSelf", "radius", "castRange", "unitSelector" })
+            // Направление показываем всегда: от него зависит доворот кастера, а не только конус.
+            AddField(box, so, "directionMatters");
+
+            // Два селектора умения идут рядом: принадлежность (unitSelector) и боевые роли (targetCategories).
+            foreach (var f in new[] { "unitSelector", "targetCategories", "maxTargets", "multiPick",
+                                      "includeSelf", "radius", "castRange" })
                 AddField(box, so, f);
 
             box.Add(Hint("Радиус и селектор целей нужны только тем блокам, что применяются К ЦЕЛИ. " +
@@ -305,10 +369,14 @@ namespace StrategyCore
             return e != null && e.boolValue;
         }
 
-        // ======================== УРОВЕНЬ ========================
+        // ======================== ЧИСЛА УМЕНИЯ ========================
 
         static void AddLevelFooter()
         {
+            // ПОЧИНКА 2026-08-09: этот блок остался в БЕЗУРОВНЕВОЙ редакции после отката уборки
+            // уровней 07.08 — поля снова массивы, а строки печатали их как объекты («System.Single[]»).
+            // Компилятор такое пропускает: интерполяция принимает любой тип. Возвращены выборка
+            // по уровню и сам переключатель уровня.
             var box = Section("Числа для выбранного уровня", new Color(0.22f, 0.24f, 0.22f));
 
             int max = Mathf.Max(1, selected.maxLevels);

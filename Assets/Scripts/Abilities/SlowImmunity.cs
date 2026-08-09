@@ -14,7 +14,6 @@ namespace StrategyCore
     ///
     /// Оглушение и обездвиживание сюда НЕ входят — это отдельная механика (<see cref="ControlImmunity"/>).
     /// </summary>
-    [CreateAssetMenu(fileName = "SlowImmunity", menuName = "StrategyCore/Abilities/Interflow/SlowImmunity (Иммунитет к замедлениям)")]
     public class SlowImmunity : InterflowAbility
     {
         public override AbilityType type { get { return AbilityType.Passive; } }

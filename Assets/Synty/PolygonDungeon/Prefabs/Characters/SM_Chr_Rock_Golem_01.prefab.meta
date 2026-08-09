@@ -1,0 +1,16 @@
+fileFormatVersion: 2
+guid: beba2944035d3c54abd09d3d023aa9a8
+timeCreated: 1545006147
+licenseType: Store
+NativeFormatImporter:
+  mainObjectFileID: 100100000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 102677
+  packageName: POLYGON - Dungeons Pack - Art by Synty
+  packageVersion: 1.10.1
+  assetPath: Assets/Synty/PolygonDungeon/Prefabs/Characters/SM_Chr_Rock_Golem_01.prefab
+  uploadId: 924204

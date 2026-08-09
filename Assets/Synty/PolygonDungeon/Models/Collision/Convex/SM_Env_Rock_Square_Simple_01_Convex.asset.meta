@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: 75f95eacba4815748b7a5f8021b777dc
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 43667587309916192
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 102677
+  packageName: POLYGON - Dungeons Pack - Art by Synty
+  packageVersion: 1.10.1
+  assetPath: Assets/Synty/PolygonDungeon/Models/Collision/Convex/SM_Env_Rock_Square_Simple_01_Convex.asset
+  uploadId: 924204

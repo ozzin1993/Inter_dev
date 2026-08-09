@@ -26,7 +26,7 @@ namespace StrategyCore
         public int id;
 
         [Tooltip("What kind of ability is this. Read more on Ability.cs or documentation")]
-        public virtual AbilityType type { get { return AbilityType.Null; } } // Must be specified by subclass 
+        public virtual AbilityType type { get { return AbilityType.Null; } } // Must be specified by subclass
 
         [Header("Text")]
         [Tooltip("Name of the ability. If set only for 1 level, it will be used for all levels.")]
@@ -65,6 +65,9 @@ namespace StrategyCore
         public float[] castTime;
         [Tooltip("Some abilities such as of Area type require this parameter, it will determine the radius of the Area of Effect")]
         public float[] radius;
+        [Tooltip("Показывать круг радиуса постоянно, пока умение есть у юнита (для аур). " +
+                 "Работает только при ненулевом радиусе. Круг видят все игроки, в тумане войны он гаснет вместе с юнитом.")]
+        public bool showRadiusCircle;
         [Tooltip("What kind of units are affected by this ability. For target abilities. Unit target ability will not allow to target non-eligible unit, Area abilities will check the eligibility in their Use() function, but while choosing the area it will display the eligibility of units.")]
         public UnitSelector unitSelector;
         [Tooltip("If location or unit ability should the casting unit first turn in the direction of target to cast the ability")]
@@ -102,10 +105,19 @@ namespace StrategyCore
             if (icon == null || icon.Length == 0) icon = new Texture2D[0];
 
             // Do some checks
-            if (abilityName == null || cooldown.Length == 0) cooldown = new float[1] { 0 };
-            if (abilityName == null || castRange.Length == 0) castRange = new float[1] { 0 };
-            if (abilityName == null || castTime.Length == 0) castTime = new float[1] { 0 };
-            if (abilityName == null || radius.Length == 0) radius = new float[1] { 0 };
+            // [Interflow fix 2026-08-04 onenable-guard] Было `abilityName == null || X.Length == 0`.
+            // Тремя строками выше abilityName гарантированно НЕ null, поэтому первая часть всегда false,
+            // а вторая падала NullReferenceException на несозданном массиве: ЛЮБОЙ
+            // `ScriptableObject.CreateInstance` наследника Ability бросал NRE — включая штатную кнопку
+            // «Создать умение». Исключение не пробрасывается вызывающему (Unity ловит его на своём диспетчере),
+            // поэтому баг годами жил молча.
+            // Правка была зарегистрирована 2026-07-09, но на диске отсутствовала — восстановлена
+            // по прямому решению Artsiom 2026-08-04.
+            // Поведение загруженных с диска ассетов НЕ меняется: у них эти массивы не null.
+            if (cooldown == null || cooldown.Length == 0) cooldown = new float[1] { 0 };
+            if (castRange == null || castRange.Length == 0) castRange = new float[1] { 0 };
+            if (castTime == null || castTime.Length == 0) castTime = new float[1] { 0 };
+            if (radius == null || radius.Length == 0) radius = new float[1] { 0 };
 
             if (requiredTech == null) requiredTech = new MultiLevel<Technology>[0];
             if (requiredLevel == null) requiredLevel = new int[0];
@@ -124,7 +136,7 @@ namespace StrategyCore
             if (radius.Length == 0) radius = new float[1] { 0 };
 
             if (requiredTech == null) requiredTech = new MultiLevel<Technology>[0];
-            if (requiredLevel == null) requiredLevel = new int[0];    
+            if (requiredLevel == null) requiredLevel = new int[0];
         }
 
         // Before actually using the ability, we check if the ability`s custom requirements are met. For standard abilities check is done before Use(), for toggle and continuous before Activate().

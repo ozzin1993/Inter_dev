@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using UnityEditor;
 using UnityEngine;
 
 namespace StrategyCore
@@ -26,9 +27,18 @@ namespace StrategyCore
             "Transformation"     // Active, но это превращение постройки/юнита
         };
 
-        // Вычисляемый тип у Ability — свойство, а не поле: чтобы узнать его у КЛАССА (без ассета),
-        // приходится создать временный экземпляр. Кэш держит это на один прогон домена.
+        // Вычисляемый тип у Ability — свойство, а не поле, поэтому узнать его у КЛАССА можно
+        // только через экземпляр. СОЗДАВАТЬ его НЕЛЬЗЯ: `ScriptableObject.CreateInstance` любого
+        // наследника Ability сейчас даёт NullReferenceException в `Ability.OnEnable` (гвард там написан
+        // как `if (abilityName == null || cooldown.Length == 0)` — первая часть всегда false, вторая падает
+        // на null-массиве). Исключение не пробрасывается вызывающему — Unity просто льёт его в консоль,
+        // поэтому try/catch его НЕ ловит (именно так я и прошлый раз решил, что всё чисто).
+        //
+        // Поэтому карта «класс → тип» строится по УЖЕ СУЩЕСТВУЮЩИМ ассетам: у них тип читается
+        // штатно и бесплатно. Тип без ни одного ассета остаётся неизвестным (`AbilityType.Null`) —
+        // это честнее, чем угадывать.
         static readonly Dictionary<Type, AbilityType> typeCache = new Dictionary<Type, AbilityType>();
+        static bool cacheBuilt;
 
         // ======================== КЛАССИФИКАЦИЯ ========================
 
@@ -49,7 +59,10 @@ namespace StrategyCore
             if (abilityClass == null) return Group.Combat;
             if (ProductionByClassName.Contains(abilityClass.Name)) return Group.Production;
 
-            return FromAbilityType(ComputedTypeOf(abilityClass));
+            AbilityType t = ComputedTypeOf(abilityClass);
+            // Тип неизвестен (ассетов такого класса ещё нет) — кладём в боевые как нейтральный дефолт
+            // и ГОВОРИМ об этом в карточке, а не делаем вид, что знаем.
+            return t == AbilityType.Null ? Group.Combat : FromAbilityType(t);
         }
 
         static Group FromAbilityType(AbilityType t)
@@ -65,28 +78,36 @@ namespace StrategyCore
         }
 
         /// <summary>
-        /// Какой AbilityType даст этот класс. Создаёт временный экземпляр (штатный CreateInstance),
-        /// результат кэшируется на прогон домена. При отказе — Active, чтобы вкладка не падала.
+        /// Какой AbilityType даёт этот класс, по уже существующим ассетам.
+        /// `AbilityType.Null` — ассетов этого класса в проекте нет, тип неизвестен.
+        /// НИЧЕГО НЕ СОЗДАЁТ — см. комментарий к typeCache выше.
         /// </summary>
         public static AbilityType ComputedTypeOf(Type abilityClass)
         {
-            if (abilityClass == null) return AbilityType.Active;
-            if (typeCache.TryGetValue(abilityClass, out var cached)) return cached;
+            if (abilityClass == null) return AbilityType.Null;
+            if (!cacheBuilt) BuildCacheFromAssets();
 
-            AbilityType result = AbilityType.Active;
-            try
+            return typeCache.TryGetValue(abilityClass, out var cached) ? cached : AbilityType.Null;
+        }
+
+        /// <summary>Перестроить карту при следующем запросе — звать после создания/удаления ассетов.</summary>
+        public static void InvalidateCache() => cacheBuilt = false;
+
+        static void BuildCacheFromAssets()
+        {
+            typeCache.Clear();
+            foreach (var guid in AssetDatabase.FindAssets("t:Ability"))
             {
-                var probe = ScriptableObject.CreateInstance(abilityClass) as Ability;
-                if (probe != null)
-                {
-                    result = probe.type;
-                    UnityEngine.Object.DestroyImmediate(probe);
-                }
-            }
-            catch { /* тип не переживает CreateInstance — остаётся Active, вкладка продолжает работать */ }
+                var a = AssetDatabase.LoadAssetAtPath<Ability>(AssetDatabase.GUIDToAssetPath(guid));
+                if (a == null) continue;
 
-            typeCache[abilityClass] = result;
-            return result;
+                Type t = a.GetType();
+                if (typeCache.ContainsKey(t)) continue;
+
+                try { typeCache[t] = a.type; }
+                catch { /* битый ассет — пропускаем, остальные типы соберём */ }
+            }
+            cacheBuilt = true;
         }
 
         // ======================== ПОДПИСИ ========================

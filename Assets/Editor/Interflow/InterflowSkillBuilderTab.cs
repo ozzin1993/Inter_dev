@@ -22,6 +22,9 @@ namespace StrategyCore
     // Правило 4: UI по-русски. Правило 22: разбита партиалами (.Steps.cs — списки и шкала каста).
     public static partial class InterflowSkillBuilderTab
     {
+        // Уровень, для которого правая панель показывает числа (0-базный).
+        static int previewLevel;
+
         // ======================== ОПИСАНИЕ БЛОКОВ — ЕДИНЫЙ ИСТОЧНИК ========================
 
         /// <summary>Чем блок является для геймдизайнера: разовым событием или длящимся состоянием.</summary>
@@ -48,34 +51,55 @@ namespace StrategyCore
             new BlockDesc { order = 1,  field = "selfCost",        title = "Стоимость в здоровье",     kind = StepKind.Event, perTarget = false,
                             hint = "списывается с кастера один раз за каст, до всего остального",
                             keys = new[]{ "стоимость в здоровье" } },
-            new BlockDesc { order = 2,  field = "damage",          title = "Урон",                     kind = StepKind.Event, perTarget = true,
+            new BlockDesc { order = 2,  field = "pull",            title = "Рывок цели к кастеру",     kind = StepKind.Event, perTarget = true,
+                            hint = "идёт первым: не притянулась (иммунитет, неподвижная, нет места) — цель выпадает из каста целиком",
+                            keys = new[]{ "рывок", "притяг" } },
+            new BlockDesc { order = 3,  field = "damage",          title = "Урон",                     kind = StepKind.Event, perTarget = true,
                             hint = "записей может быть несколько, у каждой свой тип урона и «кого задевает»",
                             keys = new[]{ "урона", "урон" } },
-            new BlockDesc { order = 3,  field = "status",          title = "Контроль",                 kind = StepKind.Event, perTarget = true,
+            new BlockDesc { order = 4,  field = "drain",           title = "Высасывание ХП",           kind = StepKind.Event, perTarget = true,
+                            hint = "снимает здоровье НАПРЯМУЮ, мимо брони и щитов; долю снятого получает кастер",
+                            keys = new[]{ "высасыв", "дренаж" } },
+            new BlockDesc { order = 5,  field = "status",          title = "Контроль",                 kind = StepKind.Event, perTarget = true,
                             hint = "оглушение, обезоруживание, немота",
                             keys = new[]{ "контроль" } },
-            new BlockDesc { order = 4,  field = "effectors",       title = "Эффекторы",                kind = StepKind.State, perTarget = true,
+            new BlockDesc { order = 6,  field = "effectors",       title = "Эффекторы",                kind = StepKind.State, perTarget = true,
                             hint = "сила и длительность задаются ЗДЕСЬ, по уровням; ассет отвечает только за то, ЧТО происходит",
                             keys = new[]{ "эффектор" } },
-            new BlockDesc { order = 5,  field = "heal",            title = "Лечение",                  kind = StepKind.Event, perTarget = true,
+            new BlockDesc { order = 7,  field = "heal",            title = "Лечение",                  kind = StepKind.Event, perTarget = true,
                             hint = "мгновенное; лечение во времени — это баф или эффектор",
                             keys = new[]{ "лечение" } },
-            new BlockDesc { order = 6,  field = "buff",            title = "Длящийся баф",             kind = StepKind.State, perTarget = true,
+            new BlockDesc { order = 8,  field = "mana",            title = "Восстановление маны",      kind = StepKind.Event, perTarget = true,
+                            hint = "числом и долей от максимального запаса цели",
+                            keys = new[]{ "маны", "мана" } },
+            new BlockDesc { order = 9,  field = "buff",            title = "Длящийся баф",             kind = StepKind.State, perTarget = true,
                             hint = "то, чего штатный эффектор не умеет: аура вокруг носителя, множитель урона, иммунитет, детонация",
                             keys = new[]{ "баф", "ауры", "взрыв" } },
-            new BlockDesc { order = 7,  field = "shield",          title = "Поглощающий щит",          kind = StepKind.State, perTarget = true,
-                            hint = "снимается при пробитии или по таймеру",
+            new BlockDesc { order = 10, field = "shield",          title = "Поглощающий щит",          kind = StepKind.State, perTarget = true,
+                            hint = "снимается при пробитии или по таймеру; умеет отвечать бьющим и давать вспышку при пробитии",
                             keys = new[]{ "щит" } },
-            new BlockDesc { order = 8,  field = "blind",           title = "Ослепление",               kind = StepKind.State, perTarget = true,
+            new BlockDesc { order = 11, field = "blind",           title = "Ослепление",               kind = StepKind.State, perTarget = true,
                             hint = "шанс промаха на время",
                             keys = new[]{ "ослеплени" } },
-            new BlockDesc { order = 9,  field = "summon",          title = "Призыв",                   kind = StepKind.Event, perTarget = false,
+            new BlockDesc { order = 12, field = "morph",           title = "Подмена облика",           kind = StepKind.State, perTarget = true,
+                            hint = "цель принимает вид другого юнита на время; статы меняются только заданными пассивными эффектами",
+                            keys = new[]{ "облик", "полиморф" } },
+            new BlockDesc { order = 13, field = "ownership",       title = "Смена владельца",          kind = StepKind.Event, perTarget = true,
+                            hint = "цель навсегда переходит к владельцу кастера; идёт после всех эффектов",
+                            keys = new[]{ "владел", "переподчин" } },
+            new BlockDesc { order = 14, field = "secondary",       title = "Вторичные цели",           kind = StepKind.Event, perTarget = true,
+                            hint = "своя выборка ВОКРУГ каждой основной цели — например вылечить тех, кто её бьёт",
+                            keys = new[]{ "вторичн" } },
+            new BlockDesc { order = 15, field = "summon",          title = "Призыв",                   kind = StepKind.Event, perTarget = false,
                             hint = "исполняется один раз за каст — набор целей ему не нужен",
                             keys = new[]{ "призыв" } },
-            new BlockDesc { order = 10, field = "groundZone",      title = "Зона на земле",            kind = StepKind.Event, perTarget = false,
+            new BlockDesc { order = 16, field = "groundZone",      title = "Зона на земле",            kind = StepKind.Event, perTarget = false,
                             hint = "исполняется один раз за каст; урон и эффекты живут на префабе зоны",
                             keys = new[]{ "зон" } },
-            new BlockDesc { order = 11, field = "delegateService", title = "Серверный сервис",         kind = StepKind.Event, perTarget = false,
+            new BlockDesc { order = 17, field = "casterMove",      title = "Перемещение кастера",      kind = StepKind.Event, perTarget = false,
+                            hint = "кастер переносится в точку приложения — телепорт, рывок к месту",
+                            keys = new[]{ "перемещен", "телепорт" } },
+            new BlockDesc { order = 18, field = "delegateService", title = "Серверный сервис",         kind = StepKind.Event, perTarget = false,
                             hint = "метеоритный дождь, подъём павших — процессы во времени на стороне матча",
                             keys = new[]{ "сервис" } },
         };
@@ -84,7 +108,6 @@ namespace StrategyCore
 
         static List<CompositeSkill> skills = new List<CompositeSkill>();
         static CompositeSkill selected;
-        static int previewLevel;
         static string filter = "";
 
         static Dictionary<CompositeSkill, List<InterflowIssue>> issuesBySkill;
@@ -113,12 +136,20 @@ namespace StrategyCore
 
             var left = new VisualElement { style = { width = 300, flexShrink = 0, marginRight = 8 } };
 
+            // Создание боевого умения — ОДНОЙ кнопкой: тип у конструктора один, выбирать нечего.
+            // Переехало сюда из «Умений и эффекторов» (решение Artsiom 2026-08-09).
+            var create = new Button(CreateSkill) { text = "Создать умение" };
+            create.style.unityFontStyleAndWeight = FontStyle.Bold;
+            create.tooltip = "Создаёт пустое боевое умение и открывает его здесь: " +
+                             "срабатывание, цель, доставка и блоки эффектов настраиваются ниже.";
+            left.Add(create);
+
             var search = new TextField("Поиск") { value = filter };
             search.RegisterValueChangedCallback(e => { filter = e.newValue; RebuildList(); });
             left.Add(search);
 
             left.Add(new Button(() => { RefreshAll(); RebuildList(); RebuildRightPanel(); })
-                { text = "Обновить и перепроверить" });
+                { text = "Обновить и перепроверить" });   // кэш «кто использует» сбрасывается в RefreshAll()
 
             countLabel = new Label { style = { marginTop = 2, marginBottom = 2, color = COL_DIM } };
             left.Add(countLabel);
@@ -140,10 +171,63 @@ namespace StrategyCore
             return root;
         }
 
+        // ======================== СОЗДАНИЕ И УДАЛЕНИЕ ========================
+
+        /// <summary>
+        /// Новое боевое умение — всегда `CompositeSkill`. Путь из настроек редактора, уникальный id
+        /// через общий `NextFreeId` (правило 5). Тип берётся напрямую, а не сканом по [CreateAssetMenu]:
+        /// параллельное меню Unity у умений снимается.
+        /// </summary>
+        static void CreateSkill()
+        {
+            var settings = InterflowEditorSettings.GetOrCreate();
+            InterflowEditorUI.EnsureFolder(settings.abilityCreateFolder);
+
+            string dstPath = EditorUtility.SaveFilePanelInProject(
+                "Создать умение", "Skill_New", "asset", "Имя нового умения", settings.abilityCreateFolder);
+            if (string.IsNullOrEmpty(dstPath)) return;
+
+            var asset = ScriptableObject.CreateInstance<CompositeSkill>();
+            asset.id = InterflowEditorUI.NextFreeId("t:Ability", a => ((Ability)a).id);
+            asset.abilityName = new[] { System.IO.Path.GetFileNameWithoutExtension(dstPath) };
+
+            AssetDatabase.CreateAsset(asset, dstPath);
+            AssetDatabase.SaveAssets();
+
+            InterflowAbilityGroups.InvalidateCache();
+            InterflowAbilityUsage.InvalidateCache();
+
+            RefreshAll();
+            selected = asset;
+            RebuildList();
+            RebuildRightPanel();
+            EditorGUIUtility.PingObject(asset);
+        }
+
+        static void DeleteSelected()
+        {
+            if (selected == null) return;
+
+            string path = AssetDatabase.GetAssetPath(selected);
+            if (!EditorUtility.DisplayDialog("Удалить", $"Удалить умение?\n{path}", "Удалить", "Отмена")) return;
+
+            AssetDatabase.DeleteAsset(path);
+            AssetDatabase.SaveAssets();
+
+            InterflowAbilityGroups.InvalidateCache();
+            InterflowAbilityUsage.InvalidateCache();
+
+            RefreshAll();
+            RebuildList();
+            RebuildRightPanel();
+        }
+
         // ======================== ДАННЫЕ ========================
 
         static void RefreshAll()
         {
+            InterflowAbilityUsage.InvalidateCache();
+
             skills = AssetDatabase.FindAssets("t:CompositeSkill")
                 .Select(g => AssetDatabase.LoadAssetAtPath<CompositeSkill>(AssetDatabase.GUIDToAssetPath(g)))
                 .Where(s => s != null).OrderBy(s => s.name).ToList();
@@ -243,10 +327,14 @@ namespace StrategyCore
 
             AddHeader();
             AddSummaryCard();
+            rightPanel.Add(InterflowAbilityUsage.Section(selected));   // общий блок, правило 5
             AddGeneralIssues();
+            AddIdentitySection();      // подпись, иконка, ячейка панели
             AddAimSection();
             AddCastTimeline();
             AddStepLists();
+            AddRequirementsSection();  // когда умение открывается и сколько стоит
+            AddMiscFoldout();          // предмет и редкие флаги — свёрнуто, но доступно (правило 7)
             AddLevelFooter();
         }
 
@@ -257,6 +345,7 @@ namespace StrategyCore
                 { style = { unityFontStyleAndWeight = FontStyle.Bold, fontSize = 15, flexGrow = 1 } });
             head.Add(new Button(() => EditorGUIUtility.PingObject(selected)) { text = "Показать" });
             head.Add(new Button(() => { RefreshAll(); RebuildList(); RebuildRightPanel(); }) { text = "Перепроверить" });
+            head.Add(new Button(DeleteSelected) { text = "Удалить" });
             rightPanel.Add(head);
 
             string type;

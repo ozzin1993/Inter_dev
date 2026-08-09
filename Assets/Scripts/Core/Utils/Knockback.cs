@@ -36,5 +36,50 @@ namespace StrategyCore
 
             if (stunTime > 0f) target.Stun(stunTime);                     // Unit.Stun сам уважает ControlImmunity
         }
+
+        /// <summary>
+        /// Переставить target В ЗАДАННУЮ точку (рывок к кастеру, телепорт). Возвращает true, только если
+        /// юнит действительно сдвинулся: неподвижные, без агента, с иммунитетом к контролю и случай
+        /// «нет валидной точки на NavMesh» дают false — вызывающая сторона решает, что делать дальше.
+        /// Только сервер (правило 6); позиция расходится штатным синком NetworkDataSync.
+        /// </summary>
+        public static bool MoveTo(Unit target, Vector3 destination, bool respectControlImmunity)
+        {
+            if (NetworkConnectionHandler.isClient) return false;
+            if (target == null || target.dead) return false;
+            if (!target.canMove || target.agent == null) return false;
+
+            if (respectControlImmunity && target.TryGetComponent<ControlImmunity>(out ControlImmunity ci) && ci.Active)
+                return false;
+
+            if (!NavMesh.SamplePosition(destination, out NavMeshHit hit, NavSampleMaxDistance, NavMesh.AllAreas))
+                return false;
+
+            target.agent.Warp(hit.position);
+            return true;
+        }
+
+        /// <summary>
+        /// Точка вплотную к кастеру со стороны цели: от кастера в сторону цели на сумму габаритов
+        /// обоих агентов плюс заданный зазор. Радиус берём у NavMeshAgent — это тот же габарит,
+        /// которым навигация разводит юнитов, поэтому притянутый не окажется внутри кастера.
+        /// </summary>
+        public static Vector3 PointNextTo(Unit caster, Unit target, float gap)
+        {
+            if (caster == null) return target != null ? target.transform.position : Vector3.zero;
+
+            Vector3 cp = caster.transform.position;
+            if (target == null) return cp;
+
+            Vector3 dir = target.transform.position - cp;
+            dir.y = 0f;
+            if (dir.sqrMagnitude < 0.0001f) dir = caster.transform.forward;  // стоят в одной точке
+            dir.Normalize();
+
+            float casterRadius = caster.agent != null ? caster.agent.radius : 0f;
+            float targetRadius = target.agent != null ? target.agent.radius : 0f;
+
+            return cp + dir * (casterRadius + targetRadius + Mathf.Max(0f, gap));
+        }
     }
 }

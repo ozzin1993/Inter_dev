@@ -6,7 +6,6 @@ using static UnityEngine.GraphicsBuffer;
 
 namespace StrategyCore
 {
-    [CreateAssetMenu(fileName = "TransportTakeIn", menuName = "StrategyCore/Abilities/Transport_TakeIn")]
     public class TransportTakeIn : Ability
     {
         public override AbilityType type { get { return AbilityType.Unit; } } // Specify type

@@ -2,7 +2,6 @@ using UnityEngine;
 
 namespace StrategyCore
 {
-    [CreateAssetMenu(fileName = "Hex", menuName = "StrategyCore/Abilities/Hex")]
     public class Hex : Ability
     {
         public override AbilityType type { get { return AbilityType.Unit; } } // Specify type

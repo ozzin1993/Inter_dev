@@ -4,7 +4,6 @@ namespace StrategyCore
 {
     // Transfers life from enemy unit to the casting unit
 
-    [CreateAssetMenu(fileName = "LifeTransfer", menuName = "StrategyCore/Abilities/LifeTransfer")]
     public class LifeTransfer : Ability
     {
         // Transfers the health points from the target to the caster. Current implementation does not kill unit, since health regen is changed. See Use(...)

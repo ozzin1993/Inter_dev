@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: 617f333324332de47a8b5f07cc0870cc
+timeCreated: 1505956624
+licenseType: Store
+NativeFormatImporter:
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 102677
+  packageName: POLYGON - Dungeons Pack - Art by Synty
+  packageVersion: 1.10.1
+  assetPath: Assets/Synty/PolygonDungeon/Prefabs/Props/SM_Prop_Barrel_03.prefab
+  uploadId: 924204

@@ -7,7 +7,6 @@ namespace StrategyCore
     // Passive-SO (образец Basher/Crit, правило 2). Счётчик — пер-юнит в Dictionary внутри SO (SO общий на всех).
     // Хук OnAfterDamageDeal (есть targetUnit; колбэк копируется в Projectile → покрывает дальних). Серверо-авторит.
     // Ассет StrategyCore не трогаем (правило 1). Числа — только в Inspector (правило 3).
-    [CreateAssetMenu(fileName = "EveryNthAttack", menuName = "StrategyCore/Abilities/Interflow/EveryNthAttack (B2)")]
     public class EveryNthAttack : InterflowAbility
     {
         public override AbilityType type => AbilityType.Passive;

@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: ad64d58951790444ea1bca5ae751bebf
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 43098247582175046
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 102677
+  packageName: POLYGON - Dungeons Pack - Art by Synty
+  packageVersion: 1.10.1
+  assetPath: Assets/Synty/PolygonDungeon/Models/Collision/Convex/SM_Prop_Bookcase_01_Convex.asset
+  uploadId: 924204

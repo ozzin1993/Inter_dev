@@ -283,6 +283,26 @@ namespace StrategyCore
         /// </summary>
         protected virtual void ResetRuntimeState() { }
 
+        // =========================================================== ПУБЛИКАЦИЯ ФАКТОВ ==
+        // Сервер сообщает о срабатывании умения; рисует единственный подписчик — клиентский презентер.
+        // Само умение про визуал не знает: ни VFX, ни анимаций отсюда не запускается (правило 6).
+
+        /// <summary>
+        /// Сервер: опубликовать факт «умение сработало». Локальный подъём события нужен ХОСТУ —
+        /// сообщение с SendTo.NotServer до него не доходит; на выделенном сервере подписчиков нет
+        /// и подъём уходит в никуда. Дублей не возникает: каждый пир получает факт ровно один раз.
+        /// </summary>
+        public static void EmitSkillFired(Unit caster, Ability ability, int level, Unit aimUnit, Vector3 aimPoint)
+        {
+            if (ability == null) return;
+            if (IsClientPeer) return;   // публикует только сервер (правило 6)
+
+            SkillPresentationEvents.RaiseSkillFired(caster, ability.id, level, aimUnit, aimPoint);
+
+            if (NetworkDataSync.instance != null)
+                NetworkDataSync.instance.SkillFiredSend(caster, ability.id, level, aimUnit, aimPoint);
+        }
+
         // ====================================================================== ПРЕЗЕНТАЦИЯ ==
 
         // Подъём VFX над землёй, чтобы плоские эффекты зон не мерцали сквозь террейн.

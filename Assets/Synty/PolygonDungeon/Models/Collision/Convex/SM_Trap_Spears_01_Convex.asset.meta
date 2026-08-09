@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: c8f63325df0dc43438718b0c1e304075
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 43515474539484474
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 102677
+  packageName: POLYGON - Dungeons Pack - Art by Synty
+  packageVersion: 1.10.1
+  assetPath: Assets/Synty/PolygonDungeon/Models/Collision/Convex/SM_Trap_Spears_01_Convex.asset
+  uploadId: 924204

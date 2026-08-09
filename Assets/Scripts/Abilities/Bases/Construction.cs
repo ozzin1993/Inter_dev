@@ -6,7 +6,6 @@ using static UnityEngine.GraphicsBuffer;
 
 namespace StrategyCore
 {
-    [CreateAssetMenu(fileName = "Construction", menuName = "StrategyCore/Abilities/Construction")]
     public class Construction : Ability
     {
         // Construction should not have cast time, cast range or be continuous

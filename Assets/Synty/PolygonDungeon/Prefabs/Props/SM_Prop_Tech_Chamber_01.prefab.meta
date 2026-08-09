@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: 2f99a0f5c9d37d248a69481f4811dd0a
+timeCreated: 1505956622
+licenseType: Store
+NativeFormatImporter:
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 102677
+  packageName: POLYGON - Dungeons Pack - Art by Synty
+  packageVersion: 1.10.1
+  assetPath: Assets/Synty/PolygonDungeon/Prefabs/Props/SM_Prop_Tech_Chamber_01.prefab
+  uploadId: 924204

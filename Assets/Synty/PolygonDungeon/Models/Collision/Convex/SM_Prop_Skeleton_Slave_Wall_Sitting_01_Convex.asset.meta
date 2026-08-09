@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: be6528cf609c2324781e9600a6224e1c
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 43797541851803250
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 102677
+  packageName: POLYGON - Dungeons Pack - Art by Synty
+  packageVersion: 1.10.1
+  assetPath: Assets/Synty/PolygonDungeon/Models/Collision/Convex/SM_Prop_Skeleton_Slave_Wall_Sitting_01_Convex.asset
+  uploadId: 924204

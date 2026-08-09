@@ -10,7 +10,6 @@ namespace StrategyCore
     /// Реализация: штатный хук атакующего <c>OnAfterDamageDealCallbacks</c> — в нём есть и цель,
     /// и набор эффекторов атаки. Бросок шанса делает только сервер (как штатные Crit/Evasion).
     /// </summary>
-    [CreateAssetMenu(fileName = "EffectorSpread", menuName = "StrategyCore/Abilities/Interflow/EffectorSpread (Перенос эффекта)")]
     public class EffectorSpread : InterflowAbility
     {
         public override AbilityType type { get { return AbilityType.Passive; } }

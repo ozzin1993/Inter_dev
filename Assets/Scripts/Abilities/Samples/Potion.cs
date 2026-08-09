@@ -5,7 +5,6 @@ using UnityEngine;
 namespace StrategyCore
 {
     // Asset menu
-    [CreateAssetMenu(fileName = "Potion", menuName = "StrategyCore/Abilities/Potion")]
     public class Potion : Ability
     {
         // Level 0 means first level. If you want to damage based on level do not forget to add 1. Example: (damage * (level + 1)

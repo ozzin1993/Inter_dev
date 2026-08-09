@@ -13,7 +13,6 @@ namespace StrategyCore
     /// Границы (важно): покрываются оглушение и страх. Замедления — отдельная механика
     /// (<see cref="SlowImmunity"/>), нокбэк уважает иммунитет по своему флагу в EveryNthAttack.
     /// </summary>
-    [CreateAssetMenu(fileName = "ControlImmunityPassive", menuName = "StrategyCore/Abilities/Interflow/ControlImmunityPassive (Иммунитет к контролю)")]
     public class ControlImmunityPassive : InterflowAbility
     {
         public override AbilityType type { get { return AbilityType.Passive; } }

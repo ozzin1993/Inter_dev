@@ -5,7 +5,6 @@ using UnityEngine;
 
 namespace StrategyCore
 {
-    [CreateAssetMenu(fileName = "Container", menuName = "StrategyCore/Abilities/Container")]
     public class Container : Ability
     {
         public override AbilityType type { get { return AbilityType.Container; } } // Specify type

@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: 0daccb8afec47044e8721ce118e8d391
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 43574318772402034
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 102677
+  packageName: POLYGON - Dungeons Pack - Art by Synty
+  packageVersion: 1.10.1
+  assetPath: Assets/Synty/PolygonDungeon/Models/Collision/Convex/SM_Prop_Toture_IronMaiden_01_Convex.asset
+  uploadId: 924204

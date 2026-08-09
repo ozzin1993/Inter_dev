@@ -48,6 +48,11 @@ namespace StrategyCore
 
             InterflowCombat.MissChanceSet(unit, chance);
 
+            // [2026-08-05 единый канал статусов] Слепота едет клиентам тем же путём, что и остальные
+            // статусы (решение Artsiom). Повторное наложение шлёт true ещё раз — идемпотентно.
+            if (NetworkDataSync.instance != null)
+                NetworkDataSync.instance.UnitStatusFlagSend(unit, UnitStatusFlag.Blind, true);
+
             if (!subscribed && GameManager.instance != null)
             {
                 GameManager.instance.Tick += OnTick;
@@ -75,7 +80,13 @@ namespace StrategyCore
             destroyed = true;
             cleared = true;
 
-            if (unit != null) InterflowCombat.MissChanceClear(unit);
+            if (unit != null)
+            {
+                InterflowCombat.MissChanceClear(unit);
+                // [2026-08-05 единый канал статусов] Слепота снята — сообщить клиентам.
+                if (NetworkDataSync.instance != null)
+                    NetworkDataSync.instance.UnitStatusFlagSend(unit, UnitStatusFlag.Blind, false);
+            }
 
             if (subscribed && GameManager.instance != null)
             {
@@ -94,6 +105,9 @@ namespace StrategyCore
             {
                 cleared = true;
                 InterflowCombat.MissChanceClear(unit);
+                // [2026-08-05 единый канал статусов] Аварийное уничтожение (смерть/выгрузка) — тоже снятие.
+                if (NetworkDataSync.instance != null)
+                    NetworkDataSync.instance.UnitStatusFlagSend(unit, UnitStatusFlag.Blind, false);
             }
 
             if (subscribed && GameManager.instance != null)

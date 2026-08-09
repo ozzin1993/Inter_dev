@@ -8,7 +8,6 @@ using UnityEngine.AI;
 
 namespace StrategyCore
 {
-    [CreateAssetMenu(fileName = "Blink", menuName = "StrategyCore/Abilities/Blink")]
     public class Blink : Ability
     {
         // Teleports the casting unit to specified location

@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: 9185d2654053d994c926d286f0787d8f
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 43389454659224288
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 102677
+  packageName: POLYGON - Dungeons Pack - Art by Synty
+  packageVersion: 1.10.1
+  assetPath: Assets/Synty/PolygonDungeon/Models/Collision/Convex/SM_Wep_Greatsword_Curved_01_Convex.asset
+  uploadId: 924204

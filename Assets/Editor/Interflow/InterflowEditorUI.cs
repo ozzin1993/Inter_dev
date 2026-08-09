@@ -63,21 +63,21 @@ namespace StrategyCore
         // потому что ключи — имена полей класса: в ассете они молча разъехались бы с кодом.
         static readonly Dictionary<string, string> FIELD_LABELS = new Dictionary<string, string>
         {
-            // Цель
+            // Срабатывание и цель
+            { "trigger",                  "Когда срабатывает" },
             { "targetMode",               "Кого задевает" },
             { "buttonCast",               "Скилл кнопки (замок или герой)" },
-            { "targetStrategy",           "Как выбрать одну цель" },
+            { "targetStrategy",           "Алгоритм выбора одной цели" },
             { "searchOrigin",             "Откуда считать «ближайшего»" },
-            { "strategyCategory",         "Боевая роль для стратегии" },
             { "strategyUseCurrentHealth", "Мерить текущее ХП, не максимальное" },
             { "strategyHpThreshold",      "Порог ХП (доля от максимума)" },
-            // Фильтры целей
-            { "targetCategories",         "Только эти боевые роли (пусто — любые)" },
-            { "onlyMelee",                "Только ближний бой" },
+            // Селекторы: принадлежность и роли
+            { "targetCategories",         "Селектор ролей (пусто — любые)" },
             { "maxTargets",               "Максимум целей (0 — без лимита)" },
             { "multiPick",                "Кого оставить при лимите" },
             { "includeSelf",              "Включать самого кастера" },
             { "coneAngle",                "Угол конуса, градусы" },
+            { "directionMatters",         "Направление кастера важно (доворот к цели)" },
             { "radius",                   "Радиус по уровням" },
             { "castRange",                "Дальность каста по уровням" },
             { "unitSelector",             "Кто вообще может быть целью" },
@@ -210,6 +210,28 @@ namespace StrategyCore
                 if (!AssetDatabase.IsValidFolder(next)) AssetDatabase.CreateFolder(cur, parts[i]);
                 cur = next;
             }
+        }
+
+        /// <summary>
+        /// Наименьший свободный id среди ассетов фильтра. Детерминированно: одинаковый вход — одинаковый выход.
+        /// Общий для всех вкладок (правило 5): раньше жил приватной копией в «Умениях и эффекторах»,
+        /// теперь его же зовут «Пассивные умения» и «Производство».
+        /// </summary>
+        /// <param name="filter">Фильтр AssetDatabase, например «t:Ability» или «t:Effector».</param>
+        /// <param name="idOf">Как достать id из найденного ассета.</param>
+        public static int NextFreeId(string filter, Func<UnityEngine.Object, int> idOf)
+        {
+            var used = new HashSet<int>();
+            foreach (var g in AssetDatabase.FindAssets(filter))
+            {
+                var o = AssetDatabase.LoadAssetAtPath<UnityEngine.Object>(AssetDatabase.GUIDToAssetPath(g));
+                if (o != null) used.Add(idOf(o));
+            }
+
+            int id = 1;
+            while (used.Contains(id)) id++;
+
+            return id;
         }
     }
 }

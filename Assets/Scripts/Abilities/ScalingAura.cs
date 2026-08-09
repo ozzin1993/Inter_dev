@@ -12,7 +12,6 @@ namespace StrategyCore
     /// (он общий для всех). Поэтому дизайнер задаёт несколько ступеней «порог потерянного ХП → свой эффектор»,
     /// и аура раздаёт эффектор той ступени, которая сейчас достигнута. Ступеней может быть сколько угодно.
     /// </summary>
-    [CreateAssetMenu(fileName = "ScalingAura", menuName = "StrategyCore/Abilities/Interflow/ScalingAura (Аура от потери ХП)")]
     public class ScalingAura : InterflowAbility
     {
         public override AbilityType type { get { return AbilityType.Passive; } }

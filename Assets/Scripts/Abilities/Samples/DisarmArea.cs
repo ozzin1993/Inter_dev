@@ -5,7 +5,6 @@ using UnityEngine;
 namespace StrategyCore
 {
     // Asset menu
-    [CreateAssetMenu(fileName = "DisarmArea", menuName = "StrategyCore/Abilities/DisarmArea")]
     public class DisarmArea : Ability
     {
         public override AbilityType type { get { return AbilityType.Area; } } // Specify type

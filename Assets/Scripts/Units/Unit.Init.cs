@@ -37,6 +37,10 @@ namespace StrategyCore
             {
                 if (team != SlotManager.instance.currentTeam && team != (int)Teams.NeutralPassive) Instantiate(ReferenceManager.instance.healthBarEnemy, this.transform).name = "HealthBar(Clone)";
                 else Instantiate(ReferenceManager.instance.healthBar, this.transform);
+
+                // [Interflow fix 2026-08-05 unit-status-sync] Шкала статусов (ряд иконок над полоской
+                // здоровья) — та же конвенция, что у бара: только не на дедике и не для статики.
+                gameObject.AddComponent<UnitStatusIconsBar>();
             }
 
             // Minimap icon
@@ -246,6 +250,10 @@ namespace StrategyCore
                 processLevel = new int[GameManager.maxProcessCount];
                 currentProcessTimer = -1; // -1 means no current processes
             }
+
+            // Презентация: умения уже инициализированы, значит их можно читать — например, чтобы
+            // завести постоянный круг радиуса ауры. Раньше этой точки уровни и блокировки ещё не проставлены.
+            SkillPresentationEvents.RaiseUnitReady(this);
 
             // Define static object
             if (!canMove && !canAttack && abilities.Length == 0 && InventorySize == 0 && owner == (int)Players.NeutralPassive) staticObject = true;

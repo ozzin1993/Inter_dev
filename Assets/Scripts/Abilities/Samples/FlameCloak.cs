@@ -2,7 +2,6 @@ using UnityEngine;
 
 namespace StrategyCore
 {
-    [CreateAssetMenu(fileName = "FlameCloak", menuName = "StrategyCore/Abilities/FlameCloak")]
     public class FlameCloak : Ability
     {
         // Deals damage to units around the caster, based on UnitSelector

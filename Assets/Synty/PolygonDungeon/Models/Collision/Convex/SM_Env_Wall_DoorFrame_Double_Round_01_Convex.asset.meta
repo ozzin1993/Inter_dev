@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: 23526a010b0e0fc43848345f3a4a158c
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 43767367808276482
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 102677
+  packageName: POLYGON - Dungeons Pack - Art by Synty
+  packageVersion: 1.10.1
+  assetPath: Assets/Synty/PolygonDungeon/Models/Collision/Convex/SM_Env_Wall_DoorFrame_Double_Round_01_Convex.asset
+  uploadId: 924204

@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: 7113133cee8c9da40ae1e20d8e46cad0
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 43415752759808836
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 102677
+  packageName: POLYGON - Dungeons Pack - Art by Synty
+  packageVersion: 1.10.1
+  assetPath: Assets/Synty/PolygonDungeon/Models/Collision/Convex/SM_Env_Rock_Pillar_01_Convex.asset
+  uploadId: 924204

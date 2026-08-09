@@ -5,7 +5,6 @@ using UnityEngine;
 namespace StrategyCore
 {
     // Asset menu
-    // [CreateAssetMenu(fileName = "Area", menuName = "StrategyCore/Abilities/Area")]
     public class Area : Ability
     {
         // What should happen when this ability is used

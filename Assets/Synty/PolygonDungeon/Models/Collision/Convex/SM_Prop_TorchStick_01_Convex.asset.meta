@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: f04dfdd221012bd4ab4995cdc164ad65
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 43180043946635588
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 102677
+  packageName: POLYGON - Dungeons Pack - Art by Synty
+  packageVersion: 1.10.1
+  assetPath: Assets/Synty/PolygonDungeon/Models/Collision/Convex/SM_Prop_TorchStick_01_Convex.asset
+  uploadId: 924204

@@ -5,7 +5,6 @@ using UnityEngine;
 namespace StrategyCore
 {
     // Asset menu
-    // [CreateAssetMenu(fileName = "Aura", menuName = "StrategyCore/Abilities/Aura")]
     public class Aura : Ability
     {
         // Auras are not mana/resource checked - use Toggle type for that.

@@ -6,7 +6,6 @@ using static UnityEngine.UI.GridLayoutGroup;
 
 namespace StrategyCore
 {
-    [CreateAssetMenu(fileName = "Gem", menuName = "StrategyCore/Abilities/Gem(See invisible units)")]
     public class Gem : Ability
     {
         // Allows the carrier of this ability to see invisible units, based on UnitSelector

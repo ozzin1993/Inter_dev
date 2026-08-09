@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: c5e825c8e925bc943945b4168ee1d2de
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 43875164594269538
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 102677
+  packageName: POLYGON - Dungeons Pack - Art by Synty
+  packageVersion: 1.10.1
+  assetPath: Assets/Synty/PolygonDungeon/Models/Collision/Convex/SM_Env_BonePile_Small_02_Convex.asset
+  uploadId: 924204

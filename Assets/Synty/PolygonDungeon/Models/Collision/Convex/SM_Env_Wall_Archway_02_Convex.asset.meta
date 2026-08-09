@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: f30500940be58894f9739f76a7cd8e25
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 43830917603372112
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 102677
+  packageName: POLYGON - Dungeons Pack - Art by Synty
+  packageVersion: 1.10.1
+  assetPath: Assets/Synty/PolygonDungeon/Models/Collision/Convex/SM_Env_Wall_Archway_02_Convex.asset
+  uploadId: 924204

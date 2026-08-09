@@ -2,7 +2,6 @@ using UnityEngine;
 
 namespace StrategyCore
 {
-    [CreateAssetMenu(fileName = "Research", menuName = "StrategyCore/Abilities/Research")]
     public class Research : Ability
     {
         // This is a base class for upgrade abilities

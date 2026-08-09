@@ -2,7 +2,6 @@ using UnityEngine;
 
 namespace StrategyCore
 {
-    [CreateAssetMenu(fileName = "UpgradeBuilding", menuName = "StrategyCore/Abilities/UpgradeBuilding")]
     public class UpgradeBuilding : Ability
     {
         // If needed - Cost for limited resources must be set manually depending on the casting unit. 

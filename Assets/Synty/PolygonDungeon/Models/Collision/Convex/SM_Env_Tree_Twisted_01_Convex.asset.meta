@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: d70f43d99e5430b41827fdb837a63e26
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 43551456657504506
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 102677
+  packageName: POLYGON - Dungeons Pack - Art by Synty
+  packageVersion: 1.10.1
+  assetPath: Assets/Synty/PolygonDungeon/Models/Collision/Convex/SM_Env_Tree_Twisted_01_Convex.asset
+  uploadId: 924204

@@ -55,7 +55,6 @@ namespace StrategyCore
         }
 
         // PROCESS - Added / Removed -----------------------------------------------------------------------------------------------------------------------------------
-        // Process level is fetched locally, should fetch it from server?
 
         // ADD -----
 

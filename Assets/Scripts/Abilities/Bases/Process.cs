@@ -6,7 +6,6 @@ using UnityEngine;
 namespace StrategyCore
 {
     // Asset menu
-    //[CreateAssetMenu(fileName = "Process", menuName = "StrategyCore/Abilities/Process")]
     public class Process : Ability
     {
         // This is a base class for process abilities

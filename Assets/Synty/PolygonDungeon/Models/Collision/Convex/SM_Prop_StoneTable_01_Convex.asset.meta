@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: bde1dcf088a0ff44e8c89c60f128aa2d
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 43555598694011632
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 102677
+  packageName: POLYGON - Dungeons Pack - Art by Synty
+  packageVersion: 1.10.1
+  assetPath: Assets/Synty/PolygonDungeon/Models/Collision/Convex/SM_Prop_StoneTable_01_Convex.asset
+  uploadId: 924204

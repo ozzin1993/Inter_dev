@@ -5,7 +5,6 @@ namespace StrategyCore
     // Кирпич B1 — Вампиризм: носитель лечится на долю нанесённого им урона. Passive-SO по образцу Basher/Crit
     // (правило 2). Хук OnAfterDamageDeal — колбэк копируется в Projectile → покрывает и дальних. Серверо-авторит.
     // Ассет StrategyCore не трогаем (правило 1). Числа — только в Inspector (правило 3).
-    [CreateAssetMenu(fileName = "LifestealPassive", menuName = "StrategyCore/Abilities/Interflow/Lifesteal (B1)")]
     public class LifestealPassive : InterflowAbility
     {
         public override AbilityType type => AbilityType.Passive;

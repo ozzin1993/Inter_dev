@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: f65b497ff807d95439b38e7da2fab667
+timeCreated: 1506571119
+licenseType: Store
+NativeFormatImporter:
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 102677
+  packageName: POLYGON - Dungeons Pack - Art by Synty
+  packageVersion: 1.10.1
+  assetPath: Assets/Synty/PolygonDungeon/Prefabs/FX/FX_Fire_02.prefab
+  uploadId: 924204

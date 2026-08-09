@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: 04d3a6b7ed301ae498aea6c2a5b82fe1
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 43195316190376428
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 102677
+  packageName: POLYGON - Dungeons Pack - Art by Synty
+  packageVersion: 1.10.1
+  assetPath: Assets/Synty/PolygonDungeon/Models/Collision/Convex/SM_Env_Tiles_Pentagram_01_Convex.asset
+  uploadId: 924204

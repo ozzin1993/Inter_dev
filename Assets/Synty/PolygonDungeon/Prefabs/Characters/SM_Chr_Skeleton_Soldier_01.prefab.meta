@@ -1,0 +1,16 @@
+fileFormatVersion: 2
+guid: aa4de824abd97724da42ffc9d2b3c275
+timeCreated: 1545006139
+licenseType: Store
+NativeFormatImporter:
+  mainObjectFileID: 100100000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 102677
+  packageName: POLYGON - Dungeons Pack - Art by Synty
+  packageVersion: 1.10.1
+  assetPath: Assets/Synty/PolygonDungeon/Prefabs/Characters/SM_Chr_Skeleton_Soldier_01.prefab
+  uploadId: 924204

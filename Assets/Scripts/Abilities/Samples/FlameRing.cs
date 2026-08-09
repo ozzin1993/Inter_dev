@@ -5,7 +5,6 @@ using UnityEngine;
 
 namespace StrategyCore
 {
-    [CreateAssetMenu(fileName = "FlameRing", menuName = "StrategyCore/Abilities/Flame Ring")]
     public class FlameRing : Ability
     {
         // Deals damage to units in the specified Area, based on UnitSelector

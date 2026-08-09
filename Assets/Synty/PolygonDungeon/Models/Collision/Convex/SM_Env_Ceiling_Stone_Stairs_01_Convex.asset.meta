@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: 798c1ef5bbbe61845934ae2a978ace0f
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 43861901096608818
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 102677
+  packageName: POLYGON - Dungeons Pack - Art by Synty
+  packageVersion: 1.10.1
+  assetPath: Assets/Synty/PolygonDungeon/Models/Collision/Convex/SM_Env_Ceiling_Stone_Stairs_01_Convex.asset
+  uploadId: 924204

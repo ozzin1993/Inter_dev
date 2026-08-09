@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: b8a624bb3499f914c9c51bc565578442
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 43404713112647960
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 102677
+  packageName: POLYGON - Dungeons Pack - Art by Synty
+  packageVersion: 1.10.1
+  assetPath: Assets/Synty/PolygonDungeon/Models/Collision/Convex/SM_Wep_Handle_Metal_01_Convex.asset
+  uploadId: 924204

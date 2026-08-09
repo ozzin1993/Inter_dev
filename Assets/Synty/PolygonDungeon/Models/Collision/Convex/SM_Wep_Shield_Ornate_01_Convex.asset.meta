@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: b57a1d877a80d1f4e801a5e67a27b6e3
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 43728208113111860
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 102677
+  packageName: POLYGON - Dungeons Pack - Art by Synty
+  packageVersion: 1.10.1
+  assetPath: Assets/Synty/PolygonDungeon/Models/Collision/Convex/SM_Wep_Shield_Ornate_01_Convex.asset
+  uploadId: 924204

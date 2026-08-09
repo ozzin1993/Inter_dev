@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: 4fb9a979bbb44e841afebd2a363a31c7
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 43987762546430566
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 102677
+  packageName: POLYGON - Dungeons Pack - Art by Synty
+  packageVersion: 1.10.1
+  assetPath: Assets/Synty/PolygonDungeon/Models/Collision/Convex/SM_Prop_Goblin_Tent_03_Convex.asset
+  uploadId: 924204

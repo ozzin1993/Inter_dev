@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: 4c13a0ad23bfa5747b69740bfffbc73f
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 43586360166640340
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 102677
+  packageName: POLYGON - Dungeons Pack - Art by Synty
+  packageVersion: 1.10.1
+  assetPath: Assets/Synty/PolygonDungeon/Models/Collision/Convex/SM_Prop_Toture_Cage_01_Convex.asset
+  uploadId: 924204

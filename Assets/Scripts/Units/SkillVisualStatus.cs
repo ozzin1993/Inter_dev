@@ -4,7 +4,9 @@ using UnityEngine;
 namespace StrategyCore
 {
     /// <summary>
-    /// ВИЗУАЛЬНЫЕ статусы юнита от скиллов-конструкторов: значок в панели состояний и VFX.
+    /// ВИЗУАЛЬНЫЕ статусы юнита, присланные единым каналом синка статусов (2026-08-05:
+    /// NetworkDataSync.UnitStatus — эффекторы от ЛЮБОГО источника, флаги вроде слепоты, VFX бафов
+    /// скиллов): значок в панели состояний/шкале и VFX.
     /// Ровно презентация и ничего больше — ни урона, ни модификаторов статов, ни таймеров геймплея.
     ///
     /// Зачем отдельный носитель. В движке `Effector` — это геймплейный объект, который живёт в локальной
@@ -36,6 +38,8 @@ namespace StrategyCore
         }
 
         readonly List<Entry> entries = new List<Entry>();
+        // Флаги наших состояний без эффектора (слепота и т.п.) — приходят тем же каналом.
+        readonly HashSet<UnitStatusFlag> flags = new HashSet<UnitStatusFlag>();
         Unit unit;
         bool subscribed;
 
@@ -71,6 +75,10 @@ namespace StrategyCore
                 duration = durationOverride > 0f ? durationOverride : effector.duration;
                 // Тот же нижний предел, что и на сервере: короче двух тиков эффектор не живёт.
                 if (duration < GameManager.tickRate * 2) duration = GameManager.tickRate * 2;
+                // [2026-08-05 единый канал] Авторитетное снятие теперь приходит сообщением «статус снят»
+                // (RemoveEffector, фикс §8.6). Локальный таймер — страховка с запасом на сетевую задержку,
+                // чтобы значок не моргал между продлениями аур и не вис вечно при потере снятия.
+                duration += 1f;
             }
 
             // unitCentre = false: ровно так же вешает VFX эффектора само ядро (`Effector.EffectorAdd`
@@ -146,6 +154,50 @@ namespace StrategyCore
                 if (entries[i].key == key) return entries[i];
             return null;
         }
+
+        // ==================================================== СНЯТИЕ И ФЛАГИ ==
+
+        /// <summary>
+        /// Сервер сообщил: эффектора с этим id на юните больше нет (фикс §8.6: диспел и
+        /// permanent-эффекторы теперь снимаются и у клиента, а не висят до конца матча).
+        /// </summary>
+        public static void RemoveEffector(Unit target, int effectorId)
+        {
+            if (Utils.Headless || target == null) return;
+
+            SkillVisualStatus holder = target.GetComponent<SkillVisualStatus>();
+            if (holder == null) return;
+
+            Entry entry = holder.Find(effectorId);
+            if (entry == null) return;
+
+            bool hadIcon = entry.iconSource != null;
+            holder.DestroyVfx(entry);
+            holder.entries.Remove(entry);
+
+            if (hadIcon && holder.unit != null) holder.unit.OnStatusUpdate?.Invoke();
+            if (holder.entries.Count == 0) holder.Cleanup();
+        }
+
+        /// <summary>Сервер сообщил: флаг состояния без эффектора (слепота и т.п.) включён/выключен.</summary>
+        public static void SetFlag(Unit target, UnitStatusFlag flag, bool state)
+        {
+            if (Utils.Headless || target == null || target.dead) return;
+
+            if (state)
+            {
+                SkillVisualStatus holder = Get(target);
+                if (holder.flags.Add(flag) && holder.unit != null) holder.unit.OnStatusUpdate?.Invoke();
+            }
+            else
+            {
+                SkillVisualStatus holder = target.GetComponent<SkillVisualStatus>();
+                if (holder != null && holder.flags.Remove(flag) && holder.unit != null) holder.unit.OnStatusUpdate?.Invoke();
+            }
+        }
+
+        /// <summary>Активен ли присланный сервером флаг (чтение для перечислителя значков).</summary>
+        public bool HasFlag(UnitStatusFlag flag) => flags.Contains(flag);
 
         /// <summary>Растянуть визуал под радиус ауры. Ноль — ауры нет, визуал остаётся авторского размера.</summary>
         void ApplyAuraScale(Entry e, float auraRadius)

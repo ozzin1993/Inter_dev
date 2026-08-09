@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: 3bf01e09059dad54b985779213d8dca8
+timeCreated: 1505956618
+licenseType: Store
+NativeFormatImporter:
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 102677
+  packageName: POLYGON - Dungeons Pack - Art by Synty
+  packageVersion: 1.10.1
+  assetPath: Assets/Synty/PolygonDungeon/Prefabs/Environments/Floors/SM_Env_Tiles_03.prefab
+  uploadId: 924204

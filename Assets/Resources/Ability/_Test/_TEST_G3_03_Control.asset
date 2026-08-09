@@ -33,7 +33,8 @@ MonoBehaviour:
   castTime:
   - 0.5
   radius:
-  - 15
+  - 5
+  showRadiusCircle: 0
   unitSelector:
     isOwn: 0
     isAlly: 0
@@ -57,15 +58,14 @@ MonoBehaviour:
   manaCost: []
   manaCostPerSecond: []
   cost: []
+  trigger: 0
   targetMode: 3
   buttonCast: 0
   targetStrategy: 0
   searchOrigin: 0
-  strategyCategory: 1
   strategyUseCurrentHealth: 0
   strategyHpThreshold: 0.3
   targetCategories: 
-  onlyMelee: 0
   maxTargets: 0
   multiPick: 0
   includeSelf: 0
@@ -82,22 +82,31 @@ MonoBehaviour:
   castSound: {fileID: 0}
   impactSound: {fileID: 0}
   soundVolume: 1
+  procAnimationState: 
   statusEffector: {fileID: 0}
   selfCost:
     enabled: 0
     flatHp: []
     percentOfCurrentHp: []
     blockIfLethal: 1
+  pull:
+    enabled: 0
+    gap: 0
   damage:
     enabled: 0
     entries: []
+  drain:
+    enabled: 0
+    flat: []
+    percentOfMaxHp: []
+    percentOfCurrentHp: []
+    casterHealMultiplier: []
   status:
     enabled: 1
     stunSeconds:
     - 2
     disarmSeconds: []
     muteSeconds: []
-    targetCategories: 
   effectors:
     enabled: 0
     records: []
@@ -106,6 +115,10 @@ MonoBehaviour:
     enabled: 0
     flat: []
     percentOfMaxHp: []
+  mana:
+    enabled: 0
+    flat: []
+    percentOfMaxMana: []
   buff:
     enabled: 0
     duration: []
@@ -154,12 +167,61 @@ MonoBehaviour:
     percentOfMaxHp: []
     duration: []
     onDepletedEffectors: []
+    onDepletedRadius: 0
+    retaliationRadius: 0
+    retaliationStunSeconds: 0
+    retaliationEffectors: []
+    retaliationOnlyMelee: 1
+    reactionSelector:
+      isOwn: 0
+      isAlly: 0
+      isEnemy: 0
+      isUnit: 0
+      isBuilding: 0
+      isStaticDestructible: 0
+      isTree: 0
+      isGround: 0
+      isWater: 0
+      isAir: 0
+      includeInvisible: 0
+      includeInvulnerable: 0
     onDepletedBlindChance: 0
     onDepletedBlindDuration: 0
   blind:
     enabled: 0
     chance: []
     duration: []
+  morph:
+    enabled: 0
+    shapeUnit: {fileID: 0}
+    duration: []
+    disarmWhileMorphed: 1
+    muteWhileMorphed: 1
+    passiveEffects: []
+  ownership:
+    enabled: 0
+    sound: {fileID: 0}
+    soundVolume: 1
+  secondary:
+    enabled: 0
+    radius: 6
+    selector:
+      isOwn: 0
+      isAlly: 0
+      isEnemy: 0
+      isUnit: 0
+      isBuilding: 0
+      isStaticDestructible: 0
+      isTree: 0
+      isGround: 0
+      isWater: 0
+      isAir: 0
+      includeInvisible: 0
+      includeInvulnerable: 0
+    categories: 
+    onlyAttackersOfTarget: 1
+    healFlat: []
+    effectors: []
   summon:
     enabled: 0
     mode: 0
@@ -181,6 +243,9 @@ MonoBehaviour:
     zoneCount: 1
     spread: 1.5
     forwardOffset: 0
+  casterMove:
+    enabled: 0
+    respectControlImmunity: 0
   delegateService:
     enabled: 0
     service: 0

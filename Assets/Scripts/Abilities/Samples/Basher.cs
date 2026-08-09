@@ -6,7 +6,6 @@ using Unity.Netcode;
 
 namespace StrategyCore
 {
-    [CreateAssetMenu(fileName = "Basher", menuName = "StrategyCore/Abilities/Basher")]
     public class Basher : Ability
     {
         // Stuns the target when the unit attacks it

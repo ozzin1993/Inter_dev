@@ -6,7 +6,6 @@ namespace StrategyCore
     // эффектор-«клич». Passive-SO (правило 2): регистрирует носителя-«криера» в серверном хабе смертей
     // (MatchManager.RegisterKiller); хаб на смерти жертвы зовёт TriggerCry добившего (переиспользует B3-хаб,
     // правило 5). Ассет StrategyCore не трогаем (правило 1). Числа/эффектор — только в Inspector (правило 3).
-    [CreateAssetMenu(fileName = "OnKillCryPassive", menuName = "StrategyCore/Abilities/Interflow/OnKillCry (B4)")]
     public class OnKillCryPassive : InterflowAbility
     {
         public override AbilityType type => AbilityType.Passive;

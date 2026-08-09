@@ -6,7 +6,6 @@ using UnityEngine;
 
 namespace StrategyCore
 {
-    [CreateAssetMenu(fileName = "Crit", menuName = "StrategyCore/Abilities/Crit")]
     public class Crit : Ability
     {
         // Multiplies the damage when the unit attacks the target

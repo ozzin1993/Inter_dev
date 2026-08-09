@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: 6ad547dc06f7b0b429181338d87a85f5
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 43902112740441976
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 102677
+  packageName: POLYGON - Dungeons Pack - Art by Synty
+  packageVersion: 1.10.1
+  assetPath: Assets/Synty/PolygonDungeon/Models/Collision/Convex/SM_Prop_Goblin_Spikes_02_Convex.asset
+  uploadId: 924204

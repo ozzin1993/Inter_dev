@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: e899925c6d0c9d349874eb49eec10d17
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 43784208065066024
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 102677
+  packageName: POLYGON - Dungeons Pack - Art by Synty
+  packageVersion: 1.10.1
+  assetPath: Assets/Synty/PolygonDungeon/Models/Collision/Convex/SM_Prop_Candle_Chandelier_02_Broken_Convex.asset
+  uploadId: 924204

@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: c9f76195da3d4b348bf1a8a19af73ddc
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 43446127401221348
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 102677
+  packageName: POLYGON - Dungeons Pack - Art by Synty
+  packageVersion: 1.10.1
+  assetPath: Assets/Synty/PolygonDungeon/Models/Collision/Convex/SM_Env_Rubble_02_Convex.asset
+  uploadId: 924204

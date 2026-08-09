@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: 9bfb107936eacf546b3e5c6748d81961
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 43650438843292426
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 102677
+  packageName: POLYGON - Dungeons Pack - Art by Synty
+  packageVersion: 1.10.1
+  assetPath: Assets/Synty/PolygonDungeon/Models/Collision/Convex/SM_Prop_Table_Round_Broken_01_Convex.asset
+  uploadId: 924204

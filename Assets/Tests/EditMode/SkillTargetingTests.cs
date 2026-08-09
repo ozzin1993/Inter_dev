@@ -103,25 +103,39 @@ namespace StrategyCore.Tests
             Assert.IsNull(SkillTargeting.Nearest(new Unit[0], null, Vector3.zero));
         }
 
-        // ========================================================= NearestOfCategory ==
+        // ======================================================== FilterByCategories ==
 
         [Test]
-        public void NearestOfCategory_БерётТолькоНужнуюРоль()
+        public void FilterByCategories_ОставляетТолькоПеречисленныеРоли()
         {
-            Unit closeFighter = MakeUnit("fighter", new Vector3(1f, 0f, 0f), category: Unit.UnitCategory.Fighter);
-            Unit farMage = MakeUnit("mage", new Vector3(9f, 0f, 0f), category: Unit.UnitCategory.Mage);
+            Unit fighter = MakeUnit("fighter", new Vector3(1f, 0f, 0f), category: Unit.UnitCategory.Fighter);
+            Unit mage = MakeUnit("mage", new Vector3(9f, 0f, 0f), category: Unit.UnitCategory.Mage);
+            Unit tank = MakeUnit("tank", new Vector3(3f, 0f, 0f), category: Unit.UnitCategory.Tank);
 
-            Assert.AreSame(farMage, SkillTargeting.NearestOfCategory(
-                new[] { closeFighter, farMage }, null, Vector3.zero, Unit.UnitCategory.Mage));
+            Unit[] kept = SkillTargeting.FilterByCategories(
+                new[] { fighter, mage, tank },
+                new[] { Unit.UnitCategory.Mage, Unit.UnitCategory.Tank });
+
+            CollectionAssert.AreEquivalent(new[] { mage, tank }, kept);
         }
 
         [Test]
-        public void NearestOfCategory_РолиНетСредиКандидатов_Null()
+        public void FilterByCategories_ПустойНаборРолей_ПропускаетВсех()
+        {
+            Unit fighter = MakeUnit("fighter", new Vector3(1f, 0f, 0f), category: Unit.UnitCategory.Fighter);
+            Unit[] set = { fighter };
+
+            Assert.AreSame(set, SkillTargeting.FilterByCategories(set, null));
+            Assert.AreSame(set, SkillTargeting.FilterByCategories(set, new Unit.UnitCategory[0]));
+        }
+
+        [Test]
+        public void FilterByCategories_НужнойРолиНет_ПустойНабор()
         {
             Unit fighter = MakeUnit("fighter", new Vector3(1f, 0f, 0f), category: Unit.UnitCategory.Fighter);
 
-            Assert.IsNull(SkillTargeting.NearestOfCategory(
-                new[] { fighter }, null, Vector3.zero, Unit.UnitCategory.Hero));
+            Assert.AreEqual(0, SkillTargeting.FilterByCategories(
+                new[] { fighter }, new[] { Unit.UnitCategory.Hero }).Length);
         }
 
         // ============================================================== MostWounded ==
@@ -234,41 +248,46 @@ namespace StrategyCore.Tests
             Assert.IsNull(SkillTargeting.CurrentAttackTarget(self));
         }
 
-        // ============================================= RandomWithCategoryPriority ==
+        // ================================================================ AnyRandom ==
 
         [Test]
-        public void RandomWithCategoryPriority_ПриоритетнаяРольЕсть_БерётТолькоИзНеё()
-        {
-            Unit fighter = MakeUnit("fighter", Vector3.zero, category: Unit.UnitCategory.Fighter);
-            Unit tank = MakeUnit("tank", Vector3.zero, category: Unit.UnitCategory.Tank);
-            Unit mage = MakeUnit("mage", Vector3.zero, category: Unit.UnitCategory.Mage);
-            Unit[] set = { fighter, tank, mage };
-
-            // Выбор случайный — проверяем инвариант на серии, а не единичный ответ.
-            for (int i = 0; i < 40; i++)
-                Assert.AreSame(mage, SkillTargeting.RandomWithCategoryPriority(set, null, Unit.UnitCategory.Mage));
-        }
-
-        [Test]
-        public void RandomWithCategoryPriority_ПриоритетнойРолиНет_БерётИзВсех()
+        public void AnyRandom_БерётТолькоИзНабораКандидатов()
         {
             Unit fighter = MakeUnit("fighter", Vector3.zero, category: Unit.UnitCategory.Fighter);
             Unit tank = MakeUnit("tank", Vector3.zero, category: Unit.UnitCategory.Tank);
             Unit[] set = { fighter, tank };
 
+            // Выбор случайный — проверяем инвариант на серии, а не единичный ответ.
             for (int i = 0; i < 40; i++)
             {
-                Unit picked = SkillTargeting.RandomWithCategoryPriority(set, null, Unit.UnitCategory.Hero);
+                Unit picked = SkillTargeting.AnyRandom(set, null);
                 Assert.IsTrue(picked == fighter || picked == tank, "выбран кто-то вне набора кандидатов");
             }
         }
 
         [Test]
-        public void RandomWithCategoryPriority_НетЖивыхКандидатов_Null()
+        public void AnyRandom_РолиБольшеНеПриоритезируются()
+        {
+            Unit fighter = MakeUnit("fighter", Vector3.zero, category: Unit.UnitCategory.Fighter);
+            Unit mage = MakeUnit("mage", Vector3.zero, category: Unit.UnitCategory.Mage);
+            Unit[] set = { fighter, mage };
+
+            // Раньше маг забирал бы весь пул как приоритетная роль. Теперь роли сюда
+            // уже применены селектором ролей, и выбор равномерный — за 60 бросков
+            // боец обязан выпасть хотя бы раз (вероятность промаха ~1e-18).
+            bool fighterSeen = false;
+            for (int i = 0; i < 60 && !fighterSeen; i++)
+                if (SkillTargeting.AnyRandom(set, null) == fighter) fighterSeen = true;
+
+            Assert.IsTrue(fighterSeen, "выбор перестал быть равномерным по набору");
+        }
+
+        [Test]
+        public void AnyRandom_НетЖивыхКандидатов_Null()
         {
             Unit self = MakeSelf(Vector3.zero);
 
-            Assert.IsNull(SkillTargeting.RandomWithCategoryPriority(new[] { self }, self, Unit.UnitCategory.Tank));
+            Assert.IsNull(SkillTargeting.AnyRandom(new[] { self }, self));
         }
 
         // =========================================================== DensestCluster ==
@@ -321,14 +340,12 @@ namespace StrategyCore.Tests
             return f;
         }
 
-        static SkillTargeting.Options OptionsFor(Unit.UnitCategory category = Unit.UnitCategory.Mage,
-                                                 bool useCurrentHealth = false,
+        static SkillTargeting.Options OptionsFor(bool useCurrentHealth = false,
                                                  float hpThreshold = 0.5f,
                                                  float clusterRadius = 0f)
         {
             return new SkillTargeting.Options
             {
-                category = category,
                 useCurrentHealth = useCurrentHealth,
                 hpThreshold = hpThreshold,
                 clusterRadius = clusterRadius,
@@ -338,62 +355,38 @@ namespace StrategyCore.Tests
         }
 
         [Test]
-        public void Pick_NearestEnemy_ВедётВNearest()
+        public void Pick_Nearest_ВедётВNearest()
         {
             Fixture f = MakeFixture();
             Assert.AreSame(f.near, SkillTargeting.Pick(
-                SkillTargetStrategy.NearestEnemy, f.candidates, f.self, OptionsFor()));
+                SkillTargetStrategy.Nearest, f.candidates, f.self, OptionsFor()));
         }
 
         [Test]
-        public void Pick_NearestEnemyOfCategory_ВедётВNearestOfCategory()
+        public void Pick_MostWounded_ВедётВMostWounded()
         {
             Fixture f = MakeFixture();
             Assert.AreSame(f.weak, SkillTargeting.Pick(
-                SkillTargetStrategy.NearestEnemyOfCategory, f.candidates, f.self, OptionsFor()));
+                SkillTargetStrategy.MostWounded, f.candidates, f.self, OptionsFor()));
         }
 
         [Test]
-        public void Pick_AllyOfCategory_ВедётВТотЖеNearestOfCategory()
-        {
-            Fixture f = MakeFixture();
-            Assert.AreSame(f.weak, SkillTargeting.Pick(
-                SkillTargetStrategy.AllyOfCategory, f.candidates, f.self, OptionsFor()));
-        }
-
-        [Test]
-        public void Pick_MostWoundedEnemy_ВедётВMostWounded()
-        {
-            Fixture f = MakeFixture();
-            Assert.AreSame(f.weak, SkillTargeting.Pick(
-                SkillTargetStrategy.MostWoundedEnemy, f.candidates, f.self, OptionsFor()));
-        }
-
-        [Test]
-        public void Pick_MostWoundedAlly_ВедётВТотЖеMostWounded()
-        {
-            Fixture f = MakeFixture();
-            Assert.AreSame(f.weak, SkillTargeting.Pick(
-                SkillTargetStrategy.MostWoundedAlly, f.candidates, f.self, OptionsFor()));
-        }
-
-        [Test]
-        public void Pick_StrongestEnemy_ВедётВStrongest_ПоМаксимуму()
+        public void Pick_Strongest_ВедётВStrongest_ПоМаксимуму()
         {
             Fixture f = MakeFixture();
             Assert.AreSame(f.giant, SkillTargeting.Pick(
-                SkillTargetStrategy.StrongestEnemy, f.candidates, f.self, OptionsFor()));
+                SkillTargetStrategy.Strongest, f.candidates, f.self, OptionsFor()));
         }
 
         [Test]
-        public void Pick_StrongestEnemy_УважаетФлагТекущегоЗдоровья()
+        public void Pick_Strongest_УважаетФлагТекущегоЗдоровья()
         {
             Fixture f = MakeFixture();
             // giant по-прежнему сильнейший и по текущему — проверяем, что флаг доезжает,
             // на отдельном наборе: у near текущее 100, у giant искусственно 5.
             f.giant.health = 5f;
             Assert.AreSame(f.near, SkillTargeting.Pick(
-                SkillTargetStrategy.StrongestEnemy, f.candidates, f.self, OptionsFor(useCurrentHealth: true)));
+                SkillTargetStrategy.Strongest, f.candidates, f.self, OptionsFor(useCurrentHealth: true)));
         }
 
         [Test]
@@ -405,38 +398,42 @@ namespace StrategyCore.Tests
         }
 
         [Test]
-        public void Pick_RandomEnemyWithCategoryPriority_ВедётВПулПриоритетнойРоли()
+        public void Pick_RandomOne_ВедётВРавномерныйВыбор()
         {
             Fixture f = MakeFixture();
             for (int i = 0; i < 20; i++)
-                Assert.AreSame(f.weak, SkillTargeting.Pick(
-                    SkillTargetStrategy.RandomEnemyWithCategoryPriority, f.candidates, f.self, OptionsFor()));
+            {
+                Unit picked = SkillTargeting.Pick(
+                    SkillTargetStrategy.RandomOne, f.candidates, f.self, OptionsFor());
+                Assert.IsTrue(picked == f.near || picked == f.weak || picked == f.giant,
+                              "выбран кто-то вне набора кандидатов");
+            }
         }
 
         [Test]
-        public void Pick_WoundedAllyBelowThreshold_ВедётВВыборПоПорогу()
+        public void Pick_WoundedBelowThreshold_ВедётВВыборПоПорогу()
         {
             Fixture f = MakeFixture();
             // Ниже порога 0.5 только weak (0.1) — near и giant целыми быть не должны.
             Assert.AreSame(f.weak, SkillTargeting.Pick(
-                SkillTargetStrategy.WoundedAllyBelowThreshold, f.candidates, f.self, OptionsFor()));
+                SkillTargetStrategy.WoundedBelowThreshold, f.candidates, f.self, OptionsFor()));
         }
 
         [Test]
-        public void Pick_WoundedAllyBelowThreshold_НиктоНеПросел_Null()
+        public void Pick_WoundedBelowThreshold_НиктоНеПросел_Null()
         {
             Fixture f = MakeFixture();
             f.weak.health = 100f;
             Assert.IsNull(SkillTargeting.Pick(
-                SkillTargetStrategy.WoundedAllyBelowThreshold, f.candidates, f.self, OptionsFor()));
+                SkillTargetStrategy.WoundedBelowThreshold, f.candidates, f.self, OptionsFor()));
         }
 
         [Test]
-        public void Pick_EnemyCluster_ВедётВВыборПоПлотности()
+        public void Pick_Cluster_ВедётВВыборПоПлотности()
         {
             Fixture f = MakeFixture();
             Unit picked = SkillTargeting.Pick(
-                SkillTargetStrategy.EnemyCluster, f.candidates, f.self, OptionsFor(clusterRadius: 0f));
+                SkillTargetStrategy.Cluster, f.candidates, f.self, OptionsFor(clusterRadius: 0f));
 
             Assert.IsTrue(picked == f.near || picked == f.weak || picked == f.giant,
                           "выбран кто-то вне набора кандидатов");

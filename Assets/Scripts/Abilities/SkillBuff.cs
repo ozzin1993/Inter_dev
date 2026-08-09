@@ -22,15 +22,15 @@ namespace StrategyCore
     {
         Unit unit;                 // носитель бафа
         CompositeSkill source;     // скилл-источник: единственный источник параметров (правило 5)
-        int level;                 // уровень скилла на момент последнего наложения
         Unit caster;               // кто наложил — он же наносит урон детонации
+        int level;                 // уровень скилла на момент последнего наложения
+        int registeredLevel = -1;  // под каким уровнем зарегистрирован колбэк входящего урона
 
         float remaining;
         bool subscribed;
         bool dieHooked;
         bool exploded;             // детонация одноразова
         bool damageCallbackAdded;
-        int registeredLevel = -1;  // уровень, под которым колбэк урона реально зарегистрирован
         bool immunityAdded;
         bool cleanedUp;            // компонент уже снят; Destroy отложен до конца кадра
 
@@ -218,7 +218,6 @@ namespace StrategyCore
             }
 
             damageCallbackAdded = false;
-            registeredLevel = -1;
             immunityAdded = false;
             dieHooked = false;
         }

@@ -50,7 +50,14 @@ namespace StrategyCore
             };
 
             var left = new VisualElement { style = { width = 300, flexShrink = 0, marginRight = 8 } };
-            left.Add(new Button(() => { Refresh(); RebuildList(); RebuildRight(); }) { text = "Обновить список" });
+
+            // Создание переехало сюда из «Умений и эффекторов» (решение Artsiom 2026-08-09).
+            // Здесь выбор класса ОСТАЁТСЯ, в отличие от боевых и пассивок: постройка, обучение,
+            // исследование и категория панели — разные сущности, общего конструктора у них нет.
+            left.Add(BuildCreateFold());
+
+            left.Add(new Button(() => { InterflowAbilityUsage.InvalidateCache(); Refresh(); RebuildList(); RebuildRight(); })
+                { text = "Обновить список" });
             countLabel = new Label { style = { marginTop = 2, marginBottom = 2, color = DIM } };
             left.Add(countLabel);
 
@@ -69,6 +76,54 @@ namespace StrategyCore
             RebuildList();
             RebuildRight();
             return root;
+        }
+
+        // ======================== СОЗДАНИЕ И УДАЛЕНИЕ ========================
+
+        static bool createOpen;
+
+        /// <summary>Карточки классов производства: постройка, обучение, исследование, апгрейд, категория.</summary>
+        static VisualElement BuildCreateFold()
+        {
+            var fold = new Foldout { text = "Создать", value = createOpen };
+            fold.RegisterValueChangedCallback(e => { if (e.target == fold) createOpen = e.newValue; });
+
+            var types = InterflowAbilityCreate.TypesOfGroup(InterflowAbilityGroups.Group.Production);
+            if (types.Count == 0)
+            {
+                fold.Add(new Label("Классов производства не найдено.")
+                    { style = { whiteSpace = WhiteSpace.Normal, color = new Color(0.85f, 0.7f, 0.4f) } });
+                return fold;
+            }
+
+            foreach (var t in types)
+                fold.Add(InterflowAbilityCreate.TypeCard(t, created =>
+                {
+                    Refresh();
+                    selected = created;
+                    RebuildList();
+                    RebuildRight();
+                    EditorGUIUtility.PingObject(created);
+                }, "Создать элемент производства"));
+
+            // Таблица русских подписей классов переехала сюда вместе с созданием: она нужна там,
+            // где классы вообще показываются, а это теперь только производство.
+            var seed = new Button(InterflowAbilityCreate.SeedTypeLabels) { text = "Завести строки в таблице подписей" };
+            seed.tooltip = "Добавляет в настройки редактора ПУСТЫЕ строки под каждый класс умения, " +
+                           "чтобы русские названия и пояснения можно было вписать в инспекторе. Сам ничего не придумывает.";
+            fold.Add(seed);
+
+            return fold;
+        }
+
+        static void DeleteSelected()
+        {
+            if (!InterflowAbilityCreate.Delete(selected, "Удалить этот элемент производства?")) return;
+
+            Refresh();
+            selected = items.FirstOrDefault();
+            RebuildList();
+            RebuildRight();
         }
 
         // ======================== ДАННЫЕ ========================
@@ -96,7 +151,7 @@ namespace StrategyCore
 
             if (items.Count == 0)
             {
-                listContainer.Add(new Label("Постройки, обучение и исследования не найдены. Создай их во вкладке «Умения и эффекторы» → «Производство и постройки».")
+                listContainer.Add(new Label("Постройки, обучение и исследования не найдены. Жми «Создать» выше.")
                     { style = { whiteSpace = WhiteSpace.Normal, marginTop = 4, color = DIM } });
                 return;
             }
@@ -147,6 +202,7 @@ namespace StrategyCore
                 { style = { unityFontStyleAndWeight = FontStyle.Bold, fontSize = 15, flexGrow = 1 } });
             var sel = selected;
             head.Add(new Button(() => EditorGUIUtility.PingObject(sel)) { text = "Показать" });
+            head.Add(new Button(DeleteSelected) { text = "Удалить" });
             rightPanel.Add(head);
 
             AbilityType at;

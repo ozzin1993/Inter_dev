@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: 849ab1ad04c5a2c4ca28012b18a42e0d
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 43447815669200116
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 102677
+  packageName: POLYGON - Dungeons Pack - Art by Synty
+  packageVersion: 1.10.1
+  assetPath: Assets/Synty/PolygonDungeon/Models/Collision/Convex/SM_Prop_WeaponRack_01_Convex.asset
+  uploadId: 924204

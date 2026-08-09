@@ -158,6 +158,10 @@ namespace StrategyCore
                     if (SlotManager.instance.gameStarted == GameState.Started)
                     {
                         NetworkDataSync.instance.SendSceneData(clientId, true);
+
+                        // Догнать опоздавшего живыми зонами на земле: их спавн он пропустил,
+                        // а реестр держит сервер (MatchManager.GroundZones).
+                        if (MatchManager.instance != null) MatchManager.instance.ResendGroundZonesTo(clientId);
                     }
                 }
                 // Else: set current player

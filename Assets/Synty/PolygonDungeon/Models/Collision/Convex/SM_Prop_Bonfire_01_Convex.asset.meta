@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: adec6d282b967e64db04dbffbe7487a3
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 43132537383078812
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 102677
+  packageName: POLYGON - Dungeons Pack - Art by Synty
+  packageVersion: 1.10.1
+  assetPath: Assets/Synty/PolygonDungeon/Models/Collision/Convex/SM_Prop_Bonfire_01_Convex.asset
+  uploadId: 924204

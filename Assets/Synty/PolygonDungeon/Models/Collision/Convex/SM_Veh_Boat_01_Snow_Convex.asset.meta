@@ -1,0 +1,16 @@
+fileFormatVersion: 2
+guid: 4b87fed60ba45ff4e971e92c60584369
+timeCreated: 1579832224
+licenseType: Store
+NativeFormatImporter:
+  mainObjectFileID: 43033030227783660
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 102677
+  packageName: POLYGON - Dungeons Pack - Art by Synty
+  packageVersion: 1.10.1
+  assetPath: Assets/Synty/PolygonDungeon/Models/Collision/Convex/SM_Veh_Boat_01_Snow_Convex.asset
+  uploadId: 924204

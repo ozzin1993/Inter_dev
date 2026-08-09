@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: e243cdbf40ae09049834a4fdf1876343
+timeCreated: 1505961426
+licenseType: Store
+NativeFormatImporter:
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 102677
+  packageName: POLYGON - Dungeons Pack - Art by Synty
+  packageVersion: 1.10.1
+  assetPath: Assets/Synty/PolygonDungeon/Prefabs/Weapons/SM_Wep_Bone_01.prefab
+  uploadId: 924204

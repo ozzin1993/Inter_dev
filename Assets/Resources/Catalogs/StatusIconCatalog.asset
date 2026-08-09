@@ -1,0 +1,23 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: aa11b205c0de4f00a1e5f10b2f5a7c01, type: 3}
+  m_Name: StatusIconCatalog
+  m_EditorClassIdentifier: 
+  stunIcon: {fileID: 2800000, guid: d49d4f7b36da80645ae1f808c5f06829, type: 3}
+  mutedIcon: {fileID: 2800000, guid: 39ae2bbc841138e4bb38b0b87e7152db, type: 3}
+  disarmedIcon: {fileID: 2800000, guid: 1d46ebd6786fbd2468fd0d7f79ec8acb, type: 3}
+  polymorphedIcon: {fileID: 2800000, guid: aa11b205c0de4f00a1e5f10b2f5a7c08, type: 3}
+  blindIcon: {fileID: 2800000, guid: aa11b205c0de4f00a1e5f10b2f5a7c07, type: 3}
+  iconMaterial: {fileID: 2100000, guid: 7ef9779f40db4ba4fa115ace9bef13eb, type: 2}
+  iconSize: 0.28
+  iconGap: 0.05
+  barOffsetY: 0.12

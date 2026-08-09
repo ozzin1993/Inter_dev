@@ -5,7 +5,6 @@ using UnityEngine;
 
 namespace StrategyCore
 {
-    [CreateAssetMenu(fileName = "DragonsBreath", menuName = "StrategyCore/Abilities/Dragon`s Breath")]
     public class DragonsBreath : Ability
     {
         // Launches the wall of fire that damages units in cone shaped area

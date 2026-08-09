@@ -1626,12 +1626,10 @@ namespace StrategyCore
 
             if (stunTime == 0)
             {
-                // If was not previously stunned we create VFX
-                if (stunnedVFX == null)
-                {
-                    stunnedVFX = Instantiate(ReferenceManager.instance.stunnnedVFX, vfxHolder);
-                    stunnedVFX.transform.localPosition = new Vector3(0, unitHeight, 0);
-                }
+                // [Interflow fix 2026-08-05 unit-status-sync] Одиночная станная анимация над головой
+                // ОТКЛЮЧЕНА (решение Artsiom 2026-08-05): стан теперь показывает шкала статусов
+                // над полоской здоровья (UnitStatusIconsBar). Снятие stunnedVFX ниже оставлено —
+                // оно безопасно чистит null и прикроет старые экземпляры при откате этой правки.
 
                 // Freeze the unit;
                 if (activeAbilityInUse) Idle();
@@ -1664,12 +1662,8 @@ namespace StrategyCore
             if (state)
             {
                 stunned = true;
-                if (stunnedVFX == null)
-                {
-                    // Show that unit is stunned
-                    stunnedVFX = Instantiate(ReferenceManager.instance.stunnnedVFX, vfxHolder);
-                    stunnedVFX.transform.localPosition = new Vector3(0, unitHeight, 0);
-                }
+                // [Interflow fix 2026-08-05 unit-status-sync] Одиночная станная анимация клиента
+                // ОТКЛЮЧЕНА (решение Artsiom 2026-08-05) — стан показывает шкала статусов.
 
                 // Turn off move animation
                 if (m_walkAnimationPlaying)
@@ -1742,12 +1736,9 @@ namespace StrategyCore
 
             if (currentMuteTime == 0)
             {
-                // If was not previously muted we create VFX
-                if (mutedVFX == null)
-                {
-                    mutedVFX = Instantiate(ReferenceManager.instance.mutedVFX, vfxHolder);
-                    mutedVFX.transform.localPosition = new Vector3(0, unitHeight, 0);
-                }
+                // [Interflow fix 2026-08-05 unit-status-sync] Одиночная анимация немоты над головой
+                // ОТКЛЮЧЕНА (решение Artsiom: «отключи все анимации, оставь только иконки») —
+                // статус показывает шкала над полоской здоровья. Снятие mutedVFX ниже оставлено (чистит null безопасно).
 
                 // Mute the unit
                 if (activeAbilityInUse) Idle();
@@ -1775,12 +1766,7 @@ namespace StrategyCore
             if (state)
             {
                 muted = true;
-                if (mutedVFX == null)
-                {
-                    // Show that unit is muted
-                    mutedVFX = Instantiate(ReferenceManager.instance.mutedVFX, vfxHolder);
-                    mutedVFX.transform.localPosition = new Vector3(0, unitHeight, 0);
-                }
+                // [Interflow fix 2026-08-05 unit-status-sync] Клиентская анимация немоты ОТКЛЮЧЕНА — статус показывает шкала.
             }
             else if (!state)
             {
@@ -1828,12 +1814,8 @@ namespace StrategyCore
 
             if (currentDisarmTime == 0)
             {
-                // If was not previously muted we create VFX
-                if (disarmedVFX == null)
-                {
-                    disarmedVFX = Instantiate(ReferenceManager.instance.disarmedVFX, vfxHolder);
-                    disarmedVFX.transform.localPosition = new Vector3(0, unitHeight, 0);
-                }
+                // [Interflow fix 2026-08-05 unit-status-sync] Одиночная анимация безоружия над головой
+                // ОТКЛЮЧЕНА (решение Artsiom) — статус показывает шкала над полоской здоровья.
 
                 // Stop attack
                 if (!firstAttack) AttackStop();
@@ -1860,12 +1842,7 @@ namespace StrategyCore
             if (state)
             {
                 disarmed = true;
-                if (disarmedVFX == null)
-                {
-                    // Show that unit is muted
-                    disarmedVFX = Instantiate(ReferenceManager.instance.disarmedVFX, vfxHolder);
-                    disarmedVFX.transform.localPosition = new Vector3(0, unitHeight, 0);
-                }
+                // [Interflow fix 2026-08-05 unit-status-sync] Клиентская анимация безоружия ОТКЛЮЧЕНА — статус показывает шкала.
             }
             else if (!state)
             {

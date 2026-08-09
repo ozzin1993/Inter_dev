@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: 5dbc42c9cf8b8274bbcbcf286d6c4549
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 43621279668821596
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 102677
+  packageName: POLYGON - Dungeons Pack - Art by Synty
+  packageVersion: 1.10.1
+  assetPath: Assets/Synty/PolygonDungeon/Models/Collision/Convex/SM_Wep_Goblin_Staff_01_Convex.asset
+  uploadId: 924204

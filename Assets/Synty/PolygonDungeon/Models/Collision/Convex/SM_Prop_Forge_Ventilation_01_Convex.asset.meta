@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: b1b5d50f6da0f2147be5836ae2f9fc99
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 43095306768659012
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 102677
+  packageName: POLYGON - Dungeons Pack - Art by Synty
+  packageVersion: 1.10.1
+  assetPath: Assets/Synty/PolygonDungeon/Models/Collision/Convex/SM_Prop_Forge_Ventilation_01_Convex.asset
+  uploadId: 924204

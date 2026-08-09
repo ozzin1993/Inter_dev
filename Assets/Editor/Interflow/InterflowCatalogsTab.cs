@@ -35,6 +35,7 @@ namespace StrategyCore
             new Catalog("Звук оружия (WeaponSound)", typeof(WeaponSound), false, s => s.weaponSoundCreateFolder),
             new Catalog("Атрибуты (Attribute)",     typeof(StrategyCore.Attribute), false, s => s.attributeCreateFolder), // [Interflow 2026-08-01] гэп SCEditor
             new Catalog("Снаряды (Projectile)",      typeof(Projectile),  true,  s => s.projectileCreateFolder),
+            new Catalog("Иконки статусов (StatusIconCatalog)", typeof(StatusIconCatalog), false, s => s.statusIconCatalogFolder), // [Interflow 2026-08-05] шкала статусов
         };
 
         static int catIndex;

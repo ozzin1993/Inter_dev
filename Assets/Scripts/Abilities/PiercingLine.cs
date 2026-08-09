@@ -12,7 +12,6 @@ namespace StrategyCore
     /// Реализация без правки ядра: штатный хук атакующего <c>OnAfterDamageDealCallbacks</c> —
     /// зная стрелка и цель, считаем коридор и добираем остальных. Визуал снаряда остаётся штатным.
     /// </summary>
-    [CreateAssetMenu(fileName = "PiercingLine", menuName = "StrategyCore/Abilities/Interflow/PiercingLine (Пронзание по прямой)")]
     public class PiercingLine : InterflowAbility
     {
         public override AbilityType type { get { return AbilityType.Passive; } }

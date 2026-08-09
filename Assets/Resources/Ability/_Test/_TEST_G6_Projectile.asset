@@ -1,0 +1,304 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e15fcca452434ea4c96c2cd743b313b0, type: 3}
+  m_Name: _TEST_G6_Projectile
+  m_EditorClassIdentifier: Interflow.Game::StrategyCore.CompositeSkill
+  id: 99526
+  abilityName:
+  - "_TEST_\u0421\u043D\u0430\u0440\u044F\u0434_\u0423\u043C\u043D\u044B\u0439\u0412\u044B\u0431\u043E\u0440"
+  description:
+  - "\u0422\u0415\u0421\u0422: \u043A\u0430\u0441\u0442 \u0441 \u043A\u043D\u043E\u043F\u043A\u0438
+    \u0441\u043E \xAB\u0443\u043C\u043D\u044B\u043C \u0432\u044B\u0431\u043E\u0440\u043E\u043C
+    \u044E\u043D\u0438\u0442\u0430\xBB, \u0434\u043E\u0441\u0442\u0430\u0432\u043A\u0430
+    \u0441\u043D\u0430\u0440\u044F\u0434\u043E\u043C. \u041F\u0440\u043E\u0432\u0435\u0440\u044F\u0435\u0442
+    \u0432\u0438\u0437\u0443\u0430\u043B\u044C\u043D\u0443\u044E \u043A\u043E\u043F\u0438\u044E
+    \u0441\u043D\u0430\u0440\u044F\u0434\u0430 \u0443 \u0447\u0438\u0441\u0442\u043E\u0433\u043E
+    \u043A\u043B\u0438\u0435\u043D\u0442\u0430."
+  icon: []
+  slotNumber: -1
+  isItem: 0
+  useUponPickUp: 0
+  dropOnDeath: 0
+  charges: 0
+  maxLevels: 0
+  heroLevelable: 0
+  cooldown:
+  - 3
+  castRange:
+  - 0
+  castTime:
+  - 0.5
+  radius:
+  - 0
+  showRadiusCircle: 0
+  unitSelector:
+    isOwn: 0
+    isAlly: 0
+    isEnemy: 1
+    isUnit: 1
+    isBuilding: 0
+    isStaticDestructible: 0
+    isTree: 0
+    isGround: 1
+    isWater: 1
+    isAir: 1
+    includeInvisible: 0
+    includeInvulnerable: 0
+  dontTurn: 0
+  continuous: 0
+  interruptible: 0
+  requiresCastingUnit: 1
+  duration: []
+  requiredTech: []
+  requiredLevel: 
+  manaCost:
+  - 0
+  manaCostPerSecond: []
+  cost: []
+  trigger: 0
+  targetMode: 4
+  buttonCast: 1
+  targetStrategy: 0
+  searchOrigin: 0
+  strategyUseCurrentHealth: 0
+  strategyHpThreshold: 0.3
+  targetCategories: 
+  maxTargets: 0
+  multiPick: 0
+  includeSelf: 0
+  coneAngle: 90
+  delivery: 1
+  projectilePrefab: {fileID: 491204731642187132, guid: 04c3c6abee2130a479c2256e46cf167c, type: 3}
+  projectileFollowsTarget: 1
+  spawnSocket: 1
+  localOffset: {x: 0, y: 0, z: 0}
+  castVFX: {fileID: 0}
+  castVfxLifetime: 2
+  impactVFX: {fileID: 0}
+  impactVfxLifetime: 2
+  castSound: {fileID: 0}
+  impactSound: {fileID: 0}
+  soundVolume: 1
+  procAnimationState: 
+  statusEffector: {fileID: 0}
+  selfCost:
+    enabled: 0
+    flatHp: []
+    percentOfCurrentHp: []
+    blockIfLethal: 1
+  pull:
+    enabled: 0
+    gap: 0
+  damage:
+    enabled: 1
+    entries:
+    - amount:
+      - 25
+      damageType: {fileID: 11400000, guid: cd06616a792156445a9935cd8327f052, type: 2}
+      targets: 0
+  drain:
+    enabled: 0
+    flat: []
+    percentOfMaxHp: []
+    percentOfCurrentHp: []
+    casterHealMultiplier: []
+  status:
+    enabled: 0
+    stunSeconds: []
+    disarmSeconds: []
+    muteSeconds: []
+  effectors:
+    enabled: 0
+    records: []
+    effectors: []
+  heal:
+    enabled: 0
+    flat: []
+    percentOfMaxHp: []
+  mana:
+    enabled: 0
+    flat: []
+    percentOfMaxMana: []
+  buff:
+    enabled: 0
+    duration: []
+    auraDamagePerSecond: []
+    auraDamageType: {fileID: 0}
+    auraRadius: []
+    auraSelector:
+      isOwn: 0
+      isAlly: 0
+      isEnemy: 0
+      isUnit: 0
+      isBuilding: 0
+      isStaticDestructible: 0
+      isTree: 0
+      isGround: 0
+      isWater: 0
+      isAir: 0
+      includeInvisible: 0
+      includeInvulnerable: 0
+    healPerSecond: []
+    healPercentOfMaxPerSecond: []
+    selfBurnPerSecond: []
+    incomingDamageMultiplier: []
+    controlImmunity: 0
+    buffVFX: {fileID: 0}
+    detonateOnDeath: 0
+    detonationRadius: []
+    detonationDamage: []
+    detonationDamageType: {fileID: 0}
+    detonationSelector:
+      isOwn: 0
+      isAlly: 0
+      isEnemy: 0
+      isUnit: 0
+      isBuilding: 0
+      isStaticDestructible: 0
+      isTree: 0
+      isGround: 0
+      isWater: 0
+      isAir: 0
+      includeInvisible: 0
+      includeInvulnerable: 0
+  shield:
+    enabled: 0
+    flat: []
+    percentOfMaxHp: []
+    duration: []
+    onDepletedEffectors: []
+    onDepletedRadius: 0
+    retaliationRadius: 0
+    retaliationStunSeconds: 0
+    retaliationEffectors: []
+    retaliationOnlyMelee: 1
+    reactionSelector:
+      isOwn: 0
+      isAlly: 0
+      isEnemy: 0
+      isUnit: 0
+      isBuilding: 0
+      isStaticDestructible: 0
+      isTree: 0
+      isGround: 0
+      isWater: 0
+      isAir: 0
+      includeInvisible: 0
+      includeInvulnerable: 0
+    onDepletedBlindChance: 0
+    onDepletedBlindDuration: 0
+  blind:
+    enabled: 0
+    chance: []
+    duration: []
+  morph:
+    enabled: 0
+    shapeUnit: {fileID: 0}
+    duration: []
+    disarmWhileMorphed: 1
+    muteWhileMorphed: 1
+    passiveEffects: []
+  ownership:
+    enabled: 0
+    sound: {fileID: 0}
+    soundVolume: 1
+  secondary:
+    enabled: 0
+    radius: 6
+    selector:
+      isOwn: 0
+      isAlly: 0
+      isEnemy: 0
+      isUnit: 0
+      isBuilding: 0
+      isStaticDestructible: 0
+      isTree: 0
+      isGround: 0
+      isWater: 0
+      isAir: 0
+      includeInvisible: 0
+      includeInvulnerable: 0
+    categories: 
+    onlyAttackersOfTarget: 1
+    healFlat: []
+    effectors: []
+  summon:
+    enabled: 0
+    mode: 0
+    prefab: {fileID: 0}
+    count: []
+    lifetime: []
+    obeyCommands: 0
+    command: 1
+    maxAlivePerCaster: 0
+    killSummonsOnOwnerDeath: 0
+    maxAlivePerPlayer: 0
+    spawnSpread: 1.5
+    summonVFX: {fileID: 0}
+    summonSound: {fileID: 0}
+    summonSoundVolume: 1
+  groundZone:
+    enabled: 0
+    zonePrefab: {fileID: 0}
+    zoneCount: 1
+    spread: 1.5
+    forwardOffset: 0
+  casterMove:
+    enabled: 0
+    respectControlImmunity: 0
+  delegateService:
+    enabled: 0
+    service: 0
+    meteorDurationSeconds: 5
+    meteorsPerSecond: 4
+    meteorImpactRadius: 2
+    meteorPhysicalDamage: 0
+    meteorPhysicalDamageType: {fileID: 0}
+    meteorFireDamage: 0
+    meteorFireDamageType: {fileID: 0}
+    meteorStunSeconds: 0
+    meteorUseDensityTargeting: 1
+    meteorTargetSelector:
+      isOwn: 0
+      isAlly: 0
+      isEnemy: 0
+      isUnit: 0
+      isBuilding: 0
+      isStaticDestructible: 0
+      isTree: 0
+      isGround: 0
+      isWater: 0
+      isAir: 0
+      includeInvisible: 0
+      includeInvulnerable: 0
+    meteorSplashSelector:
+      isOwn: 0
+      isAlly: 0
+      isEnemy: 0
+      isUnit: 0
+      isBuilding: 0
+      isStaticDestructible: 0
+      isTree: 0
+      isGround: 0
+      isWater: 0
+      isAir: 0
+      includeInvisible: 0
+      includeInvulnerable: 0
+    meteorVFX: {fileID: 0}
+    meteorImpactSound: {fileID: 0}
+    meteorImpactVolume: 1
+    resurrectRadius: 8
+    resurrectCount: 3
+    resurrectHighestTierFirst: 1
+    resurrectTemporary: 1
+    resurrectLifetime: 30
+    resurrectObeyCommands: 1

@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: 456cf52a7c6401b4ea47e0d58329a624
+timeCreated: 1507499964
+licenseType: Store
+NativeFormatImporter:
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 102677
+  packageName: POLYGON - Dungeons Pack - Art by Synty
+  packageVersion: 1.10.1
+  assetPath: Assets/Synty/PolygonDungeon/Prefabs/Environments/Floors/SM_Env_Stairs_02.prefab
+  uploadId: 924204

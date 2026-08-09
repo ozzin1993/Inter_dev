@@ -6,7 +6,6 @@ using UnityEngine;
 
 namespace StrategyCore
 {
-    [CreateAssetMenu(fileName = "TransportTakeOut", menuName = "StrategyCore/Abilities/Transport_TakeOut")]
     public class TransportTakeOut : Ability
     {
         public override AbilityType type { get { return AbilityType.Location; } } // Specify type

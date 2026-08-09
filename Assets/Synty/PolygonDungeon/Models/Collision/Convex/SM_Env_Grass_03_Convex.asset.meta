@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: d82bea78d29b11a488a94d90b4cf68fd
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 43285078359050144
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 102677
+  packageName: POLYGON - Dungeons Pack - Art by Synty
+  packageVersion: 1.10.1
+  assetPath: Assets/Synty/PolygonDungeon/Models/Collision/Convex/SM_Env_Grass_03_Convex.asset
+  uploadId: 924204

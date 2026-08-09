@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: acd81c1a60b2ef146a73398c63324cdc
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 43002206878017704
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 102677
+  packageName: POLYGON - Dungeons Pack - Art by Synty
+  packageVersion: 1.10.1
+  assetPath: Assets/Synty/PolygonDungeon/Models/Collision/Convex/SM_Env_Minetrack_Bridge_01_Convex.asset
+  uploadId: 924204

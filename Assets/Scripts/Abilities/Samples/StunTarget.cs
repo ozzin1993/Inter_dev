@@ -2,7 +2,6 @@ using UnityEngine;
 
 namespace StrategyCore
 {
-    [CreateAssetMenu(fileName = "StunTarget", menuName = "StrategyCore/Abilities/StunTarget")]
     public class StunTarget : Ability
     {
         // Stuns the target for specified period of time

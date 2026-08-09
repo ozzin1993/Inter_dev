@@ -14,7 +14,6 @@ namespace StrategyCore
     /// Штатные поля Ability, которые здесь работают: <c>radius</c> — радиус круга, <c>cooldown</c> — откат,
     /// <c>unitSelector</c> — кого задевает (обычно враги).
     /// </summary>
-    [CreateAssetMenu(fileName = "Counterattack", menuName = "StrategyCore/Abilities/Interflow/Counterattack (Контрудар)")]
     public class Counterattack : InterflowAbility
     {
         public override AbilityType type { get { return AbilityType.Passive; } }

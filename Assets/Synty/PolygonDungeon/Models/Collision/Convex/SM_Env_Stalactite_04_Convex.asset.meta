@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: 44fd857f6a6e3494c9dda398b908b7cd
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 43438596826795158
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 102677
+  packageName: POLYGON - Dungeons Pack - Art by Synty
+  packageVersion: 1.10.1
+  assetPath: Assets/Synty/PolygonDungeon/Models/Collision/Convex/SM_Env_Stalactite_04_Convex.asset
+  uploadId: 924204

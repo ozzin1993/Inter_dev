@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: 703efe261b3633b42922d51ff15f77e9
+timeCreated: 1505956624
+licenseType: Store
+NativeFormatImporter:
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 102677
+  packageName: POLYGON - Dungeons Pack - Art by Synty
+  packageVersion: 1.10.1
+  assetPath: Assets/Synty/PolygonDungeon/Prefabs/Props/SM_Prop_Goblin_Branch_02.prefab
+  uploadId: 924204

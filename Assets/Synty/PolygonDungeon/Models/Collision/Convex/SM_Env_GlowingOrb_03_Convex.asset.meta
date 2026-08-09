@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: 76d71f195c7d22e40a732bbbb5728b8d
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 43622361324732284
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 102677
+  packageName: POLYGON - Dungeons Pack - Art by Synty
+  packageVersion: 1.10.1
+  assetPath: Assets/Synty/PolygonDungeon/Models/Collision/Convex/SM_Env_GlowingOrb_03_Convex.asset
+  uploadId: 924204

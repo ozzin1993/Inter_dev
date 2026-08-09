@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: fe8d4d9fc1205b040a01a8f865bbf5b6
+timeCreated: 1505956633
+licenseType: Store
+NativeFormatImporter:
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 102677
+  packageName: POLYGON - Dungeons Pack - Art by Synty
+  packageVersion: 1.10.1
+  assetPath: Assets/Synty/PolygonDungeon/Prefabs/Environments/Misc/SM_Env_Railing_03.prefab
+  uploadId: 924204
