@@ -1,0 +1,245 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!21 &2100000
+Material:
+  serializedVersion: 8
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_Name: Water_01
+  m_Shader: {fileID: -6465566751694194690, guid: 0730dae39bc73f34796280af9875ce14, type: 3}
+  m_Parent: {fileID: 0}
+  m_ModifiedSerializedProperties: 0
+  m_ValidKeywords:
+  - _ALPHAPREMULTIPLY_ON
+  - _SURFACE_TYPE_TRANSPARENT
+  m_InvalidKeywords:
+  - _ALPHABLEND_ON
+  - _EMISSION
+  - _NORMALMAP
+  m_LightmapFlags: 2
+  m_EnableInstancingVariants: 0
+  m_DoubleSidedGI: 0
+  m_CustomRenderQueue: 3000
+  stringTagMap:
+    RenderType: Transparent
+  disabledShaderPasses:
+  - DepthOnly
+  - MOTIONVECTORS
+  m_LockedProperties: 
+  m_SavedProperties:
+    serializedVersion: 3
+    m_TexEnvs:
+    - _Albedo_Map:
+        m_Texture: {fileID: 2800000, guid: 9c76055dc8b286143943880163e3e0f3, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _Emission_Map:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _Normal_Map:
+        m_Texture: {fileID: 2800000, guid: 836969946e958b744836a22c2588f417, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - unity_Lightmaps:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - unity_LightmapsInd:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - unity_ShadowMasks:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    m_Ints: []
+    m_Floats:
+    - _AlphaClip: 0
+    - _AlphaToMask: 0
+    - _Alpha_Clip_Threshold: 0.5
+    - _BUILTIN_AlphaClip: 1
+    - _BUILTIN_Blend: 0
+    - _BUILTIN_CullMode: 0
+    - _BUILTIN_DstBlend: 0
+    - _BUILTIN_QueueControl: -1
+    - _BUILTIN_QueueOffset: 0
+    - _BUILTIN_SrcBlend: 1
+    - _BUILTIN_Surface: 0
+    - _BUILTIN_ZTest: 4
+    - _BUILTIN_ZWrite: 1
+    - _BUILTIN_ZWriteControl: 0
+    - _Blend: 0
+    - _BlendModePreserveSpecular: 1
+    - _BumpScale: 1
+    - _CastShadows: 1
+    - _CausticDepthFade: 11.22
+    - _CausticScale: 0
+    - _CausticSpeed: 1
+    - _ColourNoiseScale1: 0.019
+    - _Cull: 2
+    - _Cutoff: 0.5
+    - _Depth: 0.28
+    - _DetailNormalMapScale: 1
+    - _Distortion: 0.078
+    - _Distortion1: 0.292
+    - _DistortionSpeed: 0.073
+    - _DistortionTiling: 0.33
+    - _DstBlend: 10
+    - _DstBlendAlpha: 10
+    - _Enable_Emission: 0
+    - _Float4: 0.37
+    - _FoamDepth: 0.42
+    - _FoamDepth1: 0
+    - _FoamFalloff: 0
+    - _FoamFalloff1: 0
+    - _FoamGlowMultiplier: 1
+    - _FoamShoreline: 0.42
+    - _FoamSize: 0.6
+    - _FoamSize1: 0.019
+    - _FoamSmoothness: 1
+    - _FoamSmoothness1: 0
+    - _FoamSpread: 0.6
+    - _GlossMapScale: 1
+    - _Glossiness: 0.583
+    - _GlossyReflections: 1
+    - _GlowDepth: 0.1
+    - _GlowFalloff: 0.1
+    - _Metallic: 0.529
+    - _Mode: 2
+    - _NormalScale: 0.088
+    - _NormalTiling: 0.15
+    - _NormalTiling2: 0.05
+    - _Normal_Amount: 1
+    - _ODM: 0.02
+    - _OcclusionStrength: 1
+    - _Opacity: 1
+    - _OpacityFalloff: 7.55
+    - _OpacityMin: 0.8
+    - _OverallFalloff: 0.35
+    - _Parallax: 0.02
+    - _QueueControl: 0
+    - _QueueOffset: 0
+    - _ReceiveShadows: 1
+    - _ReflectionPower: 1
+    - _RippleSpeed: 0.028
+    - _ShallowFalloff: -0.32
+    - _Smoothness: 0.583
+    - _SmoothnessTextureChannel: 0
+    - _Specular: 0.013
+    - _SpecularHighlights: 1
+    - _SrcBlend: 1
+    - _SrcBlendAlpha: 1
+    - _Surface: 1
+    - _Tiling: 0.36
+    - _Tint_Tiling1: 1.02
+    - _TuftPower: 0
+    - _UVSec: 0
+    - _Water3DPower: 0
+    - _Water3DPower1: 0.958
+    - _Water3DSpeed: 0
+    - _Water3DSpeed1: 0.303
+    - _WaterDepth: 0.28
+    - _WaterDepth1: 0
+    - _WaterFalloff: 0.34
+    - _WaterFalloff1: 0.76
+    - _WaterOpacity: 1
+    - _WaterOpacity1: 0.735
+    - _WaterOpacityMin: 0.8
+    - _WaterOverallFalloff: 0.35
+    - _WaterReflection: 1
+    - _WaterReflection1: 0.346
+    - _WaterScale: 0.476
+    - _WaterScale1: 0.669
+    - _WaterShallowFalloff: 1
+    - _WaterSmoothness: 0.9
+    - _WaterSmoothness1: 2
+    - _WaterSpecular: 0.013
+    - _WaterSpecular1: 0.141
+    - _WaterSpeed: 0.03
+    - _WaterSpeed1: 0.092
+    - _Wave3DTilingTuffs: -0.18
+    - _Wave3DTilingTuffs1: -0.18
+    - _Wave3DTilingTufts: 0
+    - _WaveAmplitude: 0
+    - _WaveDirection: 0
+    - _WaveFoamOpacity: 0
+    - _WaveNoiseAmount: 2
+    - _WaveNoiseScale: 30
+    - _WaveSpeed: 0
+    - _WaveTiling: 0.21
+    - _WaveTiling1: 0.2
+    - _WaveTiling2: 0.07
+    - _WaveWavelength: 0
+    - _WorkflowMode: 1
+    - _ZTest: 4
+    - _ZWrite: 0
+    - _ZWriteControl: 0
+    - __dirty: 0
+    - _add: 0.38
+    - _causticScale: 0
+    - _clamp: 0.7
+    - _depthClamp: 1.17
+    - _distortionspoeed: 0.073
+    - _distortionspoeed1: 0.236
+    - _distortiontiling: 0.33
+    - _distortiontiling1: 0.33
+    - _opacityFalloff: 7.55
+    - _shallowAdd: 0.19
+    - _timeScale: 2
+    - _tuffPower: 0.402
+    - _tuffPower1: 0.049
+    - _waveDirection: 0
+    - _waveNoiseAmount: 2
+    - _waveNoiseOffset: 0.001
+    - _waveTime: 14.15
+    m_Colors:
+    - _BaseColor: {r: 0.42857125, g: 0.3860518, b: 0.24432024, a: 0.6627451}
+    - _CausticColour: {r: 0, g: 0, b: 0, a: 0}
+    - _Color: {r: 0.42857128, g: 0.38605183, b: 0.24432027, a: 0.6627451}
+    - _Color3: {r: 0.2924528, g: 0.2924528, b: 0.2924528, a: 0}
+    - _Color4: {r: 0.2924528, g: 0.2924528, b: 0.2924528, a: 0}
+    - _DeepColour: {r: 0.24705884, g: 0.21568629, b: 0.14117648, a: 0}
+    - _DepthGlowColour: {r: 0, g: 0, b: 0, a: 0}
+    - _EmissionColor: {r: 0, g: 0, b: 0, a: 1}
+    - _Emission_Color: {r: 0, g: 0, b: 0, a: 1}
+    - _FoamColor: {r: 0.16442037, g: 0.16442037, b: 0.04586929, a: 1}
+    - _FoamColor1: {r: 0.5215687, g: 0.8980392, b: 0.8470588, a: 0}
+    - _FoamEmitColour: {r: 0, g: 0, b: 0, a: 0}
+    - _ShallowColour: {r: 0.33941817, g: 0.35309958, b: 0.2983739, a: 0}
+    - _VeryDeepColour: {r: 0.24313727, g: 0.18431373, b: 0.11764707, a: 0}
+    - _WaterDeepColor: {r: 0.24705882, g: 0.2176297, b: 0.13725491, a: 0}
+    - _WaterDeepColor1: {r: 0.04705882, g: 0.3098039, b: 0.1960784, a: 0}
+    - _WaterReallyDeepColor: {r: 0.24528301, g: 0.1842708, b: 0.11454253, a: 0}
+    - _WaterShallowColor: {r: 0.3844467, g: 0.41509432, b: 0.24866499, a: 1}
+    - _WaterShallowColor1: {r: 0.9607843, g: 0.7882353, b: 0.5764706, a: 0}
+  m_BuildTextureStacks: []
+  m_AllowLocking: 1
+--- !u!114 &3659796714081787065
+MonoBehaviour:
+  m_ObjectHideFlags: 11
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d0353a89b1f911e48b9e16bdc9f2e058, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  version: 10
+--- !u!114 &7556973062410682334
+MonoBehaviour:
+  m_ObjectHideFlags: 11
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 639247ca83abc874e893eb93af2b5e44, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  version: 0

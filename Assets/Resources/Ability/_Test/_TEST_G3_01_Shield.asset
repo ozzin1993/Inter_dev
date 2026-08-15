@@ -59,8 +59,8 @@ MonoBehaviour:
   manaCostPerSecond: []
   cost: []
   trigger: 0
-  targetMode: 1
-  buttonCast: 1
+  targetMode: 4
+  buttonCast: 0
   targetStrategy: 0
   searchOrigin: 0
   strategyUseCurrentHealth: 0
@@ -70,6 +70,7 @@ MonoBehaviour:
   multiPick: 0
   includeSelf: 0
   coneAngle: 90
+  directionMatters: 0
   delivery: 0
   projectilePrefab: {fileID: 0}
   projectileFollowsTarget: 1
@@ -188,6 +189,8 @@ MonoBehaviour:
       includeInvulnerable: 0
     onDepletedBlindChance: 0
     onDepletedBlindDuration: 0
+    incomingDamageMultiplier: 1
+    skipIfAlreadyShielded: 1
   blind:
     enabled: 0
     chance: []
@@ -222,6 +225,8 @@ MonoBehaviour:
     categories: 
     onlyAttackersOfTarget: 1
     healFlat: []
+    healPercentOfBaseDamage: 0
+    maxSecondaryTargets: 0
     effectors: []
   summon:
     enabled: 0

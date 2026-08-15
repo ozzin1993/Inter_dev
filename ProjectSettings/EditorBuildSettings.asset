@@ -14,5 +14,11 @@ EditorBuildSettings:
   - enabled: 1
     path: Assets/Scenes/Artsiom.unity
     guid: 4cfe374563122774b82c0f770e1bbc78
+  - enabled: 1
+    path: Assets/Scenes/LINEWAR-testMAP.unity
+    guid: 19777ec4f45abb14cbaebd4ea264e1a5
+  - enabled: 1
+    path: Assets/Scenes/maptest3.unity
+    guid: 6bf27230de5a297499f0c9cd08687622
   m_configObjects:
     com.unity.dt.app-ui: {fileID: 11400000, guid: 1b1c20d82303e4b5781c3ef50ac1449f, type: 2}
