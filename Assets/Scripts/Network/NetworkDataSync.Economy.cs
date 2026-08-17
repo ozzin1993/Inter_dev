@@ -51,7 +51,7 @@ namespace StrategyCore
         }
 
         // Changes the resource amount on the clients
-        [Rpc(SendTo.SpecifiedInParams)]
+        [Rpc(SendTo.SpecifiedInParams, InvokePermission = RpcInvokePermission.Server)]
         private void ResourceChangeClientRpc(Vector2Int resourceAmount, RpcParams rpcParams)
         {
             if (GameResources.instance.gameResources[resourceAmount.x].type.limited)
@@ -76,7 +76,7 @@ namespace StrategyCore
             DieClientRpc(unitID, killingPlayer, killingUnitID, rewards, destroy);
         }
 
-        [Rpc(SendTo.NotServer)]
+        [Rpc(SendTo.NotServer, InvokePermission = RpcInvokePermission.Server)]
         private void DieClientRpc(UInt16 netID, int killingPlayer, UInt16 killingUnitID, bool rewards, bool destroy)
         {
             // Joining mid-game, we do not accept any data from the server. Only scene data.
@@ -137,7 +137,7 @@ namespace StrategyCore
             }
         }
 
-        [Rpc(SendTo.NotServer)]
+        [Rpc(SendTo.NotServer, InvokePermission = RpcInvokePermission.Server)]
         private void HPChangeClientRpc(UInt16[] unitID, float[] unitHealth)
         {
             // Joining mid-game, we do not accept any data from the server. Only scene data.
@@ -177,7 +177,7 @@ namespace StrategyCore
             }
         }
 
-        [Rpc(SendTo.NotServer)]
+        [Rpc(SendTo.NotServer, InvokePermission = RpcInvokePermission.Server)]
         private void MPChangeClientRpc(UInt16[] unitID, float[] unitMana)
         {
             // Joining mid-game, we do not accept any data from the server. Only scene data.
@@ -223,7 +223,7 @@ namespace StrategyCore
             onXPCleared?.Invoke();
         }
 
-        [Rpc(SendTo.NotServer)]
+        [Rpc(SendTo.NotServer, InvokePermission = RpcInvokePermission.Server)]
         private void XPChangeClientRpc(UInt16[] unitID, int[] unitXp, int[] lvl, int[] abilityPoints)
         {
             // Joining mid-game, we do not accept any data from the server. Only scene data.

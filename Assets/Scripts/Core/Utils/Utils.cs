@@ -57,6 +57,17 @@ namespace StrategyCore
 
         // Cache the camera for performance reasons
         public static Camera cachedMainCamera;
+        // Ленивый доступ к главной камере: Camera.main — дорогой поиск по тегу, кеш заполняется при первом обращении
+        public static Camera MainCamera
+        {
+            get
+            {
+                if (cachedMainCamera == null) cachedMainCamera = Camera.main;
+                return cachedMainCamera;
+            }
+        }
+        // Кеш маски слоя Default — вместо LayerMask.GetMask в горячих путях/циклах
+        public static readonly int defaultMask = LayerMask.GetMask("Default");
 
     }
 }

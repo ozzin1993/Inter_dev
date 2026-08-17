@@ -21,7 +21,7 @@ namespace StrategyCore
         readonly List<ToolbarToggle> tabToggles = new List<ToolbarToggle>();
         int activeTab = -1;
 
-        [MenuItem("Tools/Interflow Editor")]
+        [MenuItem("Tools/Interflow Editor", false, 100)]
         public static void Open()
         {
             // Обычное dockable-окно; заголовок по-русски не даём — имя инструмента.
@@ -64,10 +64,8 @@ namespace StrategyCore
             {
                 ("Фракции", InterflowFactionTab.CreateTabUI),
                 ("Юниты", InterflowUnitsTab.CreateTabUI),
-                ("Эффекторы", InterflowAbilitiesTab.CreateTabUI),   // умения переехали в конструкторы (09.08)
-                ("Конструктор скиллов", InterflowSkillBuilderTab.CreateTabUI),
-                ("Производство", InterflowProductionTab.CreateTabUI),
-                ("Пассивные умения", InterflowPassivesTab.CreateTabUI),
+                // Вкладки про умения (боевые, пассивные, производство, состояния) вынесены в отдельное
+                // окно InterflowAbilityEditorWindow — Tools → Interflow → Редактор умений (Artsiom, 2026-08-16).
                 ("Справочники", InterflowCatalogsTab.CreateTabUI),
                 ("Приоритет цели", InterflowTargetPriorityTab.CreateTabUI),
                 ("Матч", InterflowMatchTab.CreateTabUI),

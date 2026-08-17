@@ -12,7 +12,7 @@ namespace StrategyCore
     public partial class NetworkDataSync
     {
         /// <summary>Сервер → клиенты: заспавнить визуал могилки. Применяется в MatchManager.ClientSpawnGrave.</summary>
-        [Rpc(SendTo.NotServer)]
+        [Rpc(SendTo.NotServer, InvokePermission = RpcInvokePermission.Server)]
         public void GraveSpawnClientRpc(int graveId, int unitTypeID, int owner, int team, int unitCategory, int tier, Vector3 position)
         {
             // Опоздавший клиент (mid-game join) в стадии загрузки сцены — не принимаем (как DieClientRpc).
@@ -32,7 +32,7 @@ namespace StrategyCore
         }
 
         /// <summary>Сервер → клиенты: убрать визуал могилки по id. Применяется в MatchManager.ClientDespawnGrave.</summary>
-        [Rpc(SendTo.NotServer)]
+        [Rpc(SendTo.NotServer, InvokePermission = RpcInvokePermission.Server)]
         public void GraveDespawnClientRpc(int graveId)
         {
             if (MatchManager.instance == null) return;

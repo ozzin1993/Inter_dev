@@ -109,6 +109,11 @@ namespace StrategyCore
             yield return null;
 
             string[] parts = content.Split(new string[] { delimiter }, 5, StringSplitOptions.None);
+            if (parts.Length < 5)
+            {
+                Debug.LogError("[SaveManager] Файл сейва повреждён: блоков " + parts.Length + " из 5 — загрузка остановлена");
+                yield break;
+            }
 
             // LoadPlayerData(parts[0]); // LOADED IN THE LOBBY
             LoadResources(parts[1]);

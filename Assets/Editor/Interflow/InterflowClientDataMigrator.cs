@@ -51,7 +51,7 @@ namespace StrategyCore
 
             int scenes = AttachRehydratorToScenes(table);
 
-            Debug.Log($"[Миграция клиентских данных] Готово. Юниты: {units}, способности: {abilities}, SO-иконки: {soIcons}, " +
+            Debug.Log($"[Миграция клиентских данных] Готово. Юниты: {units}, умения: {abilities}, SO-иконки: {soIcons}, " +
                       $"WeaponSound: {weapons}, тех-иконки: {techs}, медиа вынесено из Resources: {moved}, сцен обновлено: {scenes}. " +
                       "ДАЛЬШЕ: Tools → Interflow → Roles-стрип (обязательно!) → пересборка Server и Client.");
         }

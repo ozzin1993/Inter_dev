@@ -8,292 +8,222 @@ using UnityEngine.UIElements;
 
 namespace StrategyCore
 {
-    // ============ ВКЛАДКА «КОНСТРУКТОР СКИЛЛОВ» — ЦЕЛЬ, ШКАЛА КАСТА, ДВА СПИСКА ==
-    // Партиал (правило 22). Здесь живёт всё, что рисует содержимое выбранного скилла:
-    // адресация, шкала каста, списки «события» и «состояния», валидатор по месту, уровни.
+    // ============ ВКЛАДКА «БОЕВЫЕ УМЕНИЯ» — ЧИПЫ, ЛЕНТА, СЕКЦИИ ==
+    // Партиал (правило 22). Здесь живёт содержимое карточки выбранного умения:
+    // полоса чипов состава, лента исполнения, карточки включённых блоков, секции полей.
+    // Подсказки — ТОЛЬКО в tooltip (решение Artsiom 2026-08-16): наводишь курсор — видишь пояснение.
     public static partial class InterflowSkillBuilderTab
     {
-        // Держатели сообщений валидатора по блокам — чтобы перерисовывать их точечно,
-        // не пересобирая панель целиком (иначе при правке поля терялся бы фокус ввода).
+        // Держатели сообщений валидатора по блокам — перерисовываются точечно при правке,
+        // не пересобирая панель (иначе терялся бы фокус ввода). Ключ "statusEffector" — карточка значка.
         static readonly Dictionary<string, VisualElement> issueHolders = new Dictionary<string, VisualElement>();
 
-        // ======================== ПОДПИСЬ, ТРЕБОВАНИЯ, ПРОЧЕЕ ========================
-        // Штатные поля Ability, которых у вкладки раньше не было: их правили в «Умениях и эффекторах».
-        // По решению Artsiom 2026-08-09 все поля умения живут в конструкторе — старая вкладка
-        // становится «Эффекторами». Правило 7: ничего не прячем безвозвратно, редкое — в свёрнутом фолде.
+        // ======================== ПОЛОСА ЧИПОВ «СОСТАВ УМЕНИЯ» ========================
 
-        /// <summary>Что игрок видит: имя, описание, иконка, ячейка панели. Плюс сам id.</summary>
-        static void AddIdentitySection()
+        /// <summary>
+        /// Все 18 блоков одной полосой. Чип — переключатель поля «enabled» блока: включение в один клик,
+        /// без разворачивания. Развёрнутые карточки ниже — только у включённых; выключенные всегда здесь.
+        /// </summary>
+        static void AddComposerChips(SerializedObject so)
         {
-            var so = new SerializedObject(selected);
-            var box = Section("Подпись и иконка", new Color(0.24f, 0.24f, 0.26f));
+            int on = BLOCKS.Count(b => IsEnabled(so, b.field));
 
-            foreach (var f in new[] { "id", "abilityName", "description", "icon", "slotNumber" })
-                AddField(box, so, f);
+            var box = Section($"Состав умения — включено {on} из {BLOCKS.Length}",
+                new Color(0.20f, 0.20f, 0.22f),
+                "Клик по чипу включает или выключает блок. Карточки ниже разворачиваются только у включённых — " +
+                "выключенные не занимают экран, но всегда остаются в этой полосе.");
 
-            box.Add(Hint("Название, описание и иконка — массивы по уровням: заполнен один элемент — " +
-                         "он используется для всех уровней."));
+            var strip = new VisualElement { style = { flexDirection = FlexDirection.Row, flexWrap = Wrap.Wrap } };
 
-            box.Bind(so);
-            TrackEdits(box, so);
-            rightPanel.Add(box);
-        }
-
-        /// <summary>Когда умение открывается и сколько стоит.</summary>
-        static void AddRequirementsSection()
-        {
-            var so = new SerializedObject(selected);
-            var box = Section("Условия открытия и цена", new Color(0.22f, 0.24f, 0.22f));
-
-            foreach (var f in new[] { "requiredTech", "requiredLevel", "cost", "manaCostPerSecond" })
-                AddField(box, so, f);
-
-            box.Add(Hint("Пусто в требованиях — умение открыто сразу, как только попало юниту в abilities[]. " +
-                         "Замки считает ядро, руками включать ничего не надо."));
-
-            box.Bind(so);
-            TrackEdits(box, so);
-            rightPanel.Add(box);
-        }
-
-        /// <summary>Предмет, уровни и редкие флаги — свёрнуто: нужны единицам умений, но доступны.</summary>
-        static void AddMiscFoldout()
-        {
-            var so = new SerializedObject(selected);
-            var fold = new Foldout { text = "Прочие поля умения", value = false, style = { marginTop = 8 } };
-
-            foreach (var f in new[] { "maxLevels", "heroLevelable",
-                                      "isItem", "useUponPickUp", "dropOnDeath", "charges",
-                                      "showRadiusCircle", "dontTurn",
-                                      "continuous", "interruptible", "requiresCastingUnit" })
-                AddField(fold, so, f);
-
-            fold.Add(Hint("«Канал» — это штатный флаг continuous: умение держится, пока хватает маны. " +
-                          "Переключатель и аура задаются полем «Срабатывание» выше, а не здесь."));
-
-            fold.Bind(so);
-            TrackEdits(fold, so);
-            rightPanel.Add(fold);
-        }
-
-        // ======================== ЦЕЛЬ И ДОСТАВКА ========================
-
-        static void AddAimSection()
-        {
-            var so = new SerializedObject(selected);
-            var box = Section("Цель и доставка", new Color(0.24f, 0.24f, 0.26f));
-
-            // Ц4: две строки простыми словами — кого заденет и что в этом режиме не читается.
-            box.Add(AimExplanation());
-
-            AddField(box, so, "trigger");
-            AddField(box, so, "targetMode");
-            AddField(box, so, "buttonCast");
-
-            // Ц2: стратегия и её параметры читаются ТОЛЬКО в режимах «умный выбор».
-            // Предикат берём из самого скилла (`PicksTargetByStrategy`), а не повторяем условие —
-            // тот же предикат читают рантайм и автокаст (правила 2 и 5).
-            if (selected.PicksTargetByStrategy)
-                foreach (var f in new[] { "targetStrategy", "searchOrigin",
-                                          "strategyUseCurrentHealth", "strategyHpThreshold" })
-                    AddField(box, so, f);
-
-            // Ц2: угол конуса читается только в режиме «конус» (CollectTargets: fullCircle).
-            if (selected.targetMode == SkillTargetMode.Cone) AddField(box, so, "coneAngle");
-
-            // Направление показываем всегда: от него зависит доворот кастера, а не только конус.
-            AddField(box, so, "directionMatters");
-
-            // Два селектора умения идут рядом: принадлежность (unitSelector) и боевые роли (targetCategories).
-            foreach (var f in new[] { "unitSelector", "targetCategories", "maxTargets", "multiPick",
-                                      "includeSelf", "radius", "castRange" })
-                AddField(box, so, f);
-
-            box.Add(Hint("Радиус и селектор целей нужны только тем блокам, что применяются К ЦЕЛИ. " +
-                         "Призыв, зона и серверный сервис исполняются один раз за каст — им набор целей не требуется."));
-
-            AddField(box, so, "delivery");
-
-            // Ц2: поля снаряда нужны только при доставке снарядом.
-            if (selected.delivery == SkillDelivery.Projectile)
+            foreach (var b in BLOCKS)
             {
-                AddField(box, so, "projectilePrefab");
-                AddField(box, so, "projectileFollowsTarget");
-                box.Add(Hint("Штатный снаряд несёт только урон и оглушение. Всё остальное срабатывает в момент каста, " +
-                             "а не при попадании."));
+                var block = b;
+                bool enabled = IsEnabled(so, b.field);
+                Color accent = b.kind == StepKind.Event ? COL_EVENT : COL_STATE;
+
+                var chip = new UnityEngine.UIElements.Toggle { value = enabled, text = $"{b.order}. {b.title}" };
+                chip.tooltip = $"{b.hint}\n\n{(b.perTarget ? "По каждой цели" : "Один раз за каст")} · " +
+                               (b.kind == StepKind.Event ? "событие (без длительности)" : "длящееся (висит во времени)");
+                chip.style.marginRight = 6;
+                chip.style.marginBottom = 2;
+                chip.style.opacity = enabled ? 1f : 0.55f;
+                chip.style.borderBottomWidth = 2;
+                chip.style.borderBottomColor = enabled ? accent : new Color(0.3f, 0.3f, 0.3f);
+
+                chip.RegisterValueChangedCallback(e =>
+                {
+                    var p = so.FindProperty(block.field)?.FindPropertyRelative("enabled");
+                    if (p == null) return;
+                    p.boolValue = e.newValue;
+                    so.ApplyModifiedProperties();
+                    // Состав панели меняется — пересборка отложена на кадр: нельзя сносить элементы
+                    // изнутри их же колбэка.
+                    rightPanel.schedule.Execute(RebuildRightPanel);
+                });
+
+                strip.Add(chip);
             }
 
-            box.Bind(so);
-            TrackEdits(box, so);
-
-            // Правка этих двух полей меняет СОСТАВ секции — панель пересобирается. Фокус терять не жалко:
-            // оба — выпадающие списки, а не ввод числа. Пересборка отложена на кадр: нельзя сносить элементы
-            // изнутри их же колбэка.
-            RebuildOnChange(box, so, "targetMode");
-            RebuildOnChange(box, so, "delivery");
-
+            box.Add(strip);
             rightPanel.Add(box);
         }
 
-        /// <summary>Ц4: что режим цели сделает и что в нём не читается. Сверено по CompositeSkill.CollectTargets.</summary>
-        static VisualElement AimExplanation()
+        // ======================== ЛЕНТА ИСПОЛНЕНИЯ ========================
+
+        /// <summary>
+        /// Что и когда произойдёт: шапка — замах → срабатывание → после каста; ниже — включённые блоки
+        /// в порядке ApplyEffects, разложенные на «по каждой цели» и «один раз за каст».
+        /// </summary>
+        static void BuildRibbon()
         {
-            int lvl = previewLevel;
-            float r = InterflowAbility.LevelValue(selected.radius, lvl);
-            string self = selected.includeSelf ? "включая кастера" : "кроме кастера";
-            string strategy = InterflowEditorUI.EnumLabel(typeof(SkillTargetStrategy), selected.targetStrategy.ToString());
-
-            string what, unused;
-            switch (selected.targetMode)
-            {
-                case SkillTargetMode.Self:
-                    what = "Заденет только самого кастера.";
-                    unused = "радиус, селектор целей, фильтры ролей, лимит целей, угол конуса";
-                    break;
-
-                case SkillTargetMode.WholeTeam:
-                    what = "Заденет всех боевых юнитов своей команды, " + self +
-                           ". Замок, башни и не подчиняющиеся приказам призванные в список не входят.";
-                    unused = "радиус, селектор целей, угол конуса";
-                    break;
-
-                case SkillTargetMode.AreaAroundSelf:
-                    what = r > 0f
-                        ? "Заденет всех в радиусе " + r + " вокруг кастера, кто проходит селектор и фильтры, " + self + "."
-                        : "Радиус ноль — целей НЕ БУДЕТ. Блоки по целям не сработают; призыв, зона и сервис — сработают.";
-                    unused = "угол конуса";
-                    break;
-
-                case SkillTargetMode.Cone:
-                    what = "Заденет всех в конусе " + selected.coneAngle + "° перед кастером в радиусе " + r + ", " + self + ".";
-                    if (r <= 0f) what += " Радиус ноль — целей не будет.";
-                    unused = "—";
-                    break;
-
-                case SkillTargetMode.SmartUnit:
-                    what = "Заденет ОДНУ цель, выбранную стратегией «" + strategy + "».";
-                    unused = "угол конуса, лимит целей; радиус нужен только стратегии «скопление врагов»";
-                    break;
-
-                default: // SmartPoint
-                    what = r > 0f
-                        ? "Стратегия «" + strategy + "» выбирает точку; заденет всех в радиусе " + r + " вокруг неё, " + self + "."
-                        : "Радиус ноль — целей НЕ БУДЕТ.";
-                    unused = "угол конуса";
-                    break;
-            }
-
-            if (!selected.PicksTargetByStrategy) unused = "стратегия выбора цели, " + unused;
-            if (selected.delivery != SkillDelivery.Projectile) unused += ", настройки снаряда";
-
-            var box = new VisualElement
-            {
-                style = { marginBottom = 6, paddingTop = 4, paddingBottom = 4, paddingLeft = 7, paddingRight = 7,
-                          backgroundColor = new Color(0.19f, 0.22f, 0.19f),
-                          borderLeftWidth = 3, borderLeftColor = COL_OK }
-            };
-            box.Add(new Label(what) { style = { whiteSpace = WhiteSpace.Normal } });
-            box.Add(new Label("Не используется в этом режиме: " + unused)
-                { style = { whiteSpace = WhiteSpace.Normal, color = COL_DIM, fontSize = 10 } });
-            return box;
-        }
-
-        // ======================== ШКАЛА КАСТА ========================
-
-        static void AddCastTimeline()
-        {
-            var so = new SerializedObject(selected);
-            var box = Section("Шкала каста и презентация", new Color(0.22f, 0.24f, 0.28f));
+            if (ribbonHolder == null || selected == null) return;
+            ribbonHolder.Clear();
 
             int lvl = previewLevel;
             float castTime = InterflowAbility.LevelValue(selected.castTime, lvl);
             float cd = InterflowAbility.LevelValue(selected.cooldown, lvl);
+            float mana = InterflowAbility.LevelValue(selected.manaCost, lvl);
 
-            var strip = new VisualElement { style = { flexDirection = FlexDirection.Row, marginBottom = 6 } };
+            var box = Section("Лента исполнения", new Color(0.19f, 0.20f, 0.24f),
+                "Порядок строк — реальный порядок исполнения блоков (ApplyEffects). " +
+                "Числа — для выбранного уровня.");
+
+            // --- шапка: три момента каста ---
+            var strip = new VisualElement { style = { flexDirection = FlexDirection.Row, marginBottom = 5 } };
             strip.Add(Moment("0 с — замах",
                 selected.castVFX != null ? selected.castVFX.name : "визуала нет",
-                $"из точки «{InterflowEditorUI.EnumLabel(typeof(SkillSocketType), selected.spawnSocket.ToString())}», живёт {selected.castVfxLifetime} с"));
+                "Визуал замаха играет из точки привязки на кастере. Настройки — в «Шкале каста и презентации»."));
             strip.Add(Moment($"{castTime} с — срабатывание",
                 selected.impactVFX != null ? selected.impactVFX.name : "визуала нет",
-                $"в точке попадания, живёт {selected.impactVfxLifetime} с · здесь исполняются оба списка ниже"));
-            strip.Add(Moment("после каста", $"откат {cd} с", "мана и откат списываются ядром"));
+                "В этот момент исполняются все блоки ниже. Момент задаёт castTime, не анимация."));
+            strip.Add(Moment("после каста", $"откат {cd} с" + (mana > 0 ? $" · мана {mana}" : ""),
+                "Откат и ману списывает ядро."));
             box.Add(strip);
 
             if (castTime <= 0f && selected.castVFX != null)
-                box.Add(Hint("Время каста ноль, а визуал замаха задан — замах и удар совпадут в одном кадре."));
+                box.Add(IssueRow(new InterflowIssue(InterflowIssueSeverity.Info,
+                    "Время каста ноль — замах и удар совпадут в одном кадре.", "лента", null)));
 
-            foreach (var f in new[] { "castTime", "cooldown", "manaCost", "duration",
-                                      "spawnSocket", "localOffset",
-                                      "castVFX", "castVfxLifetime", "impactVFX", "impactVfxLifetime",
-                                      "castSound", "impactSound", "soundVolume" })
-                AddField(box, so, f);
+            // --- дорожки ---
+            var enabledBlocks = BLOCKS.Where(b => IsEnabledRaw(b.field)).OrderBy(b => b.order).ToList();
 
-            box.Add(Hint("Точка привязки — это точка НА КАСТЕРЕ, поэтому она настраивается здесь, а не в эффекторе. " +
-                         "Если у носителя нет компонента CharacterSockets, всё пойдёт из центра объекта."));
+            AddLane(box, "По каждой цели — в порядке исполнения",
+                enabledBlocks.Where(b => b.perTarget));
+            AddLane(box, "Один раз за каст — набор целей не нужен",
+                enabledBlocks.Where(b => !b.perTarget));
 
-            box.Bind(so);
-            TrackEdits(box, so);
-            rightPanel.Add(box);
+            if (enabledBlocks.Count == 0)
+                box.Add(new Label("Ни один блок не включён — умение ничего не сделает. Включи блоки в полосе состава выше.")
+                    { style = { whiteSpace = WhiteSpace.Normal, color = COL_WARN } });
+
+            ribbonHolder.Add(box);
         }
 
-        static VisualElement Moment(string when, string what, string note)
+        static void AddLane(VisualElement box, string title, IEnumerable<BlockDesc> blocks)
+        {
+            var list = blocks.ToList();
+            if (list.Count == 0) return;
+
+            box.Add(new Label(title.ToUpper())
+                { style = { fontSize = 10, color = new Color(0.55f, 0.55f, 0.55f), marginTop = 4, marginBottom = 1 } });
+
+            foreach (var b in list)
+            {
+                var row = new VisualElement { style = { flexDirection = FlexDirection.Row, alignItems = Align.Center, marginBottom = 1 } };
+                Color accent = b.kind == StepKind.Event ? COL_EVENT : COL_STATE;
+
+                var no = new Label(b.order.ToString())
+                {
+                    style = { width = 20, unityTextAlign = TextAnchor.MiddleCenter, color = accent,
+                              unityFontStyleAndWeight = FontStyle.Bold, flexShrink = 0 }
+                };
+                row.Add(no);
+                row.Add(new Label(b.title + RibbonValueText(b)) { style = { whiteSpace = WhiteSpace.Normal, flexGrow = 1 } });
+                row.Add(new Label(b.kind == StepKind.Event ? "⚡ событие" : "⏳ длящееся")
+                    { style = { color = accent, fontSize = 10, flexShrink = 0 } });
+                box.Add(row);
+            }
+        }
+
+        /// <summary>Короткий итог блока для ленты — главные числа выбранного уровня.</summary>
+        static string RibbonValueText(BlockDesc b)
+        {
+            int l = previewLevel;
+            var s = selected;
+            try
+            {
+                switch (b.field)
+                {
+                    case "selfCost": return $" — {InterflowAbility.LevelValue(s.selfCost.flatHp, l):0.#} ХП";
+                    case "damage":
+                        if (s.damage.entries == null || s.damage.entries.Length == 0) return " — записей нет";
+                        return " — " + string.Join(", ", s.damage.entries.Where(e => e != null).Select(e =>
+                            $"{InterflowAbility.LevelValue(e.amount, l):0.#} {(e.damageType != null ? e.damageType.name : "БЕЗ ТИПА")}"));
+                    case "drain": return $" — {InterflowAbility.LevelValue(s.drain.flat, l):0.#}";
+                    case "status":
+                    {
+                        var parts = new List<string>();
+                        float st = InterflowAbility.LevelValue(s.status.stunSeconds, l);
+                        float di = InterflowAbility.LevelValue(s.status.disarmSeconds, l);
+                        float mu = InterflowAbility.LevelValue(s.status.muteSeconds, l);
+                        if (st > 0) parts.Add($"оглушение {st:0.#} с");
+                        if (di > 0) parts.Add($"обезоруживание {di:0.#} с");
+                        if (mu > 0) parts.Add($"немота {mu:0.#} с");
+                        return parts.Count > 0 ? " — " + string.Join(", ", parts) : " — всё по нулям";
+                    }
+                    case "effectors":
+                    {
+                        int n = s.effectors.records?.Count(r => r != null && r.effector != null) ?? 0;
+                        return n == 0 ? " — записей нет" : $" — записей: {n}";
+                    }
+                    case "heal": return $" — {InterflowAbility.LevelValue(s.heal.flat, l):0.#}" +
+                        (InterflowAbility.LevelValue(s.heal.percentOfMaxHp, l) > 0 ? $" + {InterflowAbility.LevelValue(s.heal.percentOfMaxHp, l):0.#}% макс. ХП" : "");
+                    case "buff": return $" — {InterflowAbility.LevelValue(s.buff.duration, l):0.#} с";
+                    case "shield": return $" — {InterflowAbility.LevelValue(s.shield.flat, l):0.#} на {InterflowAbility.LevelValue(s.shield.duration, l):0.#} с";
+                    case "blind": return $" — шанс {InterflowAbility.LevelValue(s.blind.chance, l):0.##}, {InterflowAbility.LevelValue(s.blind.duration, l):0.#} с";
+                    case "summon": return s.summon.prefab != null ? $" — {s.summon.prefab.name}" : " — префаб не задан";
+                    case "groundZone": return s.groundZone.zonePrefab != null ? $" — {s.groundZone.zonePrefab.name}" : " — префаб не задан";
+                    case "delegateService": return " — " + InterflowEditorUI.EnumLabel(typeof(SkillServerService), s.delegateService.service.ToString());
+                }
+            }
+            catch { /* поле переименовали — лента не должна ронять вкладку, покажем без чисел */ }
+            return "";
+        }
+
+        static VisualElement Moment(string when, string what, string tooltip)
         {
             var v = new VisualElement
             {
                 style = { flexGrow = 1, flexBasis = 0, marginRight = 4,
                           paddingTop = 5, paddingBottom = 5, paddingLeft = 7, paddingRight = 7,
                           backgroundColor = new Color(0.18f, 0.18f, 0.19f),
-                          borderTopWidth = 2, borderTopColor = new Color(0.30f, 0.49f, 1f) }
+                          borderTopWidth = 2, borderTopColor = new Color(0.30f, 0.49f, 1f) },
+                tooltip = tooltip
             };
             v.Add(new Label(when) { style = { unityFontStyleAndWeight = FontStyle.Bold, whiteSpace = WhiteSpace.Normal } });
-            v.Add(new Label(what) { style = { whiteSpace = WhiteSpace.Normal } });
-            v.Add(new Label(note) { style = { whiteSpace = WhiteSpace.Normal, color = COL_DIM, fontSize = 10 } });
+            v.Add(new Label(what) { style = { whiteSpace = WhiteSpace.Normal, color = COL_DIM } });
             return v;
         }
 
-        // ======================== ДВА СПИСКА ========================
+        // ======================== КАРТОЧКИ ВКЛЮЧЁННЫХ БЛОКОВ ========================
 
-        static void AddStepLists()
+        static void AddBlockCards(SerializedObject so)
         {
             issueHolders.Clear();
-            AddKindList(StepKind.Event, "⚡  События",
-                "происходят и заканчиваются — длительности у них нет");
-            AddKindList(StepKind.State, "⏳  Состояния",
-                "висят на цели во времени; значок в панели состояний даёт только эффектор");
+
+            foreach (var b in BLOCKS.Where(x => IsEnabled(so, x.field)).OrderBy(x => x.order))
+                rightPanel.Add(BlockCard(b, so));
+
+            rightPanel.Add(StatusEffectorCard(so));
         }
 
-        static void AddKindList(StepKind kind, string title, string subtitle)
+        static VisualElement BlockCard(BlockDesc b, SerializedObject so)
         {
-            var so = new SerializedObject(selected);
-            var blocks = BLOCKS.Where(b => b.kind == kind).OrderBy(b => b.order).ToArray();
-            int on = blocks.Count(b => IsEnabled(b.field));
-
-            Color accent = kind == StepKind.Event ? COL_EVENT : COL_STATE;
-
-            var head = new VisualElement { style = { flexDirection = FlexDirection.Row, alignItems = Align.Center, marginTop = 10 } };
-            head.Add(new Label(title) { style = { unityFontStyleAndWeight = FontStyle.Bold, fontSize = 13, color = accent } });
-            head.Add(new Label($"   {subtitle}") { style = { color = COL_DIM, flexGrow = 1, whiteSpace = WhiteSpace.Normal } });
-            head.Add(new Label($"включено {on} из {blocks.Length}") { style = { color = COL_DIM } });
-            rightPanel.Add(head);
-
-            var container = new VisualElement();
-            foreach (var b in blocks) container.Add(BlockCard(b, so, accent));
-
-            // Значок состояния — не блок, а отдельное поле; по смыслу это состояние.
-            if (kind == StepKind.State) container.Add(StatusEffectorCard(so));
-
-            container.Bind(so);
-            TrackEdits(container, so);
-            rightPanel.Add(container);
-        }
-
-        static VisualElement BlockCard(BlockDesc b, SerializedObject so, Color accent)
-        {
-            bool enabled = IsEnabled(b.field);
+            Color accent = b.kind == StepKind.Event ? COL_EVENT : COL_STATE;
 
             var card = new VisualElement
             {
-                style = { marginBottom = 4, borderLeftWidth = 3, borderLeftColor = enabled ? accent : new Color(0.32f, 0.32f, 0.32f),
+                style = { marginBottom = 4, borderLeftWidth = 3, borderLeftColor = accent,
                           backgroundColor = new Color(0.22f, 0.22f, 0.23f), paddingLeft = 6, paddingRight = 6,
                           paddingTop = 3, paddingBottom = 3 }
             };
@@ -301,21 +231,18 @@ namespace StrategyCore
             string where = b.perTarget ? "по каждой цели" : "один раз за каст";
             var fold = new Foldout
             {
-                text = $"{b.order}.  {b.title}     ({where})" + (enabled ? "" : "   — выключен"),
-                value = enabled
+                text = $"{b.order}.  {b.title}     ({where} · {(b.kind == StepKind.Event ? "⚡ событие" : "⏳ длящееся")})",
+                value = true,
+                tooltip = b.hint
             };
-            if (!enabled) fold.style.opacity = 0.6f;
-
-            fold.Add(new Label(b.hint) { style = { whiteSpace = WhiteSpace.Normal, color = COL_DIM, marginBottom = 3 } });
 
             var prop = so.FindProperty(b.field);
             if (prop != null) fold.Add(new PropertyField(prop, ""));
             else fold.Add(new Label($"поле «{b.field}» не найдено") { style = { color = COL_WARN } });
 
-            // Держатель сообщений валидатора этого блока — обновляется точечно при правке.
             var holder = new VisualElement();
             issueHolders[b.field] = holder;
-            FillIssues(b, holder);
+            FillIssues(b.field, holder);
             fold.Add(holder);
 
             card.Add(fold);
@@ -330,13 +257,17 @@ namespace StrategyCore
                           backgroundColor = new Color(0.22f, 0.22f, 0.23f), paddingLeft = 6, paddingRight = 6,
                           paddingTop = 3, paddingBottom = 3 }
             };
-            var fold = new Foldout { text = "Значок состояния (эффектор)", value = selected.statusEffector != null };
-            fold.Add(new Label("Умение своего значка не имеет: панель состояний собирается из эффекторов, " +
-                               "поэтому носитель значка — отдельный эффектор.")
-                { style = { whiteSpace = WhiteSpace.Normal, color = COL_DIM, marginBottom = 3 } });
+            var fold = new Foldout
+            {
+                text = "Значок состояния",
+                value = selected.statusEffector != null,
+                tooltip = "Умение своего значка не имеет: панель над юнитом собирается из состояний, " +
+                          "поэтому носитель значка — отдельное состояние (ассет Effector). " +
+                          "Значок виден только у ненакапливаемых состояний с заданной иконкой."
+            };
 
             var prop = so.FindProperty("statusEffector");
-            if (prop != null) fold.Add(new PropertyField(prop, "Эффектор-значок"));
+            if (prop != null) fold.Add(new PropertyField(prop, "Состояние-значок"));
 
             var eff = selected.statusEffector;
             if (eff != null)
@@ -344,80 +275,247 @@ namespace StrategyCore
                 bool visible = !eff.stacks && eff.icon != null;
                 fold.Add(new Label(visible
                         ? "Значок будет виден в панели состояний"
-                        : eff.stacks ? "Значок НЕ будет виден: у эффектора включён Stacks"
-                                     : "Значок НЕ будет виден: у эффектора не задана иконка")
+                        : eff.stacks ? "Значок НЕ будет виден: у состояния включён Stacks (накопление)"
+                                     : "Значок НЕ будет виден: у состояния не задана иконка")
                     { style = { whiteSpace = WhiteSpace.Normal, color = visible ? COL_OK : COL_WARN } });
             }
+
+            var holder = new VisualElement();
+            issueHolders["statusEffector"] = holder;
+            FillIssues("statusEffector", holder);
+            fold.Add(holder);
 
             card.Add(fold);
             return card;
         }
 
-        static void FillIssues(BlockDesc b, VisualElement holder)
+        static void FillIssues(string field, VisualElement holder)
         {
             holder.Clear();
-            foreach (var i in IssuesOf(selected).Where(x => BlockFor(x) == b))
+            if (field == "statusEffector")
+            {
+                foreach (var i in IssuesOf(selected).Where(IsBadgeIssue))
+                    holder.Add(IssueRow(i));
+                return;
+            }
+
+            foreach (var i in IssuesOf(selected).Where(x => !IsBadgeIssue(x) && BlockFor(x)?.field == field))
                 holder.Add(IssueRow(i));
         }
 
-        /// <summary>Включён ли блок: у всех блоков поле называется одинаково — enabled.</summary>
-        static bool IsEnabled(string field)
+        /// <summary>Включён ли блок — через ОБЩИЙ SerializedObject карточки (а не свой на каждый вызов).</summary>
+        static bool IsEnabled(SerializedObject so, string field)
         {
-            var so = new SerializedObject(selected);
-            var p = so.FindProperty(field);
-            var e = p != null ? p.FindPropertyRelative("enabled") : null;
+            var e = so.FindProperty(field)?.FindPropertyRelative("enabled");
             return e != null && e.boolValue;
         }
 
-        // ======================== ЧИСЛА УМЕНИЯ ========================
-
-        static void AddLevelFooter()
+        // Для ленты: SerializedObject недоступен (перерисовка вне пересборки панели) — читаем напрямую.
+        static bool IsEnabledRaw(string field)
         {
-            // ПОЧИНКА 2026-08-09: этот блок остался в БЕЗУРОВНЕВОЙ редакции после отката уборки
-            // уровней 07.08 — поля снова массивы, а строки печатали их как объекты («System.Single[]»).
-            // Компилятор такое пропускает: интерполяция принимает любой тип. Возвращены выборка
-            // по уровню и сам переключатель уровня.
-            var box = Section("Числа для выбранного уровня", new Color(0.22f, 0.24f, 0.22f));
+            var so = new SerializedObject(selected);
+            return IsEnabled(so, field);
+        }
 
-            int max = Mathf.Max(1, selected.maxLevels);
-            var lvlField = new SliderInt("Уровень (с 1)", 1, max) { value = Mathf.Clamp(previewLevel + 1, 1, max) };
-            lvlField.RegisterValueChangedCallback(e => { previewLevel = e.newValue - 1; RebuildRightPanel(); });
-            box.Add(lvlField);
+        // ======================== ЦЕЛЬ И ДОСТАВКА ========================
 
-            int l = previewLevel;
-            var lines = new List<string>
+        // Показывать ли поля, которые текущий режим не читает (решение 14.08: по умолчанию скрыты,
+        // возврат — кнопкой «показать»; правило 7 соблюдено — безвозвратно ничего не прячется).
+        static bool showHiddenAim;
+
+        static void AddAimSection(SerializedObject so)
+        {
+            var box = Section("Цель и доставка", new Color(0.24f, 0.24f, 0.26f),
+                "Радиус и селектор целей нужны только блокам, которые применяются К ЦЕЛИ. " +
+                "Призыв, зона и серверный сервис исполняются один раз за каст — им набор целей не требуется.");
+
+            box.Add(AimExplanation());
+
+            AddField(box, so, "trigger");
+            AddField(box, so, "buttonCast");
+            AddField(box, so, "targetMode");
+
+            var hidden = new List<string>();
+
+            // Стратегия и её параметры читаются ТОЛЬКО в режимах «умный выбор» (предикат — из самого умения).
+            var strategyFields = new[] { "targetStrategy", "searchOrigin", "strategyUseCurrentHealth", "strategyHpThreshold" };
+            if (selected.PicksTargetByStrategy) foreach (var f in strategyFields) AddField(box, so, f);
+            else hidden.AddRange(strategyFields);
+
+            if (selected.targetMode == SkillTargetMode.Cone) AddField(box, so, "coneAngle");
+            else hidden.Add("coneAngle");
+
+            AddField(box, so, "directionMatters");
+
+            foreach (var f in new[] { "unitSelector", "targetCategories", "maxTargets", "multiPick",
+                                      "includeSelf", "radius", "castRange" })
+                AddField(box, so, f);
+
+            AddField(box, so, "delivery");
+
+            var projectileFields = new[] { "projectilePrefab", "projectileFollowsTarget" };
+            if (selected.delivery == SkillDelivery.Projectile) foreach (var f in projectileFields) AddField(box, so, f);
+            else hidden.AddRange(projectileFields);
+
+            // Строка возврата скрытых полей.
+            if (hidden.Count > 0)
             {
-                $"откат {InterflowAbility.LevelValue(selected.cooldown, l)} с",
-                $"время каста {InterflowAbility.LevelValue(selected.castTime, l)} с",
-                $"радиус {InterflowAbility.LevelValue(selected.radius, l)}",
-                $"дальность каста {InterflowAbility.LevelValue(selected.castRange, l)}"
-            };
-            if (selected.damage != null && selected.damage.enabled && selected.damage.entries != null)
-                for (int i = 0; i < selected.damage.entries.Length; i++)
+                if (showHiddenAim)
                 {
-                    var e = selected.damage.entries[i];
-                    if (e == null) continue;
-                    lines.Add($"урон №{i + 1}: {InterflowAbility.LevelValue(e.amount, l)} " +
-                              (e.damageType != null ? e.damageType.name : "БЕЗ ТИПА"));
+                    box.Add(new Label("— скрытые поля этого режима (ядро их сейчас не читает) —")
+                        { style = { color = COL_DIM, fontSize = 10, marginTop = 4 } });
+                    foreach (var f in hidden)
+                    {
+                        var pf = InterflowEditorUI.MakeField(so.FindProperty(f), InterflowEditorUI.FieldLabel(f), false);
+                        pf.style.opacity = 0.5f;
+                        box.Add(pf);
+                    }
                 }
-            if (selected.heal != null && selected.heal.enabled)
-                lines.Add($"лечение {InterflowAbility.LevelValue(selected.heal.flat, l)} " +
-                          $"(+{InterflowAbility.LevelValue(selected.heal.percentOfMaxHp, l)} % от макс. ХП)");
-            if (selected.buff != null && selected.buff.enabled)
-                lines.Add($"баф {InterflowAbility.LevelValue(selected.buff.duration, l)} с");
-            if (selected.shield != null && selected.shield.enabled)
-                lines.Add($"щит {InterflowAbility.LevelValue(selected.shield.flat, l)} " +
-                          $"на {InterflowAbility.LevelValue(selected.shield.duration, l)} с");
 
-            box.Add(new Label(string.Join("   ·   ", lines)) { style = { whiteSpace = WhiteSpace.Normal } });
-            box.Add(Hint("Массивы по уровням короче нужного клампятся к последнему элементу — значение выше " +
-                         "показано уже с учётом этого."));
+                var row = new VisualElement { style = { flexDirection = FlexDirection.Row, alignItems = Align.Center, marginTop = 3 } };
+                row.Add(new Label($"Скрыто полей, которые этот режим не читает: {hidden.Count}")
+                    { style = { color = COL_DIM, fontSize = 10, flexGrow = 1 } });
+                var toggleBtn = new Button(() => { showHiddenAim = !showHiddenAim; RebuildRightPanel(); })
+                    { text = showHiddenAim ? "скрыть" : "показать" };
+                toggleBtn.tooltip = "Поля не удаляются и не теряют значений — они просто не читаются в текущем режиме.";
+                row.Add(toggleBtn);
+                box.Add(row);
+            }
+
+            // Правка этих полей меняет СОСТАВ секции — пересобрать панель на следующем кадре.
+            RebuildOnChange(box, so, "targetMode");
+            RebuildOnChange(box, so, "delivery");
+            RebuildOnChange(box, so, "trigger");
+
             rightPanel.Add(box);
+        }
+
+        /// <summary>Сводка режима: что умение сделает. Сверено по CompositeSkill.CollectTargets.</summary>
+        static VisualElement AimExplanation()
+        {
+            int lvl = previewLevel;
+            float r = InterflowAbility.LevelValue(selected.radius, lvl);
+            string self = selected.includeSelf ? "включая кастера" : "кроме кастера";
+            string strategy = InterflowEditorUI.EnumLabel(typeof(SkillTargetStrategy), selected.targetStrategy.ToString());
+
+            string what;
+            switch (selected.targetMode)
+            {
+                case SkillTargetMode.Self:
+                    what = "Заденет только самого кастера.";
+                    break;
+
+                case SkillTargetMode.WholeTeam:
+                    what = "Заденет всех боевых юнитов своей команды, " + self +
+                           ". Замок, башни и не подчиняющиеся приказам призванные в список не входят.";
+                    break;
+
+                case SkillTargetMode.AreaAroundSelf:
+                    what = r > 0f
+                        ? "Заденет всех в радиусе " + r + " вокруг кастера, кто проходит селектор и фильтры, " + self + "."
+                        : "Радиус ноль — целей НЕ БУДЕТ. Блоки по целям не сработают; призыв, зона и сервис — сработают.";
+                    break;
+
+                case SkillTargetMode.Cone:
+                    what = "Заденет всех в конусе " + selected.coneAngle + "° перед кастером в радиусе " + r + ", " + self + ".";
+                    if (r <= 0f) what += " Радиус ноль — целей не будет.";
+                    break;
+
+                case SkillTargetMode.SmartUnit:
+                    what = "Заденет ОДНУ цель, выбранную стратегией «" + strategy + "».";
+                    break;
+
+                default: // SmartPoint
+                    what = r > 0f
+                        ? "Стратегия «" + strategy + "» выбирает точку; заденет всех в радиусе " + r + " вокруг неё, " + self + "."
+                        : "Радиус ноль — целей НЕ БУДЕТ.";
+                    break;
+            }
+
+            var box = new VisualElement
+            {
+                style = { marginBottom = 6, paddingTop = 4, paddingBottom = 4, paddingLeft = 7, paddingRight = 7,
+                          backgroundColor = new Color(0.19f, 0.22f, 0.19f),
+                          borderLeftWidth = 3, borderLeftColor = COL_OK }
+            };
+            box.Add(new Label(what) { style = { whiteSpace = WhiteSpace.Normal } });
+            return box;
+        }
+
+        // ======================== СЕКЦИИ ПОЛЕЙ ========================
+
+        /// <summary>Что игрок видит: имя, описание, иконка, ячейка панели. Плюс сам id.</summary>
+        static void AddIdentitySection(SerializedObject so)
+        {
+            var box = Section("Подпись и иконка", new Color(0.24f, 0.24f, 0.26f),
+                "Название, описание и иконка — массивы по уровням: заполнен один элемент — " +
+                "он используется для всех уровней.");
+
+            foreach (var f in new[] { "id", "abilityName", "description", "icon", "slotNumber" })
+                AddField(box, so, f);
+
+            rightPanel.Add(box);
+        }
+
+        /// <summary>Шкала каста и презентация: тайминги, точки привязки, визуал, звук, анимация.</summary>
+        static void AddPresentationSection(SerializedObject so)
+        {
+            var fold = new Foldout
+            {
+                text = "Шкала каста и презентация",
+                value = false,
+                style = { marginTop = 6 },
+                tooltip = "Тайминги каста и всё, что видно и слышно. Точка привязки — точка НА КАСТЕРЕ " +
+                          "(компонент CharacterSockets на префабе; нет компонента — центр объекта). " +
+                          "Моменты замаха и срабатывания показаны в шапке ленты исполнения выше."
+            };
+
+            foreach (var f in new[] { "castTime", "cooldown", "manaCost", "duration",
+                                      "spawnSocket", "localOffset",
+                                      "castVFX", "castVfxLifetime", "impactVFX", "impactVfxLifetime",
+                                      "castSound", "impactSound", "soundVolume", "procAnimationState" })
+                AddField(fold, so, f);
+
+            rightPanel.Add(fold);
+        }
+
+        /// <summary>Когда умение открывается и сколько стоит.</summary>
+        static void AddRequirementsSection(SerializedObject so)
+        {
+            var box = Section("Условия открытия и цена", new Color(0.22f, 0.24f, 0.22f),
+                "Пусто в требованиях — умение открыто сразу, как только попало юниту в abilities[]. " +
+                "Замки считает ядро, руками включать ничего не надо.");
+
+            foreach (var f in new[] { "requiredTech", "requiredLevel", "cost", "manaCostPerSecond" })
+                AddField(box, so, f);
+
+            rightPanel.Add(box);
+        }
+
+        /// <summary>Предмет и редкие флаги — свёрнуто: нужны единицам умений, но доступны (правило 7).</summary>
+        static void AddMiscFoldout(SerializedObject so)
+        {
+            var fold = new Foldout
+            {
+                text = "Прочие поля умения",
+                value = false,
+                style = { marginTop = 6 },
+                tooltip = "Предмет, заряды и редкие флаги. «Канал» — это штатный флаг continuous: умение " +
+                          "держится, пока хватает маны. Переключатель и аура задаются полем «Когда срабатывает» выше."
+            };
+
+            foreach (var f in new[] { "maxLevels", "heroLevelable",
+                                      "isItem", "useUponPickUp", "dropOnDeath", "charges",
+                                      "showRadiusCircle", "dontTurn",
+                                      "continuous", "interruptible", "requiresCastingUnit" })
+                AddField(fold, so, f);
+
+            rightPanel.Add(fold);
         }
 
         // ======================== ОБЩЕЕ ========================
 
-        static VisualElement Section(string title, Color bg)
+        static VisualElement Section(string title, Color bg, string tooltip)
         {
             var box = new VisualElement
             {
@@ -426,13 +524,12 @@ namespace StrategyCore
                           borderTopLeftRadius = 3, borderTopRightRadius = 3,
                           borderBottomLeftRadius = 3, borderBottomRightRadius = 3 }
             };
-            box.Add(new Label(title)
-                { style = { unityFontStyleAndWeight = FontStyle.Bold, marginBottom = 4 } });
+            var head = new Label(title)
+                { style = { unityFontStyleAndWeight = FontStyle.Bold, marginBottom = 4 } };
+            if (!string.IsNullOrEmpty(tooltip)) head.tooltip = tooltip;
+            box.Add(head);
             return box;
         }
-
-        static Label Hint(string text) => new Label(text)
-            { style = { whiteSpace = WhiteSpace.Normal, color = COL_DIM, fontSize = 10, marginTop = 3, marginBottom = 2 } };
 
         static void AddField(VisualElement parent, SerializedObject so, string field)
         {
@@ -442,7 +539,6 @@ namespace StrategyCore
             // Ц1: подпись — из общего словаря (правило 5); null — остаётся подпись Unity.
             // Декоратор прячем только у cooldown: там [Header("Parameters")] базового Ability —
             // единственная английская надпись в этой вкладке, а перевести её — правка ядра.
-            // Русские заголовки наших блоков («Цель», «Фильтры целей», «Доставка») остаются — они полезны.
             parent.Add(InterflowEditorUI.MakeField(p, InterflowEditorUI.FieldLabel(field), field == "cooldown"));
         }
 
@@ -458,18 +554,29 @@ namespace StrategyCore
         }
 
         /// <summary>
-        /// Валидатор по месту: любая правка поля перепроверяет ТОЛЬКО этот скилл и обновляет
-        /// сообщения у блоков и точку статуса в списке. Панель целиком не пересобирается —
-        /// иначе при вводе числа терялся бы фокус.
+        /// ЕДИНСТВЕННАЯ подписка на правки карточки (раньше их было семь, и каждая гоняла полную
+        /// перепроверку с чтением всего проекта). Правка любого поля: точечная перепроверка по кэшу
+        /// контекста, обновление сообщений у блоков, сводки, бейджа, ленты и точки в списке.
+        /// Сама панель не пересобирается — фокус ввода не теряется.
         /// </summary>
-        static void TrackEdits(VisualElement scope, SerializedObject so)
+        static void TrackEditsOnce(SerializedObject so)
         {
-            scope.TrackSerializedObjectValue(so, _ =>
+            // Трекер — на СВЕЖЕМ дочернем элементе: rightPanel живёт между пересборками,
+            // и повторный TrackSerializedObjectValue на нём с новым SerializedObject кидает
+            // NotSupportedException «only one serializedObject at a time» (ловилось кликом по чипу).
+            var tracker = new VisualElement();
+            rightPanel.Add(tracker);
+            tracker.TrackSerializedObjectValue(so, _ =>
             {
                 RevalidateSelected();
-                foreach (var b in BLOCKS)
-                    if (issueHolders.TryGetValue(b.field, out var holder) && holder != null)
-                        FillIssues(b, holder);
+
+                foreach (var kv in issueHolders)
+                    if (kv.Value != null) FillIssues(kv.Key, kv.Value);
+
+                FillGeneralIssues();
+                if (summaryLabel != null) summaryLabel.text = selected != null ? selected.BuildSummary() : "";
+                UpdateBadge();
+                BuildRibbon();
                 RebuildList();
             });
         }

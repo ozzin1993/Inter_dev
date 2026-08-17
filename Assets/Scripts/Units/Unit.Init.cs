@@ -326,8 +326,6 @@ namespace StrategyCore
             if (mainRenderer.GetComponent<Renderer>()) meshRenderers.Add(mainRenderer.GetComponent<Renderer>());
             foreach (var renderer in mainRenderer.GetComponentsInChildren<Renderer>())
             {
-                if (netID == 52529) Debug.Log(mainRenderer.gameObject.name);
-                if (netID == 52529) Debug.Log(renderer.gameObject.name);
                 meshRenderers.Add(renderer);
             }
 

@@ -139,6 +139,8 @@ namespace StrategyCore
             // Server:
             if (NetworkManager.Singleton.IsServer)
             {
+                // Идемпотентность: при входе «игра уже идёт» Tick уже подписан в OnNetworkSpawn — не дублируем
+                NetworkManager.Singleton.NetworkTickSystem.Tick -= NetworkDataSync.instance.Tick;
                 NetworkManager.Singleton.NetworkTickSystem.Tick += NetworkDataSync.instance.Tick;
             }
         }

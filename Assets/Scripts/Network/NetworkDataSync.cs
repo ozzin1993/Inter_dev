@@ -41,9 +41,26 @@ namespace StrategyCore
 
         public override void OnNetworkSpawn()
         {
+            // Идемпотентность: снятие перед подпиской — повторный вход не плодит дубликаты
+            NetworkManager.NetworkTickSystem.Tick -= ProjectWideTick;
             NetworkManager.NetworkTickSystem.Tick += ProjectWideTick;
-            if (SlotManager.instance.gameStarted == GameState.Started) NetworkManager.NetworkTickSystem.Tick += Tick;
+            if (SlotManager.instance.gameStarted == GameState.Started)
+            {
+                NetworkManager.NetworkTickSystem.Tick -= Tick;
+                NetworkManager.NetworkTickSystem.Tick += Tick;
+            }
             base.OnNetworkSpawn();
+        }
+
+        public override void OnNetworkDespawn()
+        {
+            // Отписка от сетевого тика — иначе часы продолжают дёргать умерший объект (утечка + ошибки)
+            if (NetworkManager != null && NetworkManager.NetworkTickSystem != null)
+            {
+                NetworkManager.NetworkTickSystem.Tick -= ProjectWideTick;
+                NetworkManager.NetworkTickSystem.Tick -= Tick;
+            }
+            base.OnNetworkDespawn();
         }
 
         // ProjectWide Tick

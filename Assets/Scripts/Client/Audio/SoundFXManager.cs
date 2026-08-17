@@ -97,7 +97,7 @@ namespace StrategyCore
             // Assign audioSource parameters
             audioSource.outputAudioMixerGroup = mixerGroup;
             audioSource.clip = audioClip;
-            audioSource.volume = volume * (1 / currentSoundCount);
+            audioSource.volume = volume / currentSoundCount;
             audioSource.Play();
 
             // Destroy object after clip length
@@ -124,7 +124,7 @@ namespace StrategyCore
             // Assign audioSource parameters
             audioSource.outputAudioMixerGroup = mixerGroup;
             audioSource.clip = audioClip;
-            audioSource.volume = volume * (1 / currentSoundCount);
+            audioSource.volume = volume / currentSoundCount;
             audioSource.Play();
 
             // Destroy object after clip length
@@ -149,7 +149,7 @@ namespace StrategyCore
             // Assign audioSource parameters
             audioSource.outputAudioMixerGroup = mixerGroup;
             audioSource.clip = audioClip[index];
-            audioSource.volume = volume * (1 / currentSoundCount);
+            audioSource.volume = volume / currentSoundCount;
             audioSource.Play();
 
             // Destroy object after clip length
@@ -179,7 +179,7 @@ namespace StrategyCore
             // Assign audioSource parameters
             audioSource.outputAudioMixerGroup = mixerGroup;
             audioSource.clip = audioClip[index];
-            audioSource.volume = volume * (1 / currentSoundCount);
+            audioSource.volume = volume / currentSoundCount;
             audioSource.Play();
 
             // Destroy object after clip length

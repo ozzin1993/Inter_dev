@@ -28,8 +28,12 @@ namespace StrategyCore
         [Tooltip("Папка по умолчанию для новых умений (визард «Создать умение»). Дефолт — конвенция Resources/Ability.")]
         public string abilityCreateFolder = "Assets/Resources/Ability";
 
-        [Tooltip("Папка по умолчанию для новых эффекторов. Дефолт — конвенция Resources/Effectors.")]
+        [Tooltip("Папка по умолчанию для новых состояний (ассеты Effector). Дефолт — конвенция Resources/Effectors.")]
         public string effectorCreateFolder = "Assets/Resources/Effectors";
+
+        [Header("Мастер создания умений")]
+        [Tooltip("Тип урона, который мастер подставляет в заготовки с блоком «Урон». Пусто — тип придётся выбрать вручную в карточке умения.")]
+        public DamageType defaultDamageType;
 
         [Tooltip("Папка по умолчанию для новых ресурсов (Resource).")]
         public string resourceCreateFolder = "Assets/Resources/Resource";

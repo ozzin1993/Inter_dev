@@ -17,7 +17,7 @@ namespace StrategyCore
             WaveTimerClientRpc(seconds);
         }
 
-        [Rpc(SendTo.NotServer)]
+        [Rpc(SendTo.NotServer, InvokePermission = RpcInvokePermission.Server)]
         private void WaveTimerClientRpc(int seconds)
         {
             Presentation.UI?.ShowWaveTimer(seconds);   // [Interflow 2026-08-01 ADR-005] через хаб

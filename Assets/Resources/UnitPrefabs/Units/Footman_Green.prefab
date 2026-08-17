@@ -13,6 +13,7 @@ GameObject:
   - component: {fileID: 2114926653383545354}
   - component: {fileID: 894453547512464923}
   - component: {fileID: 1143821659533483926}
+  - component: {fileID: 2609729869334980176}
   m_Layer: 0
   m_Name: Footman_Green
   m_TagString: Untagged
@@ -53,6 +54,7 @@ MonoBehaviour:
   - {fileID: 11400000, guid: f7f43490b7ea247498427398747641b8, type: 2}
   - {fileID: 11400000, guid: 9a704a82d1527ddc3852e105c985b3e3, type: 2}
   - {fileID: 11400000, guid: dcb99de243e806935e2f44aa3de1ecc1, type: 2}
+  - {fileID: 11400000, guid: 80fd027d96def7042b315f4498b298fd, type: 2}
   abilityLevel: 
   abilityLocked: 
   everyFrameAbilities: []
@@ -364,6 +366,20 @@ MonoBehaviour:
   summonObeyCommands: 1
   summonCommand: 1
   summonSpawnSpread: 1
+--- !u!114 &2609729869334980176
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3413404270985750867}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: eeacf01fdd4e6784fbaffd8a2682fac0, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Interflow.Game::StrategyCore.AutoAbilityUser
+  autoAbilities:
+  - {fileID: 11400000, guid: 80fd027d96def7042b315f4498b298fd, type: 2}
 --- !u!1001 &2985721490274745145
 PrefabInstance:
   m_ObjectHideFlags: 0

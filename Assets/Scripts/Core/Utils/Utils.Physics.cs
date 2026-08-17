@@ -118,7 +118,7 @@ namespace StrategyCore
                     if (Y != -9999f)
                     {
                         // SphereCast downward from below up
-                        if (!Physics.SphereCast(new Vector3(location.x, Utils.raycastPointY, location.y), spawnR, Vector3.down, out _, Utils.raycastPointY * 5f, LayerMask.GetMask("Default")))
+                        if (!Physics.SphereCast(new Vector3(location.x, Utils.raycastPointY, location.y), spawnR, Vector3.down, out _, Utils.raycastPointY * 5f, defaultMask))
                         {
                             return new Vector3(location.x, Y, location.y);
                         }
@@ -156,7 +156,7 @@ namespace StrategyCore
                     }
 
                     // SphereCast downward from above the point
-                    if (Physics.SphereCast(new Vector3(pointOnCircle.x, Utils.raycastPointY, pointOnCircle.y), spawnR, Vector3.down, out _, Utils.raycastPointY * 5f, LayerMask.GetMask("Default")))
+                    if (Physics.SphereCast(new Vector3(pointOnCircle.x, Utils.raycastPointY, pointOnCircle.y), spawnR, Vector3.down, out _, Utils.raycastPointY * 5f, defaultMask))
                     {
                         // Hit an object, continue checking
                         continue;
@@ -188,9 +188,7 @@ namespace StrategyCore
         /// <returns>True if the position is visible; otherwise, false.</returns>
         public static bool IsInView(Vector3 position)
         {
-            if (cachedMainCamera == null) cachedMainCamera = Camera.main;
-
-            Vector3 screenPoint = Camera.main.WorldToViewportPoint(position);
+            Vector3 screenPoint = MainCamera.WorldToViewportPoint(position);
             return screenPoint.z > 0 && screenPoint.x > 0 && screenPoint.x < 1 && screenPoint.y > 0 && screenPoint.y < 1;
         }
 
@@ -209,7 +207,7 @@ namespace StrategyCore
         {
             // Plane based on If 3D or 2D
             Plane plane = new Plane(Vector3.up, Vector3.zero);
-            Ray ray = Camera.main.ScreenPointToRay(clickPosition);
+            Ray ray = MainCamera.ScreenPointToRay(clickPosition);
 
             float entry;
             if (plane.Raycast(ray, out entry))
@@ -235,7 +233,7 @@ namespace StrategyCore
         {
             // Plane based on If 3D or 2D
             Plane plane = new Plane(Vector3.up, planePosition);
-            Ray ray = Camera.main.ScreenPointToRay(clickPosition);
+            Ray ray = MainCamera.ScreenPointToRay(clickPosition);
 
             float entry;
             if (plane.Raycast(ray, out entry))
@@ -386,7 +384,7 @@ namespace StrategyCore
         /// </returns>
         public static Vector3 TerrainScreenRaycast(Vector2 position)
         {
-            Ray ray = Camera.main.ScreenPointToRay(position);
+            Ray ray = MainCamera.ScreenPointToRay(position);
 
             RaycastHit hit;
             if (Physics.Raycast(ray, out hit, cursorRayDistance, terrainMaskVisuals)) // terrainMask
@@ -408,7 +406,7 @@ namespace StrategyCore
         /// </returns>
         public static Vector3 TerrainScreenRaycast(Vector2 position, int mask)
         {
-            Ray ray = Camera.main.ScreenPointToRay(position);
+            Ray ray = MainCamera.ScreenPointToRay(position);
 
             RaycastHit hit;
             if (Physics.Raycast(ray, out hit, cursorRayDistance, mask))
@@ -446,7 +444,7 @@ namespace StrategyCore
         /// </returns>
         public static Unit GetUnitAtCursor()
         {
-            Ray ray = Camera.main.ScreenPointToRay(Presentation.Camera?.GetCursorPosition() ?? Vector2.zero);
+            Ray ray = MainCamera.ScreenPointToRay(Presentation.Camera?.GetCursorPosition() ?? Vector2.zero);
             RaycastHit hit;
 
             if (Physics.Raycast(ray, out hit, cursorRayDistance))

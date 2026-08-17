@@ -43,8 +43,8 @@ namespace StrategyCore
         }
 
         // Client receives the list of players in the game
-        [Rpc(SendTo.SpecifiedInParams)]
-        public void PlayerListClientRpc(int playerSlot, string slotType, string playerID, string playerTeam, string playerName, string playerPosition, string playerFaction, string playerLost, RpcParams rpcParams)
+        [Rpc(SendTo.SpecifiedInParams, InvokePermission = RpcInvokePermission.Server)]
+        private void PlayerListClientRpc(int playerSlot, string slotType, string playerID, string playerTeam, string playerName, string playerPosition, string playerFaction, string playerLost, RpcParams rpcParams)
         {
             SlotManager.instance.slotType = JsonHelper.FromJson<SlotType>(slotType);
             SlotManager.instance.playerID = JsonHelper.FromJson<int>(playerID);
@@ -59,8 +59,8 @@ namespace StrategyCore
         }
 
         // Clients receive the list of players in the game
-        [Rpc(SendTo.NotServer)]
-        public void PlayersListClientRpc(string slotType, string playerID, string playerTeam, string playerName, string playerPosition, string playerFaction, string playerLost)
+        [Rpc(SendTo.NotServer, InvokePermission = RpcInvokePermission.Server)]
+        private void PlayersListClientRpc(string slotType, string playerID, string playerTeam, string playerName, string playerPosition, string playerFaction, string playerLost)
         {
             SlotManager.instance.slotType = JsonHelper.FromJson<SlotType>(slotType);
             SlotManager.instance.playerID = JsonHelper.FromJson<int>(playerID);
@@ -83,8 +83,8 @@ namespace StrategyCore
             PlayerWinsClientRpc(RpcTarget.Single((ulong)SlotManager.instance.playerID[player], RpcTargetUse.Temp));
         }
 
-        [Rpc(SendTo.SpecifiedInParams)]
-        public void PlayerWinsClientRpc(RpcParams rpcParams)
+        [Rpc(SendTo.SpecifiedInParams, InvokePermission = RpcInvokePermission.Server)]
+        private void PlayerWinsClientRpc(RpcParams rpcParams)
         {
             SlotManager.instance.PlayerWins();
         }
@@ -95,8 +95,8 @@ namespace StrategyCore
             PlayerLosesClientRpc(RpcTarget.Single((ulong)SlotManager.instance.playerID[player], RpcTargetUse.Temp));
         }
 
-        [Rpc(SendTo.SpecifiedInParams)]
-        public void PlayerLosesClientRpc(RpcParams rpcParams)
+        [Rpc(SendTo.SpecifiedInParams, InvokePermission = RpcInvokePermission.Server)]
+        private void PlayerLosesClientRpc(RpcParams rpcParams)
         {
             SlotManager.instance.PlayerLoses();
         }
@@ -107,8 +107,8 @@ namespace StrategyCore
             TeamLosesClientRpc(RpcTarget.Single((ulong)SlotManager.instance.playerID[player], RpcTargetUse.Temp));
         }
 
-        [Rpc(SendTo.SpecifiedInParams)]
-        public void TeamLosesClientRpc(RpcParams rpcParams)
+        [Rpc(SendTo.SpecifiedInParams, InvokePermission = RpcInvokePermission.Server)]
+        private void TeamLosesClientRpc(RpcParams rpcParams)
         {
             SlotManager.instance.TeamLoses();
         }
@@ -234,7 +234,7 @@ namespace StrategyCore
         }
 
         // All clients receive the save file
-        [Rpc(SendTo.NotServer)]
+        [Rpc(SendTo.NotServer, InvokePermission = RpcInvokePermission.Server)]
         private void ReceiveSceneDataClientRpc(byte[] chunk, int index, int totalChunks)
         {
             NetworkConnectionHandler.instance.connectionStage = 1;

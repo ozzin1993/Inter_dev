@@ -10,6 +10,15 @@ namespace StrategyCore
     // Unit.Visuals.cs — визуал (VFX/MATERIALS/ANIMATIONS/EFFECTORS/PROJECTORS/SOUND). Вырезано 1:1 из Unit.cs (разрезка на partial-ы 2026-08-01, задача №11).
     public partial class Unit
     {
+        // Хэши параметров аниматора: строки в горячем пути заменены на Animator.StringToHash (ревью 1.10)
+        static readonly int animIdle = Animator.StringToHash("idle");
+        static readonly int animWalk = Animator.StringToHash("walk");
+        static readonly int animAttack = Animator.StringToHash("attack");
+        static readonly int animBuilding = Animator.StringToHash("building");
+        static readonly int animIdleReady = Animator.StringToHash("idleReady");
+        static readonly int animCasting = Animator.StringToHash("casting");
+        static readonly int animMoveSpeed = Animator.StringToHash("movespeed");
+
         // ============================= VFX ==============================================================================
 
         /// <summary>
@@ -119,7 +128,6 @@ namespace StrategyCore
             for (int i = 0; i < renderers.Count; i++) renderers[i].gameObject.SetActive(false);
             for (int i = 0; i < meshRenderers.Count; i++)
             {
-                if (netID == 52529) Debug.Log("mesh false " + meshRenderers[i].gameObject.name);
                 meshRenderers[i].enabled = false;
             }
 
@@ -412,19 +420,19 @@ namespace StrategyCore
                 if (state == AnimationState.Reset)
                 {
                     // Reset
-                    animator.SetBool("idle", true);
-                    animator.SetBool("walk", false);
-                    animator.SetBool("attack", false);
-                    animator.SetBool("building", false);
-                    animator.SetBool("idleReady", false);
-                    animator.SetBool("casting", false);
+                    animator.SetBool(animIdle, true);
+                    animator.SetBool(animWalk, false);
+                    animator.SetBool(animAttack, false);
+                    animator.SetBool(animBuilding, false);
+                    animator.SetBool(animIdleReady, false);
+                    animator.SetBool(animCasting, false);
 
                     currentAnimatorBoolState = AnimationState.Idle;
                 }
                 else if (state == AnimationState.Idle)
                 {
                     // Idle
-                    animator.SetBool("idle", boolState);
+                    animator.SetBool(animIdle, boolState);
                     currentAnimatorBoolState = state;
                 }
                 else
@@ -432,27 +440,27 @@ namespace StrategyCore
                     if (state == AnimationState.IdleReady)
                     {
                         // Idle Ready
-                        animator.SetBool("idleReady", boolState);
+                        animator.SetBool(animIdleReady, boolState);
                     }
                     else if (state == AnimationState.Walk)
                     {
                         // Walk
-                        animator.SetBool("walk", boolState);
+                        animator.SetBool(animWalk, boolState);
                     }
                     else if (state == AnimationState.Casting)
                     {
                         // Casting
-                        animator.SetBool("casting", boolState);
+                        animator.SetBool(animCasting, boolState);
                     }
                     else if (state == AnimationState.ContinuousAttack)
                     {
                         // Continuous attack
-                        animator.SetBool("attack", boolState);
+                        animator.SetBool(animAttack, boolState);
                     }
                     else if (state == AnimationState.Building)
                     {
                         // Building
-                        animator.SetBool("building", boolState);
+                        animator.SetBool(animBuilding, boolState);
                     }
 
                     // Idle
@@ -460,12 +468,12 @@ namespace StrategyCore
                     {
                         if (boolState)
                         {
-                            animator.SetBool("idle", false);
+                            animator.SetBool(animIdle, false);
                             currentAnimatorBoolState = state;
                         }
                         else
                         {
-                            animator.SetBool("idle", true);
+                            animator.SetBool(animIdle, true);
                             currentAnimatorBoolState = AnimationState.Idle;
                         }
                     }

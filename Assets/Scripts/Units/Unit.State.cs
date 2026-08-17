@@ -148,8 +148,8 @@ namespace StrategyCore
 
                 if (animator)
                 {
-                    if (animationMoveSpeed != 0) animator.SetFloat("movespeed", currentSpeed / animationMoveSpeed);
-                    else animator.SetFloat("movespeed", currentSpeed);
+                    if (animationMoveSpeed != 0) animator.SetFloat(animMoveSpeed, currentSpeed / animationMoveSpeed);
+                    else animator.SetFloat(animMoveSpeed, currentSpeed);
                 }
 
                 // When moving we must reset the child rotation of the unit
@@ -872,8 +872,8 @@ namespace StrategyCore
                         float currentSpeed = distance / (moveSpeed * Time.deltaTime);
                         if (currentSpeed > 0.9f) currentSpeed = 1f;
                         else if (currentSpeed < 0.5f) currentSpeed = 0.5f;
-                        if (animationMoveSpeed != 0) animator.SetFloat("movespeed", currentSpeed / animationMoveSpeed);
-                        else animator.SetFloat("movespeed", currentSpeed);
+                        if (animationMoveSpeed != 0) animator.SetFloat(animMoveSpeed, currentSpeed / animationMoveSpeed);
+                        else animator.SetFloat(animMoveSpeed, currentSpeed);
                     }
 
                     // Update chunk and FoW info

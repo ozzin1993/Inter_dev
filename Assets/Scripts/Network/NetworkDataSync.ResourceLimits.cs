@@ -55,7 +55,7 @@ namespace StrategyCore
         }
 
         // Клиент: применяем авторитетные расход и лимит, обновляем вкладку ресурсов.
-        [Rpc(SendTo.SpecifiedInParams)]
+        [Rpc(SendTo.SpecifiedInParams, InvokePermission = RpcInvokePermission.Server)]
         private void LimitedResourceClientRpc(Vector3Int data, RpcParams rpcParams)
         {
             if (GameResources.instance == null || SlotManager.instance == null) return;

@@ -20,7 +20,7 @@ namespace StrategyCore
         }
 
         // Показ — на реальных клиентах (отсчёт идёт только при авто-старте выделенного сервера; UI у сервера нет).
-        [Rpc(SendTo.NotServer)]
+        [Rpc(SendTo.NotServer, InvokePermission = RpcInvokePermission.Server)]
         private void MatchCountdownClientRpc(int seconds)
         {
             // [Interflow 2026-08-01 ADR-005] Вёрстка отсчёта перенесена в клиентский мост (Presentation.MenuUI).

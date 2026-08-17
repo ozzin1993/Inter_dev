@@ -1,4 +1,5 @@
 using UnityEngine;
+using StrategyCore;
 
 namespace Camera_TopDownNS
 {
@@ -73,7 +74,7 @@ namespace Camera_TopDownNS
             // Enter placement mode if mode is off and cursor over placeable object
             if (!placementMode)
             {
-                if ((Physics.Raycast(Camera.main.ScreenPointToRay(position), out RaycastHit raycastHit, 300, draggableLayerMask)))
+                if ((Physics.Raycast(Utils.MainCamera.ScreenPointToRay(position), out RaycastHit raycastHit, 300, draggableLayerMask)))
                 {
                     // Enter placement mode
                     placementMode = true;
@@ -96,7 +97,7 @@ namespace Camera_TopDownNS
                 // Start dragging if cursor over active object
                 if (Camera_TopDown.ClickButtonDown())
                 {
-                    if ((Physics.Raycast(Camera.main.ScreenPointToRay(Camera_TopDown.GetCursorPosition()), out RaycastHit raycastHit, 300, draggableLayerMask)))
+                    if ((Physics.Raycast(Utils.MainCamera.ScreenPointToRay(Camera_TopDown.GetCursorPosition()), out RaycastHit raycastHit, 300, draggableLayerMask)))
                     {
                         if (raycastHit.transform.gameObject != objectToPlace.gameObject)
                         {
@@ -136,7 +137,7 @@ namespace Camera_TopDownNS
         private void ExitPlacementMode(Vector2 position)
         {
             // Exit placement mode if cursor is not over active object
-            if ((Physics.Raycast(Camera.main.ScreenPointToRay(position), out RaycastHit raycastHit, 300, draggableLayerMask)))
+            if ((Physics.Raycast(Utils.MainCamera.ScreenPointToRay(position), out RaycastHit raycastHit, 300, draggableLayerMask)))
             {
                 if (raycastHit.transform != objectToPlace)
                 {

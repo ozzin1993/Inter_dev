@@ -95,7 +95,7 @@ namespace StrategyCore
                     if (!(entries.GetArrayElementAtIndex(i).objectReferenceValue is Ability auto)) continue;
 
                     bool present = inList.Contains(auto);
-                    Add(auto, $"Юнит «{uname}»: авто-способность №{i + 1}" + (present ? "" : "  ⚠ не в abilities[]"),
+                    Add(auto, $"Юнит «{uname}»: авто-умение №{i + 1}" + (present ? "" : "  ⚠ не в abilities[]"),
                         () => EditorGUIUtility.PingObject(gref), !present);
                 }
             }

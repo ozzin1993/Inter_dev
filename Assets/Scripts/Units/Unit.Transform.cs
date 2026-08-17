@@ -12,10 +12,7 @@ namespace StrategyCore
 
         // ============================= NETWORK POSITION UPDATE =============================
 
-        private float bufferPositions = 2;
 
-        private Queue<Vector2> networkPosition = new Queue<Vector2>();
-        private Queue<float> networkTimings = new Queue<float>();
 
         private Vector2 endPosition;
         private Vector2 networkDirection;
@@ -98,125 +95,6 @@ namespace StrategyCore
                         );
                 }
             }
-        }
-
-        // Different method of smoothing for networkposition sync. Not used currently.
-
-        public void PositionSetDirectInterpolated(Vector2 netPos, float serverTime)
-        {
-            // Means we are at the last position
-            if (netPos.x > 65534f) return;
-
-            networkPosition.Enqueue(netPos);
-            networkTimings.Enqueue(serverTime);
-
-            if (networkPosition.Count == bufferPositions)
-            {
-                isMoving = true;
-                if (!m_walkAnimationPlaying && target == null && targetPosition == Vector2.zero)
-                {
-                    m_walkAnimationPlaying = true;
-                    AnimatorSetBool(AnimationState.Walk, true);
-                }
-            }
-
-            // Remove older entries if they are no longer needed
-            while (networkTimings.Count > 1 && networkTimings.Peek() < serverTime)
-            {
-                networkPosition.Dequeue();
-                networkTimings.Dequeue();
-            }
-        }
-
-        private void PositionUpdateDirectInterpolated()
-        {
-            if (!isMoving) return;
-
-            Vector3 oldPos = transform.position;
-
-            // Get the current time for interpolation
-            float currentTime = NetworkManager.Singleton.ServerTime.TimeAsFloat;
-
-            // Interpolate and smooth the position
-            Vector2 interpolatedPosition = InterpolatePosition(currentTime);
-            Vector2 smoothedPosition = SmoothPosition(
-                new Vector2(transform.position.x, transform.position.z),
-                interpolatedPosition,
-                Time.deltaTime
-            );
-
-            // Apply the smoothed position to the transform
-            transform.position = new Vector3(
-                smoothedPosition.x,
-                Utils.GetTerrainHeight(smoothedPosition),
-                smoothedPosition.y
-            );
-
-            // Calculate rotation
-            if (transform.position.x != oldPos.x || transform.position.z != oldPos.z)
-            {
-                Quaternion targetRotation = Quaternion.LookRotation(new Vector3(horizontalPart.position.x, 0, horizontalPart.position.z) - new Vector3(oldPos.x, 0, oldPos.z));
-                horizontalPart.rotation = Quaternion.RotateTowards(
-                        horizontalPart.rotation, // Current rotation
-                        Quaternion.Euler(0, targetRotation.eulerAngles.y, 0) * horizontalPartForward, // Target rotation
-                        turnSpeed * Time.deltaTime // Rotation step per frame
-                    );
-            }
-
-            // Check if movement to the next position is complete
-            if (networkPosition.Count > 0 &&
-                (interpolatedPosition - smoothedPosition).sqrMagnitude < 0.01f)
-            {
-                networkPosition.Dequeue();
-                networkTimings.Dequeue();
-
-                if (networkPosition.Count == 0)
-                {
-                    isMoving = false;
-                    m_walkAnimationPlaying = false;
-                    AnimatorSetBool(AnimationState.Walk, false);
-                }
-            }
-        }
-
-        private Vector2 SmoothPosition(Vector2 currentInterpolatedPosition, Vector2 targetPosition, float deltaTime)
-        {
-            const float smoothingFactor = 0.1f; // Adjust this to control the smoothing effect
-            return Vector2.Lerp(currentInterpolatedPosition, targetPosition, deltaTime / smoothingFactor);
-        }
-
-        private Vector2 InterpolatePosition(float currentServerTime)
-        {
-            // Ensure we have at least two points to interpolate
-            if (networkPosition.Count < 2)
-            {
-                return networkPosition.Count == 1 ? networkPosition.Peek() : Vector2.zero;
-            }
-
-            // Convert the queue to an array for easier indexed access
-            Vector2[] positionArray = networkPosition.ToArray();
-            float[] timingArray = networkTimings.ToArray();
-
-            // Find the closest points to the current time
-            for (int i = 0; i < timingArray.Length - 1; i++)
-            {
-                if (currentServerTime >= timingArray[i] && currentServerTime <= timingArray[i + 1])
-                {
-                    // Calculate interpolation factor
-                    float t = (float)((currentServerTime - timingArray[i]) / (timingArray[i + 1] - timingArray[i]));
-                    return Vector2.Lerp(positionArray[i], positionArray[i + 1], t);
-                }
-            }
-
-            // If currentTime is outside the buffer range, return the last position (extrapolate or clamp)
-            return positionArray[^1];
-        }
-
-        Vector2 CubicLerp(Vector2 a, Vector2 b, float t)
-        {
-            float t2 = t * t;
-            float t3 = t2 * t;
-            return (1.0f - t3) * a + 3.0f * t2 * b - 2.0f * t3 * Vector2.Lerp(a, b, 0.5f);
         }
 
         // ============================= POSITION =============================

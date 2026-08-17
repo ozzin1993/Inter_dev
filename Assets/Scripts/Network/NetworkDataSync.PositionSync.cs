@@ -42,7 +42,7 @@ namespace StrategyCore
         }
 
         // Client receive info about unit position
-        [Rpc(SendTo.NotServer)]
+        [Rpc(SendTo.NotServer, InvokePermission = RpcInvokePermission.Server)]
         private void SetPositionDirectClientRpc(UInt16[] netID, UInt16[] posX, UInt16[] posY)
         {
             // Joining mid-game, we do not accept any data from the server. Only scene data.
@@ -127,7 +127,7 @@ namespace StrategyCore
         // Sync the position of units on clients
         //[Rpc(SendTo.NotServer)]
 
-        [Rpc(SendTo.NotServer, Delivery = RpcDelivery.Reliable)]
+        [Rpc(SendTo.NotServer, Delivery = RpcDelivery.Reliable, InvokePermission = RpcInvokePermission.Server)]
         private void SyncPositionClientRpc(UInt16[] id, float[] posX, float[] posY, float serverTime)
         {
             // Joining mid-game, we do not accept any data from the server. Only scene data.

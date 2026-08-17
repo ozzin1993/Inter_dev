@@ -181,7 +181,7 @@ namespace StrategyCore
                     else if (coreInput.Main.Command.WasReleasedThisFrame())
                     {
                         // Cast ray to see if units was selected to be followed/attacked or we are moving to a position
-                        Ray ray = Camera.main.ScreenPointToRay(Camera_TopDown.instance.GetCursorPosition());
+                        Ray ray = Utils.MainCamera.ScreenPointToRay(Camera_TopDown.instance.GetCursorPosition());
                         RaycastHit hit;
 
                         if (Physics.Raycast(ray, out hit, rayDistance))
@@ -406,7 +406,7 @@ namespace StrategyCore
                         bool positionSelection = true; // Attack move on unit will just command to attack
                         bool staticCopy = false; // Main unit is dead, but static copy is still there. Commanded to attack, we just move to its position
                         bool soundPlayOnce = false;
-                        Ray ray = Camera.main.ScreenPointToRay(Camera_TopDown.instance.GetCursorPosition());
+                        Ray ray = Utils.MainCamera.ScreenPointToRay(Camera_TopDown.instance.GetCursorPosition());
                         RaycastHit hit;
 
                         // Check if attack command was made
@@ -632,13 +632,13 @@ namespace StrategyCore
                         if (shadowBuilding.GetComponent<CapsuleCollider>())
                         {
                             // Capsule Collider - Check against units/buildings/objects; Air not included
-                            hits = Physics.SphereCastAll(new Vector3(shadowBuilding.position.x, Utils.raycastPointY, shadowBuilding.position.z), shadowBuildingRadius, Vector3.down, Utils.raycastPointY * 5f, LayerMask.GetMask("Default"));
+                            hits = Physics.SphereCastAll(new Vector3(shadowBuilding.position.x, Utils.raycastPointY, shadowBuilding.position.z), shadowBuildingRadius, Vector3.down, Utils.raycastPointY * 5f, Utils.defaultMask);
                         }
                         else
                         {
                             // Box Collider - Check against units/buildings/objects; Air not included
                             BoxCollider boxCollider = shadowBuilding.GetComponent<BoxCollider>();
-                            hits = Physics.BoxCastAll(new Vector3(shadowBuilding.position.x, Utils.raycastPointY, shadowBuilding.position.z), boxCollider.size * 0.5f * shadowBuilding.localScale.x, Vector3.down, shadowBuilding.rotation, Utils.raycastPointY * 5f, LayerMask.GetMask("Default"));
+                            hits = Physics.BoxCastAll(new Vector3(shadowBuilding.position.x, Utils.raycastPointY, shadowBuilding.position.z), boxCollider.size * 0.5f * shadowBuilding.localScale.x, Vector3.down, shadowBuilding.rotation, Utils.raycastPointY * 5f, Utils.defaultMask);
                         }
 
                         Unit temp;

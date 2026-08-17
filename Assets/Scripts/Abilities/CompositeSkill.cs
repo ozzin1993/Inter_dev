@@ -61,16 +61,16 @@ namespace StrategyCore
         [Tooltip("Как выбираются цели. «Умный выбор» означает, что цель подбирает стратегия ниже, а не игрок.")]
         public SkillTargetMode targetMode = SkillTargetMode.AreaAroundSelf;
 
-        [Tooltip("Скилл кнопки (умение замка или героя). ВКЛ — скилл всегда становится типа Active, " +
-                 "то есть срабатывает сразу по нажатию, а цель ищет стратегия внутри самого скилла. " +
-                 "ВЫКЛ — скилл для автокаста юнитом: цель ему подставляет компонент автокаста.")]
+        [Tooltip("Умение по кнопке (замок или герой). ВКЛ — умение всегда становится типа Active, " +
+                 "то есть срабатывает сразу по нажатию, а цель ищет стратегия внутри самого умения. " +
+                 "ВЫКЛ — умение для автокаста юнитом: цель ему подставляет компонент автокаста.")]
         public bool buttonCast;
 
         [Tooltip("Стратегия выбора цели для режимов «умный выбор». Её же читает автокаст юнита — " +
                  "настройка на самом юните в этом случае не используется.")]
         public SkillTargetStrategy targetStrategy = SkillTargetStrategy.Nearest;
 
-        [Tooltip("Только для скилла кнопки: от какой точки стратегия отсчитывает «ближайшего» — " +
+        [Tooltip("Только для умения по кнопке: от какой точки стратегия отсчитывает «ближайшего» — " +
                  "от самого кастера или от вражеской точки линии (для умений замка обычно второе). " +
                  "На дальность не влияет: она всегда мерится от кастера по castRange.")]
         public SkillSearchOrigin searchOrigin = SkillSearchOrigin.Caster;
@@ -125,14 +125,14 @@ namespace StrategyCore
 
         [Header("Доставка")]
         [Tooltip("Мгновенно — эффекты применяются сразу. Снарядом — вылетает снаряд, который несёт " +
-                 "урон, эффекторы и оглушение; остальные блоки при этом срабатывают сразу в момент каста.")]
+                 "урон, состояния и оглушение; остальные блоки при этом срабатывают сразу в момент каста.")]
         public SkillDelivery delivery = SkillDelivery.Instant;
 
         [Tooltip("Префаб снаряда. Обязателен при доставке снарядом.")]
         public Projectile projectilePrefab;
 
         [Tooltip("Снаряд летит за целью (самонаведение). ВЫКЛЮЧАТЬ НЕЛЬЗЯ: штатный снаряд без самонаведения " +
-                 "наносит урон только по площади, а площадного режима у снаряда скилла нет — цель просто не получит урона. " +
+                 "наносит урон только по площади, а площадного режима у снаряда умения нет — цель просто не получит урона. " +
                  "Оставлено как поле, чтобы значение было видно; валидатор ругается на ВЫКЛ.")]
         public bool projectileFollowsTarget = true;
 
@@ -164,7 +164,7 @@ namespace StrategyCore
         [Tooltip("Звук попадания. Пусто — без звука.")]
         public AudioClip impactSound;
 
-        [Tooltip("Громкость звуков скилла, 0..1.")]
+        [Tooltip("Громкость звуков умения, 0..1.")]
         [Range(0f, 1f)]
         public float soundVolume = 1f;
 
@@ -174,8 +174,8 @@ namespace StrategyCore
                  "Перебивает текущую анимацию, в том числе замах атаки.")]
         public string procAnimationState = "";
 
-        [Tooltip("Эффектор-значок состояния: вешается на каждую цель, чтобы игрок видел иконку в панели состояний. " +
-                 "Значок показывается только у НЕстакающихся эффекторов с заданной иконкой.")]
+        [Tooltip("Состояние-значок: вешается на каждую цель, чтобы игрок видел иконку в панели состояний. " +
+                 "Значок показывается только у ненакапливаемых состояний (Stacks выключен) с заданной иконкой.")]
         public Effector statusEffector;
 
         // =================================================================== БЛОКИ ==
@@ -195,7 +195,7 @@ namespace StrategyCore
         [Header("Блок 5 — контроль")]
         public SkillStatusBlock status = new SkillStatusBlock();
 
-        [Header("Блок 6 — эффекторы")]
+        [Header("Блок 6 — состояния")]
         public SkillEffectorsBlock effectors = new SkillEffectorsBlock();
 
         [Header("Блок 7 — лечение")]
@@ -359,7 +359,7 @@ namespace StrategyCore
             if (delivery == SkillDelivery.Projectile && !viaProjectile && IsServerPeer)
                 Debug.LogWarning($"[{name}] Доставка снарядом невозможна при этих настройках " +
                                  "(нужны цель-юнит, живой кастер, префаб снаряда и включённое самонаведение) — " +
-                                 "скилл сработал мгновенно.");
+                                 "умение сработало мгновенно.");
 
             if (viaProjectile && IsServerPeer) SpawnProjectile(castingUnit, castingPlayer, level, aimUnit);
 
@@ -778,7 +778,7 @@ namespace StrategyCore
                 for (int i = 0; i < effectors.records.Length; i++)
                     if (effectors.records[i] != null && effectors.records[i].effector != null) liveRecords++;
 
-                if (liveRecords > 0) sb.Append(" • эффекторов: ").Append(liveRecords);
+                if (liveRecords > 0) sb.Append(" • состояний: ").Append(liveRecords);
             }
 
             if (buff != null && buff.enabled)

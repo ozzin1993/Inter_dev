@@ -34,7 +34,7 @@ namespace StrategyCore
         /// Сервер → клиенты: факт «жив ли герой команды» (heroUnit клиенту не синхронизируется).
         /// Применяется в MatchManager.ApplyHeroAliveClient (обновляет зеркало + уведомляет UI).
         /// </summary>
-        [Rpc(SendTo.NotServer)]
+        [Rpc(SendTo.NotServer, InvokePermission = RpcInvokePermission.Server)]
         public void HeroAliveClientRpc(int teamIndex, bool alive)
         {
             if (MatchManager.instance == null) return;
@@ -47,7 +47,7 @@ namespace StrategyCore
         /// Сервер → клиенты: текущий уровень героя команды (LevelingUnit клиенту не синкается).
         /// Применяется в MatchManager.ApplyHeroLevelClient (обновляет зеркало + перерисовывает умения).
         /// </summary>
-        [Rpc(SendTo.NotServer)]
+        [Rpc(SendTo.NotServer, InvokePermission = RpcInvokePermission.Server)]
         public void HeroLevelClientRpc(int teamIndex, int level)
         {
             if (MatchManager.instance == null) return;

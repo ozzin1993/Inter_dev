@@ -1,4 +1,3 @@
-using DataStructures.PriorityQueue;
 using System;
 using System.Collections.Generic;
 using UnityEngine;
@@ -315,70 +314,6 @@ namespace StrategyCore
             return true;
         }
 
-        // PATHFINDING --------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-
-        // A* Pathfinding
-        public static Coordinate[] Pathfind(Coordinate start, Coordinate end)
-        {
-            PriorityQueue<Coordinate, int> frontier = new PriorityQueue<Coordinate, int>(0);
-            frontier.Insert(start, 0);
-
-            Dictionary<Coordinate, Coordinate> came_from = new Dictionary<Coordinate, Coordinate>();
-            Dictionary<Coordinate, int> cost_so_far = new Dictionary<Coordinate, int>();
-
-            came_from.Add(start, new Coordinate(-1, -1)); // - 1 means null
-            cost_so_far.Add(start, 0);
-
-            Coordinate current;
-
-            while (!frontier.isEmpty())
-            {
-                current = frontier.Pop();
-
-                if (current.Equals(end))
-                    break;
-
-                foreach (Coordinate next in Coordinate.EmptyStraightNeighbors(current)) // To include diagonal cells change to Neighbours
-                {
-                    int new_cost = cost_so_far[current] + Coordinate.Cost(current, next); // Cost is always 1, not implemented
-
-                    if (!cost_so_far.ContainsKey(next) || new_cost < cost_so_far[next])
-                    {
-                        cost_so_far[next] = new_cost;
-
-                        int priority = Heuristic(end, next);
-                        frontier.Insert(next, priority);
-
-                        came_from[next] = current;
-                    }
-                }
-            }
-
-            // Reconstruct path
-            // If does not contain end coordinate, pathfinding failed
-            if (!came_from.ContainsKey(end))
-            {
-                return new Coordinate[0];
-            }
-
-            current = end;
-            List<Coordinate> path = new List<Coordinate>();
-            while (!current.Equals(start))
-            {
-                path.Add(current);
-                current = came_from[current];
-            }
-            path.Add(start); // Optional start cell inclusion
-            path.Reverse(); // Optional path reverse. It will be in correct order from start to end
-
-            return path.ToArray();
-        }
-
-        // Manhattan distance on a square grid
-        public static int Heuristic(Coordinate a, Coordinate b)
-        {
-            return Mathf.Abs(a.x - b.x) + Mathf.Abs(a.y - b.y);
-        }
     }
 
     public struct Coordinate

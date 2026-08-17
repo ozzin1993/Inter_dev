@@ -1,3 +1,4 @@
+using System.Globalization;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -269,7 +270,7 @@ namespace StrategyCore
                     for (int i = 0; i < unit.Value.cooldownAbility.Count; i++)
                     {
                         if (unit.Value.cooldownAbilityIsItem[i]) continue; // Item cds Handled in inventory
-                        cdAbility += "-" + unit.Value.cooldownAbility[i].ToString("F1");
+                        cdAbility += "-" + unit.Value.cooldownAbility[i].ToString("F1", CultureInfo.InvariantCulture);
                         cdIndex += "-" + unit.Value.cooldownAbilityIndex[i];
                     }
 
@@ -296,7 +297,7 @@ namespace StrategyCore
                         slotIndex += "-" + i;
                         abilityId += "-" + unit.Value.items[i].id;
                         charges += "-" + unit.Value.itemCharges[i];
-                        itemCD += "-" + unit.Value.GetAbilityCooldown(i, true).ToString("F1");
+                        itemCD += "-" + unit.Value.GetAbilityCooldown(i, true).ToString("F1", CultureInfo.InvariantCulture);
                     }
 
                     if (slotIndex != "")
@@ -415,9 +416,9 @@ namespace StrategyCore
                         // [Interflow fix 2026-08-02 effector-unify] Сила и фактическая длительность наложения:
                         // без них восстановленный эффектор вернулся бы с базовыми числами ассета.
                         // Формат: id:время:сила:длительность (старые записи — только id:время, читаются по-прежнему).
-                        newUnitData["effectors"] += "-" + unit.Value.effectors[i].effector.id + ":" + unit.Value.effectors[i].currentTime.ToString("F2")
-                                                  + ":" + unit.Value.effectors[i].powerMultiplier.ToString("F3")
-                                                  + ":" + unit.Value.effectors[i].duration.ToString("F3");
+                        newUnitData["effectors"] += "-" + unit.Value.effectors[i].effector.id + ":" + unit.Value.effectors[i].currentTime.ToString("F2", CultureInfo.InvariantCulture)
+                                                  + ":" + unit.Value.effectors[i].powerMultiplier.ToString("F3", CultureInfo.InvariantCulture)
+                                                  + ":" + unit.Value.effectors[i].duration.ToString("F3", CultureInfo.InvariantCulture);
                         if (unit.Value.effectors[i].unitOwner == null)
                         {
                             newUnitData["effectorOwner"] += "-_" + unit.Value.effectors[i].owner;
@@ -647,7 +648,7 @@ namespace StrategyCore
                     // Add cooldowns
                     for (int i = 0; i < index.Length; i++)
                     {
-                        u.ChangeAbilityCooldown(float.Parse(cd[i]), int.Parse(index[i]), false, true);
+                        u.ChangeAbilityCooldown(float.Parse(cd[i], CultureInfo.InvariantCulture), int.Parse(index[i]), false, true);
                     }
                 }
                 u.OnRedrawAbilityView?.Invoke();
@@ -712,7 +713,7 @@ namespace StrategyCore
 
                         // Change charges and cooldown
                         u.itemCharges[i] = int.Parse(charges[slot]);
-                        if (float.Parse(cooldown[slot]) > 0) u.ChangeAbilityCooldown(float.Parse(cooldown[slot]), i, true, true);
+                        if (float.Parse(cooldown[slot], CultureInfo.InvariantCulture) > 0) u.ChangeAbilityCooldown(float.Parse(cooldown[slot], CultureInfo.InvariantCulture), i, true, true);
                         else if (u.inventoryInitialized) u.ChangeAbilityCooldown(-1, i, true, true);
 
                         slot++;
@@ -882,20 +883,20 @@ namespace StrategyCore
 
                         // [Interflow fix 2026-08-02 effector-unify] Сила и длительность появились 2026-08-02.
                         // В записях до этой даты их нет — тогда берём то, что в ассете (как и было).
-                        float savedPower = idCurrentTime.Length > 2 ? float.Parse(idCurrentTime[2]) : 1f;
-                        float savedDuration = idCurrentTime.Length > 3 ? float.Parse(idCurrentTime[3]) : -1f;
+                        float savedPower = idCurrentTime.Length > 2 ? float.Parse(idCurrentTime[2], CultureInfo.InvariantCulture) : 1f;
+                        float savedDuration = idCurrentTime.Length > 3 ? float.Parse(idCurrentTime[3], CultureInfo.InvariantCulture) : -1f;
 
                         // If starts with "_" no owner unit
                         if (owner[i][0] == '_')
                         {
                             // no owner unit
-                            Effector.EffectorAdd(u, GameManager.instance.gameEffectors[int.Parse(idCurrentTime[0])], null, int.Parse(owner[i].Substring(1)), float.Parse(idCurrentTime[1]), savedPower, savedDuration);
+                            Effector.EffectorAdd(u, GameManager.instance.gameEffectors[int.Parse(idCurrentTime[0])], null, int.Parse(owner[i].Substring(1)), float.Parse(idCurrentTime[1], CultureInfo.InvariantCulture), savedPower, savedDuration);
                         }
                         else
                         {
                             // owner unit
                             Unit ownerUnit = SlotManager.instance.unitNetID[UInt16.Parse(owner[i])];
-                            Effector.EffectorAdd(u, GameManager.instance.gameEffectors[int.Parse(idCurrentTime[0])], ownerUnit, ownerUnit.owner, float.Parse(idCurrentTime[1]), savedPower, savedDuration);
+                            Effector.EffectorAdd(u, GameManager.instance.gameEffectors[int.Parse(idCurrentTime[0])], ownerUnit, ownerUnit.owner, float.Parse(idCurrentTime[1], CultureInfo.InvariantCulture), savedPower, savedDuration);
                         }
                     }
                 }

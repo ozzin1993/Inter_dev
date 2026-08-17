@@ -27,7 +27,7 @@ namespace StrategyCore
         }
 
         // Client receives command to cast an ability
-        [Rpc(SendTo.NotServer)]
+        [Rpc(SendTo.NotServer, InvokePermission = RpcInvokePermission.Server)]
         private void AbilityCastStartClientRpc(UInt16 castingUnitID, int abilityID, UInt16 targetID)
         {
             // Joining mid-game, we do not accept any data from the server. Only scene data.
@@ -57,7 +57,7 @@ namespace StrategyCore
         }
 
         // Client receives command to cast an ability
-        [Rpc(SendTo.NotServer)]
+        [Rpc(SendTo.NotServer, InvokePermission = RpcInvokePermission.Server)]
         private void AbilityCastStartClientRpc(UInt16 castingUnitID, int abilityID, Vector3 abilityLocation)
         {
             // Joining mid-game, we do not accept any data from the server. Only scene data.
@@ -90,7 +90,7 @@ namespace StrategyCore
         }
 
         // Client receives command to cast an ability
-        [Rpc(SendTo.NotServer)]
+        [Rpc(SendTo.NotServer, InvokePermission = RpcInvokePermission.Server)]
         private void AbilityStopCastClientRpc(UInt16 castingUnitID)
         {
             // Joining mid-game, we do not accept any data from the server. Only scene data.
@@ -124,7 +124,7 @@ namespace StrategyCore
         }
 
         // Client receives command to immediately cast an ability
-        [Rpc(SendTo.NotServer)]
+        [Rpc(SendTo.NotServer, InvokePermission = RpcInvokePermission.Server)]
         private void AbilityUseClientRpc(UInt16 castingUnitID, int abilityID, int abilityLevel, int abilityIndex, bool isItem, UInt16 targetID, Vector3 location, bool interrupt, int shadowCasterID, RpcParams rpcParams = default)
         {
             // Joining mid-game, we do not accept any data from the server. Only scene data.
@@ -160,7 +160,7 @@ namespace StrategyCore
         }
 
         // Client receives command to stop ability casting
-        [Rpc(SendTo.NotServer)]
+        [Rpc(SendTo.NotServer, InvokePermission = RpcInvokePermission.Server)]
         private void AbilityStopClientRpc(UInt16 castingUnitID, RpcParams rpcParams = default)
         {
             // Joining mid-game, we do not accept any data from the server. Only scene data.
@@ -185,7 +185,7 @@ namespace StrategyCore
         }
 
         // Client receives command to level up ability
-        [Rpc(SendTo.NotServer)]
+        [Rpc(SendTo.NotServer, InvokePermission = RpcInvokePermission.Server)]
         private void LevelUpAbilityClientRpc(UInt16 netID, int abilityID, int abilityIndex)
         {
             // Joining mid-game, we do not accept any data from the server. Only scene data.
@@ -225,7 +225,7 @@ namespace StrategyCore
         }
 
         // Client receive info about invisibility state
-        [Rpc(SendTo.NotServer)]
+        [Rpc(SendTo.NotServer, InvokePermission = RpcInvokePermission.Server)]
         private void InvisibilitySetClientRpc(UInt16 netID, bool state)
         {
             // Joining mid-game, we do not accept any data from the server. Only scene data.
@@ -251,7 +251,7 @@ namespace StrategyCore
         }
 
         // Client receive info about stun state
-        [Rpc(SendTo.NotServer)]
+        [Rpc(SendTo.NotServer, InvokePermission = RpcInvokePermission.Server)]
         private void StunSetClientRpc(UInt16 netID, bool state)
         {
             // Joining mid-game, we do not accept any data from the server. Only scene data.
@@ -276,7 +276,7 @@ namespace StrategyCore
         }
 
         // Client receive info about state
-        [Rpc(SendTo.NotServer)]
+        [Rpc(SendTo.NotServer, InvokePermission = RpcInvokePermission.Server)]
         private void MuteSetClientRpc(UInt16 netID, bool state)
         {
             // Joining mid-game, we do not accept any data from the server. Only scene data.
@@ -301,7 +301,7 @@ namespace StrategyCore
         }
 
         // Client receive info about state
-        [Rpc(SendTo.NotServer)]
+        [Rpc(SendTo.NotServer, InvokePermission = RpcInvokePermission.Server)]
         private void DisarmSetClientRpc(UInt16 netID, bool state)
         {
             // Joining mid-game, we do not accept any data from the server. Only scene data.

@@ -107,7 +107,7 @@ namespace StrategyCore
 
         private void HealthBarDisplay(InputAction.CallbackContext context)
         {
-            Camera.main.cullingMask ^= 1 << LayerMask.NameToLayer("Healthbar");
+            Utils.MainCamera.cullingMask ^= 1 << LayerMask.NameToLayer("Healthbar");
         }
 
         // Ping on minimap

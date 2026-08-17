@@ -13,8 +13,8 @@ namespace StrategyCore
         // SHADOWCASTER SYNC ------------------------------------------
 
         // Only for syncing manually spawned shadowcasters
-        [Rpc(SendTo.NotServer)]
-        public void ShadowCasterSpawnClientRpc(int shadowCasterID, UInt16 castingUnitID, int abilityID, int abilityLevel, UInt16 targetID, Vector3 targetPosition, float range, float duration)
+        [Rpc(SendTo.NotServer, InvokePermission = RpcInvokePermission.Server)]
+        private void ShadowCasterSpawnClientRpc(int shadowCasterID, UInt16 castingUnitID, int abilityID, int abilityLevel, UInt16 targetID, Vector3 targetPosition, float range, float duration)
         {
             // Joining mid-game, we do not accept any data from the server. Only scene data.
             if (NetworkConnectionHandler.instance.connectionStage == 2) return;
@@ -45,7 +45,7 @@ namespace StrategyCore
         }
 
         // Client receive removal trigger
-        [Rpc(SendTo.NotServer)]
+        [Rpc(SendTo.NotServer, InvokePermission = RpcInvokePermission.Server)]
         public void ShadowCasterRemoveClientRpc(int shadowcasterID)
         {
             // Joining mid-game, we do not accept any data from the server. Only scene data.
@@ -62,7 +62,7 @@ namespace StrategyCore
         // ANIMATION BLENDING SYNC ------------------------------------------
 
         // Change animation blending index for a specified unit
-        [Rpc(SendTo.NotServer)]
+        [Rpc(SendTo.NotServer, InvokePermission = RpcInvokePermission.Server)]
         public void AnimationPrefixClientRpc(UInt16 netID, float blendingIndex)
         {
             // Joining mid-game, we do not accept any data from the server. Only scene data.
@@ -89,7 +89,7 @@ namespace StrategyCore
         }
 
         // Client receive: Worker starts working
-        [Rpc(SendTo.NotServer)]
+        [Rpc(SendTo.NotServer, InvokePermission = RpcInvokePermission.Server)]
         private void WorkerStartConstructingClientRpc(UInt16 buildingNetID, UInt16 workerNetID)
         {
             // Joining mid-game, we do not accept any data from the server. Only scene data.
@@ -128,7 +128,7 @@ namespace StrategyCore
         }
 
         // Client receive: Worker stops working
-        [Rpc(SendTo.NotServer)]
+        [Rpc(SendTo.NotServer, InvokePermission = RpcInvokePermission.Server)]
         private void WorkerStopConstructingClientRpc(UInt16 buildingNetID, UInt16 workerNetID)
         {
             // Joining mid-game, we do not accept any data from the server. Only scene data.
@@ -160,7 +160,7 @@ namespace StrategyCore
         }
 
         // Client: Worker starts repairing
-        [Rpc(SendTo.NotServer)]
+        [Rpc(SendTo.NotServer, InvokePermission = RpcInvokePermission.Server)]
         private void WorkerStartTheRepairsClientRpc(UInt16 workerNetID, UInt16 buildingNetID)
         {
             // Joining mid-game, we do not accept any data from the server. Only scene data.
@@ -199,7 +199,7 @@ namespace StrategyCore
         }
 
         // Client: Worker starts repairing
-        [Rpc(SendTo.NotServer)]
+        [Rpc(SendTo.NotServer, InvokePermission = RpcInvokePermission.Server)]
         private void WorkerStopTheRepairsClientRpc(UInt16 workerNetID)
         {
             // Joining mid-game, we do not accept any data from the server. Only scene data.
@@ -231,8 +231,8 @@ namespace StrategyCore
         }
 
         // Client: receive finished trigger
-        [Rpc(SendTo.NotServer)]
-        public void BuildingFinishedClientRpc(UInt16 buildingNetID)
+        [Rpc(SendTo.NotServer, InvokePermission = RpcInvokePermission.Server)]
+        private void BuildingFinishedClientRpc(UInt16 buildingNetID)
         {
             // Joining mid-game, we do not accept any data from the server. Only scene data.
             if (NetworkConnectionHandler.instance.connectionStage == 2) return;
@@ -266,7 +266,7 @@ namespace StrategyCore
         }
 
         // Client receive: Worker clear state
-        [Rpc(SendTo.SpecifiedInParams)]
+        [Rpc(SendTo.SpecifiedInParams, InvokePermission = RpcInvokePermission.Server)]
         private void ResetConstructionStateClientRpc(UInt16 workerNetID, bool limitedOnly, RpcParams rpcParams)
         {
             // Joining mid-game, we do not accept any data from the server. Only scene data.
@@ -302,7 +302,7 @@ namespace StrategyCore
         }
 
         // Client receive: Worker clear state
-        [Rpc(SendTo.SpecifiedInParams)]
+        [Rpc(SendTo.SpecifiedInParams, InvokePermission = RpcInvokePermission.Server)]
         private void WorkerResetShadowBuildingClientRpc(UInt16 workerNetID, RpcParams rpcParams)
         {
             // Joining mid-game, we do not accept any data from the server. Only scene data.
@@ -334,8 +334,8 @@ namespace StrategyCore
         }
 
         // Client: cancel the building upgrade
-        [Rpc(SendTo.NotServer)]
-        public void ConstructionCancelClientRpc(UInt16 upgradeBuildingNetID)
+        [Rpc(SendTo.NotServer, InvokePermission = RpcInvokePermission.Server)]
+        private void ConstructionCancelClientRpc(UInt16 upgradeBuildingNetID)
         {
             // Joining mid-game, we do not accept any data from the server. Only scene data.
             if (NetworkConnectionHandler.instance.connectionStage == 2) return;
@@ -368,7 +368,7 @@ namespace StrategyCore
         }
 
         // Client receive info about who to embark
-        [Rpc(SendTo.NotServer)]
+        [Rpc(SendTo.NotServer, InvokePermission = RpcInvokePermission.Server)]
         private void EmbarkClientRpc(UInt16 transportUnitID, UInt16 embarkedUnitID)
         {
             // Joining mid-game, we do not accept any data from the server. Only scene data.
@@ -400,7 +400,7 @@ namespace StrategyCore
         }
 
         // Client receive info about who to disembark
-        [Rpc(SendTo.NotServer)]
+        [Rpc(SendTo.NotServer, InvokePermission = RpcInvokePermission.Server)]
         private void DisembarkClientRpc(UInt16 transportUnitID, int index, Vector3 location)
         {
             // Joining mid-game, we do not accept any data from the server. Only scene data.
@@ -423,7 +423,7 @@ namespace StrategyCore
         }
 
         // Client receive info about who to disembark
-        [Rpc(SendTo.NotServer)]
+        [Rpc(SendTo.NotServer, InvokePermission = RpcInvokePermission.Server)]
         private void DisembarkClientRpc(UInt16 transportUnitID, int unitsOut, Vector3[] locations)
         {
             // Joining mid-game, we do not accept any data from the server. Only scene data.
@@ -448,7 +448,7 @@ namespace StrategyCore
         }
 
         // Client receive spawn info
-        [Rpc(SendTo.NotServer)]
+        [Rpc(SendTo.NotServer, InvokePermission = RpcInvokePermission.Server)]
         private void UnitSpawnClientRpc(int typeID, Vector3 position, float rotation, int owner, UInt16 netID = 0)
         {
             // Joining mid-game, we do not accept any data from the server. Only scene data.
@@ -472,7 +472,7 @@ namespace StrategyCore
         }
 
         // Client receive item  spawn info
-        [Rpc(SendTo.NotServer)]
+        [Rpc(SendTo.NotServer, InvokePermission = RpcInvokePermission.Server)]
         private void ItemDroppedSpawnClientRpc(int abilityID, int itemCharges, float itemcd, Vector3 position, UInt16 netID)
         {
             // Joining mid-game, we do not accept any data from the server. Only scene data.

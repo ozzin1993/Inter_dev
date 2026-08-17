@@ -47,7 +47,7 @@ namespace StrategyCore
             WaveMarksClientRpc(teamIndex, autoIds, oneShotIds);
         }
 
-        [Rpc(SendTo.NotServer)]
+        [Rpc(SendTo.NotServer, InvokePermission = RpcInvokePermission.Server)]
         private void WaveMarksClientRpc(int teamIndex, int[] autoIds, int[] oneShotIds)
         {
             if (MatchManager.instance == null) return;
@@ -61,7 +61,7 @@ namespace StrategyCore
             WaveOverflowWarnClientRpc(teamIndex);
         }
 
-        [Rpc(SendTo.NotServer)]
+        [Rpc(SendTo.NotServer, InvokePermission = RpcInvokePermission.Server)]
         private void WaveOverflowWarnClientRpc(int teamIndex)
         {
             if (MatchManager.instance == null) return;

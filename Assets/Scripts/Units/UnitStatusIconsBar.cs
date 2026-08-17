@@ -74,7 +74,7 @@ namespace StrategyCore
             if (root.gameObject.activeSelf != shown) root.gameObject.SetActive(shown);
             if (!shown) return;
 
-            Camera cam = Camera.main;
+            Camera cam = Utils.MainCamera;
             if (cam != null) root.rotation = cam.transform.rotation;
         }
 

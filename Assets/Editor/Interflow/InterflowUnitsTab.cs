@@ -42,7 +42,7 @@ namespace StrategyCore
         // Доп. компоненты юнита — те же, что предлагает SCEditor.ComponentsButton, + наш AutoAbilityUser.
         static readonly (Type type, string title)[] OptionalComponents =
         {
-            (typeof(AutoAbilityUser),  "AutoAbilityUser — авто-каст способности"),
+            (typeof(AutoAbilityUser),  "AutoAbilityUser — авто-каст умений"),
             (typeof(LevelingUnit),     "LevelingUnit — уровни и опыт"),
             (typeof(ConstructionUnit), "ConstructionUnit — постройка/здание"),
             (typeof(ResourceUnit),     "ResourceUnit — ресурсы"),
@@ -426,7 +426,7 @@ namespace StrategyCore
 
             box.Add(new Label("Пассивка живёт в общем списке умений юнита (поле abilities выше). " +
                               "Когда она включится — решают её собственные поля «Требуемые технологии» и «Требуемый уровень» — " +
-                              "настраиваются во вкладке «Пассивные умения».")
+                              "настраиваются в окне «Редактор умений» (Tools → Редактор умений).")
                 { style = { whiteSpace = WhiteSpace.Normal, color = new Color(0.7f, 0.72f, 0.75f), fontSize = 10, marginTop = 2 } });
 
             rightPanel.Add(box);

@@ -49,9 +49,9 @@ namespace StrategyCore
 
             var left = new VisualElement { style = { width = 300, flexShrink = 0, marginRight = 8 } };
 
-            var create = new Button(CreateEffector) { text = "Создать эффектор" };
+            var create = new Button(CreateEffector) { text = "Создать состояние" };
             create.style.unityFontStyleAndWeight = FontStyle.Bold;
-            create.tooltip = "Эффектор — это СОСТОЯНИЕ на юните: длительность, тик, значок в панели. " +
+            create.tooltip = "Состояние — то, что висит на юните во времени: длительность, тик, значок в панели. " +
                              "Разовые эффекты (урон, лечение, призыв) собираются блоками умения, а не здесь.";
             left.Add(create);
 
@@ -85,7 +85,7 @@ namespace StrategyCore
             InterflowEditorUI.EnsureFolder(settings.effectorCreateFolder);
 
             string dstPath = EditorUtility.SaveFilePanelInProject(
-                "Создать эффектор", "Effector", "asset", "Имя нового эффектора", settings.effectorCreateFolder);
+                "Создать состояние", "Effector", "asset", "Имя нового состояния", settings.effectorCreateFolder);
             if (string.IsNullOrEmpty(dstPath)) return;
 
             var eff = ScriptableObject.CreateInstance<Effector>();
@@ -107,7 +107,7 @@ namespace StrategyCore
             if (selected == null) return;
 
             string path = AssetDatabase.GetAssetPath(selected);
-            if (!EditorUtility.DisplayDialog("Удалить", $"Удалить эффектор?\n{path}", "Удалить", "Отмена")) return;
+            if (!EditorUtility.DisplayDialog("Удалить", $"Удалить состояние?\n{path}", "Удалить", "Отмена")) return;
 
             AssetDatabase.DeleteAsset(path);
             AssetDatabase.SaveAssets();
@@ -135,11 +135,11 @@ namespace StrategyCore
             if (listContainer == null) return;
             listContainer.Clear();
 
-            if (countLabel != null) countLabel.text = $"Эффекторов: {effectors.Count}";
+            if (countLabel != null) countLabel.text = $"Состояний: {effectors.Count}";
 
             if (effectors.Count == 0)
             {
-                listContainer.Add(new Label("Эффекторов нет. Жми «Создать эффектор» выше.")
+                listContainer.Add(new Label("Состояний нет. Жми «Создать состояние» выше.")
                     { style = { whiteSpace = WhiteSpace.Normal, marginTop = 4, color = DIM } });
                 return;
             }
@@ -173,7 +173,7 @@ namespace StrategyCore
 
             if (selected == null)
             {
-                rightPanel.Add(new Label("Выбери эффектор слева или создай.")
+                rightPanel.Add(new Label("Выбери состояние слева или создай.")
                     { style = { marginTop = 6, whiteSpace = WhiteSpace.Normal } });
                 return;
             }
@@ -191,13 +191,11 @@ namespace StrategyCore
             AddVisibilityBadge();
             AddUsageSection();
 
-            rightPanel.Add(new Label("Поля эффектора:")
-                { style = { unityFontStyleAndWeight = FontStyle.Bold, marginTop = 4, marginBottom = 2 } });
+            rightPanel.Add(new Label("Поля состояния:")
+                { style = { unityFontStyleAndWeight = FontStyle.Bold, marginTop = 4, marginBottom = 2 },
+                  tooltip = "Сила и длительность наложения задаются НЕ здесь, а в блоке «Состояния» " +
+                            "того умения, которое его вешает. Ассет состояния отвечает только за то, ЧТО происходит." });
             rightPanel.Add(InterflowEditorUI.BuildGroupedFields(new SerializedObject(selected)));
-
-            rightPanel.Add(new Label("Сила и длительность наложения задаются НЕ здесь, а в блоке «Эффекторы» " +
-                                     "того умения, которое его вешает. Ассет отвечает только за то, ЧТО происходит.")
-                { style = { whiteSpace = WhiteSpace.Normal, color = DIM, fontSize = 10, marginTop = 6 } });
         }
 
         /// <summary>Бейдж «виден ли значок в панели состояний» — главная ловушка настройки эффектора.</summary>
@@ -207,7 +205,7 @@ namespace StrategyCore
             string text = visible
                 ? "Значок виден в панели состояний"
                 : selected.stacks
-                    ? "Значок НЕ виден: включён Stacks (в панели показываются только нестакающие эффекторы)"
+                    ? "Значок НЕ виден: включён Stacks (накопление) — в панель попадают только ненакапливаемые состояния"
                     : "Значок НЕ виден: не задана иконка";
 
             var badge = new Label(text)
@@ -221,7 +219,7 @@ namespace StrategyCore
                     borderBottomLeftRadius = 3, borderBottomRightRadius = 3
                 }
             };
-            badge.tooltip = "Значок состояния рисуется только у эффекторов без Stacks и с заданной иконкой.";
+            badge.tooltip = "Значок рисуется только у ненакапливаемых состояний (Stacks выключен) и с заданной иконкой.";
             rightPanel.Add(badge);
         }
 
@@ -274,7 +272,7 @@ namespace StrategyCore
                 var unit = go.GetComponent<Unit>();
                 string uname = unit != null && !string.IsNullOrEmpty(unit.unitName) ? unit.unitName : go.name;
                 var gref = go;
-                Index(AssetDatabase.GetAssetPath(go), $"Юнит «{uname}» ссылается на эффектор",
+                Index(AssetDatabase.GetAssetPath(go), $"Юнит «{uname}» ссылается на состояние",
                     () => EditorGUIUtility.PingObject(gref));
             }
 
@@ -285,7 +283,7 @@ namespace StrategyCore
 
                 var aref = a;
                 Index(AssetDatabase.GetAssetPath(a),
-                    $"Умение «{InterflowAbilityUsage.AbilityName(a)}» ссылается на эффектор",
+                    $"Умение «{InterflowAbilityUsage.AbilityName(a)}» ссылается на состояние",
                     () => EditorGUIUtility.PingObject(aref));
             }
         }

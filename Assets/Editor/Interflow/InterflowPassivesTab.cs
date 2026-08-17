@@ -218,9 +218,8 @@ namespace StrategyCore
             rightPanel.Add(head);
 
             rightPanel.Add(new Label($"id {selected.id}   ·   {selected.GetType().Name}   ·   {AssetDatabase.GetAssetPath(selected)}")
-                { style = { color = DIM, marginBottom = 2, whiteSpace = WhiteSpace.Normal } });
-            rightPanel.Add(new Label("Пассивное умение: работает само, без нажатия и без каста.")
-                { style = { color = DIM, marginBottom = 6, whiteSpace = WhiteSpace.Normal } });
+                { style = { color = DIM, marginBottom = 6, whiteSpace = WhiteSpace.Normal },
+                  tooltip = "Пассивное умение: работает само, без нажатия и без каста." });
 
             rightPanel.Add(InterflowAbilityUsage.Section(selected));   // общий блок, правило 5
 
@@ -229,7 +228,13 @@ namespace StrategyCore
             var ownBox = Section("Что делает пассивка");
             var condBox = Section("Условия открытия и уровни");
             var textBox = Section("Подпись и иконка");
-            var restFold = new Foldout { text = "Прочие поля", value = false, style = { marginTop = 8 } };
+            var restFold = new Foldout
+            {
+                text = "Прочие поля", value = false, style = { marginTop = 8 },
+                tooltip = "Каст, откат, мана, дальность и цена пассивным умениям не нужны — они лежат здесь " +
+                          "и трогать их не требуется. Носителю пассивное умение назначается во вкладке «Юниты» " +
+                          "главного окна (блок «Пассивные умения»)."
+            };
 
             var it = so.GetIterator();
             bool enter = true;
@@ -252,10 +257,6 @@ namespace StrategyCore
             AddIfNotEmpty(textBox);
             rightPanel.Add(restFold);
 
-            rightPanel.Add(new Label("Каст, откат, мана, дальность и цена пассивным умениям не нужны — " +
-                                     "они лежат в «Прочих полях» и трогать их не требуется. " +
-                                     "Носителю пассивка назначается во вкладке «Юниты» → «Пассивные умения».")
-                { style = { whiteSpace = WhiteSpace.Normal, color = DIM, fontSize = 10, marginTop = 6 } });
 
             rightPanel.Bind(so);
         }

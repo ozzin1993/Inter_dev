@@ -82,7 +82,7 @@ namespace StrategyCore
         [Min(0)]
         public int maxSecondaryTargets;
 
-        [Tooltip("Эффекторы на вторичные цели. Пусто — только лечение.")]
+        [Tooltip("Состояния на вторичные цели. Пусто — только лечение.")]
         public Effector[] effectors;
     }
 

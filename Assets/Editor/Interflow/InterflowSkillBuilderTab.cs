@@ -8,18 +8,18 @@ using UnityEngine.UIElements;
 
 namespace StrategyCore
 {
-    // ============ INTERFLOW EDITOR — ВКЛАДКА «КОНСТРУКТОР СКИЛЛОВ» (ADR-006, вариант 1) ==
-    // Одиннадцать блоков CompositeSkill показываются ДВУМЯ списками:
-    //   ⚡ события   — у эффекта нет длительности: он происходит и заканчивается;
-    //   ⏳ состояния — длительность есть: висит на цели во времени.
-    // Правило для ГД одно: есть осмысленная длительность — состояние, нет — событие.
-    //
-    // Модель данных НЕ меняется: вкладка раскладывает существующие поля. Рантайм-рефактор
-    // (слияние SkillBuff/AbsorbShield/ControlImmunity в Effector) поменяет то, что за экраном,
-    // а не сам экран — поэтому вкладку можно делать до него.
+    // ============ РЕДАКТОР УМЕНИЙ — ВКЛАДКА «БОЕВЫЕ УМЕНИЯ» (бывший «Конструктор скиллов») ==
+    // Редизайн 2026-08-16 (решения Artsiom, макет interflow_editor_redesign v2):
+    //   • полоса чипов «Состав умения»: 18 блоков включаются одним кликом, развёрнуты только включённые;
+    //   • лента исполнения: «по каждой цели» и «один раз за каст» в реальном порядке ApplyEffects,
+    //     шапка ленты — замах → срабатывание → откат;
+    //   • переключатель уровня — наверху, а не в подвале;
+    //   • ОДИН SerializedObject и ОДНА подписка на правки вместо семи + кэш контекста проверок
+    //     (раньше каждое нажатие клавиши перечитывало весь проект семь раз);
+    //   • подсказки — только в tooltip (по наведению), статических пояснений нет.
     //
     // Правило 5: правила проверок не дублируются — вкладка зовёт InterflowValidator.
-    // Правило 4: UI по-русски. Правило 22: разбита партиалами (.Steps.cs — списки и шкала каста).
+    // Правило 4: UI по-русски. Правило 22: партиалы (.Steps.cs — секции и лента, .Wizard.cs — мастер).
     public static partial class InterflowSkillBuilderTab
     {
         // Уровень, для которого правая панель показывает числа (0-базный).
@@ -27,81 +27,62 @@ namespace StrategyCore
 
         // ======================== ОПИСАНИЕ БЛОКОВ — ЕДИНЫЙ ИСТОЧНИК ========================
 
-        /// <summary>Чем блок является для геймдизайнера: разовым событием или длящимся состоянием.</summary>
+        /// <summary>Чем блок является для геймдизайнера: разовым событием или длящимся во времени.</summary>
         public enum StepKind { Event, State }
 
         /// <summary>
-        /// Описание одного блока конструктора. Порядок здесь — РЕАЛЬНЫЙ порядок исполнения
-        /// из CompositeSkill.ApplyEffects, а не порядок полей в инспекторе. Единственное место,
-        /// где эта таблица живёт: и списки, и подписи, и привязка сообщений валидатора берутся отсюда.
+        /// Описание одного блока умения. Порядок здесь — РЕАЛЬНЫЙ порядок исполнения
+        /// из CompositeSkill.ApplyEffects. Единственное место, где эта таблица живёт:
+        /// чипы, лента, карточки и привязка сообщений валидатора берутся отсюда.
         /// </summary>
         class BlockDesc
         {
             public int order;            // номер шага в ApplyEffects
             public string field;         // имя сериализованного поля CompositeSkill
             public string title;         // заголовок для ГД
-            public StepKind kind;        // событие или состояние
-            public bool perTarget;       // применяется к каждой цели (блоки 2..8) или один раз за каст (1, 9..11)
-            public string hint;          // короткое пояснение под заголовком
-            public string[] keys;        // ключевые слова для привязки сообщений валидатора к блоку
+            public StepKind kind;        // событие или длящееся
+            public bool perTarget;       // применяется к каждой цели или один раз за каст
+            public string hint;          // пояснение — уходит в tooltip чипа и карточки
         }
 
         static readonly BlockDesc[] BLOCKS =
         {
             new BlockDesc { order = 1,  field = "selfCost",        title = "Стоимость в здоровье",     kind = StepKind.Event, perTarget = false,
-                            hint = "списывается с кастера один раз за каст, до всего остального",
-                            keys = new[]{ "стоимость в здоровье" } },
+                            hint = "списывается с кастера один раз за каст, до всего остального" },
             new BlockDesc { order = 2,  field = "pull",            title = "Рывок цели к кастеру",     kind = StepKind.Event, perTarget = true,
-                            hint = "идёт первым: не притянулась (иммунитет, неподвижная, нет места) — цель выпадает из каста целиком",
-                            keys = new[]{ "рывок", "притяг" } },
+                            hint = "идёт первым: не притянулась (иммунитет, неподвижная, нет места) — цель выпадает из каста целиком" },
             new BlockDesc { order = 3,  field = "damage",          title = "Урон",                     kind = StepKind.Event, perTarget = true,
-                            hint = "записей может быть несколько, у каждой свой тип урона и «кого задевает»",
-                            keys = new[]{ "урона", "урон" } },
+                            hint = "записей может быть несколько, у каждой свой тип урона и «кого задевает»" },
             new BlockDesc { order = 4,  field = "drain",           title = "Высасывание ХП",           kind = StepKind.Event, perTarget = true,
-                            hint = "снимает здоровье НАПРЯМУЮ, мимо брони и щитов; долю снятого получает кастер",
-                            keys = new[]{ "высасыв", "дренаж" } },
+                            hint = "снимает здоровье НАПРЯМУЮ, мимо брони и щитов; долю снятого получает кастер" },
             new BlockDesc { order = 5,  field = "status",          title = "Контроль",                 kind = StepKind.Event, perTarget = true,
-                            hint = "оглушение, обезоруживание, немота",
-                            keys = new[]{ "контроль" } },
-            new BlockDesc { order = 6,  field = "effectors",       title = "Эффекторы",                kind = StepKind.State, perTarget = true,
-                            hint = "сила и длительность задаются ЗДЕСЬ, по уровням; ассет отвечает только за то, ЧТО происходит",
-                            keys = new[]{ "эффектор" } },
+                            hint = "оглушение, обезоруживание, немота" },
+            new BlockDesc { order = 6,  field = "effectors",       title = "Состояния",                kind = StepKind.State, perTarget = true,
+                            hint = "сила и длительность задаются ЗДЕСЬ, по уровням; ассет состояния отвечает только за то, ЧТО происходит" },
             new BlockDesc { order = 7,  field = "heal",            title = "Лечение",                  kind = StepKind.Event, perTarget = true,
-                            hint = "мгновенное; лечение во времени — это баф или эффектор",
-                            keys = new[]{ "лечение" } },
+                            hint = "мгновенное; лечение во времени — это длящийся баф или состояние" },
             new BlockDesc { order = 8,  field = "mana",            title = "Восстановление маны",      kind = StepKind.Event, perTarget = true,
-                            hint = "числом и долей от максимального запаса цели",
-                            keys = new[]{ "маны", "мана" } },
+                            hint = "числом и долей от максимального запаса цели" },
             new BlockDesc { order = 9,  field = "buff",            title = "Длящийся баф",             kind = StepKind.State, perTarget = true,
-                            hint = "то, чего штатный эффектор не умеет: аура вокруг носителя, множитель урона, иммунитет, детонация",
-                            keys = new[]{ "баф", "ауры", "взрыв" } },
+                            hint = "то, чего штатное состояние не умеет: аура вокруг носителя, множитель урона, иммунитет, детонация" },
             new BlockDesc { order = 10, field = "shield",          title = "Поглощающий щит",          kind = StepKind.State, perTarget = true,
-                            hint = "снимается при пробитии или по таймеру; умеет отвечать бьющим и давать вспышку при пробитии",
-                            keys = new[]{ "щит" } },
+                            hint = "снимается при пробитии или по таймеру; умеет отвечать бьющим и давать вспышку при пробитии" },
             new BlockDesc { order = 11, field = "blind",           title = "Ослепление",               kind = StepKind.State, perTarget = true,
-                            hint = "шанс промаха на время",
-                            keys = new[]{ "ослеплени" } },
+                            hint = "шанс промаха на время" },
             new BlockDesc { order = 12, field = "morph",           title = "Подмена облика",           kind = StepKind.State, perTarget = true,
-                            hint = "цель принимает вид другого юнита на время; статы меняются только заданными пассивными эффектами",
-                            keys = new[]{ "облик", "полиморф" } },
+                            hint = "цель принимает вид другого юнита на время; статы меняются только заданными пассивными эффектами" },
             new BlockDesc { order = 13, field = "ownership",       title = "Смена владельца",          kind = StepKind.Event, perTarget = true,
-                            hint = "цель навсегда переходит к владельцу кастера; идёт после всех эффектов",
-                            keys = new[]{ "владел", "переподчин" } },
+                            hint = "цель навсегда переходит к владельцу кастера; идёт после всех эффектов" },
             new BlockDesc { order = 14, field = "secondary",       title = "Вторичные цели",           kind = StepKind.Event, perTarget = true,
-                            hint = "своя выборка ВОКРУГ каждой основной цели — например вылечить тех, кто её бьёт",
-                            keys = new[]{ "вторичн" } },
+                            hint = "своя выборка ВОКРУГ каждой основной цели — например вылечить тех, кто её бьёт" },
             new BlockDesc { order = 15, field = "summon",          title = "Призыв",                   kind = StepKind.Event, perTarget = false,
-                            hint = "исполняется один раз за каст — набор целей ему не нужен",
-                            keys = new[]{ "призыв" } },
+                            hint = "исполняется один раз за каст — набор целей ему не нужен" },
             new BlockDesc { order = 16, field = "groundZone",      title = "Зона на земле",            kind = StepKind.Event, perTarget = false,
-                            hint = "исполняется один раз за каст; урон и эффекты живут на префабе зоны",
-                            keys = new[]{ "зон" } },
+                            hint = "исполняется один раз за каст; урон и эффекты живут на префабе зоны" },
             new BlockDesc { order = 17, field = "casterMove",      title = "Перемещение кастера",      kind = StepKind.Event, perTarget = false,
-                            hint = "кастер переносится в точку приложения — телепорт, рывок к месту",
-                            keys = new[]{ "перемещен", "телепорт" } },
+                            hint = "кастер переносится в точку приложения — телепорт, рывок к месту" },
             new BlockDesc { order = 18, field = "delegateService", title = "Серверный сервис",         kind = StepKind.Event, perTarget = false,
-                            hint = "метеоритный дождь, подъём павших — процессы во времени на стороне матча",
-                            keys = new[]{ "сервис" } },
+                            hint = "метеоритный дождь, подъём павших — процессы во времени на стороне матча" },
         };
 
         // ======================== СОСТОЯНИЕ ВКЛАДКИ ========================
@@ -111,6 +92,10 @@ namespace StrategyCore
         static string filter = "";
 
         static Dictionary<CompositeSkill, List<InterflowIssue>> issuesBySkill;
+
+        // Кэш контекста точечной проверки: собирается ОДИН раз в RefreshAll, а не на каждое нажатие
+        // клавиши (раньше каждая правка поля заново сканировала все префабы и фракции — семь раз).
+        static InterflowValidator.SkillValidationContext validationContext;
 
         static VisualElement listContainer, rightPanel;
         static Label countLabel;
@@ -136,12 +121,13 @@ namespace StrategyCore
 
             var left = new VisualElement { style = { width = 300, flexShrink = 0, marginRight = 8 } };
 
-            // Создание боевого умения — ОДНОЙ кнопкой: тип у конструктора один, выбирать нечего.
-            // Переехало сюда из «Умений и эффекторов» (решение Artsiom 2026-08-09).
-            var create = new Button(CreateSkill) { text = "Создать умение" };
+            // Создание — через мастер заготовок (.Wizard.cs): типовое умение в пару кликов,
+            // пустое — карточкой «Пустое умение» там же.
+            var create = new Button(OpenWizard) { text = "Создать умение" };
             create.style.unityFontStyleAndWeight = FontStyle.Bold;
-            create.tooltip = "Создаёт пустое боевое умение и открывает его здесь: " +
-                             "срабатывание, цель, доставка и блоки эффектов настраиваются ниже.";
+            create.tooltip = "Открывает мастер создания: заготовки типовых умений (урон ближайшему врагу, " +
+                             "лечение, баф команды, зона) с предзаполненными полями — или пустое умение с нуля. " +
+                             "Там же умение можно сразу дать юниту двойной записью (abilities[] + автокаст).";
             left.Add(create);
 
             var search = new TextField("Поиск") { value = filter };
@@ -149,7 +135,8 @@ namespace StrategyCore
             left.Add(search);
 
             left.Add(new Button(() => { RefreshAll(); RebuildList(); RebuildRightPanel(); })
-                { text = "Обновить и перепроверить" });   // кэш «кто использует» сбрасывается в RefreshAll()
+                { text = "Обновить и перепроверить",
+                  tooltip = "Перечитать список умений с диска и прогнать проверки заново." });
 
             countLabel = new Label { style = { marginTop = 2, marginBottom = 2, color = COL_DIM } };
             left.Add(countLabel);
@@ -171,38 +158,7 @@ namespace StrategyCore
             return root;
         }
 
-        // ======================== СОЗДАНИЕ И УДАЛЕНИЕ ========================
-
-        /// <summary>
-        /// Новое боевое умение — всегда `CompositeSkill`. Путь из настроек редактора, уникальный id
-        /// через общий `NextFreeId` (правило 5). Тип берётся напрямую, а не сканом по [CreateAssetMenu]:
-        /// параллельное меню Unity у умений снимается.
-        /// </summary>
-        static void CreateSkill()
-        {
-            var settings = InterflowEditorSettings.GetOrCreate();
-            InterflowEditorUI.EnsureFolder(settings.abilityCreateFolder);
-
-            string dstPath = EditorUtility.SaveFilePanelInProject(
-                "Создать умение", "Skill_New", "asset", "Имя нового умения", settings.abilityCreateFolder);
-            if (string.IsNullOrEmpty(dstPath)) return;
-
-            var asset = ScriptableObject.CreateInstance<CompositeSkill>();
-            asset.id = InterflowEditorUI.NextFreeId("t:Ability", a => ((Ability)a).id);
-            asset.abilityName = new[] { System.IO.Path.GetFileNameWithoutExtension(dstPath) };
-
-            AssetDatabase.CreateAsset(asset, dstPath);
-            AssetDatabase.SaveAssets();
-
-            InterflowAbilityGroups.InvalidateCache();
-            InterflowAbilityUsage.InvalidateCache();
-
-            RefreshAll();
-            selected = asset;
-            RebuildList();
-            RebuildRightPanel();
-            EditorGUIUtility.PingObject(asset);
-        }
+        // ======================== УДАЛЕНИЕ ========================
 
         static void DeleteSelected()
         {
@@ -233,15 +189,16 @@ namespace StrategyCore
                 .Where(s => s != null).OrderBy(s => s.name).ToList();
 
             issuesBySkill = InterflowValidator.ValidateAllSkills();
+            validationContext = InterflowValidator.BuildSkillContext(); // кэш для точечных перепроверок
 
             if (selected == null || !skills.Contains(selected)) selected = skills.FirstOrDefault();
         }
 
-        /// <summary>Перепроверить ТОЛЬКО выбранный скилл — после правки поля, без перечитывания проекта.</summary>
+        /// <summary>Перепроверить ТОЛЬКО выбранное умение — по кэшу контекста, без перечитывания проекта.</summary>
         static void RevalidateSelected()
         {
             if (selected == null || issuesBySkill == null) return;
-            issuesBySkill[selected] = InterflowValidator.ValidateSkillAlone(selected);
+            issuesBySkill[selected] = InterflowValidator.ValidateSkillAlone(selected, validationContext);
         }
 
         static List<InterflowIssue> IssuesOf(CompositeSkill s) =>
@@ -261,7 +218,7 @@ namespace StrategyCore
 
             int err = skills.Count(s => IssuesOf(s).Any(i => i.severity == InterflowIssueSeverity.Error));
             if (countLabel != null)
-                countLabel.text = $"Скиллов: {skills.Count}   ·   с ошибками: {err}";
+                countLabel.text = $"Умений: {skills.Count}   ·   с ошибками: {err}";
 
             foreach (var s in shown) listContainer.Add(ListRow(s));
 
@@ -292,7 +249,7 @@ namespace StrategyCore
             row.Add(mark);
 
             var target = s;
-            var btn = new Button(() => { selected = target; RebuildList(); RebuildRightPanel(); })
+            var btn = new Button(() => { selected = target; wizardMode = false; RebuildList(); RebuildRightPanel(); })
             {
                 text = SkillTitle(s),
                 style = { unityTextAlign = TextAnchor.MiddleLeft, flexGrow = 1, marginBottom = 0 }
@@ -313,29 +270,50 @@ namespace StrategyCore
 
         // ======================== ПРАВАЯ ПАНЕЛЬ ========================
 
+        // Живые элементы карточки — обновляются точечно при правке поля, без пересборки панели
+        // (пересборка теряла бы фокус ввода).
+        static Label summaryLabel;
+        static Label badgeLabel;
+        static VisualElement ribbonHolder;
+
         static void RebuildRightPanel()
         {
             if (rightPanel == null) return;
+            rightPanel.Unbind();   // снять прежние привязки самого контейнера перед новым Bind
             rightPanel.Clear();
+            summaryLabel = null; badgeLabel = null; ribbonHolder = null;
+
+            if (wizardMode) { BuildWizard(rightPanel); return; }
 
             if (selected == null)
             {
-                rightPanel.Add(new Label("Скиллов конструктора в проекте нет. Создай умение типа «Конструктор скилла» во вкладке «Умения и эффекторы».")
+                rightPanel.Add(new Label("Боевых умений в проекте нет. Нажми «Создать умение» слева.")
                     { style = { whiteSpace = WhiteSpace.Normal, marginTop = 6 } });
                 return;
             }
 
+            // ОДИН SerializedObject на всю карточку: все секции биндятся к нему,
+            // подписка на правки тоже одна (см. TrackEditsOnce ниже).
+            var so = new SerializedObject(selected);
+
             AddHeader();
+            AddLevelBar();
             AddSummaryCard();
             rightPanel.Add(InterflowAbilityUsage.Section(selected));   // общий блок, правило 5
             AddGeneralIssues();
-            AddIdentitySection();      // подпись, иконка, ячейка панели
-            AddAimSection();
-            AddCastTimeline();
-            AddStepLists();
-            AddRequirementsSection();  // когда умение открывается и сколько стоит
-            AddMiscFoldout();          // предмет и редкие флаги — свёрнуто, но доступно (правило 7)
-            AddLevelFooter();
+            AddComposerChips(so);
+            ribbonHolder = new VisualElement();
+            rightPanel.Add(ribbonHolder);
+            BuildRibbon();
+            AddAimSection(so);
+            AddBlockCards(so);
+            AddIdentitySection(so);
+            AddPresentationSection(so);
+            AddRequirementsSection(so);
+            AddMiscFoldout(so);
+
+            rightPanel.Bind(so);
+            TrackEditsOnce(so);
         }
 
         static void AddHeader()
@@ -343,6 +321,12 @@ namespace StrategyCore
             var head = new VisualElement { style = { flexDirection = FlexDirection.Row, alignItems = Align.Center } };
             head.Add(new Label(SkillTitle(selected))
                 { style = { unityFontStyleAndWeight = FontStyle.Bold, fontSize = 15, flexGrow = 1 } });
+
+            badgeLabel = new Label { style = { marginRight = 6 } };
+            badgeLabel.tooltip = "Итог проверок этого умения. Сообщения — под составом и в карточках блоков.";
+            UpdateBadge();
+            head.Add(badgeLabel);
+
             head.Add(new Button(() => EditorGUIUtility.PingObject(selected)) { text = "Показать" });
             head.Add(new Button(() => { RefreshAll(); RebuildList(); RebuildRightPanel(); }) { text = "Перепроверить" });
             head.Add(new Button(DeleteSelected) { text = "Удалить" });
@@ -351,13 +335,52 @@ namespace StrategyCore
             string type;
             try { type = selected.type.ToString(); } catch { type = "?"; }
 
-            rightPanel.Add(new Label($"id {selected.id}   ·   тип: {type} (следует из режима цели, руками не задаётся)   ·   {AssetDatabase.GetAssetPath(selected)}")
-                { style = { color = COL_DIM, marginBottom = 6, whiteSpace = WhiteSpace.Normal } });
+            rightPanel.Add(new Label($"id {selected.id}   ·   тип: {type} (следует из срабатывания и режима цели, руками не задаётся)   ·   {AssetDatabase.GetAssetPath(selected)}")
+                { style = { color = COL_DIM, marginBottom = 4, whiteSpace = WhiteSpace.Normal } });
+        }
+
+        static void UpdateBadge()
+        {
+            if (badgeLabel == null || selected == null) return;
+            var issues = IssuesOf(selected);
+            int e = issues.Count(i => i.severity == InterflowIssueSeverity.Error);
+            int w = issues.Count(i => i.severity == InterflowIssueSeverity.Warning);
+            badgeLabel.text = e == 0 && w == 0 ? "✓ чисто" : $"✕ {e}   ! {w}";
+            badgeLabel.style.color = e > 0 ? COL_ERR : w > 0 ? COL_WARN : COL_OK;
+        }
+
+        /// <summary>Переключатель уровня — НАВЕРХУ: он управляет всеми числами карточки ниже.</summary>
+        static void AddLevelBar()
+        {
+            int max = Mathf.Max(1, selected.maxLevels);
+            if (previewLevel >= max) previewLevel = max - 1;
+            if (max <= 1) return; // один уровень — переключать нечего
+
+            var bar = new VisualElement { style = { flexDirection = FlexDirection.Row, alignItems = Align.Center, marginBottom = 3 } };
+            bar.Add(new Label("Показывать числа для уровня:")
+                { style = { color = COL_DIM, marginRight = 4 },
+                  tooltip = "Все числа карточки (сводка, лента, «→ итог» у массивов) считаются для этого уровня." });
+
+            for (int l = 0; l < max; l++)
+            {
+                int lvl = l;
+                var b = new Button(() => { previewLevel = lvl; RebuildRightPanel(); }) { text = (l + 1).ToString() };
+                b.style.width = 26;
+                if (l == previewLevel)
+                {
+                    b.style.unityFontStyleAndWeight = FontStyle.Bold;
+                    b.style.borderBottomWidth = 2;
+                    b.style.borderBottomColor = new Color(0.35f, 0.6f, 0.95f);
+                }
+                bar.Add(b);
+            }
+            bar.Add(new Label($"из maxLevels = {max}") { style = { color = COL_DIM, marginLeft = 4, fontSize = 10 } });
+            rightPanel.Add(bar);
         }
 
         static void AddSummaryCard()
         {
-            var card = new Label(selected.BuildSummary())
+            summaryLabel = new Label(selected.BuildSummary())
             {
                 style =
                 {
@@ -368,15 +391,26 @@ namespace StrategyCore
                     borderTopRightRadius = 3, borderBottomRightRadius = 3
                 }
             };
-            card.tooltip = "Автосводка по включённым блокам. Значения — для первого уровня.";
-            rightPanel.Add(card);
+            summaryLabel.tooltip = "Автосводка по включённым блокам. Значения — для первого уровня.";
+            rightPanel.Add(summaryLabel);
         }
 
-        /// <summary>Сообщения валидатора, которые не удалось привязать ни к одному блоку.</summary>
+        /// <summary>Сообщения валидатора, которые не привязались ни к блоку, ни к значку.</summary>
+        static VisualElement generalIssuesHolder;
+
         static void AddGeneralIssues()
         {
-            var rest = IssuesOf(selected).Where(i => BlockFor(i) == null).ToList();
-            foreach (var i in rest) rightPanel.Add(IssueRow(i));
+            generalIssuesHolder = new VisualElement();
+            FillGeneralIssues();
+            rightPanel.Add(generalIssuesHolder);
+        }
+
+        static void FillGeneralIssues()
+        {
+            if (generalIssuesHolder == null) return;
+            generalIssuesHolder.Clear();
+            foreach (var i in IssuesOf(selected).Where(x => BlockFor(x) == null && !IsBadgeIssue(x)))
+                generalIssuesHolder.Add(IssueRow(i));
         }
 
         static VisualElement IssueRow(InterflowIssue issue)
@@ -401,14 +435,51 @@ namespace StrategyCore
             return row;
         }
 
-        /// <summary>К какому блоку относится сообщение валидатора (по ключевым словам из таблицы).</summary>
+        // ======================== ПРИВЯЗКА СООБЩЕНИЙ К БЛОКАМ ========================
+
+        // Порядок проверки ключей ЗАДАН ЯВНО, от частного к общему: раньше ключ «урон» блока 3
+        // перехватывал сообщения про урон ауры бафа, а сообщения значка падали в блок состояний.
+        static readonly (string key, string field)[] ISSUE_ROUTES =
+        {
+            ("значк",       null),              // состояние-значок — своя карточка (holder "statusEffector")
+            ("баф",         "buff"),
+            ("ауры",        "buff"),
+            ("взрыв",       "buff"),
+            ("щит",         "shield"),
+            ("ослеплени",   "blind"),
+            ("рывок",       "pull"),
+            ("притяг",      "pull"),
+            ("высасыв",     "drain"),
+            ("контрол",     "status"),
+            ("оглушен",     "status"),
+            ("состояни",    "effectors"),
+            ("лечени",      "heal"),
+            ("маны",        "mana"),
+            ("мана",        "mana"),
+            ("облик",       "morph"),
+            ("владел",      "ownership"),
+            ("вторичн",     "secondary"),
+            ("призыв",      "summon"),
+            ("зон",         "groundZone"),
+            ("перемещен",   "casterMove"),
+            ("телепорт",    "casterMove"),
+            ("сервис",      "delegateService"),
+            ("стоимость в здоровье", "selfCost"),
+            ("урон",        "damage"),
+            ("урона",       "damage"),
+        };
+
+        /// <summary>К какому блоку относится сообщение валидатора; null — общая зона или значок.</summary>
         static BlockDesc BlockFor(InterflowIssue issue)
         {
             string m = issue.message.ToLower();
-            foreach (var b in BLOCKS)
-                foreach (var k in b.keys)
-                    if (m.Contains(k)) return b;
+            foreach (var (key, field) in ISSUE_ROUTES)
+                if (m.Contains(key))
+                    return field == null ? null : BLOCKS.FirstOrDefault(b => b.field == field);
             return null;
         }
+
+        /// <summary>Сообщения про состояние-значок — показываются в его карточке, не в общей зоне.</summary>
+        static bool IsBadgeIssue(InterflowIssue issue) => issue.message.ToLower().Contains("значк");
     }
 }

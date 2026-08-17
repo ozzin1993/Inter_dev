@@ -20,7 +20,7 @@ namespace StrategyCore
         }
 
         // Только реальные клиенты (сервер уже применил владение локально через PointOfInterest.SetTeam).
-        [Rpc(SendTo.NotServer)]
+        [Rpc(SendTo.NotServer, InvokePermission = RpcInvokePermission.Server)]
         private void PointTeamClientRpc(int index, int team)
         {
             if (MatchManager.instance == null) return;

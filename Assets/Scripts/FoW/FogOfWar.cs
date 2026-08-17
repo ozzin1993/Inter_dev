@@ -102,12 +102,15 @@ namespace StrategyCore
                 alternator = false;
             }
 
-            matFOW.SetFloat("_LerpTime", lerpFactor);
+            matFOW.SetFloat(lerpTimeProp, lerpFactor);
 
             return;
         }
 
         // Displays height information
+        // Идентификатор свойства шейдера вместо строки в горячем пути (ревью 1.10)
+        static readonly int lerpTimeProp = Shader.PropertyToID("_LerpTime");
+
         void OnDrawGizmos()
         {
             if (Application.isPlaying)
@@ -193,7 +196,7 @@ namespace StrategyCore
             // Player mask set on material
             matFOW.SetTexture("_ShadowTex", visionMask);
             matFOW.SetTexture("_ShadowTex2", visionMask2);
-            matFOW.SetFloat("_LerpTime", 1f / lerpSpeed);
+            matFOW.SetFloat(lerpTimeProp, 1f / lerpSpeed);
             matFOW.SetFloat("fogAlpha", fogColor.a);
             matEdgeFOW.SetFloat("fogAlpha", fogColor.a);
 

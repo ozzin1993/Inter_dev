@@ -70,6 +70,7 @@ MonoBehaviour:
   multiPick: 0
   includeSelf: 0
   coneAngle: 90
+  directionMatters: 0
   delivery: 0
   projectilePrefab: {fileID: 0}
   projectileFollowsTarget: 1
@@ -85,7 +86,7 @@ MonoBehaviour:
   procAnimationState: 
   statusEffector: {fileID: 0}
   selfCost:
-    enabled: 0
+    enabled: 1
     flatHp: []
     percentOfCurrentHp: []
     blockIfLethal: 1
@@ -187,6 +188,8 @@ MonoBehaviour:
       includeInvulnerable: 0
     onDepletedBlindChance: 0
     onDepletedBlindDuration: 0
+    incomingDamageMultiplier: 1
+    skipIfAlreadyShielded: 1
   blind:
     enabled: 0
     chance: []
@@ -221,6 +224,8 @@ MonoBehaviour:
     categories: 
     onlyAttackersOfTarget: 1
     healFlat: []
+    healPercentOfBaseDamage: 0
+    maxSecondaryTargets: 0
     effectors: []
   summon:
     enabled: 0

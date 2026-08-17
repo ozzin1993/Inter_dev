@@ -1,6 +1,5 @@
 using System.Collections;
 using System.Collections.Generic;
-using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.UIElements;
 
@@ -46,10 +45,13 @@ namespace StrategyCore
             }
         }
 
+        // Идентификатор свойства шейдера вместо строки в горячем пути (ревью 1.10)
+        static readonly int fillProp = Shader.PropertyToID("_Fill");
+
         public void UpdateHealthBar()
         {
             meshRenderer.GetPropertyBlock(matBlock);
-            matBlock.SetFloat("_Fill", unit.health / unit.maxHealth);
+            matBlock.SetFloat(fillProp, unit.health / unit.maxHealth);
             meshRenderer.SetPropertyBlock(matBlock);
         }
     }

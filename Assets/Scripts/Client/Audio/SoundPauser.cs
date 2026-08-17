@@ -30,7 +30,7 @@ namespace StrategyCore
 
         void VisibilityUpdate()
         {
-            Vector3 screenPoint = Camera.main.WorldToViewportPoint(transform.position);
+            Vector3 screenPoint = Utils.MainCamera.WorldToViewportPoint(transform.position);
             bool isInView = screenPoint.z > 0 && screenPoint.x > 0 && screenPoint.x < 1 && screenPoint.y > 0 && screenPoint.y < 1;
 
             if (isInView)

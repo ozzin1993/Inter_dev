@@ -10,11 +10,11 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: e15fcca452434ea4c96c2cd743b313b0, type: 3}
-  m_Name: _TEST_G3_01_Shield
+  m_Name: fireball
   m_EditorClassIdentifier: Interflow.Game::StrategyCore.CompositeSkill
-  id: 3
+  id: 15
   abilityName:
-  - "_TEST_\u0429\u0438\u0442_\u0432\u0441\u044F_\u043A\u043E\u043C\u0430\u043D\u0434\u0430"
+  - fireball
   description:
   - 
   icon:
@@ -24,28 +24,28 @@ MonoBehaviour:
   useUponPickUp: 0
   dropOnDeath: 0
   charges: 0
-  maxLevels: 1
+  maxLevels: 0
   heroLevelable: 0
   cooldown:
-  - 10
+  - 8
   castRange:
-  - 0
+  - 6
   castTime:
-  - 0.5
+  - 0
   radius:
   - 0
   showRadiusCircle: 0
   unitSelector:
     isOwn: 0
     isAlly: 0
-    isEnemy: 0
+    isEnemy: 1
     isUnit: 1
     isBuilding: 0
     isStaticDestructible: 0
     isTree: 0
     isGround: 1
     isWater: 0
-    isAir: 0
+    isAir: 1
     includeInvisible: 0
     includeInvulnerable: 0
   dontTurn: 0
@@ -68,7 +68,7 @@ MonoBehaviour:
   targetCategories: 
   maxTargets: 0
   multiPick: 0
-  includeSelf: 1
+  includeSelf: 0
   coneAngle: 90
   directionMatters: 0
   delivery: 0
@@ -94,8 +94,12 @@ MonoBehaviour:
     enabled: 0
     gap: 0
   damage:
-    enabled: 0
-    entries: []
+    enabled: 1
+    entries:
+    - amount:
+      - 100
+      damageType: {fileID: 11400000, guid: f9053eb8c43d2b4489895a8f084c16be, type: 2}
+      targets: 0
   drain:
     enabled: 0
     flat: []
@@ -108,11 +112,8 @@ MonoBehaviour:
     disarmSeconds: []
     muteSeconds: []
   effectors:
-    enabled: 1
-    records:
-    - effector: {fileID: 0}
-      power: []
-      duration: []
+    enabled: 0
+    records: []
     effectors: []
   heal:
     enabled: 0
@@ -165,12 +166,10 @@ MonoBehaviour:
       includeInvisible: 0
       includeInvulnerable: 0
   shield:
-    enabled: 1
-    flat:
-    - 100
+    enabled: 0
+    flat: []
     percentOfMaxHp: []
-    duration:
-    - 10
+    duration: []
     onDepletedEffectors: []
     onDepletedRadius: 0
     retaliationRadius: 0

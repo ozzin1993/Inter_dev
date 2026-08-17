@@ -21,7 +21,7 @@ namespace StrategyCore
         }
 
         // Received by clients that should lock/unlock technology
-        [Rpc(SendTo.NotServer)]
+        [Rpc(SendTo.NotServer, InvokePermission = RpcInvokePermission.Server)]
         private void TechnologySyncClientRpc(int player, int techID, bool unlocked)
         {
             // Joining mid-game, we do not accept any data from the server. Only scene data.
@@ -65,7 +65,7 @@ namespace StrategyCore
         }
 
         // Add process on client
-        [Rpc(SendTo.NotServer)]
+        [Rpc(SendTo.NotServer, InvokePermission = RpcInvokePermission.Server)]
         private void AddProcessClientRpc(UInt16 netID, int processIndex, int abilityIndex, bool isItem)
         {
             // Joining mid-game, we do not accept any data from the server. Only scene data.
@@ -110,7 +110,7 @@ namespace StrategyCore
         }
 
         // Cancel process on client
-        [Rpc(SendTo.NotServer)]
+        [Rpc(SendTo.NotServer, InvokePermission = RpcInvokePermission.Server)]
         private void CancelProcessClientRpc(UInt16 netID, int processIndex)
         {
             // Joining mid-game, we do not accept any data from the server. Only scene data.
@@ -143,7 +143,7 @@ namespace StrategyCore
         }
 
         // Finish process on client
-        [Rpc(SendTo.NotServer)]
+        [Rpc(SendTo.NotServer, InvokePermission = RpcInvokePermission.Server)]
         private void FinishProcessClientRpc(UInt16 netID)
         {
             // Joining mid-game, we do not accept any data from the server. Only scene data.
@@ -171,7 +171,7 @@ namespace StrategyCore
             AddItemClientRpc(unit.netID, slotIndex, abilityId, charges, cooldown);
         }
 
-        [Rpc(SendTo.NotServer)]
+        [Rpc(SendTo.NotServer, InvokePermission = RpcInvokePermission.Server)]
         private void AddItemClientRpc(UInt16 netID, int slotIndex, int abilityId, int charges, float cooldown)
         {
             // Joining mid-game, we do not accept any data from the server. Only scene data.
@@ -208,7 +208,7 @@ namespace StrategyCore
             RemoveItemClientRpc(unit.netID, slotIndex);
         }
 
-        [Rpc(SendTo.NotServer)]
+        [Rpc(SendTo.NotServer, InvokePermission = RpcInvokePermission.Server)]
         private void RemoveItemClientRpc(UInt16 netID, int slotIndex)
         {
             // Joining mid-game, we do not accept any data from the server. Only scene data.
@@ -231,7 +231,7 @@ namespace StrategyCore
             SwapItemClientRpc(unit.netID, slotIndex, slotIndex2);
         }
 
-        [Rpc(SendTo.NotServer)]
+        [Rpc(SendTo.NotServer, InvokePermission = RpcInvokePermission.Server)]
         private void SwapItemClientRpc(UInt16 netID, int slotIndex, int slotIndex2)
         {
             // Joining mid-game, we do not accept any data from the server. Only scene data.

@@ -219,7 +219,12 @@ namespace StrategyCore
             var ownBox = Section("Что производится");
             var priceBox = Section("Цена и требования");
             var textBox = Section("Подпись и иконка");
-            var restFold = new Foldout { text = "Прочие поля", value = false, style = { marginTop = 8 } };
+            var restFold = new Foldout
+            {
+                text = "Прочие поля", value = false, style = { marginTop = 8 },
+                tooltip = "Радиус, селектор целей и стратегия выбора цели производственным умениям не нужны — " +
+                          "они лежат здесь и трогать их не требуется."
+            };
 
             var it = so.GetIterator();
             bool enter = true;
@@ -243,9 +248,6 @@ namespace StrategyCore
             AddIfNotEmpty(textBox);
             rightPanel.Add(restFold);
 
-            rightPanel.Add(new Label("Радиус, селектор целей и стратегия выбора цели производственным умениям не нужны — " +
-                                     "они лежат в «Прочих полях» и трогать их не требуется.")
-                { style = { whiteSpace = WhiteSpace.Normal, color = DIM, fontSize = 10, marginTop = 6 } });
 
             rightPanel.Bind(so);
         }

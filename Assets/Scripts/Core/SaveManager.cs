@@ -47,6 +47,11 @@ namespace StrategyCore
         public static void LoadPlayerData(string playerData)
         {
             string[] playerDataSplit = playerData.Split(delSecondary, StringSplitOptions.RemoveEmptyEntries);
+            if (playerDataSplit.Length < 7)
+            {
+                Debug.LogError("[SaveManager] Блок игроков сейва повреждён: частей " + playerDataSplit.Length + " из 7 — применение пропущено");
+                return;
+            }
 
             SlotType[] slotTypes = JsonHelper.FromJson<SlotType>(playerDataSplit[0]);
             int[] playerIDs = JsonHelper.FromJson<int>(playerDataSplit[1]);

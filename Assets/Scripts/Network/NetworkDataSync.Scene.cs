@@ -35,7 +35,7 @@ namespace StrategyCore
 
         // Client receive: Worker clear state
         // Receives save data from the server and loads it
-        [Rpc(SendTo.SpecifiedInParams)]
+        [Rpc(SendTo.SpecifiedInParams, InvokePermission = RpcInvokePermission.Server)]
         private void ReceiveSceneDataClientRpc(byte[] chunk, int index, int totalChunks, bool isMidGame, RpcParams rpcParams)
         {
             NetworkConnectionHandler.instance.connectionStage = 2;
@@ -91,7 +91,7 @@ namespace StrategyCore
 
         // --- PAUSE/RESUME ---
 
-        [Rpc(SendTo.NotServer)]
+        [Rpc(SendTo.NotServer, InvokePermission = RpcInvokePermission.Server)]
         public void PauseTheGameClientRpc()
         {
             NetworkConnectionHandler.instance.PauseTheGame();
@@ -102,8 +102,8 @@ namespace StrategyCore
             NetworkDataSync.instance.ResumeTheGameClientRpc(clearSaves, initializeUnitData);
         }
 
-        [Rpc(SendTo.NotServer)]
-        public void ResumeTheGameClientRpc(bool clearSaves = false, bool initializeUnitData = false)
+        [Rpc(SendTo.NotServer, InvokePermission = RpcInvokePermission.Server)]
+        private void ResumeTheGameClientRpc(bool clearSaves = false, bool initializeUnitData = false)
         {
             if (initializeUnitData)
             {
@@ -163,7 +163,7 @@ namespace StrategyCore
             }
         }
 
-        [Rpc(SendTo.SpecifiedInParams)]
+        [Rpc(SendTo.SpecifiedInParams, InvokePermission = RpcInvokePermission.Server)]
         private void MsgSendClientRpc(int owner, string message, bool allyChat, RpcParams rpcParams)
         {
             if (SlotManager.instance.gameStarted == GameState.Menu) Presentation.MenuUI?.AddChatMsg(message, owner);
@@ -181,7 +181,7 @@ namespace StrategyCore
             ServerMsgClientRpc(message);
         }
 
-        [Rpc(SendTo.NotServer)]
+        [Rpc(SendTo.NotServer, InvokePermission = RpcInvokePermission.Server)]
         private void ServerMsgClientRpc(string message)
         {
             if (SlotManager.instance.gameStarted == GameState.Menu) Presentation.MenuUI?.AddChatServerMsg(message);
@@ -198,8 +198,8 @@ namespace StrategyCore
             GameMsgClientRpc(message, RpcTarget.Single((ulong)SlotManager.instance.playerID[player], RpcTargetUse.Temp));
         }
 
-        [Rpc(SendTo.SpecifiedInParams)]
-        public void GameMsgClientRpc(string message, RpcParams rpcParams)
+        [Rpc(SendTo.SpecifiedInParams, InvokePermission = RpcInvokePermission.Server)]
+        private void GameMsgClientRpc(string message, RpcParams rpcParams)
         {
             Presentation.NotifyMsg(message);
         }
@@ -232,7 +232,7 @@ namespace StrategyCore
             }
         }
 
-        [Rpc(SendTo.SpecifiedInParams)]
+        [Rpc(SendTo.SpecifiedInParams, InvokePermission = RpcInvokePermission.Server)]
         private void MiniMapPingClientRpc(int owner, Vector2 pos, RpcParams rpcParams)
         {
             Presentation.UI?.CreatePinger(owner, pos);

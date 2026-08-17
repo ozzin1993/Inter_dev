@@ -26,7 +26,7 @@ namespace StrategyCore
         }
 
         // Clients receive target and calculate the cooldown of the initial attack to sync properly with the server
-        [Rpc(SendTo.NotServer)]
+        [Rpc(SendTo.NotServer, InvokePermission = RpcInvokePermission.Server)]
         private void TargetAcquiredClientRpc(UInt16 netID, UInt16 targetNetID, float startTime, float cd)
         {
             // Joining mid-game, we do not accept any data from the server. Only scene data.
@@ -49,7 +49,7 @@ namespace StrategyCore
             }
         }
 
-        [Rpc(SendTo.NotServer)]
+        [Rpc(SendTo.NotServer, InvokePermission = RpcInvokePermission.Server)]
         private void TargetAcquiredClientRpc(UInt16 netID, Vector2 targetGround, float startTime, float cd)
         {
             // Joining mid-game, we do not accept any data from the server. Only scene data.
@@ -153,7 +153,7 @@ namespace StrategyCore
         }
 
         // Clients receive target lose info and set to client units
-        [Rpc(SendTo.NotServer)]
+        [Rpc(SendTo.NotServer, InvokePermission = RpcInvokePermission.Server)]
         private void TargetLostClientRpc(UInt16 netID)
         {
             // Joining mid-game, we do not accept any data from the server. Only scene data.
@@ -186,7 +186,7 @@ namespace StrategyCore
         }
 
         // Clients receive target lose info and set to client units
-        [Rpc(SendTo.NotServer)]
+        [Rpc(SendTo.NotServer, InvokePermission = RpcInvokePermission.Server)]
         private void AdditionalTargetsClientRpc(UInt16 netID, UInt16[] netIDs)
         {
             // Joining mid-game, we do not accept any data from the server. Only scene data.
@@ -224,7 +224,7 @@ namespace StrategyCore
         }
 
         // Clients receive trigger to play idle animation
-        [Rpc(SendTo.NotServer)]
+        [Rpc(SendTo.NotServer, InvokePermission = RpcInvokePermission.Server)]
         private void PlayIdleAnimClientRpc(UInt16 netID)
         {
             // Joining mid-game, we do not accept any data from the server. Only scene data.
@@ -258,13 +258,13 @@ namespace StrategyCore
             }
         }
 
-        [Rpc(SendTo.SpecifiedInParams)]
+        [Rpc(SendTo.SpecifiedInParams, InvokePermission = RpcInvokePermission.Server)]
         private void FloatingTextClientRpc(Vector3 position, string text, Color color, RpcParams rpcParams)
         {
             FloatingText.Spawn(-1, position, text, color, false);
         }
 
-        [Rpc(SendTo.NotServer)]
+        [Rpc(SendTo.NotServer, InvokePermission = RpcInvokePermission.Server)]
         private void FloatingTextAllClientRpc(Vector3 position, string text, Color color)
         {
             FloatingText.Spawn(-1, position, text, color, false);
@@ -283,7 +283,7 @@ namespace StrategyCore
             WaypointSetClientRpc(unit.netID, wayNetID, waypointLocation, RpcTarget.Single((ulong)SlotManager.instance.playerID[unit.owner], RpcTargetUse.Temp));
         }
 
-        [Rpc(SendTo.SpecifiedInParams)]
+        [Rpc(SendTo.SpecifiedInParams, InvokePermission = RpcInvokePermission.Server)]
         private void WaypointSetClientRpc(UInt16 netID, UInt16 wayNetID, Vector2 position, RpcParams rpcParams)
         {
             // Joining mid-game, we do not accept any data from the server. Only scene data.

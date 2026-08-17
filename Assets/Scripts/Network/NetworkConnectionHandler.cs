@@ -254,6 +254,8 @@ namespace StrategyCore
             }
 
             var clientName = System.Text.Encoding.UTF8.GetString(request.Payload);
+            // Санация имени: символы-разделители формата сейва ломают разбор сейва и вход мидгейм-клиентов
+            clientName = clientName.Replace("\u2561", "_").Replace("~", "_").Replace("^", "_").Trim();
             int slot = SlotManager.instance.AddClientID(request.ClientNetworkId, clientName);
             if (slot == -1)
             {

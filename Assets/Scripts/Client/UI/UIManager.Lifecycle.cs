@@ -223,9 +223,9 @@ ResetUnitUI();
                 // viewRect.transform.rotation = Quaternion.Euler(targetRotation);
 
                 // Set Size
-                float height = 2f * Camera.main.transform.position.y * Mathf.Tan(Camera.main.fieldOfView * 0.5f * Mathf.Deg2Rad);
+                float height = 2f * Utils.MainCamera.transform.position.y * Mathf.Tan(Utils.MainCamera.fieldOfView * 0.5f * Mathf.Deg2Rad);
 
-                minimapRect.size = new Vector2(height * Camera.main.aspect, height);
+                minimapRect.size = new Vector2(height * Utils.MainCamera.aspect, height);
             }
             else
             {

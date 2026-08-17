@@ -47,7 +47,7 @@ namespace StrategyCore
         }
 
         // Только реальные клиенты (сервер уже применил уровень локально).
-        [Rpc(SendTo.NotServer)]
+        [Rpc(SendTo.NotServer, InvokePermission = RpcInvokePermission.Server)]
         private void MainBuildingLevelClientRpc(int teamIndex, int level)
         {
             if (MatchManager.instance == null) return;

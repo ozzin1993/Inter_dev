@@ -39,7 +39,7 @@ namespace StrategyCore
             UnitStatusEffectorClientRpc(unit.netID, effectorId, duration);
         }
 
-        [Rpc(SendTo.NotServer)]
+        [Rpc(SendTo.NotServer, InvokePermission = RpcInvokePermission.Server)]
         private void UnitStatusEffectorClientRpc(UInt16 netID, int effectorId, float duration)
         {
             // Подключение в середине матча: принимаем только данные сцены (штатное правило RPC этого хаба).
@@ -67,7 +67,7 @@ namespace StrategyCore
             UnitStatusEffectorRemoveClientRpc(unit.netID, effectorId);
         }
 
-        [Rpc(SendTo.NotServer)]
+        [Rpc(SendTo.NotServer, InvokePermission = RpcInvokePermission.Server)]
         private void UnitStatusEffectorRemoveClientRpc(UInt16 netID, int effectorId)
         {
             if (NetworkConnectionHandler.instance.connectionStage == 2) return;
@@ -86,7 +86,7 @@ namespace StrategyCore
             UnitStatusFlagClientRpc(unit.netID, (byte)flag, state);
         }
 
-        [Rpc(SendTo.NotServer)]
+        [Rpc(SendTo.NotServer, InvokePermission = RpcInvokePermission.Server)]
         private void UnitStatusFlagClientRpc(UInt16 netID, byte flag, bool state)
         {
             if (NetworkConnectionHandler.instance.connectionStage == 2) return;
@@ -106,7 +106,7 @@ namespace StrategyCore
             SkillBuffVfxClientRpc(netIDs, buffAbilityId, buffAbilityLevel, buffDuration);
         }
 
-        [Rpc(SendTo.NotServer)]
+        [Rpc(SendTo.NotServer, InvokePermission = RpcInvokePermission.Server)]
         private void SkillBuffVfxClientRpc(UInt16[] netIDs, int buffAbilityId, int buffAbilityLevel, float buffDuration)
         {
             if (NetworkConnectionHandler.instance.connectionStage == 2) return;
@@ -144,7 +144,7 @@ namespace StrategyCore
             SkillFiredClientRpc(casterID, abilityID, level, aimID, aimPoint);
         }
 
-        [Rpc(SendTo.NotServer)]
+        [Rpc(SendTo.NotServer, InvokePermission = RpcInvokePermission.Server)]
         private void SkillFiredClientRpc(UInt16 casterID, int abilityID, int level, UInt16 aimID, Vector3 aimPoint)
         {
             if (NetworkConnectionHandler.instance != null && NetworkConnectionHandler.instance.connectionStage == 2) return;
@@ -172,7 +172,7 @@ namespace StrategyCore
             GroundZoneSpawnClientRpc(zoneId, abilityID, level, position);
         }
 
-        [Rpc(SendTo.NotServer)]
+        [Rpc(SendTo.NotServer, InvokePermission = RpcInvokePermission.Server)]
         private void GroundZoneSpawnClientRpc(int zoneId, int abilityID, int level, Vector3 position)
         {
             // Подключение в середине матча: принимаем только данные сцены (штатное правило RPC этого хаба).
@@ -190,7 +190,7 @@ namespace StrategyCore
             GroundZoneDespawnClientRpc(zoneId);
         }
 
-        [Rpc(SendTo.NotServer)]
+        [Rpc(SendTo.NotServer, InvokePermission = RpcInvokePermission.Server)]
         private void GroundZoneDespawnClientRpc(int zoneId)
         {
             if (NetworkConnectionHandler.instance != null && NetworkConnectionHandler.instance.connectionStage == 2) return;
@@ -208,7 +208,7 @@ namespace StrategyCore
             GroundZoneResendClientRpc(zoneId, abilityID, level, position, RpcTarget.Single(clientID, RpcTargetUse.Temp));
         }
 
-        [Rpc(SendTo.SpecifiedInParams)]
+        [Rpc(SendTo.SpecifiedInParams, InvokePermission = RpcInvokePermission.Server)]
         private void GroundZoneResendClientRpc(int zoneId, int abilityID, int level, Vector3 position, RpcParams rpcParams = default)
         {
             if (GameManager.instance == null) return;

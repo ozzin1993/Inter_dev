@@ -59,6 +59,75 @@ namespace StrategyCore
             return issues;
         }
 
+        // ============ ФИЛЬТР «УМЕНИЯ И СОСТОЯНИЯ» (окно «Редактор умений», Artsiom 2026-08-16) ============
+
+        // Кэш последнего фильтрованного прогона — отдельный от полного RunAll.
+        static List<InterflowIssue> lastAbilityRun;
+
+        /// <summary>Только правила умений и состояний. Полный прогон по проекту — RunAll (главное окно).</summary>
+        public static List<InterflowIssue> RunAbilityScope()
+        {
+            var issues = new List<InterflowIssue>();
+            var units = LoadAllUnitPrefabs();
+            var factions = LoadAllFactions();
+
+            ValidateAbilities(issues, units, factions);
+            ValidateCompositeSkills(issues, units, factions);
+
+            lastAbilityRun = issues;
+            return issues;
+        }
+
+        /// <summary>
+        /// Кэш контекста точечной проверки умения: собирается ОДИН раз на «Обновить и перепроверить»,
+        /// чтобы правка каждого поля в конструкторе не перечитывала все префабы и фракции проекта заново.
+        /// </summary>
+        public sealed class SkillValidationContext
+        {
+            internal HashSet<Ability> panel;
+            internal List<(Unit unit, string path)> units;
+        }
+
+        public static SkillValidationContext BuildSkillContext() => new SkillValidationContext
+        {
+            panel = CollectPanelAbilities(LoadAllFactions()),
+            units = LoadAllUnitPrefabs()
+        };
+
+        /// <summary>Проверки одного умения по ГОТОВОМУ контексту — без пересканирования проекта.</summary>
+        public static List<InterflowIssue> ValidateSkillAlone(CompositeSkill skill, SkillValidationContext ctx)
+        {
+            var issues = new List<InterflowIssue>();
+            if (skill == null || ctx == null) return issues;
+            ValidateSkill(issues, skill, ctx.panel, ctx.units);
+            return issues;
+        }
+
+        /// <summary>Вкладка «Проверка» окна «Редактор умений»: только фильтр умений и состояний.</summary>
+        public static VisualElement CreateAbilityScopeTabUI()
+        {
+            var root = new VisualElement { style = { marginTop = 6, marginLeft = 6, marginRight = 6 } };
+
+            var runButton = new Button { text = "Проверить умения и состояния" };
+            runButton.tooltip = "Гоняет только правила умений и состояний. " +
+                                "Полная проверка проекта — вкладка «Валидатор» главного окна Interflow Editor.";
+            var summary = new Label { style = { marginTop = 4, marginBottom = 4, unityFontStyleAndWeight = FontStyle.Bold } };
+            var listRoot = new VisualElement();
+
+            runButton.clicked += () =>
+            {
+                RunAbilityScope();
+                Redraw(summary, listRoot, lastAbilityRun);
+            };
+
+            root.Add(runButton);
+            root.Add(summary);
+            root.Add(listRoot);
+
+            if (lastAbilityRun != null) Redraw(summary, listRoot, lastAbilityRun);
+            return root;
+        }
+
         // ======================== СБОР ДАННЫХ ========================
 
         /// <summary>Все префабы проекта с компонентом Unit (паттерн SCEditor.LoadUnits) + их пути.</summary>
@@ -298,7 +367,7 @@ namespace StrategyCore
                 if (entries == null || entries.arraySize == 0)
                 {
                     issues.Add(new InterflowIssue(InterflowIssueSeverity.Warning,
-                        $"На юните «{unit.name}» висит AutoAbilityUser с пустым списком авто-способностей — компонент ничего не делает.",
+                        $"На юните «{unit.name}» висит AutoAbilityUser с пустым списком авто-умений — компонент ничего не делает.",
                         "Гайд 03 часть 3", unit));
                     continue;
                 }
@@ -309,11 +378,11 @@ namespace StrategyCore
 
                     if (ability == null)
                         issues.Add(new InterflowIssue(InterflowIssueSeverity.Warning,
-                            $"На юните «{unit.name}» запись авто-способности №{i + 1} пуста — она ничего не делает.",
+                            $"На юните «{unit.name}» запись авто-умения №{i + 1} пуста — она ничего не делает.",
                             "Гайд 03 часть 3", unit));
                     else if (unit.abilities == null || !unit.abilities.Contains(ability))
                         issues.Add(new InterflowIssue(InterflowIssueSeverity.Error,
-                            $"У юнита «{unit.name}» авто-способность «{ability.name}» НЕ добавлена в список Abilities юнита — авто-каст не сработает.",
+                            $"У юнита «{unit.name}» авто-умение «{ability.name}» НЕ добавлена в список Abilities юнита — авто-каст не сработает.",
                             "Гайд 03 часть 3 (двойная запись обязательна)", unit));
                 }
             }
@@ -376,7 +445,7 @@ namespace StrategyCore
                 {
                     if (skill.damage.entries == null || skill.damage.entries.Length == 0)
                         issues.Add(new InterflowIssue(InterflowIssueSeverity.Warning,
-                            $"Скилл «{n}»: блок урона включён, но записей нет — блок ничего не делает.",
+                            $"Умение «{n}»: блок урона включён, но записей нет — блок ничего не делает.",
                             "План §5.2", skill));
                     else
                         for (int i = 0; i < skill.damage.entries.Length; i++)
@@ -386,7 +455,7 @@ namespace StrategyCore
                             bool hasAmount = e.amount != null && e.amount.Any(v => v > 0f);
                             if (hasAmount && e.damageType == null)
                                 issues.Add(new InterflowIssue(InterflowIssueSeverity.Error,
-                                    $"Скилл «{n}»: в записи урона №{i + 1} задано число, но не задан тип урона — урона не будет.",
+                                    $"Умение «{n}»: в записи урона №{i + 1} задано число, но не задан тип урона — урона не будет.",
                                     "План §5.2", skill));
                         }
                 }
@@ -401,7 +470,7 @@ namespace StrategyCore
                     && HasPerTargetBlock(skill)
                     && !skill.unitSelector.AnySelectors())
                     issues.Add(new InterflowIssue(InterflowIssueSeverity.Error,
-                        $"Скилл «{n}»: не заполнен селектор целей (кто может быть целью) — целей всегда будет ноль, " +
+                        $"Умение «{n}»: не заполнен селектор целей (кто может быть целью) — целей всегда будет ноль, " +
                         "но откат и стоимость спишутся, а VFX и звук проиграются. " +
                         "Отметь хотя бы отношение (свой/союзник/враг) и тип цели.",
                         "UnitSelector.IsUnitCompatible", skill));
@@ -416,7 +485,7 @@ namespace StrategyCore
                     var changed = ChangedStrategyFields(skill);
                     if (changed.Count > 0)
                         issues.Add(new InterflowIssue(InterflowIssueSeverity.Info,
-                            $"Скилл «{n}»: режим цели «{InterflowEditorUI.EnumLabel(typeof(SkillTargetMode), skill.targetMode.ToString())}» " +
+                            $"Умение «{n}»: режим цели «{InterflowEditorUI.EnumLabel(typeof(SkillTargetMode), skill.targetMode.ToString())}» " +
                             $"не использует стратегию выбора цели, а её настройки изменены ({string.Join(", ", changed)}) — " +
                             "они ни на что не влияют. Не ошибка, но и не настройка: либо верни значения по умолчанию, " +
                             "либо смени режим на «умный выбор».",
@@ -429,7 +498,7 @@ namespace StrategyCore
                     if (skill.buff.auraDamagePerSecond != null && skill.buff.auraDamagePerSecond.Any(v => v > 0f)
                         && skill.buff.auraDamageType == null)
                         issues.Add(new InterflowIssue(InterflowIssueSeverity.Error,
-                            $"Скилл «{n}»: у бафа задан урон ауры, но не задан тип урона ауры — урона не будет. " +
+                            $"Умение «{n}»: у бафа задан урон ауры, но не задан тип урона ауры — урона не будет. " +
                             "Баф при этом повиснет со значком и визуалом, будто работает.",
                             "SkillBuff.OnTick", skill));
 
@@ -437,7 +506,7 @@ namespace StrategyCore
                         && skill.buff.detonationDamage != null && skill.buff.detonationDamage.Any(v => v > 0f)
                         && skill.buff.detonationDamageType == null)
                         issues.Add(new InterflowIssue(InterflowIssueSeverity.Error,
-                            $"Скилл «{n}»: включена детонация при смерти носителя и задан урон взрыва, " +
+                            $"Умение «{n}»: включена детонация при смерти носителя и задан урон взрыва, " +
                             "но не задан тип урона взрыва — взрыва не будет.",
                             "SkillBuff (детонация)", skill));
                 }
@@ -447,23 +516,23 @@ namespace StrategyCore
                 {
                     if (skill.projectilePrefab == null)
                         issues.Add(new InterflowIssue(InterflowIssueSeverity.Error,
-                            $"Скилл «{n}»: доставка снарядом, но префаб снаряда не задан — скилл будет бить мгновенно.",
+                            $"Умение «{n}»: доставка снарядом, но префаб снаряда не задан — умение будет бить мгновенно.",
                             "План §5.2", skill));
 
                     if (skill.targetMode != SkillTargetMode.SmartUnit)
                         issues.Add(new InterflowIssue(InterflowIssueSeverity.Error,
-                            $"Скилл «{n}»: доставка снарядом работает только с режимом цели «Умный выбор юнита». " +
-                            "В остальных режимах штатный снаряд бьёт лишь по площади, а площадного режима у снаряда скилла нет — урона не будет.",
+                            $"Умение «{n}»: доставка снарядом работает только с режимом цели «Умный выбор юнита». " +
+                            "В остальных режимах штатный снаряд бьёт лишь по площади, а площадного режима у снаряда умения нет — урона не будет.",
                             "Projectile.Update / Projectile.Damage", skill));
 
                     if (!skill.projectileFollowsTarget)
                         issues.Add(new InterflowIssue(InterflowIssueSeverity.Error,
-                            $"Скилл «{n}»: у снаряда выключено самонаведение — штатный снаряд полетит в мировой ноль и урона не нанесёт. Включи самонаведение.",
+                            $"Умение «{n}»: у снаряда выключено самонаведение — штатный снаряд полетит в мировой ноль и урона не нанесёт. Включи самонаведение.",
                             "Projectile.InternalSpawn (targetPosition не задаётся)", skill));
 
                     // Снаряд уносит только урон и оглушение — остальное срабатывает сразу в момент каста.
                     var notCarried = new List<string>();
-                    if (skill.effectors != null && skill.effectors.enabled) notCarried.Add("эффекторы");
+                    if (skill.effectors != null && skill.effectors.enabled) notCarried.Add("состояния");
                     if (skill.statusEffector != null) notCarried.Add("значок состояния");
                     if (skill.heal != null && skill.heal.enabled) notCarried.Add("лечение");
                     if (skill.buff != null && skill.buff.enabled) notCarried.Add("баф");
@@ -471,13 +540,13 @@ namespace StrategyCore
                     if (skill.blind != null && skill.blind.enabled) notCarried.Add("ослепление");
                     if (notCarried.Count > 0)
                         issues.Add(new InterflowIssue(InterflowIssueSeverity.Warning,
-                            $"Скилл «{n}»: снаряд переносит только урон и оглушение. Блоки [{string.Join(", ", notCarried)}] сработают сразу при касте, а не при попадании.",
+                            $"Умение «{n}»: снаряд переносит только урон и оглушение. Блоки [{string.Join(", ", notCarried)}] сработают сразу при касте, а не при попадании.",
                             "План §4.3 (ограничение v1)", skill));
 
                     if (skill.damage != null && skill.damage.enabled && skill.damage.entries != null
                         && skill.damage.entries.Count(e => e != null && e.damageType != null && e.amount != null && e.amount.Any(v => v > 0f)) > 1)
                         issues.Add(new InterflowIssue(InterflowIssueSeverity.Warning,
-                            $"Скилл «{n}»: у снаряда одно поле урона — улетит только ПЕРВАЯ запись урона, остальные пропадут.",
+                            $"Умение «{n}»: у снаряда одно поле урона — улетит только ПЕРВАЯ запись урона, остальные пропадут.",
                             "План §4.3 (ограничение v1)", skill));
                 }
 
@@ -485,7 +554,7 @@ namespace StrategyCore
                 if (skill.summon != null && skill.summon.enabled
                     && skill.summon.mode != SkillSummonMode.LastWave && skill.summon.prefab == null)
                     issues.Add(new InterflowIssue(InterflowIssueSeverity.Error,
-                        $"Скилл «{n}»: блок призыва включён, но префаб юнита не задан — призыва не будет.",
+                        $"Умение «{n}»: блок призыва включён, но префаб юнита не задан — призыва не будет.",
                         "План §5.2", skill));
 
                 // --- 4. Зона: префаб без компонента ---
@@ -493,11 +562,11 @@ namespace StrategyCore
                 {
                     if (skill.groundZone.zonePrefab == null)
                         issues.Add(new InterflowIssue(InterflowIssueSeverity.Error,
-                            $"Скилл «{n}»: блок зоны включён, но префаб зоны не задан.",
+                            $"Умение «{n}»: блок зоны включён, но префаб зоны не задан.",
                             "План §5.2", skill));
                     else if (skill.groundZone.zonePrefab.GetComponent<GroundDamageZone>() == null)
                         issues.Add(new InterflowIssue(InterflowIssueSeverity.Error,
-                            $"Скилл «{n}»: на префабе зоны «{skill.groundZone.zonePrefab.name}» нет компонента GroundDamageZone — зона не будет действовать.",
+                            $"Умение «{n}»: на префабе зоны «{skill.groundZone.zonePrefab.name}» нет компонента GroundDamageZone — зона не будет действовать.",
                             "План §5.2", skill));
                 }
 
@@ -505,20 +574,20 @@ namespace StrategyCore
                 if (skill.buff != null && skill.buff.enabled
                     && (skill.buff.duration == null || !skill.buff.duration.Any(v => v > 0f)))
                     issues.Add(new InterflowIssue(InterflowIssueSeverity.Error,
-                        $"Скилл «{n}»: блок бафа включён, но длительность 0/пусто — баф не наложится (исторический кейс FlameCloak_active).",
+                        $"Умение «{n}»: блок бафа включён, но длительность 0/пусто — баф не наложится (исторический кейс FlameCloak_active).",
                         "План §5.2", skill));
 
                 // --- 6. Скилл панели без галки «Скилл кнопки» ---
                 if (panelAbilities.Contains(skill) && skill.type != AbilityType.Active)
                     issues.Add(new InterflowIssue(InterflowIssueSeverity.Error,
-                        $"Скилл «{n}» подключён к панели ГЗ/героя, но его тип — {skill.type}. Панель активирует только Active: включи галку «Скилл кнопки».",
+                        $"Умение «{n}» подключён к панели ГЗ/героя, но его тип — {skill.type}. Панель активирует только Active: включи галку «Умение по кнопке».",
                         "UIManager.BottomTables → ActivateAbilityCell", skill));
 
                 // --- 7. Стратегия «текущая цель атаки» у каста с кнопки ---
                 if (skill.buttonCast && skill.PicksTargetByStrategy
                     && skill.TargetStrategy == SkillTargetStrategy.CurrentAttackTarget)
                     issues.Add(new InterflowIssue(InterflowIssueSeverity.Error,
-                        $"Скилл «{n}»: стратегия «текущая цель атаки» у скилла кнопки никогда не найдёт цель: кастер панели не атакует.",
+                        $"Умение «{n}»: стратегия «текущая цель атаки» у умения по кнопке никогда не найдёт цель: кастер панели не атакует.",
                         "План §4.3", skill));
 
                 // --- 8. Радиус там, где он обязателен ---
@@ -537,11 +606,11 @@ namespace StrategyCore
                     && skill.TargetStrategy == SkillTargetStrategy.Cluster
                     && (skill.radius == null || !skill.radius.Any(v => v > 0f)))
                     issues.Add(new InterflowIssue(InterflowIssueSeverity.Warning,
-                        $"Скилл «{n}»: стратегия «скопление» считает плотность в radius, а он пуст/0 — цель будет выбираться случайно.",
+                        $"Умение «{n}»: стратегия «скопление» считает плотность в radius, а он пуст/0 — цель будет выбираться случайно.",
                         "SkillTargeting.DensestCluster", skill));
                 if (needsRadius && (skill.radius == null || !skill.radius.Any(v => v > 0f)))
                     issues.Add(new InterflowIssue(InterflowIssueSeverity.Error,
-                        $"Скилл «{n}»: режим цели требует radius больше нуля, а он пуст/0 — целей не будет никогда.",
+                        $"Умение «{n}»: режим цели требует radius больше нуля, а он пуст/0 — целей не будет никогда.",
                         "План §5.2", skill));
 
                 // --- 9. Значок состояния ---
@@ -549,12 +618,12 @@ namespace StrategyCore
                 {
                     if (skill.statusEffector.stacks)
                         issues.Add(new InterflowIssue(InterflowIssueSeverity.Warning,
-                            $"Скилл «{n}»: у эффектора-значка «{skill.statusEffector.name}» включён Stacks — значок в панели состояний не появится.",
+                            $"Умение «{n}»: у состояния-значка «{skill.statusEffector.name}» включён Stacks (накопление) — значок в панели не появится.",
                             "Effector.EffectorAdd → OnStatusUpdate (только нестакающие)", skill));
 
                     if (skill.statusEffector.icon == null)
                         issues.Add(new InterflowIssue(InterflowIssueSeverity.Warning,
-                            $"Скилл «{n}»: у эффектора-значка «{skill.statusEffector.name}» не задана иконка — игрок не увидит состояние.",
+                            $"Умение «{n}»: у состояния-значка «{skill.statusEffector.name}» не задана иконка — игрок ничего не увидит.",
                             "План §5.2", skill));
                 }
 
@@ -568,7 +637,7 @@ namespace StrategyCore
                         if (rec == null || rec.effector == null)
                         {
                             issues.Add(new InterflowIssue(InterflowIssueSeverity.Error,
-                                $"Скилл «{n}»: в блоке эффекторов запись №{ri + 1} без ассета эффектора — слот ничего не сделает.",
+                                $"Умение «{n}»: в блоке состояний запись №{ri + 1} без ассета состояния — запись ничего не сделает.",
                                 "CompositeSkill.ApplyEffectors (пустые записи пропускаются)", skill));
                             continue;
                         }
@@ -578,13 +647,13 @@ namespace StrategyCore
                         // Минус ломает формат сохранения: записи там разделяются дефисом.
                         if (rec.power != null && rec.power.Any(x => x < 0f))
                             issues.Add(new InterflowIssue(InterflowIssueSeverity.Error,
-                                $"Скилл «{n}»: у эффектора «{en}» отрицательный множитель силы. Запрещено: разделитель записей " +
+                                $"Умение «{n}»: у состояния «{en}» отрицательный множитель силы. Запрещено: разделитель записей " +
                                 "в формате сохранения — дефис, минус сломает сейв и восстановление юнита.",
                                 "SaveManager.UnitData (строка effectors)", skill));
 
                         if (rec.duration != null && rec.duration.Any(x => x < 0f))
                             issues.Add(new InterflowIssue(InterflowIssueSeverity.Error,
-                                $"Скилл «{n}»: у эффектора «{en}» отрицательная длительность. Пусто или 0 — «брать из ассета»; " +
+                                $"Умение «{n}»: у состояния «{en}» отрицательная длительность. Пусто или 0 — «брать из ассета»; " +
                                 "минус ломает сейв тем же дефисом-разделителем.",
                                 "SaveManager.UnitData (строка effectors)", skill));
 
@@ -593,13 +662,13 @@ namespace StrategyCore
                         bool powerSet = rec.power != null && rec.power.Any(x => x > 0f && Mathf.Abs(x - 1f) > 0.0001f);
                         if (powerSet && !scalable)
                             issues.Add(new InterflowIssue(InterflowIssueSeverity.Warning,
-                                $"Скилл «{n}»: у эффектора «{en}» задан множитель силы, но масштабировать нечего — " +
+                                $"Умение «{n}»: у состояния «{en}» задан множитель силы, но масштабировать нечего — " +
                                 "пассивные изменения выключены и урона в секунду нет.",
                                 "Effector.EffectorAdd (множитель идёт в passiveEffects и damageAmount)", skill));
 
                         if (rec.effector.permanent && rec.duration != null && rec.duration.Any(x => x > 0f))
                             issues.Add(new InterflowIssue(InterflowIssueSeverity.Warning,
-                                $"Скилл «{n}»: у эффектора «{en}» включён Permanent — заданная длительность будет проигнорирована.",
+                                $"Умение «{n}»: у состояния «{en}» включён Permanent — заданная длительность будет проигнорирована.",
                                 "Effector.EffectorAdd (у бессрочных durationOverride не применяется)", skill));
                     }
                 }
@@ -610,20 +679,20 @@ namespace StrategyCore
                 if (skill.effectors != null && skill.effectors.effectors != null && skill.effectors.effectors.Length > 0
                     && (skill.effectors.records == null || skill.effectors.records.Length < skill.effectors.effectors.Length))
                     issues.Add(new InterflowIssue(InterflowIssueSeverity.Error,
-                        $"Скилл «{n}»: устаревший массив эффекторов ({skill.effectors.effectors.Length} шт.) не перенесён в записи " +
-                        $"({(skill.effectors.records == null ? 0 : skill.effectors.records.Length)} шт.) — эти эффекторы больше НЕ накладываются.",
+                        $"Умение «{n}»: устаревший массив состояний ({skill.effectors.effectors.Length} шт.) не перенесён в записи " +
+                        $"({(skill.effectors.records == null ? 0 : skill.effectors.records.Length)} шт.) — эти состояния больше НЕ накладываются.",
                         "SkillEffectorsBlock.records (миграция 2026-08-02)", skill));
 
                 // --- 10. Включённые блоки без единого эффекта ---
                 foreach (string empty in EmptyEnabledBlocks(skill))
                     issues.Add(new InterflowIssue(InterflowIssueSeverity.Warning,
-                        $"Скилл «{n}»: блок «{empty}» включён, но все его значения нулевые/пустые — он ничего не делает.",
+                        $"Умение «{n}»: блок «{empty}» включён, но все его значения нулевые/пустые — он ничего не делает.",
                         "План §5.2", skill));
 
                 // --- 10а. Разовые блоки в режиме, который зовёт их каждый тик ---
                 foreach (string misuse in EveryTickMisuse(skill))
                     issues.Add(new InterflowIssue(InterflowIssueSeverity.Error,
-                        $"Скилл «{n}»: режим срабатывания повторяет блоки каждый тик, а блок «{misuse}» разовый — " +
+                        $"Умение «{n}»: режим срабатывания повторяет блоки каждый тик, а блок «{misuse}» разовый — " +
                         "он будет исполняться по десять раз в секунду.",
                         "CompositeSkill.IsEveryTick", skill));
 
@@ -631,20 +700,20 @@ namespace StrategyCore
                 if (skill.shield != null && skill.shield.enabled
                     && (skill.shield.duration == null || !skill.shield.duration.Any(v => v > 0f)))
                     issues.Add(new InterflowIssue(InterflowIssueSeverity.Warning,
-                        $"Скилл «{n}»: у щита не задана длительность — он станет БЕССРОЧНЫМ и сойдёт только при пробитии или смерти носителя.",
+                        $"Умение «{n}»: у щита не задана длительность — он станет БЕССРОЧНЫМ и сойдёт только при пробитии или смерти носителя.",
                         "AbsorbShield (duration ≤ 0 = без таймера)", skill));
 
                 // --- 11. Визуал замаха при нулевом времени каста ---
                 if (skill.castVFX != null && (skill.castTime == null || !skill.castTime.Any(v => v > 0f)))
                     issues.Add(new InterflowIssue(InterflowIssueSeverity.Warning,
-                        $"Скилл «{n}»: задан визуал каста, но castTime = 0 — замах и удар совпадут в один кадр.",
+                        $"Умение «{n}»: задан визуал каста, но castTime = 0 — замах и удар совпадут в один кадр.",
                         "План §5.2", skill));
 
                 // --- 12. Каст с кнопки с умным выбором: клиент не воспроизведёт выбор цели ---
                 if (skill.buttonCast && skill.PicksTargetByStrategy
                     && (skill.impactVFX != null || skill.delivery == SkillDelivery.Projectile))
                     issues.Add(new InterflowIssue(InterflowIssueSeverity.Warning,
-                        $"Скилл «{n}»: цель выбирает стратегия на СЕРВЕРЕ — клиент не увидит визуала попадания и снаряда. " +
+                        $"Умение «{n}»: цель выбирает стратегия на СЕРВЕРЕ — клиент не увидит визуала попадания и снаряда. " +
                         "Значки состояний и визуал бафа до клиента доедут: их сервер шлёт отдельным сообщением.",
                         "CompositeSkill.Execute (ранний выход клиента)", skill));
 
@@ -657,7 +726,7 @@ namespace StrategyCore
                         if (unit.GetComponent<CharacterSockets>() != null) continue;
 
                         issues.Add(new InterflowIssue(InterflowIssueSeverity.Warning,
-                            $"Скилл «{n}» стреляет из точки привязки, но на носителе «{unit.name}» нет компонента CharacterSockets — всё пойдёт из центра объекта.",
+                            $"Умение «{n}» стреляет из точки привязки, но на носителе «{unit.name}» нет компонента CharacterSockets — всё пойдёт из центра объекта.",
                             "План §5.2", unit));
                     }
                 }
@@ -790,7 +859,7 @@ namespace StrategyCore
 
             if (s.effectors != null && s.effectors.enabled
                 && (s.effectors.records == null || s.effectors.records.All(r => r == null || r.effector == null)))
-                yield return "эффекторы";
+                yield return "состояния";
 
             if (s.heal != null && s.heal.enabled && !Any(s.heal.flat) && !Any(s.heal.percentOfMaxHp))
                 yield return "лечение";
@@ -1269,7 +1338,7 @@ namespace StrategyCore
             runButton.clicked += () =>
             {
                 RunAll();
-                Redraw(summary, listRoot);
+                Redraw(summary, listRoot, lastRun);
             };
 
             root.Add(runButton);
@@ -1277,22 +1346,22 @@ namespace StrategyCore
             root.Add(listRoot);
 
             // Если прогон уже был в этой сессии окна — показать кэш вместо пустоты.
-            if (lastRun != null) Redraw(summary, listRoot);
+            if (lastRun != null) Redraw(summary, listRoot, lastRun);
             return root;
         }
 
-        static void Redraw(Label summary, VisualElement listRoot)
+        static void Redraw(Label summary, VisualElement listRoot, List<InterflowIssue> data)
         {
             listRoot.Clear();
-            if (lastRun == null) return;
+            if (data == null) return;
 
-            int errors = lastRun.Count(i => i.severity == InterflowIssueSeverity.Error);
-            int warnings = lastRun.Count(i => i.severity == InterflowIssueSeverity.Warning);
-            int infos = lastRun.Count(i => i.severity == InterflowIssueSeverity.Info);
+            int errors = data.Count(i => i.severity == InterflowIssueSeverity.Error);
+            int warnings = data.Count(i => i.severity == InterflowIssueSeverity.Warning);
+            int infos = data.Count(i => i.severity == InterflowIssueSeverity.Info);
             summary.text = $"Ошибок: {errors}   Предупреждений: {warnings}   Инфо: {infos}";
 
             // Сортировка: ошибки → предупреждения → инфо.
-            foreach (var issue in lastRun.OrderBy(i => i.severity))
+            foreach (var issue in data.OrderBy(i => i.severity))
                 listRoot.Add(CreateIssueRow(issue));
         }
 

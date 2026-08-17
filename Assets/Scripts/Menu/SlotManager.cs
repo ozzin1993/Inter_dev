@@ -71,6 +71,11 @@ namespace StrategyCore
 
         void Awake()
         {
+#if !(UNITY_EDITOR || DEVELOPMENT_BUILD)
+            // Ревью 1.1/п.9: галка debugMode обходит проверку владения в 22 местах NetworkCommandSync —
+            // в релизном билде принудительно выключаем, работает только в редакторе и Development Build
+            debugMode = false;
+#endif
             InstanceSet();
         }
 

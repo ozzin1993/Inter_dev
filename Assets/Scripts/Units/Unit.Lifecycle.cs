@@ -41,7 +41,7 @@ namespace StrategyCore
             if (boxCollider)
             {
                 // Box Collider
-                if (Physics.BoxCast(new Vector3(position.x, Utils.raycastPointY, position.z), boxCollider.size * 0.5f * transform.localScale.x, Vector3.down, out _, transform.rotation, Utils.raycastPointY * 5f, LayerMask.GetMask("Default"))) // Check against units/buildings/objects
+                if (Physics.BoxCast(new Vector3(position.x, Utils.raycastPointY, position.z), boxCollider.size * 0.5f * transform.localScale.x, Vector3.down, out _, transform.rotation, Utils.raycastPointY * 5f, Utils.defaultMask)) // Check against units/buildings/objects
                 {
                     return true;
                 }
@@ -49,7 +49,7 @@ namespace StrategyCore
             else
             {
                 // Capsule Collider
-                if (Physics.SphereCast(new Vector3(position.x, Utils.raycastPointY, position.z), unitRadius, Vector3.down, out _, Utils.raycastPointY * 5f, LayerMask.GetMask("Default"))) // Check against units/buildings/objects
+                if (Physics.SphereCast(new Vector3(position.x, Utils.raycastPointY, position.z), unitRadius, Vector3.down, out _, Utils.raycastPointY * 5f, Utils.defaultMask)) // Check against units/buildings/objects
                 {
                     return true;
                 }
