@@ -1,5 +1,5 @@
 fileFormatVersion: 2
-guid: f0a53c51330fb25428d30273f5b130a9
+guid: ae0a81f2ade87464e8ea22272ddf6e40
 ModelImporter:
   serializedVersion: 22200
   internalIDToNameTable: []
@@ -983,8 +983,8 @@ ModelImporter:
   assetBundleVariant: 
 AssetOrigin:
   serializedVersion: 1
-  productId: 323439
-  packageName: Base Move Animation
-  packageVersion: 1.9
+  productId: 309184
+  packageName: RPG_Animations - Bow
+  packageVersion: 1.10
   assetPath: Assets/DoubleL/Model/Unreal_Base.fbx
-  uploadId: 921326
+  uploadId: 910886

@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: 392241c7b8d57e34b950da8b8d7e0024
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 9100000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 309184
+  packageName: RPG_Animations - Bow
+  packageVersion: 1.10
+  assetPath: Assets/DoubleL/Demo Scenes/Demo Animator Controller/Bow_Roll_R.controller
+  uploadId: 910886

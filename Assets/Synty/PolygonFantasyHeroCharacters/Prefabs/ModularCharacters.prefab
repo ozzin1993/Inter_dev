@@ -45153,7 +45153,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   repeatOnPlay: 1
   shuffleSpeed: 0.7
-  mat: {fileID: 2100000, guid: c052f4b6380d2ac4998c1eef7f97733b, type: 2}
+  mat: {fileID: 2100000, guid: d06e1cb2b33faa24e89d53860a09cc61, type: 2}
   primary:
   - {r: 0.28627452, g: 0.40000004, b: 0.49411768, a: 0}
   - {r: 0.43921572, g: 0.19607845, b: 0.17254902, a: 0}
@@ -45223,7 +45223,7 @@ MonoBehaviour:
   blackScar: {r: 0.42352945, g: 0.31764707, b: 0.28235295, a: 0}
   elfScar: {r: 0.8745099, g: 0.65882355, b: 0.6313726, a: 0}
   bodyArt:
-  - {r: 1, g: 0, b: 0.06809378, a: 0}
+  - {r: 1, g: 0, b: 0.06666684, a: 0}
   - {r: 0.72156864, g: 0.26666668, b: 0.26666668, a: 0}
   - {r: 0.30588236, g: 0.72156864, b: 0.6862745, a: 0}
   - {r: 0.92549026, g: 0.882353, b: 0.85098046, a: 0}

@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: 42c0845d3c58fce46989d96b74b71938
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 7400000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 309184
+  packageName: RPG_Animations - Bow
+  packageVersion: 1.10
+  assetPath: Assets/DoubleL/Demo Scenes/Demo Animations/Bow_Idle_To_Run_F.anim
+  uploadId: 910886

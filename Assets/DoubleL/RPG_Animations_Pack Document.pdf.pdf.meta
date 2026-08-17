@@ -1,5 +1,5 @@
 fileFormatVersion: 2
-guid: af05c20cc611eb64288f9631e642b4c0
+guid: 899dc4921f4e7074881a15c2d2f34a41
 DefaultImporter:
   externalObjects: {}
   userData: 
@@ -7,8 +7,8 @@ DefaultImporter:
   assetBundleVariant: 
 AssetOrigin:
   serializedVersion: 1
-  productId: 323439
-  packageName: Base Move Animation
-  packageVersion: 1.9
+  productId: 309184
+  packageName: RPG_Animations - Bow
+  packageVersion: 1.10
   assetPath: Assets/DoubleL/RPG_Animations_Pack Document.pdf.pdf
-  uploadId: 921326
+  uploadId: 910886

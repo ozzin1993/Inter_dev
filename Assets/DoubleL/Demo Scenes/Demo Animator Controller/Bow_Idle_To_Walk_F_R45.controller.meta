@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: 5536b991c5cbf09489173a690af1ee02
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 9100000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 309184
+  packageName: RPG_Animations - Bow
+  packageVersion: 1.10
+  assetPath: Assets/DoubleL/Demo Scenes/Demo Animator Controller/Bow_Idle_To_Walk_F_R45.controller
+  uploadId: 910886

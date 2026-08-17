@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: 8eff1679078297e4e8dcd22e19d4019d
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 9100000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 309184
+  packageName: RPG_Animations - Bow
+  packageVersion: 1.10
+  assetPath: Assets/DoubleL/Demo Scenes/Demo Animator Controller/Bow_Attack_Start_2.controller
+  uploadId: 910886

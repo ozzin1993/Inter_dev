@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: 8edf58354e3fa5c4d94344f7c7881f83
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 7400000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 309184
+  packageName: RPG_Animations - Bow
+  packageVersion: 1.10
+  assetPath: Assets/DoubleL/Demo Scenes/Demo Animations/Bow_Attack_Idle_To_Walk_R.anim
+  uploadId: 910886

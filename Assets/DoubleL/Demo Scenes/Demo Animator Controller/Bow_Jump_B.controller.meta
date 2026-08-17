@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: 96ed48e6624cbdc46902c67e606b7467
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 9100000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 309184
+  packageName: RPG_Animations - Bow
+  packageVersion: 1.10
+  assetPath: Assets/DoubleL/Demo Scenes/Demo Animator Controller/Bow_Jump_B.controller
+  uploadId: 910886

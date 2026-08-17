@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: 496aa288e78f38443a3e00ae2be31036
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 9100000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 309184
+  packageName: RPG_Animations - Bow
+  packageVersion: 1.10
+  assetPath: Assets/DoubleL/Demo Scenes/Demo Animator Controller/Bow_Attack_All_Fast_1.controller
+  uploadId: 910886
