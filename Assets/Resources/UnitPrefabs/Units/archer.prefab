@@ -99,7 +99,7 @@ MonoBehaviour:
   activeAbilityDuration: 0
   activeAbilityVFX: {fileID: 0}
   canCast: 0
-  unitCategory: 0
+  unitCategory: 2
   targetPriority: 
   respondsToAttackCommand: 1
   respondsToDefenceCommand: 1

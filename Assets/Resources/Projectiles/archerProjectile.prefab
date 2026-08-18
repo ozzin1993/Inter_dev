@@ -45,7 +45,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e2d90d68d8acfff498dadc659d31b0de, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  id: 67248
+  id: 38972
   renderObject: {fileID: 919132149155446097, guid: 82e626d17da1b0640bb75ac5d0ad54e3, type: 3}
   impactSound: {fileID: 0}
   impactVFX: {fileID: 198278080792148898, guid: a665c6a64f24e2844806039e32e6ba4f, type: 3}
