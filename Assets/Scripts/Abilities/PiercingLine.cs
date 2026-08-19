@@ -38,31 +38,12 @@ namespace StrategyCore
 
         public override void Unlock(Unit unit, int castingPlayer, int level)
         {
-            for (int i = 0; i < unit.OnAfterDamageDealCallbacks.Count; i++)
-            {
-                var existing = unit.OnAfterDamageDealCallbacks[i];
-                if (existing.Ability == this && existing.Level == level) return;
-            }
-
-            unit.OnAfterDamageDealCallbacks.Add(new AfterDamageDealCallback
-            {
-                Callback = PierceApply,
-                Ability = this,
-                Level = level
-            });
+                        InterflowAbility.CallbackAdd(unit.OnAfterDamageDealCallbacks, this, level, PierceApply);
         }
 
         public override void Lock(Unit unit, int castingPlayer, int level)
         {
-            for (int i = 0; i < unit.OnAfterDamageDealCallbacks.Count; i++)
-            {
-                var c = unit.OnAfterDamageDealCallbacks[i];
-                if (c.Ability == this && c.Level == level)
-                {
-                    unit.OnAfterDamageDealCallbacks.RemoveAt(i);
-                    break;
-                }
-            }
+            InterflowAbility.CallbackRemove(unit.OnAfterDamageDealCallbacks, this, level);
         }
 
         void PierceApply(Unit targetUnit, Vector3 targetPosition, Effector[] effectors, float dmg, bool directAttack,

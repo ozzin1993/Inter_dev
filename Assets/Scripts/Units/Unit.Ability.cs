@@ -40,7 +40,6 @@ namespace StrategyCore
 
         private bool playCast = false; // To know if we are currently casting an ability
         private bool sendToClients = false; // To know if we triggered on clients the start of the cast
-        [HideInInspector] public bool canCast; // Simple indicator set automatically in Initialize to know if this unit has any abilities
 
         // ============================= ABILITY USE =============================
 

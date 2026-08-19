@@ -14,46 +14,69 @@ namespace StrategyCore
 
         // Scene Data send to midgame connected client
         // Saves the scene data using savemanager and sends to a client
+        // Порционная отправка и нумерация потоков (ревью, блок «баги и корректность»):
+        // сотни reliable-сообщений в одном кадре переполняют очередь отправки транспорта на больших сейвах,
+        // а общий буфер приёма без номера потока склеивал бы кусочки двух разных передач.
+        [SerializeField, Tooltip("Сколько кусочков слепка сцены отправлять за кадр (защита очереди отправки)")]
+        private int sceneChunksPerFrame = 8;
+
+        private int sceneStreamCounter = 0;        // сервер: номер очередной передачи слепка
+        private int currentStreamId = -1;          // клиент: какой поток сейчас собираем
+        private int lastCompletedStreamId = -1;    // клиент: последний собранный поток (страховка от хвостов)
+
         public void SendSceneData(ulong clientID, bool midGame)
         {
             string sceneData = SaveManager.SaveToFile(true);
-
             byte[] utf8Bytes = Encoding.UTF8.GetBytes(sceneData); // Convert to UTF-8 bytes
-            int totalChunks = Mathf.CeilToInt((float)utf8Bytes.Length / CHUNK_SIZE);
+            StartCoroutine(SendChunksThrottled(utf8Bytes, ++sceneStreamCounter, clientID, true, midGame));
+        }
 
+        // Отправляет слепок кусочками по sceneChunksPerFrame за кадр; single=true — одному клиенту (мидгейм),
+        // иначе — всем (рассылка сейва из лобби, NetworkDataSync.Lobby.cs).
+        private System.Collections.IEnumerator SendChunksThrottled(byte[] utf8Bytes, int streamId, ulong clientID, bool single, bool midGame)
+        {
+            int totalChunks = Mathf.CeilToInt((float)utf8Bytes.Length / CHUNK_SIZE);
             for (int i = 0; i < totalChunks; i++)
             {
                 int startIndex = i * CHUNK_SIZE;
                 int length = Mathf.Min(CHUNK_SIZE, utf8Bytes.Length - startIndex);
                 byte[] chunk = new byte[length];
-
                 System.Array.Copy(utf8Bytes, startIndex, chunk, 0, length);
 
-                ReceiveSceneDataClientRpc(chunk, i, totalChunks, midGame, RpcTarget.Single(clientID, RpcTargetUse.Temp));
+                if (single) ReceiveSceneDataClientRpc(chunk, i, totalChunks, streamId, midGame, RpcTarget.Single(clientID, RpcTargetUse.Temp));
+                else ReceiveSceneDataClientRpc(chunk, i, totalChunks, streamId);
+
+                if ((i + 1) % Mathf.Max(1, sceneChunksPerFrame) == 0) yield return null;
             }
         }
 
         // Client receive: Worker clear state
         // Receives save data from the server and loads it
         [Rpc(SendTo.SpecifiedInParams, InvokePermission = RpcInvokePermission.Server)]
-        private void ReceiveSceneDataClientRpc(byte[] chunk, int index, int totalChunks, bool isMidGame, RpcParams rpcParams)
+        private void ReceiveSceneDataClientRpc(byte[] chunk, int index, int totalChunks, int streamId, bool isMidGame, RpcParams rpcParams)
         {
             NetworkConnectionHandler.instance.connectionStage = 2;
-            ReceiveChunk(chunk, index, totalChunks);
+            ReceiveChunk(chunk, index, totalChunks, streamId);
         }
 
         // CLIENT RECEIVE CHUNKS OF SCENE DATA ----- ----- ----- ----- ----- ----- ----- ----- ----- ----- ----- ----- ----- ----- ----- ----- ----- ----- ----- ----- ----- ----- ----- ----- 
-        private void ReceiveChunk(byte[] chunk, int index, int totalChunks)
+        private void ReceiveChunk(byte[] chunk, int index, int totalChunks, int streamId)
         {
-            receivedChunks[index] = chunk;
+            if (streamId == lastCompletedStreamId) return; // хвост уже собранной передачи — игнор
 
-            if (totalChunksExpected == -1)
+            // Новая передача — старый недособранный буфер сбрасывается (изоляция потоков)
+            if (streamId != currentStreamId)
             {
+                receivedChunks.Clear();
+                currentStreamId = streamId;
                 totalChunksExpected = totalChunks;
             }
 
+            receivedChunks[index] = chunk;
+
             if (receivedChunks.Count == totalChunksExpected)
             {
+                lastCompletedStreamId = streamId;
                 AssembleFullString();
             }
         }

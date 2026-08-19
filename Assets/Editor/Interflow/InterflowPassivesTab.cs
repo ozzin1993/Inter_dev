@@ -26,6 +26,7 @@ namespace StrategyCore
     {
         static List<Ability> items = new List<Ability>();
         static Ability selected;
+        static string factionFilter = InterflowAbilityFactions.ALL;   // разбор по фракциям (задача Artsiom 2026-08-17)
 
         static VisualElement listContainer, rightPanel;
         static Label countLabel;
@@ -63,8 +64,13 @@ namespace StrategyCore
                              "дальше включаются нужные свойства — характеристики, иммунитеты, аура и прочее.";
             left.Add(create);
 
-            left.Add(new Button(() => { InterflowAbilityUsage.InvalidateCache(); Refresh(); RebuildList(); RebuildRight(); })
+            left.Add(new Button(() => { InterflowAbilityUsage.InvalidateCache(); InterflowAbilityFactions.InvalidateCache();
+                                        Refresh(); RebuildList(); RebuildRight(); })
                 { text = "Обновить список" });
+
+            // Фильтр по фракции — общий элемент редактора умений (правило 5).
+            left.Add(InterflowAbilityFactions.FilterDropdown(factionFilter,
+                v => { factionFilter = v; RebuildList(); }));
             countLabel = new Label { style = { marginTop = 2, marginBottom = 2, color = DIM } };
             left.Add(countLabel);
 
@@ -93,6 +99,9 @@ namespace StrategyCore
                 .Select(g => AssetDatabase.LoadAssetAtPath<Ability>(AssetDatabase.GUIDToAssetPath(g)))
                 .Where(a => a != null && InterflowAbilityGroups.Of(a) == InterflowAbilityGroups.Group.Passive)
                 .OrderBy(a => a.name).ToList();
+
+            // Фракция могла исчезнуть вместе с ассетом — иначе фильтр молча показывал бы пусто.
+            factionFilter = InterflowAbilityFactions.Correct(factionFilter);
         }
 
         // ======================== СОЗДАНИЕ И УДАЛЕНИЕ ========================
@@ -122,6 +131,7 @@ namespace StrategyCore
             // иначе новый класс останется «неизвестным» до перезапуска окна.
             InterflowAbilityGroups.InvalidateCache();
             InterflowAbilityUsage.InvalidateCache();
+            InterflowAbilityFactions.InvalidateCache();
 
             Refresh();
             selected = asset;
@@ -141,6 +151,7 @@ namespace StrategyCore
             AssetDatabase.SaveAssets();
             InterflowAbilityGroups.InvalidateCache();
             InterflowAbilityUsage.InvalidateCache();
+            InterflowAbilityFactions.InvalidateCache();
 
             Refresh();
             selected = items.FirstOrDefault();
@@ -159,7 +170,12 @@ namespace StrategyCore
             if (listContainer == null) return;
             listContainer.Clear();
 
-            if (countLabel != null) countLabel.text = $"Пассивных умений: {items.Count}";
+            var shown = items.Where(a => InterflowAbilityFactions.Matches(a, factionFilter)).ToList();
+
+            if (countLabel != null)
+                countLabel.text = shown.Count == items.Count
+                    ? $"Пассивных умений: {items.Count}"
+                    : $"Пассивных умений: {shown.Count} из {items.Count}";
 
             if (items.Count == 0)
             {
@@ -168,8 +184,15 @@ namespace StrategyCore
                 return;
             }
 
+            if (shown.Count == 0)
+            {
+                listContainer.Add(new Label("По этой фракции пассивных умений нет.")
+                    { style = { whiteSpace = WhiteSpace.Normal, marginTop = 4, color = DIM } });
+                return;
+            }
+
             // Внутри пассивок делим по классу-кирпичу — у «каждой N-й атаки» и «ярости от нехватки ХП» разный смысл.
-            foreach (var byClass in items.GroupBy(a => a.GetType().Name).OrderBy(g => g.Key))
+            foreach (var byClass in shown.GroupBy(a => a.GetType().Name).OrderBy(g => g.Key))
             {
                 var fold = new Foldout { text = $"{byClass.Key}  ({byClass.Count()})", value = true };
                 foreach (var a in byClass) fold.Add(ListRow(a));
@@ -222,10 +245,12 @@ namespace StrategyCore
                   tooltip = "Пассивное умение: работает само, без нажатия и без каста." });
 
             rightPanel.Add(InterflowAbilityUsage.Section(selected));   // общий блок, правило 5
+            rightPanel.Add(InterflowAbilityFactions.Section(so, selected, RebuildList));
 
             // Распределяем поля по трём осмысленным секциям, остаток — в свёрнутый блок.
             var own = OwnFieldNames(selected.GetType());
             var ownBox = Section("Что делает пассивка");
+            var reactBox = Section("Реакции — что происходит по событию");
             var condBox = Section("Условия открытия и уровни");
             var textBox = Section("Подпись и иконка");
             var restFold = new Foldout
@@ -242,9 +267,11 @@ namespace StrategyCore
             {
                 enter = false;
                 if (it.name == "m_Script") continue;
+                if (it.name == "editorFactions") continue;   // показано блоком «Фракции» выше
 
                 VisualElement target;
-                if (own.Contains(it.name)) target = ownBox;
+                if (REACTION_FIELDS.Contains(it.name)) target = reactBox;
+                else if (own.Contains(it.name)) target = ownBox;
                 else if (CONDITION_FIELDS.Contains(it.name)) target = condBox;
                 else if (TEXT_FIELDS.Contains(it.name)) target = textBox;
                 else target = restFold;
@@ -253,6 +280,7 @@ namespace StrategyCore
             }
 
             AddIfNotEmpty(ownBox);
+            AddIfNotEmpty(reactBox);
             AddIfNotEmpty(condBox);
             AddIfNotEmpty(textBox);
             rightPanel.Add(restFold);
@@ -260,6 +288,16 @@ namespace StrategyCore
 
             rightPanel.Bind(so);
         }
+
+        /// <summary>
+        /// Ось «реакции» конструктора пассивок: показывается СВОЕЙ секцией, отдельно от свойств
+        /// (решение Artsiom 2026-08-17). Свойства отвечают на вопрос «какой носитель»,
+        /// реакции — «что произойдёт, когда случится событие»; мешать их в одном списке нельзя.
+        /// </summary>
+        static readonly HashSet<string> REACTION_FIELDS = new HashSet<string>
+        {
+            "onDamaged", "onDeath", "onKill", "onHpBelow"
+        };
 
         /// <summary>Имена сериализованных полей, объявленных самим классом-кирпичом (а не унаследованных от Ability).</summary>
         static HashSet<string> OwnFieldNames(Type t)

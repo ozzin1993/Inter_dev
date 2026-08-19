@@ -17,6 +17,12 @@ namespace StrategyCore
 
         public override void Use(Unit castingUnit, int castingPlayer, int level)
         {
+            // Защита от контент-ошибки: эффектор для уровня не заполнен — умение не срабатывает (блок «баги и корректность»)
+            if (invisilibtyEffector == null || level < 0 || level >= invisilibtyEffector.Length || invisilibtyEffector[level] == null)
+            {
+                Debug.LogWarning($"[InvisibilityBase] {name}: эффектор невидимости для уровня {level} не заполнен — пропуск");
+                return;
+            }
             Effector.EffectorAdd(castingUnit, invisilibtyEffector[level], null, castingUnit.owner);
         }
     }

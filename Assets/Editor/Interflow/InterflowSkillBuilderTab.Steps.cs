@@ -338,6 +338,8 @@ namespace StrategyCore
             var hidden = new List<string>();
 
             // Стратегия и её параметры читаются ТОЛЬКО в режимах «умный выбор» (предикат — из самого умения).
+            AddField(box, so, "autoCastSelfHpBelow");   // условие по своему здоровью — работает во всех режимах цели
+
             var strategyFields = new[] { "targetStrategy", "searchOrigin", "strategyUseCurrentHealth", "strategyHpThreshold" };
             if (selected.PicksTargetByStrategy) foreach (var f in strategyFields) AddField(box, so, f);
             else hidden.AddRange(strategyFields);

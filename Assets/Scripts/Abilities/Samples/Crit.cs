@@ -22,26 +22,13 @@ namespace StrategyCore
         public override void Unlock(Unit unit, int castingPlayer, int level)
         {
             // Add to callbacks
-            unit.OnDamageDealModifyCallbacks.Add(new DamageModifyCallback
-            {
-                Callback = CritApply,
-                Ability = this,
-                Level = level
-            });
+            InterflowAbility.CallbackAdd(unit.OnDamageDealModifyCallbacks, this, level, CritApply);
         }
 
         public override void Lock(Unit unit, int castingPlayer, int level)
         {
             // Remove from callbacks
-            for (int i = 0; i < unit.OnDamageDealModifyCallbacks.Count; i++)
-            {
-                var c = unit.OnDamageDealModifyCallbacks[i];
-                if (c.Ability == this && c.Level == level)
-                {
-                    unit.OnDamageDealModifyCallbacks.RemoveAt(i);
-                    break;
-                }
-            }
+            InterflowAbility.CallbackRemove(unit.OnDamageDealModifyCallbacks, this, level);
         }
 
         public float CritApply(Unit unit, int level, float dmg, bool directAttack)
@@ -53,7 +40,7 @@ namespace StrategyCore
             if (!NetworkConnectionHandler.isClient)
             {
                 // Only server should apply chance ability
-                if (Random.value < critChance[level])
+                if (Random.value < InterflowAbility.LevelValueOrZero(critChance, level))
                 {
                     // Check if target is eligible
                     if (!UnitSelector.IsUnitCompatible(unit.owner, unit.target, unitSelector)) return dmg;
@@ -74,7 +61,7 @@ namespace StrategyCore
                     }
 
                     // Apply critical hit multiplier
-                    return dmg * critMultiplier[level];
+                    return dmg * InterflowAbility.LevelValueOrZero(critMultiplier, level);
                 }
             }
 

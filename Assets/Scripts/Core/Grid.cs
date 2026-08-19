@@ -48,6 +48,13 @@ namespace StrategyCore
 
         public void Initialize()
         {
+            // Проверка контракта канала позиций (ревью, блок «баги»): прямой синк пакует координаты в UInt16,
+            // предел 655.34 по оси, а маркер «последняя позиция» — отрицательный X. Карта обязана лежать в [0..655].
+            float worldX = width * cellSize;
+            float worldY = height * cellSize;
+            if (worldX > NetworkDataSync.MaxSyncableCoordinate || worldY > NetworkDataSync.MaxSyncableCoordinate)
+                Debug.LogError($"[Grid] Карта {worldX:F0}x{worldY:F0} превышает предел канала позиций ({NetworkDataSync.MaxSyncableCoordinate} по оси) — сетевой синк позиций будет повреждён (переполнение UInt16)!");
+
             // Declares chunkUnits Dictionary
             chunkUnits.Clear();
             for (int i = 0; i < chunkCountY * chunkCountX; i++)

@@ -83,22 +83,7 @@ namespace StrategyCore
 
             states[unit] = new ChargeState { level = level };
 
-            bool has = false;
-            for (int i = 0; i < unit.OnAfterDamageDealCallbacks.Count; i++)
-            {
-                var c = unit.OnAfterDamageDealCallbacks[i];
-                if (c.Ability == this && c.Level == level) { has = true; break; }
-            }
-
-            if (!has)
-            {
-                unit.OnAfterDamageDealCallbacks.Add(new AfterDamageDealCallback
-                {
-                    Callback = ImpactApply,
-                    Ability = this,
-                    Level = level
-                });
-            }
+            InterflowAbility.CallbackAdd(unit.OnAfterDamageDealCallbacks, this, level, ImpactApply);
 
             if (!tickWired && GameManager.instance != null)
             {
@@ -117,15 +102,7 @@ namespace StrategyCore
                 states.Remove(unit);
             }
 
-            for (int i = 0; i < unit.OnAfterDamageDealCallbacks.Count; i++)
-            {
-                var c = unit.OnAfterDamageDealCallbacks[i];
-                if (c.Ability == this && c.Level == level)
-                {
-                    unit.OnAfterDamageDealCallbacks.RemoveAt(i);
-                    break;
-                }
-            }
+            InterflowAbility.CallbackRemove(unit.OnAfterDamageDealCallbacks, this, level);
 
             if (states.Count == 0 && tickWired && GameManager.instance != null)
             {

@@ -29,6 +29,14 @@ namespace StrategyCore
             target = null;
             if (castingUnit == null || castingUnit.dead) return false;
 
+            // Условие по себе: пока носитель здоров, умение придерживается. Проверяем ДО поиска цели —
+            // перебирать кандидатов, зная, что каста не будет, значит греть процессор впустую.
+            if (autoCastSelfHpBelow > 0f)
+            {
+                if (castingUnit.maxHealth <= 0f) return false;
+                if (castingUnit.health / castingUnit.maxHealth >= autoCastSelfHpBelow) return false;
+            }
+
             switch (targetMode)
             {
                 case SkillTargetMode.Self:

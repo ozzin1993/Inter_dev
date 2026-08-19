@@ -10,6 +10,13 @@ namespace StrategyCore
     public partial class NetworkDataSync
     {
 
+        // Контракт канала позиций (ревью, блок «баги и корректность»):
+        // — прямой канал пакует координату в UInt16 как x*100 → предел карты 655.34 по каждой оси;
+        // — маркер «юнит доехал, это последняя позиция» — отрицательный X (карта обязана целиком лежать
+        //   в положительных координатах; предел и положительность проверяются в Grid.Initialize).
+        public const float MaxSyncableCoordinate = 655.34f;
+        public const float LastPositionMarker = -1f;
+
         // POSITION SYNC --------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
         // ------ DIRECT POSITION SET ------
@@ -32,8 +39,10 @@ namespace StrategyCore
             // Send position list
             for (int i = 0; i < directPositionSyncList.Count; i++)
             {
-                posX[i] = (UInt16)(SlotManager.instance.unitNetID[directPositionSyncList[i]].transform.position.x * 100f); //BitConverter.ToUInt16(BitConverter.GetBytes(unitNetID[syncList[i]].transform.position.x), 0);
-                posY[i] = (UInt16)(SlotManager.instance.unitNetID[directPositionSyncList[i]].transform.position.z * 100f); //BitConverter.ToUInt16(BitConverter.GetBytes(unitNetID[syncList[i]].transform.position.z), 0);
+                Vector3 p = SlotManager.instance.unitNetID[directPositionSyncList[i]].transform.position;
+                // Кламп в предел UInt16-упаковки: координата вне карты не должна молча заворачиваться в случайную
+                posX[i] = (UInt16)(Mathf.Clamp(p.x, 0f, MaxSyncableCoordinate) * 100f);
+                posY[i] = (UInt16)(Mathf.Clamp(p.z, 0f, MaxSyncableCoordinate) * 100f);
             }
 
             NetworkDataSync.instance.SetPositionDirectClientRpc(directPositionSyncList.ToArray(), posX, posY);
@@ -104,8 +113,8 @@ namespace StrategyCore
             // Send removal List
             for (int i = 0; i < removeSyncList.Count; i++)
             {
-                posX[positionSyncList.Count + i] = -1f; // Max of UInt16 (Not used)
-                posY[positionSyncList.Count + i] = -1f; // Indication that it is removal position
+                posX[positionSyncList.Count + i] = LastPositionMarker; // маркер «последняя позиция» (см. контракт выше)
+                posY[positionSyncList.Count + i] = LastPositionMarker;
             }
 
             // Send the information. We combine both lists into an array and send to the clients

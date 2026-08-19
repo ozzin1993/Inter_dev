@@ -21,7 +21,7 @@ namespace StrategyCore
             unit.disarmed = true;
             unit.muted = true;
             
-            unit.Polymorph(this, level, hexTime[level], hexUnit);
+            unit.Polymorph(this, level, InterflowAbility.LevelValueOrZero(hexTime, level), hexUnit);
         }
 
         public override void Deactivate(Unit castingUnit, int castingPlayer, int level)

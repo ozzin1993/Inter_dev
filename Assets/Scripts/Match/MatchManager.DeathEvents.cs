@@ -8,7 +8,9 @@ namespace StrategyCore
     // Серверо-авторитетный центральный диспетчер смертей (правило 5). Подписывает Unit.OnDie КАЖДОГО нашего
     // юнита ОДИН раз при спавне и ретранслирует смерть серверным потребителям. Покрытие юнитов = там, где
     // инвочится OnUnitSpawned (волна + герой + призванные; башни — нет, у них свой путь HandleTowerDie).
-    // Потребители в этом же партиале: B3 (килл-баунти по killerPlayer) и B4 (клич при добивании по killerUnit).
+    // Потребитель в этом же партиале: B3 (килл-баунти по killerPlayer). Клич при добивании (был B4) с 2026-08-17
+    // живёт в оси «реакции» конструктора пассивок — она подписывается на OnUnitDeathServer как обычный слушатель,
+    // и отдельного реестра «криеров» здесь больше нет (правило 5: одна точка входа вместо двух).
     // Ассет StrategyCore не трогаем (правило 1).
     public partial class MatchManager
     {
@@ -22,27 +24,6 @@ namespace StrategyCore
             "В Фазе 4 включается техом «Грабёж». Структуры до хаба не доходят (покрытие §6.1) → платится только за юнитов. " +
             "Начисляется ПОВЕРХ штатного resourceReward жертвы.")]
         int bountyGold = 0;
-
-        // ---- B4: реестр «криеров» (клич при добивании) -----------------------------------------------------
-        struct KillCrier { public OnKillCryPassive passive; public int level; }
-        // killerUnit → его пассивка клича + уровень. Наполняется OnKillCryPassive.Unlock (сервер). Чистится на
-        // смерти носителя (см. HandleUnitDeathForHub) — Unit.Die не зовёт Lock (ревью §4.1).
-        readonly Dictionary<Unit, KillCrier> killCriers = new Dictionary<Unit, KillCrier>();
-
-        /// <summary>Зарегистрировать носителя как «криера» (B4). Сервер-онли. Зовётся из OnKillCryPassive.Unlock.</summary>
-        public void RegisterKiller(Unit unit, OnKillCryPassive cry, int level)
-        {
-            if (NetworkConnectionHandler.isClient) return;
-            if (unit == null || cry == null) return;
-            killCriers[unit] = new KillCrier { passive = cry, level = level };
-        }
-
-        /// <summary>Снять регистрацию «криера» (B4). Зовётся из OnKillCryPassive.Lock.</summary>
-        public void UnregisterKiller(Unit unit)
-        {
-            if (unit == null) return;
-            killCriers.Remove(unit);
-        }
 
         // ---- Временная диагностика десинка смерти (2026-07-25) ------------------------------------------
         [Header("Диагностика (временно)")]
@@ -63,7 +44,6 @@ namespace StrategyCore
         {
             OnUnitSpawned -= HandleUnitSpawnedForHub;
             OnUnitDeathServer -= HandleBountyOnDeath;
-            killCriers.Clear();
         }
 
         // При спавне юнита (сервер): подписать его смерть на центральный хендлер РОВНО один раз.
@@ -76,7 +56,7 @@ namespace StrategyCore
             unit.OnDie += HandleUnitDeathForHub;
         }
 
-        // Смерть юнита (сервер): диспетч потребителям + клич (B4) + чистка реестра. Гейт isClient — OnDie летит
+        // Смерть юнита (сервер): диспетч потребителям. Гейт isClient — OnDie летит
         // и на клиенте (DieClientRpc, calledByServer:false), а начисления/эффекты — только на сервере (правило 6).
         void HandleUnitDeathForHub(Unit unit, int killerPlayer, Unit killerUnit, bool rewards)
         {
@@ -96,13 +76,6 @@ namespace StrategyCore
             }
 
             OnUnitDeathServer?.Invoke(unit, killerPlayer, killerUnit, rewards);
-
-            // B4: если добивший — зарегистрированный «криер», клич союзникам в радиусе.
-            if (killerUnit != null && killCriers.TryGetValue(killerUnit, out KillCrier crier) && crier.passive != null)
-                crier.passive.TriggerCry(killerUnit, crier.level);
-
-            // Чистка реестра: умерший юнит больше не «криер» (Unit.Die не зовёт Lock — ревью §4.1).
-            killCriers.Remove(unit);
         }
 
         // ---- B3: начисление баунти (потребитель OnUnitDeathServer) ------------------------------------------

@@ -60,12 +60,7 @@ namespace StrategyCore
 
             states[unit] = new CryState { sinceLastAttack = calmSeconds }; // первый бой сразу считается вступлением
 
-            unit.OnAfterDamageDealCallbacks.Add(new AfterDamageDealCallback
-            {
-                Callback = OnAttack,
-                Ability = this,
-                Level = level
-            });
+            InterflowAbility.CallbackAdd(unit.OnAfterDamageDealCallbacks, this, level, OnAttack);
 
             if (!tickWired && GameManager.instance != null)
             {
@@ -80,15 +75,7 @@ namespace StrategyCore
 
             states.Remove(unit);
 
-            for (int i = 0; i < unit.OnAfterDamageDealCallbacks.Count; i++)
-            {
-                var c = unit.OnAfterDamageDealCallbacks[i];
-                if (c.Ability == this && c.Level == level)
-                {
-                    unit.OnAfterDamageDealCallbacks.RemoveAt(i);
-                    break;
-                }
-            }
+            InterflowAbility.CallbackRemove(unit.OnAfterDamageDealCallbacks, this, level);
 
             if (states.Count == 0 && tickWired && GameManager.instance != null)
             {

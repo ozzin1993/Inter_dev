@@ -83,6 +83,12 @@ namespace StrategyCore
         [Range(0f, 1f)]
         public float strategyHpThreshold = 0.3f;
 
+        [Tooltip("УСЛОВИЕ АВТОКАСТА ПО СЕБЕ: умение сработает само, только если здоровье НОСИТЕЛЯ ниже этой доли. " +
+                 "0 — условия нет, хватает отката. 0.3 — держать умение до падения ниже тридцати процентов " +
+                 "(«последний вздох»). На каст с кнопки не влияет — там решает игрок.")]
+        [Range(0f, 1f)]
+        public float autoCastSelfHpBelow;
+
         [Header("Селектор ролей")]
         [Tooltip("ВТОРОЙ СЕЛЕКТОР УМЕНИЯ, парный к «свой/союзник/враг». Боевые роли, с которыми умение " +
                  "вообще работает: и при выборе цели стратегией, и при сборе целей в области, и во всех блоках. " +
@@ -222,16 +228,19 @@ namespace StrategyCore
         [Header("Блок 14 — вторичные цели вокруг основной")]
         public SkillSecondaryBlock secondary = new SkillSecondaryBlock();
 
-        [Header("Блок 15 — призыв")]
+        [Header("Блок 15 — отбросить цели")]
+        public SkillKnockbackBlock knockback = new SkillKnockbackBlock();
+
+        [Header("Блок 16 — призыв")]
         public SkillSummonBlock summon = new SkillSummonBlock();
 
-        [Header("Блок 16 — зона на земле")]
+        [Header("Блок 17 — зона на земле")]
         public SkillGroundZoneBlock groundZone = new SkillGroundZoneBlock();
 
-        [Header("Блок 17 — перемещение кастера")]
+        [Header("Блок 18 — перемещение кастера")]
         public SkillCasterMoveBlock casterMove = new SkillCasterMoveBlock();
 
-        [Header("Блок 18 — серверный сервис")]
+        [Header("Блок 19 — серверный сервис")]
         public SkillDelegateBlock delegateService = new SkillDelegateBlock();
 
         // ============================================================ ВЫЧИСЛЯЕМЫЙ ТИП ==

@@ -23,8 +23,8 @@ namespace StrategyCore
             vfxStorage = temp.GetComponent<VFXReferencer>();
 
             // Transfer HP
-            if (unit) unit.ChangeHealthRegen(-amount[level]);
-            if (castingUnit) castingUnit.ChangeHealthRegen(amount[level]);
+            if (unit) unit.ChangeHealthRegen(-InterflowAbility.LevelValueOrZero(amount, level));
+            if (castingUnit) castingUnit.ChangeHealthRegen(InterflowAbility.LevelValueOrZero(amount, level));
         }
 
         public override void Deactivate(Unit castingUnit, int castingPlayer, int level, Unit unit, ref VFXReferencer vfxStorage)
@@ -36,8 +36,8 @@ namespace StrategyCore
             }
 
             // Transfer HP
-            if (unit) unit.ChangeHealthRegen(amount[level]);
-            if (castingUnit) castingUnit.ChangeHealthRegen(-amount[level]);
+            if (unit) unit.ChangeHealthRegen(InterflowAbility.LevelValueOrZero(amount, level));
+            if (castingUnit) castingUnit.ChangeHealthRegen(-InterflowAbility.LevelValueOrZero(amount, level));
         }
 
         public override void Use(Unit castingUnit, int castingPlayer, int level, Unit unit, ref VFXReferencer vfxStorage)

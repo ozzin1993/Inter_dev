@@ -51,7 +51,7 @@ namespace StrategyCore
 
             if (navmeshCast)
             {
-                float currentRange = range[level];
+                float currentRange = InterflowAbility.LevelValueOrZero(range, level);
                 NavMeshHit hit;
                 Vector3 distancedPosition = Utils.TerrainRaycastByPosition(Utils.PointTowards(new Vector2(castingUnit.transform.position.x, castingUnit.transform.position.z), new Vector2(position.x, position.z), currentRange), terrainMask);
 
@@ -62,7 +62,7 @@ namespace StrategyCore
                     if (currentRange >= 0 && NavMesh.SamplePosition(distancedPosition, out hit, 50f, navmeshMask))
                     {
                         currentDistance = Vector2.Distance(new Vector2(castingUnit.transform.position.x, castingUnit.transform.position.z), new Vector2(hit.position.x, hit.position.z));
-                        if (currentDistance <= range[level])
+                        if (currentDistance <= InterflowAbility.LevelValueOrZero(range, level))
                         {
                             // Position found
                             position = hit.position;
@@ -96,7 +96,7 @@ namespace StrategyCore
                 castingUnit.transform.position = Vector3.MoveTowards(
                     castingUnit.transform.position,
                     position,
-                    range[level]
+                    InterflowAbility.LevelValueOrZero(range, level)
                 );
             }
 

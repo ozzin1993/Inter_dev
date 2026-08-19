@@ -215,30 +215,19 @@ namespace StrategyCore
                 // Retrieve content
                 string sceneData = System.IO.File.ReadAllText(fileName);
 
-                // Send by chunks to clients
+                // Порционная отправка всем клиентам (см. SendChunksThrottled в NetworkDataSync.Scene.cs)
                 byte[] utf8Bytes = Encoding.UTF8.GetBytes(sceneData); // Convert to UTF-8 bytes
-                int totalChunks = Mathf.CeilToInt((float)utf8Bytes.Length / CHUNK_SIZE);
-
-                for (int i = 0; i < totalChunks; i++)
-                {
-                    int startIndex = i * CHUNK_SIZE;
-                    int length = Mathf.Min(CHUNK_SIZE, utf8Bytes.Length - startIndex);
-                    byte[] chunk = new byte[length];
-
-                    System.Array.Copy(utf8Bytes, startIndex, chunk, 0, length);
-
-                    ReceiveSceneDataClientRpc(chunk, i, totalChunks);
-                }
+                StartCoroutine(SendChunksThrottled(utf8Bytes, ++sceneStreamCounter, 0UL, false, false));
             }
             else Debug.Log("No save file found! At " + fileName);
         }
 
         // All clients receive the save file
         [Rpc(SendTo.NotServer, InvokePermission = RpcInvokePermission.Server)]
-        private void ReceiveSceneDataClientRpc(byte[] chunk, int index, int totalChunks)
+        private void ReceiveSceneDataClientRpc(byte[] chunk, int index, int totalChunks, int streamId)
         {
             NetworkConnectionHandler.instance.connectionStage = 1;
-            ReceiveChunk(chunk, index, totalChunks);
+            ReceiveChunk(chunk, index, totalChunks, streamId);
         }
 
         // Server receive info that client has acquired save file data

@@ -12,7 +12,6 @@ GameObject:
   - component: {fileID: 1936979029478643860}
   - component: {fileID: 2114926653383545354}
   - component: {fileID: 894453547512464923}
-  - component: {fileID: 1143821659533483926}
   - component: {fileID: 2609729869334980176}
   m_Layer: 0
   m_Name: Footman_Green
@@ -55,6 +54,7 @@ MonoBehaviour:
   - {fileID: 11400000, guid: 9a704a82d1527ddc3852e105c985b3e3, type: 2}
   - {fileID: 11400000, guid: dcb99de243e806935e2f44aa3de1ecc1, type: 2}
   - {fileID: 11400000, guid: 80fd027d96def7042b315f4498b298fd, type: 2}
+  - {fileID: 11400000, guid: a71c4e0f93b64d2e8f5a6c1d47b90e33, type: 2}
   abilityLevel: 
   abilityLocked: 
   everyFrameAbilities: []
@@ -316,56 +316,6 @@ MonoBehaviour:
   watchEffectors: 1
   watchAbilities: 1
   statEpsilon: 0.0001
---- !u!114 &1143821659533483926
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 3413404270985750867}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 187de7311ac192e49968c766bac1ec8d, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  radius: 3
-  requiredTech: {fileID: 11400000, guid: b54a8b8a2aeb1136b54c7b489fc5e158, type: 2}
-  enemyDamage: 50
-  enemyDamageType: {fileID: 11400000, guid: f9053eb8c43d2b4489895a8f084c16be, type: 2}
-  enemySelector:
-    isOwn: 0
-    isAlly: 0
-    isEnemy: 1
-    isUnit: 1
-    isBuilding: 0
-    isStaticDestructible: 0
-    isTree: 0
-    isGround: 1
-    isWater: 1
-    isAir: 1
-    includeInvisible: 0
-    includeInvulnerable: 0
-  allyHeal: 0
-  allySelector:
-    isOwn: 1
-    isAlly: 1
-    isEnemy: 0
-    isUnit: 1
-    isBuilding: 0
-    isStaticDestructible: 0
-    isTree: 0
-    isGround: 1
-    isWater: 1
-    isAir: 1
-    includeInvisible: 0
-    includeInvulnerable: 0
-  zonePrefab: {fileID: 0}
-  summonPrefab: {fileID: 0}
-  summonCount: 1
-  summonLifetime: 0
-  summonObeyCommands: 1
-  summonCommand: 1
-  summonSpawnSpread: 1
 --- !u!114 &2609729869334980176
 MonoBehaviour:
   m_ObjectHideFlags: 0

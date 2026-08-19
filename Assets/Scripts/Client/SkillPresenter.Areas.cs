@@ -174,12 +174,28 @@ namespace StrategyCore
             go.transform.SetParent(anchor.transform, false);
             go.transform.localPosition = new Vector3(0f, Settings.groundLift, 0f);
 
-            go.AddComponent<MeshFilter>().sharedMesh = BuildConeMesh(radius, angleDegrees, Settings.coneSegments);
+            go.AddComponent<MeshFilter>().sharedMesh = GetConeMesh(radius, angleDegrees, Settings.coneSegments);
             go.AddComponent<MeshRenderer>().sharedMaterial = material;
 
             AreaView view = new AreaView { obj = go.transform, anchor = anchor, point = anchor.transform.position, facesAnchor = true };
             FaceAnchor(view);   // первый кадр — сразу в нужную сторону, без мелькания
             return view;
+        }
+
+        // Кеш мешей сектора по ключу (радиус, угол, сегменты). Меш — самостоятельный объект Unity:
+        // Destroy игрового объекта его НЕ удаляет, без кеша каждый показ конуса тёк памятью (ревью, блок «баги»).
+        static readonly System.Collections.Generic.Dictionary<(float radius, float angle, int segments), Mesh> coneMeshCache = new();
+
+        // Достаёт меш из кеша или строит и кеширует. Уничтоженный извне меш перестраивается.
+        static Mesh GetConeMesh(float radius, float angleDegrees, int segments)
+        {
+            var key = (radius, angleDegrees, segments);
+            if (!coneMeshCache.TryGetValue(key, out Mesh mesh) || mesh == null)
+            {
+                mesh = BuildConeMesh(radius, angleDegrees, segments);
+                coneMeshCache[key] = mesh;
+            }
+            return mesh;
         }
 
         /// <summary>

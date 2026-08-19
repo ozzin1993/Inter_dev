@@ -42,11 +42,7 @@ namespace StrategyCore
             if (unit == null) return;
 
             // Урон — колбэк-модификатор (без состояния). Идемпотентность: не дублировать.
-            bool has = false;
-            for (int i = 0; i < unit.OnDamageDealModifyCallbacks.Count; i++)
-                if (unit.OnDamageDealModifyCallbacks[i].Ability == this && unit.OnDamageDealModifyCallbacks[i].Level == level) { has = true; break; }
-            if (!has)
-                unit.OnDamageDealModifyCallbacks.Add(new DamageModifyCallback { Callback = DamageApply, Ability = this, Level = level });
+            InterflowAbility.CallbackAdd(unit.OnDamageDealModifyCallbacks, this, level, DamageApply);
 
             // Броня — подписка на OnHPChange (сервер пересчитывает). Замыкание на юнит (OnHPChange без параметров).
             if (!hpHandlers.ContainsKey(unit))
@@ -64,11 +60,7 @@ namespace StrategyCore
         {
             if (unit == null) return;
 
-            for (int i = 0; i < unit.OnDamageDealModifyCallbacks.Count; i++)
-            {
-                DamageModifyCallback c = unit.OnDamageDealModifyCallbacks[i];
-                if (c.Ability == this && c.Level == level) { unit.OnDamageDealModifyCallbacks.RemoveAt(i); break; }
-            }
+            InterflowAbility.CallbackRemove(unit.OnDamageDealModifyCallbacks, this, level);
 
             // Снять подписку OnHPChange + вернуть СВОЙ вклад брони (как было).
             if (hpHandlers.TryGetValue(unit, out Action h))

@@ -21,24 +21,12 @@ namespace StrategyCore
         {
             if (unit == null) return;
             // Идемпотентность: не добавлять второй колбэк при повторном Unlock (приёмка B1).
-            for (int i = 0; i < unit.OnAfterDamageDealCallbacks.Count; i++)
-                if (unit.OnAfterDamageDealCallbacks[i].Ability == this && unit.OnAfterDamageDealCallbacks[i].Level == level) return;
-
-            unit.OnAfterDamageDealCallbacks.Add(new AfterDamageDealCallback
-            {
-                Callback = LifestealApply,
-                Ability = this,
-                Level = level
-            });
+                        InterflowAbility.CallbackAdd(unit.OnAfterDamageDealCallbacks, this, level, LifestealApply);
         }
 
         public override void Lock(Unit unit, int castingPlayer, int level)
         {
-            for (int i = 0; i < unit.OnAfterDamageDealCallbacks.Count; i++)
-            {
-                AfterDamageDealCallback c = unit.OnAfterDamageDealCallbacks[i];
-                if (c.Ability == this && c.Level == level) { unit.OnAfterDamageDealCallbacks.RemoveAt(i); break; }
-            }
+            InterflowAbility.CallbackRemove(unit.OnAfterDamageDealCallbacks, this, level);
         }
 
         // Лечение носителя (byUnit) на долю нанесённого урона. dmg — величина атаки (до брони; актуально для баланса,

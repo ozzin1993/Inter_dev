@@ -458,7 +458,7 @@ namespace StrategyCore
                 if (flat > 0f) PayHealth(castingUnit, flat);
             }
 
-            // ---------- 2..14. Блоки по каждой цели (порядок фиксирован) ----------
+            // ---------- 2..15. Блоки по каждой цели (порядок фиксирован) ----------
             if (targets != null)
             {
                 for (int i = 0; i < targets.Count; i++)
@@ -489,19 +489,20 @@ namespace StrategyCore
                     ApplyMorph(level, t);
                     ApplyOwnership(castingUnit, t);          // после всех эффектов: меняет сторону цели
                     ApplySecondary(castingPlayer, level, t, baseDamageToTarget); // своя выборка вокруг этой цели
+                    ApplyKnockback(castingUnit, level, t);   // последним: сдвигает цель, всё позиционное уже сработало
                 }
             }
 
-            // ---------- 15. Призыв ----------
+            // ---------- 16. Призыв ----------
             if (summon != null && summon.enabled) ApplySummon(castingUnit, castingPlayer, level);
 
-            // ---------- 16. Зона на земле ----------
+            // ---------- 17. Зона на земле ----------
             if (groundZone != null && groundZone.enabled) ApplyGroundZone(castingUnit, castingPlayer, level, origin);
 
-            // ---------- 17. Перемещение кастера ----------
+            // ---------- 18. Перемещение кастера ----------
             ApplyCasterMove(castingUnit, origin);
 
-            // ---------- 18. Серверный сервис ----------
+            // ---------- 19. Серверный сервис ----------
             if (delegateService != null && delegateService.enabled) ApplyDelegate(castingUnit, castingPlayer, origin);
         }
 

@@ -9,7 +9,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: cd61e25dd5ac59c0e7075acfd0c801cb, type: 3}
+  m_Script: {fileID: 11500000, guid: 7e4e62b425a51ad40a0252b2c65f29c4, type: 3}
   m_Name: Lyudi_Ab_T2A2_Counter
   m_EditorClassIdentifier:
   id: 200105
@@ -58,11 +58,38 @@ MonoBehaviour:
   manaCost: []
   manaCostPerSecond: []
   cost: []
-  damagePercentOfAttack:
-  - 0.5
-  flatDamage:
-  - 0
-  counterDamageType: {fileID: 0}
-  onlyOnDirectAttack: 1
-  counterEffectors: []
-  maxTargets: 3
+  onDamaged:
+    enabled: 1
+    onlyDirectAttack: 1
+    onlyDamageType: {fileID: 0}
+    onlyFromFront: 0
+    frontAngle: 90
+    evadeChance: []
+    incomingMultiplier: []
+    flatBlock: []
+    minDamage: 1
+    doubleBlockBelowHp: 0
+    counterEnabled: 1
+    counterPercentOfAttack:
+    - 0.5
+    counterFlatDamage:
+    - 0
+    counterDamageType: {fileID: 0}
+    counterRadius:
+    - 2.5
+    counterMaxTargets: 3
+    counterSelector:
+    isOwn: 0
+    isAlly: 0
+    isEnemy: 1
+    isUnit: 1
+    isBuilding: 0
+    isStaticDestructible: 0
+    isTree: 0
+    isGround: 1
+    isWater: 1
+    isAir: 1
+    includeInvisible: 0
+    includeInvulnerable: 0
+    counterEffectors: []
+    counterCooldown: 3

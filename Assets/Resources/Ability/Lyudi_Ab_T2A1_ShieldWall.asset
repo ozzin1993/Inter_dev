@@ -9,14 +9,14 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 4d6b9535c275737429afc8e56847de37, type: 3}
+  m_Script: {fileID: 11500000, guid: 7e4e62b425a51ad40a0252b2c65f29c4, type: 3}
   m_Name: Lyudi_Ab_T2A1_ShieldWall
   m_EditorClassIdentifier:
   id: 200104
   abilityName:
   - "Стена щитов"
   description:
-  - "Шанс 30% полностью заблокировать входящий удар."
+  - "Снижает на 20% урон, приходящий спереди."
   icon: []
   slotNumber: -1
   isItem: 0
@@ -58,5 +58,36 @@ MonoBehaviour:
   manaCost: []
   manaCostPerSecond: []
   cost: []
-  chance:
-  - 0.3
+  onDamaged:
+    enabled: 1
+    onlyDirectAttack: 1
+    onlyDamageType: {fileID: 0}
+    onlyFromFront: 1
+    frontAngle: 90
+    evadeChance: []
+    incomingMultiplier:
+    - 0.8
+    flatBlock: []
+    minDamage: 1
+    doubleBlockBelowHp: 0
+    counterEnabled: 0
+    counterPercentOfAttack: []
+    counterFlatDamage: []
+    counterDamageType: {fileID: 0}
+    counterRadius: []
+    counterMaxTargets: 0
+    counterSelector:
+    isOwn: 0
+    isAlly: 0
+    isEnemy: 1
+    isUnit: 1
+    isBuilding: 0
+    isStaticDestructible: 0
+    isTree: 0
+    isGround: 1
+    isWater: 1
+    isAir: 1
+    includeInvisible: 0
+    includeInvulnerable: 0
+    counterEffectors: []
+    counterCooldown: 1

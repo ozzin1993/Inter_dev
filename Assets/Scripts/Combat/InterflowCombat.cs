@@ -136,6 +136,50 @@ namespace StrategyCore
             public DamageType onlyType;
             /// <summary>Применять только к прямым атакам юнитов (не к эффекторам/зонам).</summary>
             public bool onlyDirectAttack;
+
+            // ---- Добавлено 2026-08-17 под ось «реакции» конструктора пассивок ----
+            // Правило перестало быть только множителем: сюда переехали механики трёх снесённых классов
+            // (Evasion, FlatDamageBlock и защитная половина Counterattack). Значения по умолчанию
+            // нейтральны, поэтому старые потребители (уязвимость с атак, баф и щит умения) не меняются.
+
+            /// <summary>Шанс полностью уйти от удара, 0..1. 0 — не уклоняться. Бросок делает только сервер.</summary>
+            public float evadeChance;
+
+            /// <summary>Сколько единиц вычесть из удара ПОСЛЕ множителя. 0 — не вычитать.</summary>
+            public float flatBlock;
+
+            /// <summary>Нижняя граница урона после вычета (обычно 1 — удар нельзя обнулить совсем).</summary>
+            public float minDamage;
+
+            /// <summary>Доля текущего здоровья, ниже которой вычет удваивается. 0 — без удвоения.</summary>
+            public float doubleBlockBelowHp;
+
+            /// <summary>Применять правило только к ударам спереди. Бьющий неизвестен — правило не применяется.</summary>
+            public bool onlyFromFront;
+
+            /// <summary>Полный угол сектора «спереди» в градусах (90 — по 45 в каждую сторону от взгляда).</summary>
+            public float frontAngle = 90f;
+        }
+
+        /// <summary>
+        /// Пришёл ли удар спереди: сравниваем направление на бьющего с тем, куда смотрит жертва.
+        /// Взгляд берём у юнита, а не у корневого объекта: корень не вращается, поворот живёт
+        /// на horizontalPart (см. Unit.LookDirection).
+        /// </summary>
+        public static bool IsHitFromFront(Unit victim, Unit attacker, float fullAngle)
+        {
+            if (victim == null || attacker == null) return false;      // бьющий неизвестен — считаем, что не спереди
+            if (fullAngle >= 360f) return true;
+
+            Vector3 toAttacker = attacker.transform.position - victim.transform.position;
+            toAttacker.y = 0f;
+            if (toAttacker.sqrMagnitude < 0.0001f) return true;        // стоят в одной точке — считаем фронтальным
+
+            Vector3 look = victim.LookDirection;
+            look.y = 0f;
+            if (look.sqrMagnitude < 0.0001f) return false;
+
+            return Vector3.Angle(look.normalized, toAttacker.normalized) <= fullAngle * 0.5f;
         }
 
         static readonly Dictionary<Unit, List<IncomingRule>> incomingByVictim = new Dictionary<Unit, List<IncomingRule>>();
@@ -193,8 +237,29 @@ namespace StrategyCore
                 if (r == null) continue;
                 if (r.onlyDirectAttack && !directAttack) continue;
                 if (r.onlyType != null && r.onlyType != damageType) continue;
+                if (r.onlyFromFront && !IsHitFromFront(victim, attacker, r.frontAngle)) continue;
+
+                // Порядок фиксирован: уход от удара → множитель → вычет числом → нижняя граница.
+                // Ушёл — считать дальше нечего, урона нет вовсе.
+                if (r.evadeChance > 0f && !NetworkConnectionHandler.isClient &&
+                    UnityEngine.Random.value < r.evadeChance)
+                {
+                    InterflowDebug.Verbose("УХОД ОТ УДАРА: " + InterflowDebug.Name(victim) + " увернулся (шанс " +
+                                           (r.evadeChance * 100f).ToString("0") + "%)");
+                    return 0f;
+                }
 
                 amount *= r.multiplier;
+
+                if (r.flatBlock > 0f)
+                {
+                    float block = r.flatBlock;
+
+                    if (r.doubleBlockBelowHp > 0f && victim.maxHealth > 0f &&
+                        victim.health / victim.maxHealth < r.doubleBlockBelowHp) block *= 2f;
+
+                    amount = Mathf.Max(r.minDamage, amount - block);
+                }
             }
 
             return amount;

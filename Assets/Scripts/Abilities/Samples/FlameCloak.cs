@@ -19,7 +19,7 @@ namespace StrategyCore
             if (VFX != null)
             {
                 VFXReferencer vfx = castingUnit.AddVFX(VFX, false, true);
-                vfx.transform.SetGlobalScale(new Vector3(castingUnit.unitRadius * 2f + radius[level], castingUnit.unitHeight, castingUnit.unitRadius * 2f + radius[level]));
+                vfx.transform.SetGlobalScale(new Vector3(castingUnit.unitRadius * 2f + InterflowAbility.LevelValueOrZero(radius, level), castingUnit.unitHeight, castingUnit.unitRadius * 2f + InterflowAbility.LevelValueOrZero(radius, level)));
             }
         }
 
@@ -36,11 +36,11 @@ namespace StrategyCore
             // This ability gets units in radius and damages them.
 
             // Get units in radius
-            Unit[] units = Utils.GetUnitsInRadius(new Vector2(castingUnit.transform.position.x, castingUnit.transform.position.z), castingUnit.unitRadius + radius[level], castingUnit.owner, unitSelector, -1, castingUnit);
+            Unit[] units = Utils.GetUnitsInRadius(new Vector2(castingUnit.transform.position.x, castingUnit.transform.position.z), castingUnit.unitRadius + InterflowAbility.LevelValueOrZero(radius, level), castingUnit.owner, unitSelector, -1, castingUnit);
 
             for (int i = 0; i < units.Length; i++)
             {
-                castingUnit.DealDamage(units[i], damagePerSecond[level] * GameManager.instance.currentDeltaTime, damageType, false, Vector3.zero);
+                castingUnit.DealDamage(units[i], InterflowAbility.LevelValueOrZero(damagePerSecond, level) * GameManager.instance.currentDeltaTime, damageType, false, Vector3.zero);
             }
         }
     }

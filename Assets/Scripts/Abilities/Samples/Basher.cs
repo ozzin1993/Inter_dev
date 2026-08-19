@@ -25,26 +25,13 @@ namespace StrategyCore
         public override void Unlock(Unit unit, int castingPlayer, int level)
         {
             // Add to callbacks
-            unit.OnAfterDamageDealCallbacks.Add(new AfterDamageDealCallback
-            {
-                Callback = BashApply,
-                Ability = this,
-                Level = level
-            });
+            InterflowAbility.CallbackAdd(unit.OnAfterDamageDealCallbacks, this, level, BashApply);
         }
 
         public override void Lock(Unit unit, int castingPlayer, int level)
         {
             // Remove from callbacks
-            for (int i = 0; i < unit.OnAfterDamageDealCallbacks.Count; i++)
-            {
-                var c = unit.OnAfterDamageDealCallbacks[i];
-                if (c.Ability == this && c.Level == level)
-                {
-                    unit.OnAfterDamageDealCallbacks.RemoveAt(i);
-                    break;
-                }
-            }
+            InterflowAbility.CallbackRemove(unit.OnAfterDamageDealCallbacks, this, level);
         }
 
         public void BashApply(Unit targetUnit, Vector3 targetPosition, Effector[] effectors, float dmg, bool directAttack, DamageType damageType, Unit byUnit, Projectile byProjectile, int byOwner, int level)
@@ -56,9 +43,9 @@ namespace StrategyCore
             if (!NetworkConnectionHandler.isClient)
             {
                 // Only server should apply chance ability
-                if (Random.value < bashChance[level])
+                if (Random.value < InterflowAbility.LevelValueOrZero(bashChance, level))
                 {
-                    targetUnit.target.Stun(stunTime[level]);
+                    targetUnit.target.Stun(InterflowAbility.LevelValueOrZero(stunTime, level));
 
                     // Apply damage multiplier
                     if (bashMultiplier.Length > level)

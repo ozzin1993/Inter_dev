@@ -10,7 +10,9 @@ namespace StrategyCore
     /// 25 классами; оси — «свойства» и «реакции»).
     ///
     /// Здесь реализована ОСЬ 1 — СВОЙСТВА: то, что работает всё время, пока умение открыто у юнита.
-    /// Ось 2 (реакции на события боя) идёт отдельным блоком работ и в этот файл не входит.
+    /// ОСЬ 2 — РЕАКЦИИ на события боя (ударили, погиб, добил, здоровье ниже порога) живёт в партиалах
+    /// CompositePassive.Reactions.cs (поля) и CompositePassive.ReactionsRuntime.cs (подписки и исполнение);
+    /// этот файл только зовёт её три метода жизненного цикла.
     ///
     /// Как это работает: пассивка не кастуется. Ядро само считает замки по `requiredTech`
     /// и `requiredLevel`, зовёт <see cref="Unlock"/> при открытии и <see cref="Lock"/> при закрытии.
@@ -91,6 +93,7 @@ namespace StrategyCore
             carriers.Clear();
             auraDamageTypeWarned = false;
             UnwireTick();
+            ResetReactions();
         }
 
         /// <summary>
@@ -117,6 +120,7 @@ namespace StrategyCore
             ApplySplash(unit, c);
             ApplyAttackEffectors(unit, c);
             ApplyAura(unit, c);
+            WireReactions(unit, level);
 
             if (c.slowImmunity || c.aura) WireTick();
         }
@@ -136,6 +140,8 @@ namespace StrategyCore
             RemoveAttackEffectors(unit, c);
             // Иммунитет к замедлениям и аура своего состояния на юните не оставляют:
             // они живут тиком, и достаточно убрать носителя из списка.
+
+            UnwireReactions(unit);
 
             carriers.Remove(unit);
 

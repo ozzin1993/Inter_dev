@@ -19,11 +19,17 @@ namespace StrategyCore
 
         public override void Use(Unit castingUnit, int castingPlayer, int level, Unit unit)
         {
+            // Защита от контент-ошибки: тип урона для уровня не заполнен — умение не срабатывает (блок «баги и корректность»)
+            if (dmgType == null || level < 0 || level >= dmgType.Length || dmgType[level] == null)
+            {
+                Debug.LogWarning($"[StunTarget] {name}: тип урона для уровня {level} не заполнен — пропуск");
+                return;
+            }
             // Play sound
             if (launchSound != null) Presentation.Audio?.PlaySoundClip(launchSound, castingUnit.transform, 1);
             // Spawn projectile and set stun time
-            Projectile proj = Projectile.Spawn(castingUnit.owner, castingUnit, projectile, castingUnit.transform.position + new Vector3(0, castingUnit.unitHeight * 0.5f, 0), Quaternion.LookRotation(unit.transform.position - castingUnit.transform.position), unit, false, stunDamage[level], dmgType[level]);
-            proj.stunTime = stunTime[level];
+            Projectile proj = Projectile.Spawn(castingUnit.owner, castingUnit, projectile, castingUnit.transform.position + new Vector3(0, castingUnit.unitHeight * 0.5f, 0), Quaternion.LookRotation(unit.transform.position - castingUnit.transform.position), unit, false, InterflowAbility.LevelValueOrZero(stunDamage, level), dmgType[level]);
+            proj.stunTime = InterflowAbility.LevelValueOrZero(stunTime, level);
         }
     }
 }

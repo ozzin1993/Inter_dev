@@ -75,13 +75,15 @@ namespace StrategyCore
                             hint = "цель навсегда переходит к владельцу кастера; идёт после всех эффектов" },
             new BlockDesc { order = 14, field = "secondary",       title = "Вторичные цели",           kind = StepKind.Event, perTarget = true,
                             hint = "своя выборка ВОКРУГ каждой основной цели — например вылечить тех, кто её бьёт" },
-            new BlockDesc { order = 15, field = "summon",          title = "Призыв",                   kind = StepKind.Event, perTarget = false,
+            new BlockDesc { order = 15, field = "knockback",       title = "Отбросить цели",           kind = StepKind.Event, perTarget = true,
+                            hint = "идёт последним по каждой цели: всё позиционное (вторичные цели, зона, визуал) считается до сдвига" },
+            new BlockDesc { order = 16, field = "summon",          title = "Призыв",                   kind = StepKind.Event, perTarget = false,
                             hint = "исполняется один раз за каст — набор целей ему не нужен" },
-            new BlockDesc { order = 16, field = "groundZone",      title = "Зона на земле",            kind = StepKind.Event, perTarget = false,
+            new BlockDesc { order = 17, field = "groundZone",      title = "Зона на земле",            kind = StepKind.Event, perTarget = false,
                             hint = "исполняется один раз за каст; урон и эффекты живут на префабе зоны" },
-            new BlockDesc { order = 17, field = "casterMove",      title = "Перемещение кастера",      kind = StepKind.Event, perTarget = false,
+            new BlockDesc { order = 18, field = "casterMove",      title = "Перемещение кастера",      kind = StepKind.Event, perTarget = false,
                             hint = "кастер переносится в точку приложения — телепорт, рывок к месту" },
-            new BlockDesc { order = 18, field = "delegateService", title = "Серверный сервис",         kind = StepKind.Event, perTarget = false,
+            new BlockDesc { order = 19, field = "delegateService", title = "Серверный сервис",         kind = StepKind.Event, perTarget = false,
                             hint = "метеоритный дождь, подъём павших — процессы во времени на стороне матча" },
         };
 
@@ -90,6 +92,7 @@ namespace StrategyCore
         static List<CompositeSkill> skills = new List<CompositeSkill>();
         static CompositeSkill selected;
         static string filter = "";
+        static string factionFilter = InterflowAbilityFactions.ALL;   // разбор по фракциям (задача Artsiom 2026-08-17)
 
         static Dictionary<CompositeSkill, List<InterflowIssue>> issuesBySkill;
 
@@ -133,6 +136,10 @@ namespace StrategyCore
             var search = new TextField("Поиск") { value = filter };
             search.RegisterValueChangedCallback(e => { filter = e.newValue; RebuildList(); });
             left.Add(search);
+
+            // Фильтр по фракции — общий элемент редактора умений (правило 5).
+            left.Add(InterflowAbilityFactions.FilterDropdown(factionFilter,
+                v => { factionFilter = v; RebuildList(); }));
 
             left.Add(new Button(() => { RefreshAll(); RebuildList(); RebuildRightPanel(); })
                 { text = "Обновить и перепроверить",
@@ -183,6 +190,7 @@ namespace StrategyCore
         static void RefreshAll()
         {
             InterflowAbilityUsage.InvalidateCache();
+            InterflowAbilityFactions.InvalidateCache();
 
             skills = AssetDatabase.FindAssets("t:CompositeSkill")
                 .Select(g => AssetDatabase.LoadAssetAtPath<CompositeSkill>(AssetDatabase.GUIDToAssetPath(g)))
@@ -192,6 +200,9 @@ namespace StrategyCore
             validationContext = InterflowValidator.BuildSkillContext(); // кэш для точечных перепроверок
 
             if (selected == null || !skills.Contains(selected)) selected = skills.FirstOrDefault();
+
+            // Фракция могла исчезнуть вместе с ассетом — иначе фильтр молча показывал бы пусто.
+            factionFilter = InterflowAbilityFactions.Correct(factionFilter);
         }
 
         /// <summary>Перепроверить ТОЛЬКО выбранное умение — по кэшу контекста, без перечитывания проекта.</summary>
@@ -212,7 +223,8 @@ namespace StrategyCore
             if (listContainer == null) return;
             listContainer.Clear();
 
-            var shown = skills.Where(s => string.IsNullOrEmpty(filter)
+            var shown = skills.Where(s => InterflowAbilityFactions.Matches(s, factionFilter))
+                              .Where(s => string.IsNullOrEmpty(filter)
                                           || s.name.ToLower().Contains(filter.ToLower())
                                           || SkillTitle(s).ToLower().Contains(filter.ToLower())).ToList();
 
@@ -300,6 +312,7 @@ namespace StrategyCore
             AddLevelBar();
             AddSummaryCard();
             rightPanel.Add(InterflowAbilityUsage.Section(selected));   // общий блок, правило 5
+            rightPanel.Add(InterflowAbilityFactions.Section(so, selected, RebuildList));
             AddGeneralIssues();
             AddComposerChips(so);
             ribbonHolder = new VisualElement();
@@ -447,6 +460,9 @@ namespace StrategyCore
             ("взрыв",       "buff"),
             ("щит",         "shield"),
             ("ослеплени",   "blind"),
+            ("отброс",      "knockback"),
+            ("оттолкн",     "knockback"),
+            ("нокбэк",      "knockback"),
             ("рывок",       "pull"),
             ("притяг",      "pull"),
             ("высасыв",     "drain"),

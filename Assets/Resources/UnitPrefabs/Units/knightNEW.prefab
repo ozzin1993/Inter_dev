@@ -69,33 +69,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b166e7a81d9bcf940a22cc4c185f0e45, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::StrategyCore.Unit
-  abilities:
-  - {fileID: 11400000, guid: ff1c9d3e638fbf54b84e4b3e93374d65, type: 2}
-  - {fileID: 11400000, guid: 562328c7facab3942954491eb03846c4, type: 2}
-  - {fileID: 11400000, guid: 7b047359ac36f564ab5e6c52e5dc18b0, type: 2}
-  - {fileID: 11400000, guid: ac10ed1803ec5184abe2c3405ab3686f, type: 2}
-  - {fileID: 11400000, guid: b0cf6410b0ccd3f40b92a0f0a3cd79b5, type: 2}
-  - {fileID: 11400000, guid: cf5403aeb9e251e47854469d0799476b, type: 2}
-  - {fileID: 11400000, guid: 1de7c1fae6cc4834c9f0c88bacc75beb, type: 2}
-  - {fileID: 11400000, guid: f7d3a45b30b0f2b42ada8a890752ccb5, type: 2}
-  - {fileID: 11400000, guid: d31ae17a625c35440b4bc83a1b2cceee, type: 2}
-  - {fileID: 11400000, guid: 66d268c2783b224419d1ac8fd236b2f3, type: 2}
-  - {fileID: 11400000, guid: 7d8151646b52584419f170ab7c2c3a10, type: 2}
-  - {fileID: 11400000, guid: c892f70eda189bf4f98b2e2f81c0df27, type: 2}
-  - {fileID: 11400000, guid: d3f785c41dbc13146be94876a3b88d7e, type: 2}
-  - {fileID: 11400000, guid: 912cd2cc5ccb24e458d943a6234c8487, type: 2}
-  - {fileID: 11400000, guid: 58cce04098db0184ea59b0352f4c0407, type: 2}
-  - {fileID: 11400000, guid: bb8f0015b3f6b1279dee0547e7afd02e, type: 2}
-  - {fileID: 11400000, guid: f94b50bc062b6d70ad9954b57c64fba9, type: 2}
-  - {fileID: 11400000, guid: 69cf1700f0b0cd9c2881b4255e53d721, type: 2}
-  - {fileID: 11400000, guid: a84b47db56717047e2175188685d1a61, type: 2}
-  - {fileID: 11400000, guid: 42601e9f86a16305d9ed7d9f0e24f582, type: 2}
-  - {fileID: 11400000, guid: 38e97e0ba77b973ea205d9fb82d4a714, type: 2}
-  - {fileID: 11400000, guid: 246912cf8b5d8e823f4d9a8a655d8a61, type: 2}
-  - {fileID: 11400000, guid: 72d09e01d70fd5a0008875faaaa8346e, type: 2}
-  - {fileID: 11400000, guid: af693062ccec6b0d65e5a2a5923f6e89, type: 2}
-  - {fileID: 11400000, guid: 49581bd96c4718c49a43e26ecd003a56, type: 2}
-  - {fileID: 11400000, guid: 945b52f0caf6ddd43876a5a640cc7880, type: 2}
+  abilities: []
   abilityLevel: 000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
   abilityLocked: 
   everyFrameAbilities: []
@@ -330,8 +304,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: eeacf01fdd4e6784fbaffd8a2682fac0, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Interflow.Game::StrategyCore.AutoAbilityUser
-  autoAbilities:
-  - {fileID: 11400000, guid: 7b047359ac36f564ab5e6c52e5dc18b0, type: 2}
+  autoAbilities: []
 --- !u!1 &8777438878885008182
 GameObject:
   m_ObjectHideFlags: 0

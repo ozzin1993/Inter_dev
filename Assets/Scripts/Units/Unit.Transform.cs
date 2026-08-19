@@ -28,7 +28,7 @@ namespace StrategyCore
             oldPos2D = new Vector2(transform.position.x, transform.position.z);
             networkDirection = (netPos - oldPos2D).normalized;
 
-            if (netPos.x < 0) // Means we are at the last position
+            if (netPos.x < 0) // Маркер «последняя позиция» (NetworkDataSync.LastPositionMarker): легальных отрицательных координат нет — карта проверяется в Grid.Initialize
             {
                 lastPos = true;
 

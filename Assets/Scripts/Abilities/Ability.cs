@@ -97,6 +97,13 @@ namespace StrategyCore
         [Tooltip("How many resources are required to cast this ability; Purchasing cost for the items. Can be left blank if no cost is required. For UnitTraining and Construction the cost will be determined by resourceCost of the unit, if it exists. If it does not exist this cost will be used.")]
         public MultiLevel<ResourceWrapper>[] cost;
 
+        [Header("Фракции")]
+        [Tooltip("Ручная метка принадлежности умения к фракциям — ТОЛЬКО для поиска и фильтра в редакторе " +
+                 "умений, на игру не влияет. Пусто — фракции считаются автоматически по ссылкам (стартовые " +
+                 "умения главного здания, узлы дерева технологий, умения юнитов фракции). Список заполнен — " +
+                 "он перекрывает автоподсчёт.")]
+        public List<FactionConfig> editorFactions = new List<FactionConfig>();
+
         // Technical
         public void OnEnable()
         {

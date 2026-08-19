@@ -65,25 +65,13 @@ namespace StrategyCore
             if (!attackCounters.ContainsKey(unit)) attackCounters[unit] = 0; // §6.1: существующий счёт не сбрасываем (апгрейд)
             PruneDeadKeys(); // чистка мёртвых ключей на нечастом пути (не в колбэке атаки — перф)
 
-            for (int i = 0; i < unit.OnAfterDamageDealCallbacks.Count; i++)
-                if (unit.OnAfterDamageDealCallbacks[i].Ability == this && unit.OnAfterDamageDealCallbacks[i].Level == level) return;
-
-            unit.OnAfterDamageDealCallbacks.Add(new AfterDamageDealCallback
-            {
-                Callback = NthApply,
-                Ability = this,
-                Level = level
-            });
+                        InterflowAbility.CallbackAdd(unit.OnAfterDamageDealCallbacks, this, level, NthApply);
         }
 
         public override void Lock(Unit unit, int castingPlayer, int level)
         {
             // Снимаем ТОЛЬКО колбэк; счётчик НЕ трогаем (§6.1: без сброса при апгрейде). Мёртвые ключи — OnEnable/лениво.
-            for (int i = 0; i < unit.OnAfterDamageDealCallbacks.Count; i++)
-            {
-                AfterDamageDealCallback c = unit.OnAfterDamageDealCallbacks[i];
-                if (c.Ability == this && c.Level == level) { unit.OnAfterDamageDealCallbacks.RemoveAt(i); break; }
-            }
+            InterflowAbility.CallbackRemove(unit.OnAfterDamageDealCallbacks, this, level);
         }
 
         void NthApply(Unit targetUnit, Vector3 targetPosition, Effector[] effectors, float dmg, bool directAttack,

@@ -15,11 +15,11 @@ namespace StrategyCore
         public override void Use(Unit castingUnit, int castingPlayer, int level, Vector3 location)
         {
             // Get units in radius
-            Unit[] units = Utils.GetUnitsInRadius(new Vector2(location.x, location.z), radius[level], castingUnit.owner, unitSelector);
+            Unit[] units = Utils.GetUnitsInRadius(new Vector2(location.x, location.z), InterflowAbility.LevelValueOrZero(radius, level), castingUnit.owner, unitSelector);
 
             for (int i = 0; i < units.Length; i++)
             {
-                units[i].Disarm(disarmTime[level]);
+                units[i].Disarm(InterflowAbility.LevelValueOrZero(disarmTime, level));
             }
         }
     }
