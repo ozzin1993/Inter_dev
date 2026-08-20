@@ -37,9 +37,9 @@ TextureImporter:
     filterMode: 1
     aniso: 1
     mipBias: 0
-    wrapU: 0
-    wrapV: 0
-    wrapW: 0
+    wrapU: 1
+    wrapV: 1
+    wrapW: 1
   nPOTScale: 1
   lightmap: 0
   compressionQuality: 50
@@ -116,6 +116,6 @@ AssetOrigin:
   serializedVersion: 1
   productId: 102677
   packageName: POLYGON - Dungeons Pack - Art by Synty
-  packageVersion: 1.10.1
+  packageVersion: 1.10.2
   assetPath: Assets/Synty/PolygonGeneric/Textures/Decals/Generic_Decal_Grunge_02.png
-  uploadId: 924204
+  uploadId: 974038
