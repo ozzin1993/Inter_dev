@@ -1,5 +1,5 @@
 fileFormatVersion: 2
-guid: 899dc4921f4e7074881a15c2d2f34a41
+guid: 5a94abb7ec771864bad0a7a5151903b8
 DefaultImporter:
   externalObjects: {}
   userData: 
@@ -7,8 +7,8 @@ DefaultImporter:
   assetBundleVariant: 
 AssetOrigin:
   serializedVersion: 1
-  productId: 309184
-  packageName: RPG_Animations - Bow
+  productId: 309179
+  packageName: RPG_Animations - Two Hand Base
   packageVersion: 1.10
   assetPath: Assets/DoubleL/RPG_Animations_Pack Document.pdf.pdf
-  uploadId: 910886
+  uploadId: 970214

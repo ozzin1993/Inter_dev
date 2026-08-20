@@ -26,7 +26,7 @@ Transform:
   m_GameObject: {fileID: 1785434787350955306}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -0.014, y: 0, z: 0}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -45,7 +45,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e2d90d68d8acfff498dadc659d31b0de, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  id: 77224
+  id: 48566
   renderObject: {fileID: 8076824449220848044}
   impactSound: {fileID: 0}
   impactVFX: {fileID: 1835174905073365011, guid: adfd6c86cf180e64aaaa1bece2395926, type: 3}
@@ -123,6 +123,10 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 6357033380259571557}
     m_Modifications:
+    - target: {fileID: 1422373590154282557, guid: d21e5b00fdb343444a500464d07897b8, type: 3}
+      propertyPath: InitialModule.startSize.scalar
+      value: 0.8
+      objectReference: {fileID: 0}
     - target: {fileID: 1422373590154282559, guid: d21e5b00fdb343444a500464d07897b8, type: 3}
       propertyPath: m_LocalScale.x
       value: 0.5
@@ -183,6 +187,10 @@ PrefabInstance:
       propertyPath: InitialModule.maxNumParticles
       value: 100
       objectReference: {fileID: 0}
+    - target: {fileID: 8780727661290054511, guid: d21e5b00fdb343444a500464d07897b8, type: 3}
+      propertyPath: InitialModule.startSize.scalar
+      value: 0.5
+      objectReference: {fileID: 0}
     - target: {fileID: 8780727661358402065, guid: d21e5b00fdb343444a500464d07897b8, type: 3}
       propertyPath: m_LocalScale.x
       value: 0.5
@@ -217,7 +225,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 8780727661788297680, guid: d21e5b00fdb343444a500464d07897b8, type: 3}
       propertyPath: m_LocalPosition.x
-      value: 0.0017000008
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 8780727661788297680, guid: d21e5b00fdb343444a500464d07897b8, type: 3}
       propertyPath: m_LocalPosition.y
@@ -225,7 +233,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 8780727661788297680, guid: d21e5b00fdb343444a500464d07897b8, type: 3}
       propertyPath: m_LocalPosition.z
-      value: -0.02074
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 8780727661788297680, guid: d21e5b00fdb343444a500464d07897b8, type: 3}
       propertyPath: m_LocalRotation.w
@@ -260,12 +268,20 @@ PrefabInstance:
       value: 100
       objectReference: {fileID: 0}
     - target: {fileID: 8780727661788297682, guid: d21e5b00fdb343444a500464d07897b8, type: 3}
+      propertyPath: InitialModule.startSize.scalar
+      value: 0.5
+      objectReference: {fileID: 0}
+    - target: {fileID: 8780727661788297682, guid: d21e5b00fdb343444a500464d07897b8, type: 3}
       propertyPath: InitialModule.startLifetime.scalar
       value: 0.2
       objectReference: {fileID: 0}
     - target: {fileID: 8780727661788297695, guid: d21e5b00fdb343444a500464d07897b8, type: 3}
       propertyPath: m_Name
       value: Projectiles_fire
+      objectReference: {fileID: 0}
+    - target: {fileID: 8780727661788297695, guid: d21e5b00fdb343444a500464d07897b8, type: 3}
+      propertyPath: m_IsActive
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 8780727662637616945, guid: d21e5b00fdb343444a500464d07897b8, type: 3}
       propertyPath: m_LocalScale.x

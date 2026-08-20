@@ -1,5 +1,5 @@
 fileFormatVersion: 2
-guid: ae0a81f2ade87464e8ea22272ddf6e40
+guid: f0a53c51330fb25428d30273f5b130a9
 ModelImporter:
   serializedVersion: 22200
   internalIDToNameTable: []
@@ -983,8 +983,8 @@ ModelImporter:
   assetBundleVariant: 
 AssetOrigin:
   serializedVersion: 1
-  productId: 309184
-  packageName: RPG_Animations - Bow
+  productId: 309179
+  packageName: RPG_Animations - Two Hand Base
   packageVersion: 1.10
   assetPath: Assets/DoubleL/Model/Unreal_Base.fbx
-  uploadId: 910886
+  uploadId: 970214

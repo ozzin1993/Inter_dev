@@ -190,7 +190,8 @@ MonoBehaviour:
   firstAttack: 1
   animationAttackDelay: 0
   currentAnimAttackDelay: 0
-  launchSite: []
+  launchSite:
+  - {fileID: 6871828105202237183}
   launchVFX: []
   periodicSequential: 1
   periodicAttackDelay: 0
@@ -406,3 +407,8 @@ Animator:
   m_AllowConstantClipSamplingOptimization: 1
   m_KeepAnimatorStateOnDisable: 0
   m_WriteDefaultValuesOnDisable: 0
+--- !u!4 &6871828105202237183 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: -8475048819137671474, guid: 39a547f35af3e2a428207a1d617351e0, type: 3}
+  m_PrefabInstance: {fileID: 6142689167478059057}
+  m_PrefabAsset: {fileID: 0}

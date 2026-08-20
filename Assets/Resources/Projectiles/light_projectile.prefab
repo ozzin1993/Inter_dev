@@ -26,7 +26,7 @@ Transform:
   m_GameObject: {fileID: 1785434787350955306}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -0.014, y: 0, z: 0}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -45,7 +45,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e2d90d68d8acfff498dadc659d31b0de, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  id: 850
+  id: 81494
   renderObject: {fileID: 1803004290990095133}
   impactSound: {fileID: 0}
   impactVFX: {fileID: 31835927839385654, guid: 82430a8cbe341974ca88fc0319c48f72, type: 3}
@@ -133,7 +133,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 1941226523401448536, guid: 29b2996708b32e54b8ce949211316ed5, type: 3}
       propertyPath: m_LocalPosition.x
-      value: -0.31338
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 1941226523401448536, guid: 29b2996708b32e54b8ce949211316ed5, type: 3}
       propertyPath: m_LocalPosition.y
@@ -141,7 +141,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 1941226523401448536, guid: 29b2996708b32e54b8ce949211316ed5, type: 3}
       propertyPath: m_LocalPosition.z
-      value: 0.31125
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 1941226523401448536, guid: 29b2996708b32e54b8ce949211316ed5, type: 3}
       propertyPath: m_LocalRotation.w

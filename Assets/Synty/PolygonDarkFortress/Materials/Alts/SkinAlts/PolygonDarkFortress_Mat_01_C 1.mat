@@ -31,7 +31,7 @@ Material:
     serializedVersion: 3
     m_TexEnvs:
     - _Albedo_Map:
-        m_Texture: {fileID: 2800000, guid: eee0014940eb8a0418619cbef488d613, type: 3}
+        m_Texture: {fileID: 2800000, guid: 7347b4171128a8e4099704c4c12cfb15, type: 3}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _BumpMap:
@@ -106,7 +106,7 @@ Material:
     m_Floats:
     - _AlphaClip: 1
     - _AlphaToMask: 1
-    - _Alpha_Clip_Threshold: 0.5
+    - _Alpha_Clip_Threshold: 0.523
     - _BUILTIN_AlphaClip: 1
     - _BUILTIN_Blend: 0
     - _BUILTIN_CullMode: 2
