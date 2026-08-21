@@ -109,8 +109,8 @@ ModelImporter:
   assetBundleVariant: 
 AssetOrigin:
   serializedVersion: 1
-  productId: 309179
-  packageName: RPG_Animations - Two Hand Base
-  packageVersion: 1.10
+  productId: 309182
+  packageName: RPG_Animations - Torch,Lantern,Enemy Attack,Hit,Magic
+  packageVersion: 1.6
   assetPath: Assets/DoubleL/Model/SM_Prop_Bow_02.fbx
-  uploadId: 970214
+  uploadId: 933118
