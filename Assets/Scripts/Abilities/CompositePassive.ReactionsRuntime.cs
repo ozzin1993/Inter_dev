@@ -128,6 +128,14 @@ namespace StrategyCore
                 frontAngle = onDamaged.frontAngle
             };
 
+            // Связка «отразил → ударил в ответ»: ответ вешаем прямо на сработавший уход.
+            // Обычный ответ (WireCounter) в этом режиме не подписывается — иначе был бы двойной удар.
+            if (onDamaged.counterEnabled && onDamaged.counterOnlyOnEvade)
+            {
+                int lvl = level;
+                rule.onEvaded = (v, a) => CounterstrikeOnEvade(v, a, lvl);
+            }
+
             st.incomingRule = InterflowCombat.IncomingRuleAdd(unit, rule);
         }
 
@@ -135,6 +143,10 @@ namespace StrategyCore
         void WireCounter(Unit unit, ReactionState st, int level)
         {
             if (onDamaged == null || !onDamaged.enabled || !onDamaged.counterEnabled) return;
+
+            // Режим «ответ только при уходе»: живёт на уведомлении ухода (см. WireIncomingRule),
+            // а не на «урон получен» — увернувшийся урона не получает, и сюда бы он не попал.
+            if (onDamaged.counterOnlyOnEvade) return;
 
             int lvl = level;
             InterflowCombat.DamagedHandler h = (victim, attacker, damageType, damageDealt, directAttack) =>
@@ -195,6 +207,48 @@ namespace StrategyCore
             }
         }
 
+        /// <summary>
+        /// Ответный удар при СРАБОТАВШЕМ уходе от удара (режим «отразил → ударил»). Бьёт по самому
+        /// бьющему, если тот известен, жив и в радиусе ответа; по кругу не бьёт. Откат общий с обычным
+        /// ответом (counterCooldownLeft) — тик откатов уже покрывает этот режим (NeedsReactionTick).
+        /// </summary>
+        void CounterstrikeOnEvade(Unit victim, Unit attacker, int level)
+        {
+            if (NetworkConnectionHandler.isClient) return;
+            if (victim == null || victim.dead || victim.stunned) return;
+            if (onDamaged == null || !onDamaged.enabled || !onDamaged.counterEnabled || !onDamaged.counterOnlyOnEvade) return;
+            if (attacker == null || attacker.dead) return;           // бьющий неизвестен — отвечать некому
+            if (!reactionCarriers.TryGetValue(victim, out ReactionState st)) return;
+            if (st.counterCooldownLeft > 0f) return;
+
+            float radiusValue = LevelValueOrZero(onDamaged.counterRadius, level);
+            if (radiusValue <= 0f) return;
+
+            // Бьющий дальше радиуса ответа (например дальний стрелок) — встречного удара нет.
+            Vector3 delta = attacker.transform.position - victim.transform.position;
+            delta.y = 0f;
+            if (delta.sqrMagnitude > radiusValue * radiusValue) return;
+
+            float damage = LevelValueOrZero(onDamaged.counterFlatDamage, level)
+                         + victim.attackDamage * LevelValueOrZero(onDamaged.counterPercentOfAttack, level);
+
+            bool hasEffectors = onDamaged.counterEffectors != null && onDamaged.counterEffectors.Length > 0;
+            if (damage <= 0f && !hasEffectors) return;
+
+            DamageType dt = onDamaged.counterDamageType != null ? onDamaged.counterDamageType : victim.damageType;
+            if (dt == null && damage > 0f) return;
+
+            st.counterCooldownLeft = Mathf.Max(onDamaged.counterCooldown, 0.01f);
+
+            // Не прямая атака: чужой ответный удар на наш ответ не срабатывает.
+            if (damage > 0f) attacker.GetDamage(damage, dt, victim.owner, victim, false, out float _);
+            if (hasEffectors) Effector.EffectorAdd(victim, attacker, onDamaged.counterEffectors);
+
+            InterflowDebug.Verbose("ВСТРЕЧНЫЙ УДАР ПРИ УХОДЕ: " + InterflowDebug.Name(victim) + " ответил " +
+                                   InterflowDebug.Name(attacker) + " на " + damage.ToString("0.#") + " урона");
+            RequestForceSync();
+        }
+
         // ===================================================== 2. НОСИТЕЛЬ ПОГИБ ==
 
         void WireDeath(Unit unit, ReactionState st)
@@ -235,9 +289,19 @@ namespace StrategyCore
             {
                 Unit[] enemies = Utils.GetUnitsInRadius(center, radiusValue, owner, onDeath.enemySelector, -1, unit);
                 if (enemies != null)
+                {
+                    int hitCount = 0;
                     for (int i = 0; i < enemies.Length; i++)
                         if (enemies[i] != null && !enemies[i].dead)
+                        {
                             enemies[i].GetDamage(enemyDamage, onDeath.enemyDamageType, owner, null, false, out float _);
+                            hitCount++;
+                        }
+
+                    if (hitCount > 0)
+                        InterflowDebug.Verbose("ВЗРЫВ ПРИ ГИБЕЛИ: " + InterflowDebug.Name(unit) + " задел " +
+                                               hitCount + " целей на " + enemyDamage.ToString("0.#") + " урона");
+                }
             }
 
             // 2) Лечение союзников: числом и долей от максимума КАЖДОЙ цели.
@@ -249,12 +313,21 @@ namespace StrategyCore
                     if (onDeath.healOnlyNearest)
                     {
                         Unit nearest = NearestAlive(allies, deathPos);
-                        if (nearest != null) HealUnit(nearest, healFlat, healPercent);
+                        if (nearest != null)
+                        {
+                            HealUnit(nearest, healFlat, healPercent);
+                            InterflowDebug.Verbose("ЛЕЧЕНИЕ ПРИ ГИБЕЛИ: " + InterflowDebug.Name(nearest) + " получил +" +
+                                                   (healFlat + healPercent * nearest.maxHealth).ToString("0.#") + " здоровья");
+                        }
                     }
                     else
                     {
+                        int healedCount = 0;
                         for (int i = 0; i < allies.Length; i++)
-                            if (allies[i] != null && !allies[i].dead) HealUnit(allies[i], healFlat, healPercent);
+                            if (allies[i] != null && !allies[i].dead) { HealUnit(allies[i], healFlat, healPercent); healedCount++; }
+
+                        if (healedCount > 0)
+                            InterflowDebug.Verbose("ЛЕЧЕНИЕ ПРИ ГИБЕЛИ: вылечено союзников: " + healedCount);
                     }
                 }
             }

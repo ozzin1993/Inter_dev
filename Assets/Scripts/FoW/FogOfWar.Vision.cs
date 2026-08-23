@@ -296,6 +296,11 @@ namespace StrategyCore
         public bool IsVisible(Coordinate cell, int team)
         {
             if (TurnOff) return true;
+            // Гейт индексов: команда -1 (слот пира ещё не разрешён) и точка за краем карты давали
+            // IndexOutOfRange прямо в обработчике RPC — падала вся презентация умения на клиенте.
+            // Тот же приём, что в Grid.ChunkCoordClamped. Вне карты/без команды — считаем невидимым.
+            if (team < 0 || team >= gridFoW.GetLength(0)) return false;
+            if (!WithingBounds(cell)) return false;
             if (gridFoW[team, cell.x, cell.y] == 0) return false;
             return true;
         }

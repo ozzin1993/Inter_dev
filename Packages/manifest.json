@@ -1,6 +1,6 @@
 {
   "dependencies": {
-    "com.ivanmurzak.unity.mcp": "0.88.0",
+    "com.ivanmurzak.unity.mcp": "0.89.0",
     "com.ivanmurzak.unity.mcp.terrain": "1.0.16",
     "com.unity.ai.assistant": "2.13.0-pre.1",
     "com.unity.ai.inference": "2.6.1",

@@ -12,13 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6eab1036be064544e8420029828dc5cd, type: 3}
   m_Name: Faction_Lyudi
   m_EditorClassIdentifier: Assembly-CSharp::StrategyCore.FactionConfig
-  waveUnits:
-  - unit: {fileID: 1936979029478643860, guid: 36232623b385cdc4b9c373b6fc2df8ab, type: 3}
-    role: 0
-    count: 1
-  - unit: {fileID: 1165191979987236916, guid: fc96c35709aed154083fc752d414243a, type: 3}
-    role: 0
-    count: 1
+  waveUnits: []
   baseWaveIncome: 50
   centralAbilities:
   - {fileID: 11400000, guid: 6c78edcc27864d878c975e036280609b, type: 2}
@@ -27,7 +21,7 @@ MonoBehaviour:
   techTiers:
   - levelUpgrade:
       technology: {fileID: 11400000, guid: 26a8edcbf980b4c2d32adfcc1032bf18, type: 2}
-      icon: {fileID: 0}
+      icon: {fileID: 2800000, guid: ed354d777d136f9448e04996dc707290, type: 3}
       cost: []
       unlockUnits: []
       unlockAbilities: []
@@ -39,7 +33,7 @@ MonoBehaviour:
         icon: {fileID: 0}
         cost: []
         unlockUnits:
-        - {fileID: 1165191979987236916, guid: b983934140286d94f9d91579258b5d7c, type: 3}
+        - {fileID: 5186792438009123784, guid: 62017fc4ce910564eb8ed2280d4f9e1a, type: 3}
         unlockAbilities: []
         unitSwaps: []
         towerSwaps: []
@@ -66,7 +60,7 @@ MonoBehaviour:
         icon: {fileID: 0}
         cost: []
         unlockUnits:
-        - {fileID: 1165191979987236916, guid: fc96c35709aed154083fc752d414243a, type: 3}
+        - {fileID: 5186792438009123784, guid: ce0b3e75b57c772408f9ffb121e49001, type: 3}
         unlockAbilities: []
         unitSwaps: []
         towerSwaps: []
@@ -101,7 +95,7 @@ MonoBehaviour:
         icon: {fileID: 0}
         cost: []
         unlockUnits:
-        - {fileID: 1936979029478643860, guid: 032a18439a0816346945e35a72402726, type: 3}
+        - {fileID: 6679432831630175627, guid: 550aca033e5b2834da6cd568b9cc8ef5, type: 3}
         unlockAbilities: []
         unitSwaps: []
         towerSwaps: []
@@ -128,7 +122,7 @@ MonoBehaviour:
         icon: {fileID: 0}
         cost: []
         unlockUnits:
-        - {fileID: 1936979029478643860, guid: 36232623b385cdc4b9c373b6fc2df8ab, type: 3}
+        - {fileID: 1165191979987236916, guid: 622d80cb10378414db05626fc5b18b5e, type: 3}
         unlockAbilities: []
         unitSwaps: []
         towerSwaps: []
@@ -162,7 +156,8 @@ MonoBehaviour:
         technology: {fileID: 11400000, guid: b29fc8ff3543336b47596066345aaa97, type: 2}
         icon: {fileID: 0}
         cost: []
-        unlockUnits: []
+        unlockUnits:
+        - {fileID: 1165191979987236916, guid: 15592dfc0824b32439910bc9f680dfdc, type: 3}
         unlockAbilities: []
         unitSwaps: []
         towerSwaps: []
@@ -188,7 +183,8 @@ MonoBehaviour:
         technology: {fileID: 11400000, guid: 664d99372c708889e3dde27155fbcb86, type: 2}
         icon: {fileID: 0}
         cost: []
-        unlockUnits: []
+        unlockUnits:
+        - {fileID: 1165191979987236916, guid: 929b3613f4051b4478599331d13d6b8d, type: 3}
         unlockAbilities: []
         unitSwaps: []
         towerSwaps: []
@@ -222,7 +218,8 @@ MonoBehaviour:
         technology: {fileID: 11400000, guid: bebd3d63fc713f5f02f7d4410fbcf643, type: 2}
         icon: {fileID: 0}
         cost: []
-        unlockUnits: []
+        unlockUnits:
+        - {fileID: 1936979029478643860, guid: 29c41dcebada8d942b09feac1b1e978e, type: 3}
         unlockAbilities: []
         unitSwaps: []
         towerSwaps: []
@@ -248,7 +245,8 @@ MonoBehaviour:
         technology: {fileID: 11400000, guid: 597416efca1df15895ffb9c2425a0d3b, type: 2}
         icon: {fileID: 0}
         cost: []
-        unlockUnits: []
+        unlockUnits:
+        - {fileID: 1936979029478643860, guid: 21d9e493d1af8ae458877323e14ef0b8, type: 3}
         unlockAbilities: []
         unitSwaps: []
         towerSwaps: []
@@ -282,7 +280,8 @@ MonoBehaviour:
         technology: {fileID: 11400000, guid: 14e7f37be69e2e35accf826b1da48d98, type: 2}
         icon: {fileID: 0}
         cost: []
-        unlockUnits: []
+        unlockUnits:
+        - {fileID: 1936979029478643860, guid: 61218a108c411ab48b42524f5837709e, type: 3}
         unlockAbilities: []
         unitSwaps: []
         towerSwaps: []
@@ -308,7 +307,8 @@ MonoBehaviour:
         technology: {fileID: 11400000, guid: 98c581980cc7c8f179d684d03dadfaf0, type: 2}
         icon: {fileID: 0}
         cost: []
-        unlockUnits: []
+        unlockUnits:
+        - {fileID: 1936979029478643860, guid: 61218a108c411ab48b42524f5837709e, type: 3}
         unlockAbilities: []
         unitSwaps: []
         towerSwaps: []

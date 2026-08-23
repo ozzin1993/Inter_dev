@@ -385,6 +385,20 @@ namespace StrategyCore
             if (!IsEveryTick) EmitSkillFired(castingUnit, this, level, aimUnit, aimPoint);
 
             List<Unit> targets = CollectTargets(castingUnit, castingPlayer, level, aimUnit, aimPoint);
+
+            // Лог срабатывания (сюда доходит только сервер). Ауры и переключатели зовут Use каждый
+            // тик — их не пишем, иначе спам заглушил бы всё остальное в консоли.
+            if (!IsEveryTick && InterflowDebug.VerboseOn)
+            {
+                string skillName = (abilityName != null && abilityName.Length > 0 && !string.IsNullOrEmpty(abilityName[0]))
+                                   ? abilityName[0] : name;
+                string targetText = aimUnit != null
+                    ? " по " + InterflowDebug.Name(aimUnit)
+                    : (targets.Count > 0 ? ", целей: " + targets.Count : ", целей нет");
+                InterflowDebug.Verbose("СКИЛЛ «" + skillName + "»: кастует " +
+                                       (castingUnit != null ? InterflowDebug.Name(castingUnit) : "объект без юнита") + targetText);
+            }
+
             ApplyEffects(castingUnit, castingPlayer, level, targets, aimPoint, viaProjectile);
 
             SendPresentation(targets, level);

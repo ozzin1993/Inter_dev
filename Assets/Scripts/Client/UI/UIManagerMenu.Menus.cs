@@ -193,6 +193,8 @@ namespace StrategyCore
         // Hide UIDocument
         public void HideUIDocument()
         {
+            // [ДИАГ] ВРЕМЕННО. Снять после диагностики.
+            Debug.Log($"[ДИАГ] HideUIDocument, готовностьПрезентации={presentationReady}");
             if (!presentationReady) return;   // [Interflow fix 2026-06-26 путь1]
             UIDocument.rootVisualElement.style.display = DisplayStyle.None;
         }
@@ -223,6 +225,8 @@ namespace StrategyCore
         // Show Menu/Lobby
         public void ShowMenuLobby(int i)
         {
+            // [ДИАГ] ВРЕМЕННО. Снять после диагностики.
+            Debug.Log($"[ДИАГ] ShowMenuLobby({i}), готовностьПрезентации={presentationReady}");
             if (!presentationReady) return;   // [Interflow fix 2026-06-26 путь1]
             currentMenuIndex = i;
             if (i == 0) // Menu

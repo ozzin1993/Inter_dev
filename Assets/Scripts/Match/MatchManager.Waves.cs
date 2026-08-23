@@ -16,7 +16,6 @@ namespace StrategyCore
         IEnumerator WaveLoop()
         {
             yield return new WaitUntil(() => SlotManager.instance != null && SlotManager.instance.gameOn);
-            Debug.Log("[MatchManager] Матч начался — запускаем волны.");
             // [Interflow fix 2026-08-01 limited-res-sync] Стартовый снимок лимитных ресурсов (лидерство) клиентам:
             // дальше идут дельты на каждое изменение, но исходное состояние нужно разослать один раз.
             if (NetworkDataSync.instance != null) NetworkDataSync.instance.LimitedResourceSyncAll();
@@ -29,9 +28,6 @@ namespace StrategyCore
                 string pt = (sm != null && sm.playerTeam != null) ? string.Join(",", sm.playerTeam) : "null";
                 int chk0 = (sm != null && sm.playerTeam != null && o0 >= 0 && o0 < sm.playerTeam.Length) ? sm.playerTeam[o0] : -1;
                 int chk1 = (sm != null && sm.playerTeam != null && o1 >= 0 && o1 < sm.playerTeam.Length) ? sm.playerTeam[o1] : -1;
-                Debug.Log($"[MatchManager] КАРТА КОМАНД: team0(teamA).ownerPlayer={o0}, team1(teamB).ownerPlayer={o1}; " +
-                          $"playerTeam[slot]=[{pt}]; СВЕРКА: playerTeam[team0.owner]={chk0} (ожид 0), playerTeam[team1.owner]={chk1} (ожид 1)" +
-                          $"{((chk0 != 0 || chk1 != 1) ? "  >>> РАССИНХРОН team vs playerTeam <<<" : "")}.");
             }
 
             int waveNumber = 1;
@@ -64,7 +60,6 @@ namespace StrategyCore
                 if (postWait > 0f) yield return new WaitForSeconds(postWait);
 
                 // t0: спавн обеих команд.
-                Debug.Log($"[MatchManager] Волна #{waveNumber} — спавним обе команды.");
                 StartCoroutine(SpawnWave(teamA, 0));
                 StartCoroutine(SpawnWave(teamB, 1));
 
@@ -83,7 +78,6 @@ namespace StrategyCore
             if (need <= 0) return;
             if (!GameResources.instance.CheckAmount(cfg.ownerPlayer, new ResourceWrapper(leadershipResource, need)))
             {
-                Debug.Log($"[MatchManager] Команда {team}: предупреждение t−{warnSeconds:0} — волна ({need} лидерства) не влезает.");
                 OnWaveOverflowWarning?.Invoke(team);
                 if (NetworkDataSync.instance != null) NetworkDataSync.instance.WaveOverflowWarn(team);
             }
@@ -122,7 +116,6 @@ namespace StrategyCore
                 cfg.waveSkipped = false;
                 cfg.compositionLocked = false;
                 OnWaveMarksChanged?.Invoke(teamIndex);
-                Debug.Log($"[MatchManager] Команда {teamIndex}: волна пропущена целиком (не влезла в лидерство).");
                 yield break;
             }
 
@@ -148,7 +141,6 @@ namespace StrategyCore
             Vector2 attackTarget = AttackTarget(cfg.ownerPlayer);
             List<Unit> waveUnits = new List<Unit>();
             Dictionary<Unit, int> spawnedCounts = new Dictionary<Unit, int>();
-            Debug.Log($"[MatchManager] Спавн волны команды {teamIndex} (player={cfg.ownerPlayer}): состав {composition.Count} юнитов.");
 
             foreach (Unit baseUnit in composition)
             {
@@ -183,7 +175,6 @@ namespace StrategyCore
 
                 if (cfg.spawnDelay > 0f) yield return new WaitForSeconds(cfg.spawnDelay);
             }
-            Debug.Log($"[MatchManager] Волна команды {teamIndex}: заспавнено {waveUnits.Count} юнитов.");
 
             // 6) Герой: автоспавн с волной (открыт, не жив, не на паузе перерождения) — MatchManager.Hero.cs.
             TryAutoSpawnHero(teamIndex);

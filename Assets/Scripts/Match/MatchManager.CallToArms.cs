@@ -42,7 +42,7 @@ namespace StrategyCore
 
             List<WaveEntry> comp = lastWaveComposition[teamIndex];
             if (comp == null || comp.Count == 0)
-            { Debug.Log($"[MatchManager] Призыв к Оружию: у команды {teamIndex} ещё не было волн — призыв пропущен."); return; }
+            { return; }
 
             // Презентация один раз в точке спавна. Серверо-онли (как и весь каст Active) — на чистых клиентах
             // не видна/не слышна, как и VFX FlameCloakActive (полная сетевая синхронизация — отдельная задача).
@@ -68,8 +68,6 @@ namespace StrategyCore
                     summoned++;
                 }
             }
-            Debug.Log($"[MatchManager] Призыв к Оружию: команда {teamIndex} (player={cfg.ownerPlayer}), призвано {summoned} юнитов, " +
-                      $"жизнь {lifetime} с, общие приказы={(obeyCommands ? "слушают" : "нет (" + defaultCommand + ")")}.");
         }
 
         // Навесить штатный LifetimeUnit на призванного. Префабы волны его не имеют, поэтому Unit.Initialize

@@ -44,7 +44,6 @@ namespace StrategyCore
 
             cfg.mainBuilding.ReplaceRenderers(shape, true);   // постоянная смена облика (тот же объект/NetID)
             FitColliderToShape(cfg.mainBuilding, shape);       // §10.6: подгон габаритов коллайдера/препятствия под облик
-            Debug.Log($"[MatchManager] Облик ГЗ команды {team}: уровень {newLevel} → префаб '{shape.name}'.");
         }
 
         // §10.6: подгоняет габариты замка под префаб облика. ReplaceRenderers меняет визуал (+unitHeight), но НЕ

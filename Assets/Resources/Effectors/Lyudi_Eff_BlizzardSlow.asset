@@ -11,15 +11,17 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: fae4d907023251b4c80d78fe85c1ad3e, type: 3}
   m_Name: Lyudi_Eff_BlizzardSlow
-  m_EditorClassIdentifier:
+  m_EditorClassIdentifier: 
   id: 200503
-  displayName: "Метель: −40% скорости"
+  displayName: "\u041B\u0435\u0434\u044F\u043D\u043E\u0439 \u0428\u043A\u0432\u0430\u043B:
+    \u221240% \u0441\u043A\u043E\u0440\u043E\u0441\u0442\u0438 \u0430\u0442\u0430\u043A\u0438
+    \u0438 \u043F\u0435\u0440\u0435\u0434\u0432\u0438\u0436\u0435\u043D\u0438\u044F"
   icon: {fileID: 0}
-  description: ""
+  description: 
   VFX: {fileID: 0}
   aboveHead: 0
   permanent: 0
-  duration: 0.4
+  duration: 3
   stacks: 0
   damageAmount: 0
   damageType: {fileID: 0}
@@ -30,7 +32,7 @@ MonoBehaviour:
     damageChange: 0
     damagePercentageChange: 0
     attackSpeedChange: 0
-    attackSpeedPercentageChange: 0
+    attackSpeedPercentageChange: -0.4
     attackRangeChange: 0
     attackRangePercentageChange: 0
     armorChange: 0

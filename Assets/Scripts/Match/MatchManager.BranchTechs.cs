@@ -215,7 +215,6 @@ namespace StrategyCore
             if (NetworkConnectionHandler.isClient) return false;
             if (!IsSoulOptionUnlockable(team, branch, tier, option))
             {
-                Debug.Log($"[MatchManager] Покупка ветки [{team}/{branch}/{tier}/{option}] отклонена: гейт не пройден.");
                 return false;
             }
 
@@ -235,14 +234,11 @@ namespace StrategyCore
 
             if (!ResourcesEnough(cfg.ownerPlayer, opt.cost))
             {
-                Debug.Log($"[MatchManager] Покупка '{opt.technology.name}' команды {team}: не хватает Душ.");
                 return false;
             }
 
             PayResources(cfg.ownerPlayer, opt.cost);
             tm.UnlockTech(opt.technology, cfg.ownerPlayer); // штатно: TechTree + синк клиентам + OnTechUnlock
-            Debug.Log($"[MatchManager] Разблокирована опция ветки '{opt.technology.name}' команды {team} " +
-                      $"(ветка {branch}, тир {tier}, опция {option}).");
             return true;
         }
 

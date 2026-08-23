@@ -92,6 +92,8 @@ namespace StrategyCore
         /// </summary>
         public void PauseTheGame()
         {
+            // [ДИАГ] ВРЕМЕННО. Снять после диагностики.
+            Debug.Log($"[ДИАГ] PauseTheGame вызвана. IsServer={NetworkManager.Singleton.IsServer}, состояниеИгры={SlotManager.instance.gameStarted}");
             // Pause the game
             Time.timeScale = 0;
             SlotManager.instance.gameOn = false;
@@ -131,6 +133,8 @@ namespace StrategyCore
         /// </summary>
         private void ClientConnected(ulong clientId)
         {
+            // [ДИАГ] ВРЕМЕННО. Разбор «второе окно висит на CONNECTING». Снять после диагностики.
+            Debug.Log($"[ДИАГ] ClientConnected: clientId={clientId}, свой={clientId == NetworkManager.Singleton.LocalClientId}, IsServer={NetworkManager.Singleton.IsServer}, IsHost={NetworkManager.Singleton.IsHost}, IsClient={NetworkManager.Singleton.IsClient}, состояниеИгры={SlotManager.instance.gameStarted}, MenuUI={Presentation.MenuUI != null}, MenuReady={Presentation.MenuUI?.MenuReady}");
             // Everyone: define if client
             if (!NetworkManager.Singleton.IsHost && NetworkManager.Singleton.IsClient) isClient = true;
 

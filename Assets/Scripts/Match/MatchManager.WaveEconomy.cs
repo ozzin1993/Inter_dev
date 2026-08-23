@@ -118,7 +118,6 @@ namespace StrategyCore
             int addGold = EffectiveResourceCost(team, u, goldResource) * WaveCountOf(cfg, u);
             if (AutoResourceSum(team, goldResource) + addGold > cfg.baseIncome)
             {
-                Debug.Log($"[MatchManager] Команда {team}: автопризыв {u.name} превысит доход ({cfg.baseIncome}) — отклонено.");
                 return false;
             }
 
@@ -147,7 +146,6 @@ namespace StrategyCore
             if (goldResource != null && gold > 0 &&
                 !GameResources.instance.CheckAmount(cfg.ownerPlayer, new ResourceWrapper(goldResource, gold)))
             {
-                Debug.Log($"[MatchManager] Команда {team}: разовый {u.name} — не хватает золота ({gold}).");
                 return false;
             }
 
@@ -155,7 +153,6 @@ namespace StrategyCore
             if (leadershipResource != null && lead > 0 &&
                 !GameResources.instance.CheckAmount(cfg.ownerPlayer, new ResourceWrapper(leadershipResource, WaveLeadershipForecast(team) + lead)))
             {
-                Debug.Log($"[MatchManager] Команда {team}: разовый {u.name} — не влезает в лидерство.");
                 return false;
             }
 

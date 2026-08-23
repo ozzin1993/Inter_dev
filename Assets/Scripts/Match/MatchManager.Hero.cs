@@ -55,7 +55,6 @@ namespace StrategyCore
 
             if (HeroAlive(team))
             {
-                Debug.Log($"[MatchManager] Герой команды {team}: уже жив — призыв отклонён (одновременно только один).");
                 return;
             }
 
@@ -71,7 +70,6 @@ namespace StrategyCore
             // Пусто — герой доступен сразу. TechUnlockedSafe — та же безопасная проверка, что и в дереве техов (partial того же класса).
             if (cfg.heroUnlockTech != null && !TechUnlockedSafe(cfg.heroUnlockTech, cfg.ownerPlayer))
             {
-                Debug.Log($"[MatchManager] Герой команды {team}: тех «{cfg.heroUnlockTech.name}» не разблокирован — призыв отклонён (гейт героя).");
                 return;
             }
 
@@ -118,7 +116,6 @@ namespace StrategyCore
                 try { OnHeroChanged?.Invoke(capt, null); }
                 catch (Exception e) { Debug.LogError($"[MatchManager] OnHeroChanged(die): {e.Message}"); }
                 BroadcastHeroAlive(capt, false);   // [UI-сессия] синк клиенту: герой мёртв
-                Debug.Log($"[MatchManager] Герой команды {capt} погиб. Сохранённый уровень={heroLevel[capt]}.");
             };
 
             // Подхватываем текущий режим команды (как обычный новый юнит; None → idle).
@@ -132,7 +129,6 @@ namespace StrategyCore
             try { OnHeroChanged?.Invoke(team, hero); }
             catch (Exception e) { Debug.LogError($"[MatchManager] OnHeroChanged(summon): {e.Message}"); }
             BroadcastHeroAlive(team, true);   // [UI-сессия] синк клиенту: герой жив (дизейбл кнопки призыва)
-            Debug.Log($"[MatchManager] Герой команды {team} (player={cfg.ownerPlayer}) призван. Уровень={heroLevel[team]}.");
         }
 
         /// <summary>Волна 2.0: автоспавн героя с волной. Открыт (heroUnlockTech), не жив и не на паузе перерождения (heroWavesToSkip==0) → SummonHero (бесплатно).</summary>

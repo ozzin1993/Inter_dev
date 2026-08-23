@@ -159,6 +159,13 @@ namespace StrategyCore
 
             /// <summary>Полный угол сектора «спереди» в градусах (90 — по 45 в каждую сторону от взгляда).</summary>
             public float frontAngle = 90f;
+
+            /// <summary>
+            /// Уведомление «носитель ушёл от удара»: (жертва, бьющий — может быть null, если удар не от юнита).
+            /// Зовётся только на сервере, в момент сработавшего ухода. Потребитель — связка
+            /// «отразил → ударил в ответ» конструктора пассивок (CompositePassive, counterOnlyOnEvade).
+            /// </summary>
+            public Action<Unit, Unit> onEvaded;
         }
 
         /// <summary>
@@ -246,9 +253,14 @@ namespace StrategyCore
                 {
                     InterflowDebug.Verbose("УХОД ОТ УДАРА: " + InterflowDebug.Name(victim) + " увернулся (шанс " +
                                            (r.evadeChance * 100f).ToString("0") + "%)");
+                    // Связка «отразил → ударил»: сообщаем владельцу правила о сработавшем уходе.
+                    // Зовём последним действием перед выходом: обработчик может нанести урон бьющему,
+                    // и его цепочка реакций не должна пересекаться с нашим перебором правил.
+                    r.onEvaded?.Invoke(victim, attacker);
                     return 0f;
                 }
 
+                float beforeRule = amount;   // для лога изменения
                 amount *= r.multiplier;
 
                 if (r.flatBlock > 0f)
@@ -260,6 +272,13 @@ namespace StrategyCore
 
                     amount = Mathf.Max(r.minDamage, amount - block);
                 }
+
+                // Каждое сработавшее правило пишем отдельно: у жертвы их может быть несколько
+                // (снижение «Стены щитов» и чужая уязвимость), и важно видеть вклад каждого.
+                if (InterflowDebug.VerboseOn && !Mathf.Approximately(beforeRule, amount))
+                    InterflowDebug.Verbose("ВХОДЯЩИЙ УРОН ИЗМЕНЁН у " + InterflowDebug.Name(victim) + ": " +
+                                           beforeRule.ToString("0.#") + " → " + amount.ToString("0.#") +
+                                           (r.multiplier != 1f ? " (×" + r.multiplier.ToString("0.##") + ")" : ""));
             }
 
             return amount;

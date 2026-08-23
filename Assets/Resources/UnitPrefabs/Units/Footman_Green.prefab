@@ -51,11 +51,7 @@ MonoBehaviour:
   abilities:
   - {fileID: 11400000, guid: 11ff0a22942c7cb4ebb23f0d4937c93e, type: 2}
   - {fileID: 11400000, guid: f7f43490b7ea247498427398747641b8, type: 2}
-  - {fileID: 11400000, guid: 9a704a82d1527ddc3852e105c985b3e3, type: 2}
-  - {fileID: 11400000, guid: dcb99de243e806935e2f44aa3de1ecc1, type: 2}
-  - {fileID: 11400000, guid: 80fd027d96def7042b315f4498b298fd, type: 2}
-  - {fileID: 11400000, guid: a71c4e0f93b64d2e8f5a6c1d47b90e33, type: 2}
-  abilityLevel: 
+  abilityLevel: 0000000000000000
   abilityLocked: 
   everyFrameAbilities: []
   everyFrameAbilityIndex: 
@@ -74,7 +70,6 @@ MonoBehaviour:
   activeAbilityCastTime: 0
   activeAbilityDuration: 0
   activeAbilityVFX: {fileID: 0}
-  canCast: 0
   unitCategory: 0
   targetPriority: 
   respondsToAttackCommand: 1

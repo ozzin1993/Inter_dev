@@ -255,8 +255,6 @@ namespace StrategyCore
                     continue;
 
                 // Ретро-замена: отписать → снять с POI → убить (без смены владения) → заспавнить новую.
-                Debug.Log($"[MatchManager] Ретро-замена башни {liveT.name} на точке {cfg.point.name} " +
-                          $"(key={cfg.pointKey}, новый prefab={targetPrefab.name}).");
                 liveT.OnDie -= HandleTowerDie;
                 hookedTowers.Remove(liveT);
                 spawnedPrefabByConfig.Remove(cfg);

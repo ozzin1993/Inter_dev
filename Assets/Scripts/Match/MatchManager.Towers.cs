@@ -20,7 +20,6 @@ namespace StrategyCore
         // Подписка на смерть башни конкретной точки.
         void HookTower(Unit tower, PointTowerConfig cfg)
         {
-            Debug.Log($"[MatchManager] Подписка на смерть башни {tower.name}.");
             if (tower == null || cfg == null) return;
             hookedTowers[tower] = cfg;
             tower.OnDie += HandleTowerDie;
@@ -29,8 +28,6 @@ namespace StrategyCore
         // Башня погибла → точка переходит сопернику, тело снимается, через задержку отстраивается новая.
         void HandleTowerDie(Unit unit, int playerThatKills, Unit unitThatKills, bool rewards)
         {
-            Debug.Log($"[MatchManager] УНИЧТОЖЕНА БАШНЯ: {unit.name} (owner={unit.owner}, " +
-                      $"убийца player={playerThatKills}, юнит={( unitThatKills != null ? unitThatKills.name : "null" )}).");
             unit.OnDie -= HandleTowerDie;
             if (!hookedTowers.TryGetValue(unit, out PointTowerConfig cfg)) return;
             hookedTowers.Remove(unit);
@@ -44,37 +41,14 @@ namespace StrategyCore
             int newTeam = ResolveCaptureTeam(poi.CurrentTeam, playerThatKills, unitThatKills);
 
             // Сразу меняем владельца и снимаем башню (тело уничтожит штатный OnDie ассета).
-            Debug.Log($"[MatchManager] Точка {poi.name} захвачена: команда {poi.CurrentTeam} → {newTeam}.");
             poi.SetTeam(newTeam);
             poi.ClearTower();
-
-            // Диагностика: что возвращает таргетинг сразу после захвата.
-            if (lane != null)
-            {
-                int attackerTeam = newTeam;
-                Debug.Log($"[MatchManager] ЗАХВАТ {poi.name} (ID={poi.GetInstanceID()}): " +
-                          $"towerAlive={poi.TowerAlive}, currentTeam={poi.CurrentTeam}. " +
-                          $"NextAttackTarget(team={attackerTeam}) = {lane.NextAttackTarget(attackerTeam)}");
-                Debug.Log($"[MatchManager] Lane-точки для team={attackerTeam}: " +
-                          string.Join(", ", lane.DebugPoints(attackerTeam)));
-            }
 
             // Серверо-авторитетно: разослать новое владение клиентам (только живой захват, без позднего входа).
             BroadcastPointTeam(poi, newTeam);
 
             // Фронт сместился — обновить хранимые точки и переотдать текущие команды обеим командам.
             RefreshTargetPoints();
-
-            // Итоговые цели после захвата (для отладки).
-            for (int i = 0; i < 2; i++)
-            {
-                TeamWaveConfig cfg2 = Team(i);
-                if (cfg2 == null) continue;
-                int player = cfg2.ownerPlayer;
-                Debug.Log($"[MatchManager] Следующие цели команды {i}: " +
-                          $"атака={POIName(AttackTargetPOI(player))}, " +
-                          $"защита={POIName(DefenceTargetPOI(player))}.");
-            }
 
             for (int i = 0; i < 2; i++)
                 for (int g = 0; g < CommandGroupCount; g++)
@@ -118,8 +92,6 @@ namespace StrategyCore
             if (racialPrefab == null) return;
 
             // §4.4: своп здесь НЕ резолвим — целевой префаб определит SpawnTowerForPoint после задержки.
-            Debug.Log($"[MatchManager] Запускаем отстройку башни для точки {cfg.point.name} " +
-                      $"(player={capturePlayer}, база={racialPrefab.name}, задержка={cfg.rebuildDelay} сек).");
             StartCoroutine(SpawnTowerForPoint(cfg, unit.transform.position,
                                               unit.transform.eulerAngles.y, capturePlayer, cfg.rebuildDelay));
         }
@@ -188,8 +160,6 @@ namespace StrategyCore
                 yield break;
             }
 
-            Debug.Log($"[MatchManager] Башня отстроена: {tower.name} для точки {cfg.point?.name} " +
-                      $"(player={tower.owner}, netID={tower.netID}, prefab={prefab.name}).");
             cfg.point.SetTower(tower);
             HookTower(tower, cfg);
             spawnedPrefabByConfig[cfg] = prefab; // запоминаем для идемпотентности ретро-замены
@@ -226,7 +196,6 @@ namespace StrategyCore
                 float   rotY = cfg.point.transform.eulerAngles.y;
                 StartCoroutine(SpawnTowerForPoint(cfg, pos, rotY, player, 0f));
             }
-            Debug.Log($"[MatchManager] SpawnInitialTowers: запущен спавн {rebuildablePoints.Length} башен.");
         }
 
         // Соперник текущего владельца (модель 2 команд). Нейтральный/неизвестный владелец → атрибуция убийцы.

@@ -124,6 +124,8 @@ namespace StrategyCore
         /// <param name="firstLoad">When we enter the scene for the first time, false when we load the game.</param>
         public void StartTheGame(bool firstLoad)
         {
+            // [ДИАГ] ВРЕМЕННО. Снять после диагностики.
+            Debug.Log($"[ДИАГ] StartTheGame(firstLoad={firstLoad}): saveFileName='{saveFileName}', длинаSaveSceneData={(saveSceneData == null ? -1 : saveSceneData.Length)}, clientsLoading={NetworkConnectionHandler.instance.clientsLoading.Count}");
             // Still have a save data to load
             if (saveFileName != "" || saveSceneData != "" || NetworkConnectionHandler.instance.clientsLoading.Count != 0) return;
 
@@ -223,6 +225,8 @@ namespace StrategyCore
         /// <param name="sceneEvent">SceneEvent.</param>
         public void SceneManager_OnSceneEvent(SceneEvent sceneEvent)
         {
+            // [ДИАГ] ВРЕМЕННО. Снять после диагностики.
+            Debug.Log($"[ДИАГ] СобытиеСцены: тип={sceneEvent.SceneEventType}, сцена={sceneEvent.SceneName}, clientId={sceneEvent.ClientId}, свой={sceneEvent.ClientId == NetworkManager.Singleton.LocalClientId}, IsServer={NetworkManager.Singleton.IsServer}");
             var clientOrServer = sceneEvent.ClientId == NetworkManager.ServerClientId ? "server" : "client";
 
             if (sceneEvent.SceneEventType == SceneEventType.Load)

@@ -47,9 +47,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b166e7a81d9bcf940a22cc4c185f0e45, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  abilities:
-  - {fileID: 11400000, guid: 82d66282a6579f66676e17e9e0d6969c, type: 2}
-  - {fileID: 11400000, guid: 8656ec3722c0e31d19388b4b0b2f9a58, type: 2}
+  abilities: []
   abilityLevel: 
   abilityLocked: 
   everyFrameAbilities: []
@@ -69,7 +67,6 @@ MonoBehaviour:
   activeAbilityCastTime: 0
   activeAbilityDuration: 0
   activeAbilityVFX: {fileID: 0}
-  canCast: 0
   unitCategory: 2
   targetPriority: 
   respondsToAttackCommand: 1
@@ -177,8 +174,7 @@ MonoBehaviour:
   damageType: {fileID: 0}
   attackDamage: 99
   attackSpeed: 2
-  attackEffectors:
-  - {fileID: 11400000, guid: 615dc0df3caebd0f372b3b0be21bf0d2, type: 2}
+  attackEffectors: []
   projectileGO: {fileID: 1785434787350955306, guid: b527144e2eea8d24785c50cef0a2e822, type: 3}
   projectileVFX: {fileID: 0}
   attackVFXLine: {fileID: 0}

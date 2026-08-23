@@ -71,8 +71,6 @@ namespace StrategyCore
 
             PointOfInterest attackPOI  = AttackTargetPOI(player);
             Vector2 newAttackPoint = attackPOI != null ? attackPOI.Position2D : Vector2.zero;
-            if (newAttackPoint != currentAttackPoint[teamIndex])
-                Debug.Log($"[MatchManager] Точка атаки команды {teamIndex} изменилась → {POIName(attackPOI)}.");
             currentAttackPoint[teamIndex] = newAttackPoint;
             currentCommand[teamIndex][groupIndex] = BottomTableAction.Attack;
 
@@ -80,8 +78,6 @@ namespace StrategyCore
             // (AutoAbilityUser.RespondsToAttackCommand).
             List<Unit> units = FilterByCommandGroup(GetGroupUnits(teamIndex), groupIndex);
             List<Unit> attackUnits = FilterByCommand(units, isAttack: true);
-            Debug.Log($"[MatchManager] АТАКА: команда {teamIndex} ряд {groupIndex} (player={player}), " +
-                      $"юнитов={attackUnits.Count}/{units.Count}, цель={POIName(attackPOI)}.");
             if (attackUnits.Count == 0) return;
 
             Vector2 target = currentAttackPoint[teamIndex];
@@ -112,15 +108,11 @@ namespace StrategyCore
 
             PointOfInterest defencePOI  = DefenceTargetPOI(player);
             Vector2 newDefencePoint = defencePOI != null ? defencePOI.Position2D : Vector2.zero;
-            if (newDefencePoint != currentDefencePoint[teamIndex])
-                Debug.Log($"[MatchManager] Точка защиты команды {teamIndex} изменилась → {POIName(defencePOI)}.");
             currentDefencePoint[teamIndex] = newDefencePoint;
             currentCommand[teamIndex][groupIndex] = BottomTableAction.Defence;
 
             // Фильтр: только юниты классов этого ряда (commandGroups).
             List<Unit> units = FilterByCommandGroup(GetGroupUnits(teamIndex), groupIndex);
-            Debug.Log($"[MatchManager] ЗАЩИТА: команда {teamIndex} ряд {groupIndex} (player={player}), " +
-                      $"юнитов={units.Count}, точка={POIName(defencePOI)}.");
             if (units.Count == 0) return;
 
             Vector2 target = currentDefencePoint[teamIndex];
@@ -233,12 +225,6 @@ namespace StrategyCore
                 Vector2 newAttack  = newAttackPOI  != null ? newAttackPOI.Position2D  : Vector2.zero;
                 Vector2 newDefence = newDefencePOI != null ? newDefencePOI.Position2D : Vector2.zero;
 
-                if (newAttack  != currentAttackPoint[i])
-                    Debug.Log($"[MatchManager] RefreshTargetPoints: точка атаки команды {i} " +
-                              $"→ {POIName(newAttackPOI)}.");
-                if (newDefence != currentDefencePoint[i])
-                    Debug.Log($"[MatchManager] RefreshTargetPoints: точка защиты команды {i} " +
-                              $"→ {POIName(newDefencePOI)}.");
 
                 currentAttackPoint[i]  = newAttack;
                 currentDefencePoint[i] = newDefence;

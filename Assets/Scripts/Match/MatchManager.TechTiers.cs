@@ -237,7 +237,6 @@ namespace StrategyCore
             if (NetworkConnectionHandler.isClient) return false;
             if (!IsTierLevelUnlockable(team, tier))
             {
-                Debug.Log($"[MatchManager] Уровень тира [{team}/{tier}] отклонён: гейт не пройден.");
                 return false;
             }
             TeamWaveConfig cfg = Team(team);
@@ -248,7 +247,6 @@ namespace StrategyCore
             // согласованные TechTree и уровень. Идемпотентность: повторная покупка отсечена гейтом — второго
             // инкремента нет (как было у открывашек).
             mainBuildingLevel[team]++;
-            Debug.Log($"[MatchManager] Улучшение уровня тира {tier}: уровень ГЗ команды {team} -> {mainBuildingLevel[team]}.");
             BroadcastMainBuildingLevel(team);
             OnMainBuildingLevelChanged?.Invoke(team);
             return true;
@@ -260,7 +258,6 @@ namespace StrategyCore
             if (NetworkConnectionHandler.isClient) return false;
             if (!IsBigOptionUnlockable(team, tier, option))
             {
-                Debug.Log($"[MatchManager] Большой выбор [{team}/{tier}/{option}] отклонён: гейт не пройден.");
                 return false;
             }
             TeamWaveConfig cfg = Team(team);
@@ -274,7 +271,6 @@ namespace StrategyCore
             {
                 cfg.heroUnlockTech = o.node.technology;
                 cfg.heroPrefab     = o.heroPrefab;
-                Debug.Log($"[MatchManager] Вариант-герой команды {team}: heroUnlockTech='{o.node.technology.name}', heroPrefab='{o.heroPrefab.name}'.");
             }
             return true;
         }
@@ -296,7 +292,6 @@ namespace StrategyCore
 
             if (!IsBigOptionUnlockable(team, tier, option))
             {
-                Debug.Log($"[MatchManager] Карточка выбора [{team}/{tier}/{option}] отклонена: гейт варианта не пройден.");
                 return false;
             }
 
@@ -306,7 +301,6 @@ namespace StrategyCore
                 || NodeUnlocked(cfg.ownerPlayer, specNode)
                 || NodeUnlocked(cfg.ownerPlayer, SpecOf(o, spec == 0 ? 1 : 0)))
             {
-                Debug.Log($"[MatchManager] Карточка выбора [{team}/{tier}/{option}/{spec}] отклонена: гейт специализации не пройден.");
                 return false;
             }
 
@@ -323,7 +317,6 @@ namespace StrategyCore
             // Суммарная цена обеих ступеней — до первого списания (иначе половинчатая покупка).
             if (!ResourcesEnough(cfg.ownerPlayer, MergeCosts(o.node.cost, specNode.cost)))
             {
-                Debug.Log($"[MatchManager] Карточка выбора [{team}/{tier}/{option}/{spec}]: не хватает ресурсов на вариант и специализацию.");
                 return false;
             }
 
@@ -395,7 +388,6 @@ namespace StrategyCore
             if (NetworkConnectionHandler.isClient) return false;
             if (!IsSpecUnlockable(team, tier, option, spec))
             {
-                Debug.Log($"[MatchManager] Специализация [{team}/{tier}/{option}/{spec}] отклонена: гейт не пройден.");
                 return false;
             }
             TeamWaveConfig cfg = Team(team);
@@ -420,12 +412,10 @@ namespace StrategyCore
             }
             if (!ResourcesEnough(cfg.ownerPlayer, node.cost))
             {
-                Debug.Log($"[MatchManager] Разблокировка '{node.technology.name}' ({what}): не хватает ресурсов.");
                 return false;
             }
             PayResources(cfg.ownerPlayer, node.cost);
             tm.UnlockTech(node.technology, cfg.ownerPlayer); // штатно: TechTree + синк клиентам + OnTechUnlock
-            Debug.Log($"[MatchManager] Разблокирована технология '{node.technology.name}' ({what}).");
             return true;
         }
     }

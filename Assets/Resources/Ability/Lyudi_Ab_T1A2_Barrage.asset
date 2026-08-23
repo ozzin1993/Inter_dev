@@ -11,12 +11,12 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 287c67ddc61ecea4d9523c9740931d7e, type: 3}
   m_Name: Lyudi_Ab_T1A2_Barrage
-  m_EditorClassIdentifier:
+  m_EditorClassIdentifier: 
   id: 200101
   abilityName:
-  - "Заградительный огонь"
+  - "\u0414\u0430\u043B\u044C\u043D\u0438\u0439 \u0432\u044B\u0441\u0442\u0440\u0435\u043B"
   description:
-  - "+25% скорости атаки, -15% дальности стрельбы."
+  - "+20% \u0434\u0430\u043B\u044C\u043D\u043E\u0441\u0442\u0438 \u0430\u0442\u0430\u043A\u0438."
   icon: []
   slotNumber: -1
   isItem: 0
@@ -33,6 +33,7 @@ MonoBehaviour:
   - 0
   radius:
   - 0
+  showRadiusCircle: 0
   unitSelector:
     isOwn: 0
     isAlly: 0
@@ -53,18 +54,19 @@ MonoBehaviour:
   duration: []
   requiredTech:
   - data:
-    - {fileID: 11400000, guid: fcb6e27b067ddd826ae08dc47113c874, type: 2}
-  requiredLevel:
+    - {fileID: 11400000, guid: b77155fd5a8eceebd141704eb211118f, type: 2}
+  requiredLevel: 
   manaCost: []
   manaCostPerSecond: []
   cost: []
+  editorFactions: []
   passiveEffects:
   - damageChange: 0
     damagePercentageChange: 0
     attackSpeedChange: 0
-    attackSpeedPercentageChange: 0.25
+    attackSpeedPercentageChange: 0
     attackRangeChange: 0
-    attackRangePercentageChange: -0.15
+    attackRangePercentageChange: 0.2
     armorChange: 0
     armorPercentageChange: 0
     moveSpeedChange: 0

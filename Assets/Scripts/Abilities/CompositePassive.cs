@@ -123,6 +123,8 @@ namespace StrategyCore
             WireReactions(unit, level);
 
             if (c.slowImmunity || c.aura) WireTick();
+
+            InterflowDebug.Event("ПАССИВКА «" + PassiveDisplayName() + "» включена у " + InterflowDebug.Name(unit));
         }
 
         /// <summary>Умение закрылось (потеря технологии, смена облика) — снимаем ровно выданное.</summary>
@@ -145,6 +147,8 @@ namespace StrategyCore
 
             carriers.Remove(unit);
 
+            InterflowDebug.Event("ПАССИВКА «" + PassiveDisplayName() + "» снята у " + InterflowDebug.Name(unit));
+
             if (!AnyoneNeedsTick()) UnwireTick();
         }
 
@@ -162,6 +166,13 @@ namespace StrategyCore
 
             if (dead == null) return;
             for (int i = 0; i < dead.Count; i++) carriers.Remove(dead[i]);
+        }
+
+        /// <summary>Отображаемое имя для логов: русское имя способности, иначе имя ассета.</summary>
+        string PassiveDisplayName()
+        {
+            return (abilityName != null && abilityName.Length > 0 && !string.IsNullOrEmpty(abilityName[0]))
+                   ? abilityName[0] : name;
         }
 
         // ===================================================================== ТИК ==

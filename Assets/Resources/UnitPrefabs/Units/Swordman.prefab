@@ -1,0 +1,452 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!1 &7159909171149085634
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 5741001857411224930}
+  - component: {fileID: 1526241182521751945}
+  - component: {fileID: 5186792438009123784}
+  - component: {fileID: 7339970038069368820}
+  m_Layer: 0
+  m_Name: Swordman
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &5741001857411224930
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7159909171149085634}
+  serializedVersion: 2
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children:
+  - {fileID: 5128144804951650287}
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!195 &1526241182521751945
+NavMeshAgent:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7159909171149085634}
+  m_Enabled: 1
+  m_AgentTypeID: 0
+  m_Radius: 0.5
+  m_Speed: 3.5
+  m_Acceleration: 8
+  avoidancePriority: 50
+  m_AngularSpeed: 120
+  m_StoppingDistance: 0
+  m_AutoTraverseOffMeshLink: 1
+  m_AutoBraking: 1
+  m_AutoRepath: 1
+  m_Height: 2
+  m_BaseOffset: 0
+  m_WalkableMask: 4294967295
+  m_ObstacleAvoidanceType: 4
+--- !u!114 &5186792438009123784
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7159909171149085634}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b166e7a81d9bcf940a22cc4c185f0e45, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::StrategyCore.Unit
+  abilities:
+  - {fileID: 11400000, guid: c3cfa1620068bdc455cf0d37c0d0c12d, type: 2}
+  - {fileID: 11400000, guid: 001a87fd14fc7ad54db81d20ffbd802b, type: 2}
+  abilityLevel: 0000000000000000
+  abilityLocked: 
+  everyFrameAbilities: []
+  everyFrameAbilityIndex: 
+  everyFrameAbilityIsItem: 
+  cooldownAbility: []
+  cooldownAbilityIndex: 
+  cooldownAbilityIsItem: 
+  activeAbility: {fileID: 0}
+  activeAbilityLevel: 0
+  activeAbilityIndex: 0
+  activeAbilityItem: 0
+  activeAbilityUnit: {fileID: 0}
+  activeAbilityLocation: {x: 0, y: 0, z: 0}
+  activeAbilityInUse: 0
+  activeAbilityRange: 0
+  activeAbilityCastTime: 0
+  activeAbilityDuration: 0
+  activeAbilityVFX: {fileID: 0}
+  unitCategory: 0
+  targetPriority: 
+  respondsToAttackCommand: 1
+  respondsToDefenceCommand: 1
+  leavesGrave: 0
+  tier: 1
+  InventorySize: 0
+  items: []
+  itemCharges: 
+  inventoryInitialized: 0
+  isInvisible: 0
+  canBeSeen: 
+  canBeSeenCount: 
+  invisibleAgent: {fileID: 0}
+  lastPos: 0
+  reached: 1
+  unitTypeID: 45910
+  netID: 0
+  owner: 0
+  unitName: Sword Man
+  icon: {fileID: 2800000, guid: 0020c98079d53064dada1a226bf76bd5, type: 3}
+  description: 
+  isSelectable: 1
+  unitType: 0
+  isGround: 1
+  isWater: 0
+  isAir: 0
+  unitRadius: 0.5
+  unitHeight: 1
+  crossFadeTime: 0.1
+  horizontalPart: {fileID: 5128144804951650287}
+  verticalPart: {fileID: 0}
+  doNotLookForTargets: 0
+  visionRange: 5
+  reactionRange: 5
+  viewBlocker: 0
+  singleCellViewBlocker: 0
+  transportWeight: 1
+  formationPriority: 0
+  maxHealth: 300
+  health: 300
+  healthRegen: 0
+  maxMana: 0
+  mana: 0
+  manaRegen: 0
+  isInvulnerable: 0
+  armor: 0
+  armorType: {fileID: 0}
+  canMove: 1
+  moveSpeed: 5
+  acceleration: 100
+  turnSpeed: 360
+  animationMoveSpeed: 0
+  unlockTech: {fileID: 0}
+  resourceProduced: []
+  resourceCost:
+  - type: {fileID: 11400000, guid: 60b6b29110aff1245ac647a92477fa74, type: 2}
+    value: 2
+  - type: {fileID: 11400000, guid: dfacb690ca8bd7f41b614f3280cdaf0c, type: 2}
+    value: 5
+  xpReward: 0
+  resourceReward: []
+  dieVFX: {fileID: 0}
+  attackUnitSelector:
+    isOwn: 1
+    isAlly: 1
+    isEnemy: 1
+    isUnit: 1
+    isBuilding: 1
+    isStaticDestructible: 1
+    isTree: 1
+    isGround: 1
+    isWater: 1
+    isAir: 0
+    includeInvisible: 0
+    includeInvulnerable: 0
+  canAttack: 0
+  searchUnitSelector:
+    isOwn: 0
+    isAlly: 0
+    isEnemy: 0
+    isUnit: 0
+    isBuilding: 0
+    isStaticDestructible: 0
+    isTree: 0
+    isGround: 0
+    isWater: 0
+    isAir: 0
+    includeInvisible: 0
+    includeInvulnerable: 0
+  splashUnitSelector:
+    isOwn: 0
+    isAlly: 0
+    isEnemy: 0
+    isUnit: 0
+    isBuilding: 0
+    isStaticDestructible: 0
+    isTree: 0
+    isGround: 0
+    isWater: 0
+    isAir: 0
+    includeInvisible: 0
+    includeInvulnerable: 0
+  melee: 1
+  attackType: 0
+  attackRange: 1
+  damageType: {fileID: 0}
+  attackDamage: 10
+  attackSpeed: 1
+  attackEffectors: []
+  projectileGO: {fileID: 0}
+  projectileVFX: {fileID: 0}
+  attackVFXLine: {fileID: 0}
+  attackSoundRef: {fileID: 0}
+  netCD: 0
+  currentAttackSpeed: 0
+  attackCooldown: 0
+  currentAttackCount: 0
+  firstAttack: 1
+  animationAttackDelay: 0
+  currentAnimAttackDelay: 0
+  launchSite: []
+  launchVFX: []
+  periodicSequential: 1
+  periodicAttackDelay: 0
+  periodicAttackCount: 0
+  isSplash: 0
+  splashRadius: 0
+  splashReduction: 1
+  projectileFollowTarget: 1
+  multiTarget: 0
+  multiTargetCount: 0
+  additionalTargets: []
+  bounceCount: 0
+  bounceRange: 0
+  bounceReduction: 1
+  canProcess: 0
+  activeProcess: []
+  processLevel: 
+  currentProcessTimer: 0
+  readySound: []
+  moveSound: []
+  clickSound: []
+  deathSound: []
+  attackCommandSound: []
+  attackStartSound: []
+  attackEndSound: []
+  weaponSound: {fileID: 0}
+  commandSound: {fileID: 0}
+  commandSoundTime: 0
+  staticObject: 0
+  target: {fileID: 0}
+  targetPosition: {x: 0, y: 0}
+  isTargetGround: 0
+  initialPosition: {x: 0, y: 0}
+  isBeingBuilt: 0
+  currentActionTime: 0
+  disabled: 0
+  stunned: 0
+  stunTime: 0
+  muted: 0
+  currentMuteTime: 0
+  disarmed: 0
+  currentDisarmTime: 0
+  polymorphed: 0
+  polymorphTime: 0
+  polymorphTotalTime: 0
+  polymorphAbility: {fileID: 0}
+  polymorphLvl: 0
+  polymorphShape: {fileID: 0}
+  currentMainShape: {fileID: 0}
+  isShop: 0
+  shopUnit: {fileID: 0}
+  unitState: 0
+  isMoving: 0
+  isWaypoint: 0
+  waypointLocation: {x: 0, y: 0}
+  waypointUnit: {fileID: 0}
+  animationBlendingIndex: 0
+  hasHitAnim: 0
+  hasCastAnim: 0
+  staticCopy: {fileID: 0}
+  FoWVisible: 0
+  agent: {fileID: 0}
+  obstacle: {fileID: 0}
+  animator: {fileID: 0}
+  resourceUnit: {fileID: 0}
+  constructionUnit: {fileID: 0}
+  attributeUnit: {fileID: 0}
+  levelingUnit: {fileID: 0}
+  transportUnit: {fileID: 0}
+  lifetimeUnit: {fileID: 0}
+  currentDestination: {x: 0, y: 0, z: 0}
+  stopDistance: 0
+  mainRenderer: {fileID: 0}
+  hpSync: 0
+  mpSync: 0
+  xpSync: 0
+  positionsSent: 1
+  removeFromPosSync: 0
+  spawned: 0
+  initialized: 0
+--- !u!114 &7339970038069368820
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7159909171149085634}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: eeacf01fdd4e6784fbaffd8a2682fac0, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Interflow.Game::StrategyCore.AutoAbilityUser
+  autoAbilities: []
+--- !u!1001 &4602713609655919414
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    serializedVersion: 3
+    m_TransformParent: {fileID: 5128355476377694147}
+    m_Modifications:
+    - target: {fileID: 1530859087307534, guid: 40ef906ad8107e14db650394f50fc326, type: 3}
+      propertyPath: m_Name
+      value: SM_Wep_Sword_09
+      objectReference: {fileID: 0}
+    - target: {fileID: 4712643579669620, guid: 40ef906ad8107e14db650394f50fc326, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: 0.10545585
+      objectReference: {fileID: 0}
+    - target: {fileID: 4712643579669620, guid: 40ef906ad8107e14db650394f50fc326, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 0.018104477
+      objectReference: {fileID: 0}
+    - target: {fileID: 4712643579669620, guid: 40ef906ad8107e14db650394f50fc326, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: 0.038985774
+      objectReference: {fileID: 0}
+    - target: {fileID: 4712643579669620, guid: 40ef906ad8107e14db650394f50fc326, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: -0.48942885
+      objectReference: {fileID: 0}
+    - target: {fileID: 4712643579669620, guid: 40ef906ad8107e14db650394f50fc326, type: 3}
+      propertyPath: m_LocalRotation.x
+      value: 0.4894291
+      objectReference: {fileID: 0}
+    - target: {fileID: 4712643579669620, guid: 40ef906ad8107e14db650394f50fc326, type: 3}
+      propertyPath: m_LocalRotation.y
+      value: 0.51035225
+      objectReference: {fileID: 0}
+    - target: {fileID: 4712643579669620, guid: 40ef906ad8107e14db650394f50fc326, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: -0.51035213
+      objectReference: {fileID: 0}
+    - target: {fileID: 4712643579669620, guid: 40ef906ad8107e14db650394f50fc326, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: -182.398
+      objectReference: {fileID: 0}
+    - target: {fileID: 4712643579669620, guid: 40ef906ad8107e14db650394f50fc326, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: 90
+      objectReference: {fileID: 0}
+    - target: {fileID: 4712643579669620, guid: 40ef906ad8107e14db650394f50fc326, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: 270
+      objectReference: {fileID: 0}
+    m_RemovedComponents: []
+    m_RemovedGameObjects: []
+    m_AddedGameObjects: []
+    m_AddedComponents: []
+  m_SourcePrefab: {fileID: 100100000, guid: 40ef906ad8107e14db650394f50fc326, type: 3}
+--- !u!4 &4607360245962985282 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 4712643579669620, guid: 40ef906ad8107e14db650394f50fc326, type: 3}
+  m_PrefabInstance: {fileID: 4602713609655919414}
+  m_PrefabAsset: {fileID: 0}
+--- !u!1001 &5132942668072575781
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    serializedVersion: 3
+    m_TransformParent: {fileID: 5741001857411224930}
+    m_Modifications:
+    - target: {fileID: 1741276027538082, guid: ec40be0b218a7a242a61be659cdadb17, type: 3}
+      propertyPath: m_Name
+      value: SwordMan
+      objectReference: {fileID: 0}
+    - target: {fileID: 4842998965800138, guid: ec40be0b218a7a242a61be659cdadb17, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4842998965800138, guid: ec40be0b218a7a242a61be659cdadb17, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4842998965800138, guid: ec40be0b218a7a242a61be659cdadb17, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4842998965800138, guid: ec40be0b218a7a242a61be659cdadb17, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 4842998965800138, guid: ec40be0b218a7a242a61be659cdadb17, type: 3}
+      propertyPath: m_LocalRotation.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4842998965800138, guid: ec40be0b218a7a242a61be659cdadb17, type: 3}
+      propertyPath: m_LocalRotation.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4842998965800138, guid: ec40be0b218a7a242a61be659cdadb17, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4842998965800138, guid: ec40be0b218a7a242a61be659cdadb17, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4842998965800138, guid: ec40be0b218a7a242a61be659cdadb17, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4842998965800138, guid: ec40be0b218a7a242a61be659cdadb17, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 95700630886227062, guid: ec40be0b218a7a242a61be659cdadb17, type: 3}
+      propertyPath: m_Controller
+      value: 
+      objectReference: {fileID: 9100000, guid: 500d19d39c8fbb443b8bc4d72afb55a6, type: 2}
+    - target: {fileID: 95700630886227062, guid: ec40be0b218a7a242a61be659cdadb17, type: 3}
+      propertyPath: m_CullingMode
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 95700630886227062, guid: ec40be0b218a7a242a61be659cdadb17, type: 3}
+      propertyPath: m_ApplyRootMotion
+      value: 0
+      objectReference: {fileID: 0}
+    m_RemovedComponents: []
+    m_RemovedGameObjects: []
+    m_AddedGameObjects:
+    - targetCorrespondingSourceObject: {fileID: 4631191521234150, guid: ec40be0b218a7a242a61be659cdadb17, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 4607360245962985282}
+    m_AddedComponents: []
+  m_SourcePrefab: {fileID: 100100000, guid: ec40be0b218a7a242a61be659cdadb17, type: 3}
+--- !u!4 &5128144804951650287 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 4842998965800138, guid: ec40be0b218a7a242a61be659cdadb17, type: 3}
+  m_PrefabInstance: {fileID: 5132942668072575781}
+  m_PrefabAsset: {fileID: 0}
+--- !u!4 &5128355476377694147 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 4631191521234150, guid: ec40be0b218a7a242a61be659cdadb17, type: 3}
+  m_PrefabInstance: {fileID: 5132942668072575781}
+  m_PrefabAsset: {fileID: 0}

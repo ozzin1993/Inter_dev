@@ -11,12 +11,14 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 2e4e8b8c10555543ea14c3347aaa701a, type: 3}
   m_Name: Lyudi_Ab_T1A1_ArmorPierce
-  m_EditorClassIdentifier:
+  m_EditorClassIdentifier: 
   id: 200100
   abilityName:
-  - "Пробитие брони"
+  - "\u0411\u0440\u043E\u043D\u0435\u0431\u043E\u0439\u043D\u044B\u0439 \u0431\u043E\u043B\u0442"
   description:
-  - "Атаки игнорируют 20% физической защиты цели."
+  - "\u0410\u0442\u0430\u043A\u0438 \u0438\u0433\u043D\u043E\u0440\u0438\u0440\u0443\u044E\u0442
+    30% \u0444\u0438\u0437\u0438\u0447\u0435\u0441\u043A\u043E\u0439 \u0437\u0430\u0449\u0438\u0442\u044B
+    \u0446\u0435\u043B\u0438."
   icon: []
   slotNumber: -1
   isItem: 0
@@ -33,6 +35,7 @@ MonoBehaviour:
   - 0
   radius:
   - 0
+  showRadiusCircle: 0
   unitSelector:
     isOwn: 0
     isAlly: 0
@@ -53,10 +56,11 @@ MonoBehaviour:
   duration: []
   requiredTech:
   - data:
-    - {fileID: 11400000, guid: c942d37c8fd638eb591c08488b5a4e6f, type: 2}
-  requiredLevel:
+    - {fileID: 11400000, guid: b857edbb846da0cfd1685cabd136e8ad, type: 2}
+  requiredLevel: 
   manaCost: []
   manaCostPerSecond: []
   cost: []
+  editorFactions: []
   pierceFraction:
-  - 0.2
+  - 0.3
