@@ -31,7 +31,7 @@ MonoBehaviour:
   maxLevels: 1
   heroLevelable: 0
   cooldown:
-  - 9
+  - 5
   castRange:
   - 10
   castTime:
@@ -71,7 +71,7 @@ MonoBehaviour:
   targetStrategy: 2
   searchOrigin: 0
   strategyUseCurrentHealth: 0
-  strategyHpThreshold: 0.3
+  strategyHpThreshold: 0.869
   autoCastSelfHpBelow: 0
   targetCategories: 
   maxTargets: 1
@@ -173,7 +173,7 @@ MonoBehaviour:
     enabled: 1
     flat: []
     percentOfMaxHp:
-    - 0.2
+    - 0.8
     duration:
     - 8
     onDepletedEffectors: []

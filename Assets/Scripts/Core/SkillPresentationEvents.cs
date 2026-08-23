@@ -71,6 +71,17 @@ namespace StrategyCore
         /// <summary>Поднять факт «каст прерван». Зовётся приёмником сообщения о прерывании.</summary>
         public static void RaiseCastStopped(Unit caster) => CastStopped?.Invoke(caster);
 
+        // ============================== ПОГЛОЩАЮЩИЙ ЩИТ ==============================
+        // Величина щита живёт на сервере (AbsorbShield); факт нужен клиентскому сегменту
+        // на полоске здоровья (ShieldBarDisplay, сборка Interflow.Client).
+
+        /// <summary>Объём поглощающего щита юнита изменился: (носитель, объём; 0 — щит снят).</summary>
+        public static event Action<Unit, float> ShieldChanged;
+
+        /// <summary>Поднять факт «щит изменился». Зовётся сервером (локально) и приёмником RPC (у клиента).</summary>
+        public static void RaiseShieldChanged(Unit unit, float amount)
+            => ShieldChanged?.Invoke(unit, amount);
+
         // ============================== ЗОНЫ НА ЗЕМЛЕ ==============================
 
         /// <summary>Зона на земле появилась: (id зоны, id умения-источника, уровень, позиция).</summary>

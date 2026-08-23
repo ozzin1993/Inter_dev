@@ -91,7 +91,6 @@ MultiplayerManager:
     - Interflow.Client:StrategyCore:SoundFXManager
     - UnityEngine.UI:UnityEngine.UI:Button
     - UnityEngine.UI:UnityEngine.EventSystems:Physics2DRaycaster
-    - Interflow.Client:StrategyCore:WaveBuilderUI
     - UnityEngine.UI:UnityEngine.UI:Graphic
     - UnityEngine.UI:UnityEngine.UI:RectMask2D
     - UnityEngine.AudioModule:UnityEngine:AudioReverbFilter

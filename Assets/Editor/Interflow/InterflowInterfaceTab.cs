@@ -8,8 +8,8 @@ using UnityEngine.UIElements;
 namespace StrategyCore
 {
     // ============================= INTERFLOW EDITOR — ВКЛАДКА «ИНТЕРФЕЙС» ==
-    // Иконки и раскладка игрового HUD в одном месте: угловые кнопки (техи, ветки Душ), кнопки состава волны
-    // и панели-сетки со своими ячейками. Поля живут на объектах ОТКРЫТОЙ СЦЕНЫ (UIManager, WaveBuilderUI) —
+    // Иконки и раскладка игрового HUD в одном месте: угловые кнопки (техи, ветки Душ, волна), окно настройки
+    // волны и панели-сетки со своими ячейками. Поля живут на объекте ОТКРЫТОЙ СЦЕНЫ (UIManager) —
     // это не ассеты, поэтому без открытой сцены матча вкладка показывает подсказку (как вкладка «Матч»).
     // Правки — штатно через SerializedObject + Bind (Undo + пометка сцены dirty). Ассет/SCEditor не трогаем
     // (правило 1). Правило 5: та же точка входа, что и остальные вкладки редактора.
@@ -22,12 +22,11 @@ namespace StrategyCore
             root.Add(scroll);
 
             var ui = Object.FindObjectOfType<UIManager>();
-            var wave = Object.FindObjectOfType<WaveBuilderUI>();
 
-            if (ui == null && wave == null)
+            if (ui == null)
             {
                 scroll.Add(new HelpBox(
-                    "В открытой сцене нет ни UIManager, ни WaveBuilderUI. Открой сцену матча — иконки интерфейса " +
+                    "В открытой сцене нет UIManager. Открой сцену матча — иконки интерфейса " +
                     "задаются на объектах сцены, а не в ассетах.",
                     HelpBoxMessageType.Info));
                 return root;
@@ -49,6 +48,16 @@ namespace StrategyCore
                 box.Add(Field(so, "cornerTablesTopOffset",  "Отступ сверху, px"));
                 box.Add(Field(so, "cornerPanelGap",         "Зазор кнопка → таблица, px"));
 
+                box.Add(Title("Окно настройки волны (правый нижний угол)"));
+                box.Add(Hint("Кнопка открывает панель волны у правой кромки экрана. Иконки пометок стоят в ряду " +
+                             "каждого доступного юнита: автопризыв, разовый призыв, снять пометку."));
+                box.Add(Field(so, "waveButtonIcon",   "Иконка кнопки волны"));
+                box.Add(Field(so, "waveAutoIcon",     "Иконка «Автопризыв»"));
+                box.Add(Field(so, "waveOneShotIcon",  "Иконка «Разовый призыв»"));
+                box.Add(Field(so, "waveClearIcon",    "Иконка «Снять пометку»"));
+                box.Add(Field(so, "wavePanelWidth",   "Ширина панели волны, px"));
+                box.Add(Field(so, "wavePanelCellSize", "Размер ячейки ряда, px"));
+
                 box.Add(Title("Панели-сетки и их ячейки"));
                 box.Add(Hint("Каждая панель — фиксированная сетка rows×cols в точке экрана; ячейки назначаются " +
                              "ПОЗИЦИОННО (индекс = ряд×cols + столбец), пустая ячейка рисуется на своём месте. " +
@@ -58,34 +67,6 @@ namespace StrategyCore
 
                 scroll.Add(box);
                 box.Bind(so);   // сохранение + Undo + пометка сцены dirty
-            }
-            else
-            {
-                scroll.Add(new HelpBox("В открытой сцене нет UIManager — угловые кнопки и панели-сетки недоступны.",
-                    HelpBoxMessageType.Info));
-            }
-
-            // ---------- WaveBuilderUI: кнопки состава волны ----------
-            if (wave != null)
-            {
-                var wso = new SerializedObject(wave);
-                var wbox = new VisualElement();
-
-                wbox.Add(Title("Кнопки состава волны"));
-                wbox.Add(Hint("Кнопки ряда юнита во временной панели волны. Имя панели должно совпадать с именем " +
-                              "одной из панелей-сеток выше."));
-                wbox.Add(Field(wso, "waveSlotPanelName", "Имя панели волны"));
-                wbox.Add(Field(wso, "autoIcon",          "Иконка «Автопризыв»"));
-                wbox.Add(Field(wso, "oneShotIcon",       "Иконка «Разовый призыв»"));
-                wbox.Add(Field(wso, "clearIcon",         "Иконка «Снять пометку»"));
-
-                scroll.Add(wbox);
-                wbox.Bind(wso);
-            }
-            else
-            {
-                scroll.Add(new HelpBox("В открытой сцене нет WaveBuilderUI — кнопки состава волны недоступны.",
-                    HelpBoxMessageType.Info));
             }
 
             // ---------- Осиротевшие поля сцены ----------

@@ -1344,3 +1344,111 @@
     border-color: rgba(96, 190, 118, 0.35);
     color: rgba(240, 250, 242, 0.5);
 }
+
+/* ======================= ОКНО НАСТРОЙКИ ВОЛНЫ (UIManager.WavePanel.cs) ======================= */
+
+.wavePanel {
+    background-color: rgba(16, 20, 32, 0.96);
+    border-left-width: 2px;
+    border-left-color: var(--borderColorLight);
+    padding-left: 12px;
+    padding-right: 12px;
+    padding-top: 8px;
+    padding-bottom: 12px;
+    flex-direction: column;
+}
+
+.wavePanelHeader {
+    border-bottom-width: 2px;
+    border-bottom-color: var(--borderColor);
+    margin-bottom: 10px;
+}
+
+.wavePanelTitle {
+    -unity-font-style: bold;
+    font-size: 26px;
+    letter-spacing: 4px;
+    color: rgb(232, 236, 245);
+    padding-left: 4px;
+}
+
+.wavePanelBadge {
+    background-color: rgba(31, 38, 56, 0.95);
+    border-width: 1px;
+    border-color: var(--borderColor);
+    padding-left: 10px;
+    padding-right: 10px;
+    padding-top: 4px;
+    padding-bottom: 4px;
+    margin-left: 8px;
+}
+
+.wavePanelBadgeValue {
+    -unity-font-style: bold;
+    font-size: 18px;
+    color: rgb(240, 244, 252);
+}
+
+.wavePanelClose {
+    width: 40px;
+    height: 40px;
+    margin-left: 12px;
+    background-color: rgba(31, 38, 56, 0.95);
+    border-width: 1px;
+    border-color: var(--borderColor);
+    color: rgb(214, 220, 232);
+    font-size: 20px;
+}
+
+.waveSectionCaption {
+    font-size: 16px;
+    letter-spacing: 2px;
+    color: rgb(168, 178, 199);
+    margin-top: 6px;
+    margin-bottom: 6px;
+    padding-left: 2px;
+}
+
+.waveNextBox {
+    background-color: rgba(31, 38, 56, 0.95);
+    border-width: 1px;
+    border-color: var(--borderColor);
+    padding-left: 6px;
+    padding-right: 6px;
+    padding-top: 6px;
+    padding-bottom: 6px;
+    margin-bottom: 8px;
+}
+
+.waveNextItem {
+    background-color: rgba(75, 75, 75, 0.55);
+    border-width: 1px;
+    border-color: var(--buttonBorder);
+    padding-left: 4px;
+    padding-right: 6px;
+    padding-top: 3px;
+    padding-bottom: 3px;
+    margin-right: 6px;
+    margin-bottom: 6px;
+}
+
+.waveNextItemIcon {
+    background-color: rgba(0, 0, 0, 0);
+    margin-right: 4px;
+}
+
+.waveNextItemCount {
+    font-size: 16px;
+    color: rgb(232, 236, 245);
+}
+
+.waveUnitRow {
+    background-color: rgba(75, 75, 75, 0.35);
+    border-width: 1px;
+    border-color: var(--buttonBorder);
+    padding-left: 4px;
+    padding-right: 4px;
+    padding-top: 4px;
+    padding-bottom: 4px;
+    margin-bottom: 6px;
+}

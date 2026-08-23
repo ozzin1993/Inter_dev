@@ -43,6 +43,7 @@ GameObject:
   - component: {fileID: 1165191979987236916}
   - component: {fileID: 7848067163205269994}
   - component: {fileID: 8474297956575913251}
+  - component: {fileID: 5633541095729736097}
   m_Layer: 0
   m_Name: Wizard
   m_TagString: Untagged
@@ -338,6 +339,23 @@ MonoBehaviour:
   autoAbilities:
   - {fileID: 11400000, guid: e2b74c7598bd907c67524560a7bcc5bf, type: 2}
   - {fileID: 11400000, guid: fed541e87ae4f7e439a57dcbadf7dfe6, type: 2}
+--- !u!114 &5633541095729736097
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6797796247634689522}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5daeb0b37d11e5d24e1b8fe305b61b08, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Interflow.Game::StrategyCore.InterflowUnitWatcher
+  logLevel: 2
+  watchStats: 1
+  watchEffectors: 1
+  watchAbilities: 1
+  statEpsilon: 0.0001
 --- !u!1001 &9061279508793036284
 PrefabInstance:
   m_ObjectHideFlags: 0

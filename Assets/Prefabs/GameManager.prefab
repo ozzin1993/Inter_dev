@@ -328,6 +328,21 @@ MonoBehaviour:
   techTreeCardConfirmCaption: "\u0412\u0437\u044F\u0442\u044C"
   techTreeCardWidth: 900
   techTreeCardIconSize: 52
+  waveButtonIcon: {fileID: 2800000, guid: 25adbc7725fcfc847ba5f0a1efea4596, type: 3}
+  wavePanelTitle: "\u0412\u041E\u041B\u041D\u0410"
+  wavePanelCloseCaption: "\u2715"
+  wavePanelWidth: 690
+  wavePanelHeaderHeight: 64
+  wavePanelTimerFormat: "\u0447\u0435\u0440\u0435\u0437 {0} \u0441\u0435\u043A"
+  wavePanelNextCaption: "\u0411\u041B\u0418\u0416\u0410\u0419\u0428\u0410\u042F \u0412\u041E\u041B\u041D\u0410"
+  wavePanelUnitsCaption: "\u0414\u041E\u0421\u0422\u0423\u041F\u041D\u042B\u0415
+    \u042E\u041D\u0418\u0422\u042B"
+  wavePanelCountFormat: "\xD7{0}"
+  wavePanelNextIconSize: 40
+  wavePanelCellSize: 68
+  waveAutoIcon: {fileID: 2800000, guid: b0baf745103a6de48bf0f5ac553d319b, type: 3}
+  waveOneShotIcon: {fileID: 2800000, guid: 58f76d91edb04564a9b7b89c4e33e164, type: 3}
+  waveClearIcon: {fileID: 2800000, guid: e92d736fa3bd5d84eac72ff08581f788, type: 3}
   waveTimerColor: {r: 1, g: 1, b: 1, a: 1}
   waveTimerFontSize: 28
   waveTimerTopOffset: 12

@@ -118,8 +118,10 @@ namespace StrategyCore
         // Server send cast signal
         public void AbilityUseSend(Unit castingUnit, Ability ability, int abilityLevel, int abilityIndex, bool isItem, Unit abilityTarget, Vector3 abilityLocation, bool interrupt, int shadowCasterID)
         {
-            // 0 == null
-            UInt16 targetID = (abilityTarget == null) ? (UInt16)0 : abilityTarget.netID;
+            // 0 == null. [Interflow fix 2026-08-23 status-send-gate] Цель, умершая в этом же
+            // вызове (локальная ссылка не обнуляется подпиской OnReferenceChange), шлётся как 0 —
+            // приёмник штатно кастует без цели; раньше клиент печатал «Desync!» и НЕ выполнял каст.
+            UInt16 targetID = StillRegistered(abilityTarget) ? abilityTarget.netID : (UInt16)0;
             AbilityUseClientRpc(castingUnit.netID, ability.id, abilityLevel, abilityIndex, isItem, targetID, abilityLocation, interrupt, shadowCasterID);
         }
 

@@ -52,6 +52,7 @@ namespace StrategyCore
             SkillPresentationEvents.CastStopped += HandleCastStopped;
             SkillPresentationEvents.ZoneSpawned += HandleZoneSpawned;
             SkillPresentationEvents.ZoneDespawned += HandleZoneDespawned;
+            SkillPresentationEvents.ShieldChanged += HandleShieldChanged;
             SceneManager.sceneLoaded += HandleSceneLoaded;
         }
 
@@ -64,8 +65,12 @@ namespace StrategyCore
             SkillPresentationEvents.CastStopped -= HandleCastStopped;
             SkillPresentationEvents.ZoneSpawned -= HandleZoneSpawned;
             SkillPresentationEvents.ZoneDespawned -= HandleZoneDespawned;
+            SkillPresentationEvents.ShieldChanged -= HandleShieldChanged;
             SceneManager.sceneLoaded -= HandleSceneLoaded;
         }
+
+        /// <summary>Поглощающий щит юнита изменился — серый сегмент на полоске здоровья рисует ShieldBarDisplay.</summary>
+        static void HandleShieldChanged(Unit unit, float amount) => ShieldBarDisplay.LocalShow(unit, amount);
 
         // Сам презентер переживает смену сцены, а визуалы — нет: они уничтожаются вместе со сценой.
         // Без обнуления реестра там копились бы мёртвые ссылки, а id зон нового матча совпадали бы со старыми.

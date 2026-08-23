@@ -16,3 +16,4 @@ MonoBehaviour:
   coneSegments: 24
   groundLift: 0.05
   instantAreaFadeSeconds: 1.5
+  shieldBarMaterial: {fileID: 2100000, guid: 755a764e2232dd74f9e486a15ce2cb4c, type: 2}

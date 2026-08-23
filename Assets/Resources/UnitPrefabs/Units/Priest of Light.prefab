@@ -43,6 +43,7 @@ GameObject:
   - component: {fileID: 1165191979987236916}
   - component: {fileID: 7848067163205269994}
   - component: {fileID: 655029449631449583}
+  - component: {fileID: 8103278348231879664}
   m_Layer: 0
   m_Name: Priest of Light
   m_TagString: Untagged
@@ -338,6 +339,23 @@ MonoBehaviour:
   autoAbilities:
   - {fileID: 11400000, guid: f75a7c51fa33892429e9d980620edd38, type: 2}
   - {fileID: 11400000, guid: 367d41a9792827049a3bbcfcf9ae4bc8, type: 2}
+--- !u!114 &8103278348231879664
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6797796247634689522}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5daeb0b37d11e5d24e1b8fe305b61b08, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Interflow.Game::StrategyCore.InterflowUnitWatcher
+  logLevel: 2
+  watchStats: 1
+  watchEffectors: 1
+  watchAbilities: 1
+  statEpsilon: 0.0001
 --- !u!1001 &9061279508793036284
 PrefabInstance:
   m_ObjectHideFlags: 0

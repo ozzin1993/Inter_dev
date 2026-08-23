@@ -41,17 +41,18 @@ namespace StrategyCore
                             // Duplicate or null
                             if (unit.unitTypeID == 0 || unitTypeIDs.Contains(unit.unitTypeID))
                             {
-                                // Create new value
-                                int newID = UnityEngine.Random.Range(1, 99999);
-                                while (unitTypeIDs.Contains(newID))
-                                {
-                                    newID = UnityEngine.Random.Range(1, 99999);
-                                }
+                                // [Interflow 2026-08-17 ревью] Свободный id детерминированно (максимум + 1) вместо Random.Range
+                                int newID = 1;
+                                foreach (int existing in unitTypeIDs) if (existing >= newID) newID = existing + 1;
 
-                                // Assign
-                                unit.unitTypeID = newID;
-                                // Save the prefab asset
-                                PrefabUtility.SavePrefabAsset(prefab);
+                                // [Interflow 2026-08-17 ревью] Сохранение префаба отложено из постпроцессора импорта:
+                                // SavePrefabAsset внутри OnPostprocessAllAssets каскадит повторные импорты (предупреждение документации Unity)
+                                UnityEditor.EditorApplication.delayCall += () =>
+                                {
+                                    if (unit == null || prefab == null) return;
+                                    unit.unitTypeID = newID;
+                                    PrefabUtility.SavePrefabAsset(prefab);
+                                };
                             }
                         }
                     }

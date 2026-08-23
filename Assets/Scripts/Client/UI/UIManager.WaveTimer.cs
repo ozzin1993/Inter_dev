@@ -63,6 +63,8 @@ namespace StrategyCore
             if (waveTimerLabel == null) InitWaveTimer();   // ленивое построение при раннем вызове
             if (waveTimerLabel == null) return;            // UI ещё/на сервере не готов
 
+            UpdateWavePanelTimer(seconds);                 // тот же отсчёт в шапке окна настройки волны (UIManager.WavePanel.cs)
+
             if (seconds < 0)
             {
                 waveTimerLabel.style.display = DisplayStyle.None;

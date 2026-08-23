@@ -178,8 +178,10 @@ namespace StrategyCore
 
             for (int i = 0; i < targets.Length; i++)
             {
-                if (targets[i] != null) targetIDs[i] = targets[i].netID;
-                else targetIDs[i] = 0;
+                // [Interflow fix 2026-08-23 status-send-gate] Цель, умершая в этом же кадре, могла
+                // остаться в хранимом массиве мультитаргета — снятый netID шлём как 0 (приёмник
+                // пропускает нули штатно), иначе клиент печатал «Desync!» на элементе.
+                targetIDs[i] = StillRegistered(targets[i]) ? targets[i].netID : (UInt16)0;
             }
 
             AdditionalTargetsClientRpc(unit.netID, targetIDs);

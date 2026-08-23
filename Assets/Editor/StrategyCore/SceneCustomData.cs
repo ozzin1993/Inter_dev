@@ -42,9 +42,9 @@ namespace StrategyCore
 
             if (gm != null)
             {
-                // Navmesh
-                if (navmeshHolder != null)
-                    DuplicateWatcher.NavmeshDataSet(gm.gameObject, navmeshHolder); // [Interflow fix 2026-08-01] метод перенесён в DuplicateWatcher
+                // [Interflow 2026-08-17 ревью «долг редактора»] Пересборка 4 навмешей УБРАНА из каждого сохранения сцены:
+                // сохранение документа её не требует. Навмеши пересобираются на входе в Play Mode (DuplicateWatcher)
+                // и вручную: Tools → Interflow → «Пересобрать навмеши сцены».
 
                 // Save data
                 string content = JsonHelper.ToJson<TeamsAndPlayers>(gm.teamsAndPlayers);
@@ -67,7 +67,7 @@ namespace StrategyCore
 
                 System.IO.File.WriteAllText(path, content);
                 Debug.Log("Custom Scene Data Saved!");
-                AssetDatabase.Refresh();
+                AssetDatabase.ImportAsset(path); // [Interflow 2026-08-17 ревью] точечный импорт одного файла вместо полного Refresh (сканировал весь проект)
             }
             else
             {

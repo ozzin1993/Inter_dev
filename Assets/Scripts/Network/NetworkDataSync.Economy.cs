@@ -72,7 +72,12 @@ namespace StrategyCore
         // Server send trigger
         public void DieTriggerSend(UInt16 unitID, int killingPlayer, Unit killingUnit, bool rewards, bool destroy)
         {
-            UInt16 killingUnitID = (killingUnit == null) ? (UInt16)0 : killingUnit.netID;
+            // [Interflow fix 2026-08-23 dead-killer-ref] Убийца мог умереть раньше жертвы в этом же
+            // кадре (взаимное убийство, снаряд умершего стрелка): его netID уже снят из реестра на
+            // всех пирах, и клиент печатал «Desync! KILLER unit netID…». Ссылка необязательна — шлём 0
+            // (штатная ветка «убийца-игрок без юнита», награды идут по killingPlayer). Тот же принцип,
+            // что в SkillFiredSend (status-send-gate); StillRegistered — из партиала UnitStatus.
+            UInt16 killingUnitID = StillRegistered(killingUnit) ? killingUnit.netID : (UInt16)0;
             DieClientRpc(unitID, killingPlayer, killingUnitID, rewards, destroy);
         }
 

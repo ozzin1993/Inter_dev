@@ -19,7 +19,8 @@ MonoBehaviour:
   - "\u041F\u0440\u0438 \u0441\u043C\u0435\u0440\u0442\u0438 \u0432\u0437\u0440\u044B\u0432\u0430\u0435\u0442\u0441\u044F,
     \u043D\u0430\u043D\u043E\u0441\u044F \u0443\u0440\u043E\u043D \u0432\u0440\u0430\u0433\u0430\u043C
     \u0432\u043E\u043A\u0440\u0443\u0433 \u0441\u0435\u0431\u044F."
-  icon: []
+  icon:
+  - {fileID: 2800000, guid: 3e50fec4e891dde488f5f20498a88c83, type: 3}
   slotNumber: -1
   isItem: 0
   useUponPickUp: 0
@@ -100,7 +101,7 @@ MonoBehaviour:
     radius:
     - 3
     enemyDamage:
-    - 50
+    - 200
     enemyDamageType: {fileID: 11400000, guid: f9053eb8c43d2b4489895a8f084c16be, type: 2}
     enemySelector:
       isOwn: 0

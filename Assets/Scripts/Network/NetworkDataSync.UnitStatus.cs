@@ -34,8 +34,7 @@ namespace StrategyCore
         /// до сообщения «снят»; длительность — страховка на случай потери снятия при смене сцены.</param>
         public void UnitStatusEffectorSend(Unit unit, int effectorId, float duration)
         {
-            if (unit == null) return;
-            if (NetworkManager.Singleton == null || !NetworkManager.Singleton.IsServer || !NetworkManager.Singleton.IsListening) return;
+            if (!CanSendAbout(unit)) return;
             UnitStatusEffectorClientRpc(unit.netID, effectorId, duration);
         }
 
@@ -62,8 +61,7 @@ namespace StrategyCore
         /// <summary>Сервер: эффектора с этим id на юните больше нет (истёк или снят досрочно — фикс §8.6).</summary>
         public void UnitStatusEffectorRemoveSend(Unit unit, int effectorId)
         {
-            if (unit == null) return;
-            if (NetworkManager.Singleton == null || !NetworkManager.Singleton.IsServer || !NetworkManager.Singleton.IsListening) return;
+            if (!CanSendAbout(unit)) return;
             UnitStatusEffectorRemoveClientRpc(unit.netID, effectorId);
         }
 
@@ -81,8 +79,7 @@ namespace StrategyCore
         /// <summary>Сервер: включить/выключить у юнита флаг состояния без эффектора (например, слепоту).</summary>
         public void UnitStatusFlagSend(Unit unit, UnitStatusFlag flag, bool state)
         {
-            if (unit == null) return;
-            if (NetworkManager.Singleton == null || !NetworkManager.Singleton.IsServer || !NetworkManager.Singleton.IsListening) return;
+            if (!CanSendAbout(unit)) return;
             UnitStatusFlagClientRpc(unit.netID, (byte)flag, state);
         }
 
@@ -102,7 +99,23 @@ namespace StrategyCore
         public void SkillBuffVfxSend(UInt16[] netIDs, int buffAbilityId, int buffAbilityLevel, float buffDuration)
         {
             if (netIDs == null || netIDs.Length == 0 || buffAbilityId < 0) return;
-            if (NetworkManager.Singleton == null || !NetworkManager.Singleton.IsServer || !NetworkManager.Singleton.IsListening) return;
+            if (!ServerCanSend()) return;
+
+            // [Interflow fix 2026-08-23 status-send-gate] Мёртвые к моменту отправки выпадают из
+            // массива: их netID уже снят из реестра, и клиент напечатал бы «Desync!» на каждый номер.
+            int alive = 0;
+            for (int i = 0; i < netIDs.Length; i++)
+                if (SlotManager.instance.unitNetID.ContainsKey(netIDs[i])) alive++;
+            if (alive == 0) return;
+            if (alive != netIDs.Length)
+            {
+                UInt16[] filtered = new UInt16[alive];
+                int k = 0;
+                for (int i = 0; i < netIDs.Length; i++)
+                    if (SlotManager.instance.unitNetID.ContainsKey(netIDs[i])) filtered[k++] = netIDs[i];
+                netIDs = filtered;
+            }
+
             SkillBuffVfxClientRpc(netIDs, buffAbilityId, buffAbilityLevel, buffDuration);
         }
 
@@ -137,10 +150,13 @@ namespace StrategyCore
         /// <summary>Сервер: умение сработало. Одно сообщение на любой каст, включая «умный выбор» с кнопки.</summary>
         public void SkillFiredSend(Unit caster, int abilityID, int level, Unit aimUnit, Vector3 aimPoint)
         {
-            if (NetworkManager.Singleton == null || !NetworkManager.Singleton.IsServer || !NetworkManager.Singleton.IsListening) return;
+            if (!ServerCanSend()) return;
 
-            UInt16 casterID = caster == null ? (UInt16)0 : caster.netID;
-            UInt16 aimID = aimUnit == null ? (UInt16)0 : aimUnit.netID;
+            // [Interflow fix 2026-08-23 status-send-gate] Ссылки необязательны (конвенция «0 — нет
+            // ссылки»): кастер или цель могли умереть в этом же вызове — шлём 0, а не снятый netID,
+            // на который клиент ответил бы ложным «Desync!».
+            UInt16 casterID = StillRegistered(caster) ? caster.netID : (UInt16)0;
+            UInt16 aimID = StillRegistered(aimUnit) ? aimUnit.netID : (UInt16)0;
             SkillFiredClientRpc(casterID, abilityID, level, aimID, aimPoint);
         }
 
@@ -168,7 +184,7 @@ namespace StrategyCore
         /// <summary>Сервер: на земле появилась зона умения. Позиция ФАКТИЧЕСКАЯ — разброс рандомится сервером.</summary>
         public void GroundZoneSpawnSend(int zoneId, int abilityID, int level, Vector3 position)
         {
-            if (NetworkManager.Singleton == null || !NetworkManager.Singleton.IsServer || !NetworkManager.Singleton.IsListening) return;
+            if (!ServerCanSend()) return;
             GroundZoneSpawnClientRpc(zoneId, abilityID, level, position);
         }
 
@@ -186,7 +202,7 @@ namespace StrategyCore
         /// <summary>Сервер: зона на земле закончила жизнь (истекла или снята).</summary>
         public void GroundZoneDespawnSend(int zoneId)
         {
-            if (NetworkManager.Singleton == null || !NetworkManager.Singleton.IsServer || !NetworkManager.Singleton.IsListening) return;
+            if (!ServerCanSend()) return;
             GroundZoneDespawnClientRpc(zoneId);
         }
 
@@ -204,7 +220,7 @@ namespace StrategyCore
         /// </summary>
         public void GroundZoneResendSend(ulong clientID, int zoneId, int abilityID, int level, Vector3 position)
         {
-            if (NetworkManager.Singleton == null || !NetworkManager.Singleton.IsServer || !NetworkManager.Singleton.IsListening) return;
+            if (!ServerCanSend()) return;
             GroundZoneResendClientRpc(zoneId, abilityID, level, position, RpcTarget.Single(clientID, RpcTargetUse.Temp));
         }
 
@@ -216,7 +232,58 @@ namespace StrategyCore
             SkillPresentationEvents.RaiseZoneSpawned(zoneId, abilityID, level, position);
         }
 
+        // ============================== ПОГЛОЩАЮЩИЙ ЩИТ ==============================
+        // Величина щита живёт только на сервере (AbsorbShield); клиенту она нужна ровно для одного —
+        // серого сегмента на полоске здоровья (ShieldBarDisplay). Смерть носителя отдельно не шлём:
+        // сегмент живёт на полоске юнита и снимается его смертью на каждом пире сам.
+
+        /// <summary>Сервер: изменился объём поглощающего щита юнита (0 — щит снят).</summary>
+        public void UnitShieldSend(Unit unit, float amount)
+        {
+            if (!CanSendAbout(unit)) return;
+            UnitShieldClientRpc(unit.netID, amount);
+        }
+
+        [Rpc(SendTo.NotServer, InvokePermission = RpcInvokePermission.Server)]
+        private void UnitShieldClientRpc(UInt16 netID, float amount)
+        {
+            if (NetworkConnectionHandler.instance != null && NetworkConnectionHandler.instance.connectionStage == 2) return;
+            if (GameManager.instance == null) return; // кадр выгрузки сцены
+            if (!TryResolveUnit(netID, "UnitShieldSend", out Unit unit)) return;
+
+            SkillPresentationEvents.RaiseShieldChanged(unit, amount);
+        }
+
         // ============================== ОБЩЕЕ ==============================
+
+        // [Interflow fix 2026-08-23 status-send-gate] Общая преамбула отправки канала (правило 5):
+        // раньше четыре метода повторяли одну и ту же пару проверок, а про юнита, умершего в этом же
+        // вызове (удар убил цель — Die уже снял netID из реестра на всех пирах), сообщение всё равно
+        // уходило: клиент печатал «Desync! Unit netID… should exist on client». Разбор:
+        // Документы/Аудиты/Анализ_Рассинхрон_Состояние_На_Трупе.md. Парно к запрету
+        // «эффектор на мёртвого» в Effector.EffectorAdd.
+
+        /// <summary>Сервер запущен и слушает — базовое условие любой отправки канала.</summary>
+        static bool ServerCanSend()
+        {
+            return NetworkManager.Singleton != null && NetworkManager.Singleton.IsServer && NetworkManager.Singleton.IsListening;
+        }
+
+        /// <summary>Юнит всё ещё числится в реестре netID — зеркало клиентского TryResolveUnit:
+        /// смерть снимает номер на всех пирах (SlotManager.RemoveNetID из Unit.Die), про снятого
+        /// с учёта клиентам не рассказываем. Сравнение экземпляра — номер мог быть перезаписан.</summary>
+        static bool StillRegistered(Unit unit)
+        {
+            return unit != null
+                && SlotManager.instance.unitNetID.TryGetValue(unit.netID, out Unit registered)
+                && registered == unit;
+        }
+
+        /// <summary>Полная преамбула сообщения «про конкретного юнита»: сервер слушает, юнит на учёте.</summary>
+        static bool CanSendAbout(Unit unit)
+        {
+            return ServerCanSend() && StillRegistered(unit);
+        }
 
         static bool TryResolveUnit(UInt16 netID, string source, out Unit unit)
         {

@@ -123,23 +123,20 @@ namespace StrategyCore
         {
             HashSet<UInt16> unitNetID = new HashSet<UInt16>(); // networkID hashset
 
-            foreach (GameObject obj in GameObject.FindObjectsByType<GameObject>(FindObjectsSortMode.None))
+            // [Interflow 2026-08-17 ревью] Ищем сразу компоненты Unit (было: перебор ВСЕХ объектов сцены с GetComponent на каждом)
+            foreach (Unit unit in GameObject.FindObjectsByType<Unit>(FindObjectsSortMode.None))
             {
-                Unit unit = obj.GetComponent<Unit>();
-                if (unit != null)
+                if (unit.netID == 0 || unitNetID.Contains(unit.netID))
                 {
-                    if (unit.netID == 0 || unitNetID.Contains(unit.netID))
+                    UInt16 netID = (UInt16)UnityEngine.Random.Range(1, 65535);
+                    while (unitNetID.Contains(netID))
                     {
-                        UInt16 netID = (UInt16)UnityEngine.Random.Range(1, 65535);
-                        while (unitNetID.Contains(netID))
-                        {
-                            netID = (UInt16)UnityEngine.Random.Range(1, 65535);
-                        }
-                        unit.netID = netID;
-                        EditorUtility.SetDirty(unit);
+                        netID = (UInt16)UnityEngine.Random.Range(1, 65535);
                     }
-                    unitNetID.Add(unit.netID);
+                    unit.netID = netID;
+                    EditorUtility.SetDirty(unit);
                 }
+                unitNetID.Add(unit.netID);
             }
         }
 

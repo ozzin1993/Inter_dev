@@ -54,6 +54,15 @@ namespace StrategyCore
             techButton.RegisterCallback<ClickEvent>(_ => ToggleTechTreePanel());   // панель технологий 2.0 (UIManager.TechTree.cs)
             cornerTablesRoot.Add(techButton);
 
+            // --- Правый край, центр по вертикали: настройка волны ---
+            VisualElement waveButton = BuildCornerButton(waveButtonIcon);
+            waveButton.style.right = cornerTablesSideOffset;
+            // Центр по вертикали: середина экрана минус половина высоты кнопки (кнопка позиционирована абсолютно).
+            waveButton.style.top = Length.Percent(50f);
+            waveButton.style.marginTop = -cornerButtonSize / 2f;
+            waveButton.RegisterCallback<ClickEvent>(_ => ToggleWavePanel());       // окно настройки волны (UIManager.WavePanel.cs)
+            cornerTablesRoot.Add(waveButton);
+
             SubscribeCornerEvents();
 
             // [Переделка UI, ADR-001] Панели-сетки строим здесь, а не в ядровом UIManager.Start(),
@@ -62,6 +71,7 @@ namespace StrategyCore
             InitBranchPanel();        // панель веток Душ (UIManager.BranchPanel.cs) // N4
             InitTechTreePanel();      // панель технологий: лента тиров (UIManager.TechTree.cs)
             InitWaveTimer();          // таймер до следующей волны сверху по центру (UIManager.WaveTimer.cs)
+            InitWavePanel();          // окно настройки волны справа (UIManager.WavePanel.cs)
         }
 
         // Кнопка-иконка в стиле ячейки способности (.AbilityButton), абсолютно позиционирована.
@@ -108,6 +118,7 @@ namespace StrategyCore
             if (mm != null) mm.OnTeamContentChanged += OnTeamContentChangedHandler;   // апгрейды: видимый набор способностей ГЗ
             if (mm != null) mm.OnHeroChanged += OnHeroChangedHandler;                  // герой призван/погиб: перерисовка ряда его умений (HeroUI)
             if (mm != null) mm.OnSoulsChanged += OnSoulsChangedHandler;                // перерисовка панели веток по Душам // N4
+            if (mm != null) mm.OnWaveMarksChanged += OnWaveMarksChangedHandler;        // пометки волны изменились: перерисовать панель волны
 
             List<int> players = new List<int>();
             TechnologyManager tm = TechnologyManager.instance;
@@ -150,6 +161,14 @@ namespace StrategyCore
             if (team != CommandTeamForLocalPlayer()) return;
             RefreshAbilityTable();      // старая центральная ветка (мигрирует)
             RefreshAbilitySlots();      // новая панель-сетка умений (шаг 4)
+            RefreshWavePanel();         // набор доступных юнитов волны изменился (UIManager.WavePanel.cs)
+        }
+
+        // Пометки волны изменились (своя команда) → перерисовать открытое окно настройки волны.
+        void OnWaveMarksChangedHandler(int team)
+        {
+            if (team != CommandTeamForLocalPlayer()) return;
+            RefreshWavePanel();
         }
 
         void OnDestroy()
@@ -159,6 +178,7 @@ namespace StrategyCore
             if (mm != null) mm.OnTeamContentChanged -= OnTeamContentChangedHandler;
             if (mm != null) mm.OnHeroChanged -= OnHeroChangedHandler;
             if (mm != null) mm.OnSoulsChanged -= OnSoulsChangedHandler;   // // N4
+            if (mm != null) mm.OnWaveMarksChanged -= OnWaveMarksChangedHandler;
 
             TechnologyManager tm = TechnologyManager.instance;
             if (tm != null && subscribedTechPlayers != null)

@@ -111,6 +111,9 @@ namespace StrategyCore
                 GameManager.instance.Tick += OnTick;
                 subscribed = true;
             }
+
+            // Сегмент щита на полоске здоровья: новая величина (хосту — напрямую, клиентам — каналом статусов).
+            NotifyShieldBar(unit, remaining);
         }
 
         // Щит исчерпан внутри расчёта урона: снимать хук и звать реакции прямо сейчас нельзя
@@ -133,6 +136,9 @@ namespace StrategyCore
             // Снять хук отсюда (Cleanup → RemoveAt) значит уронить перечисление InvalidOperationException'ом
             // прямо посреди расчёта урона. Поэтому только помечаем — реальное снятие на ближайшем тике.
             if (remaining <= 0f) pendingDepleted = true;
+
+            // Щит потаял — обновляем серый сегмент на полоске (RPC и событие список колбэков не трогают).
+            NotifyShieldBar(self, remaining);
 
             return dmg - absorbed;
         }
@@ -161,12 +167,27 @@ namespace StrategyCore
             }
         }
 
+        /// <summary>
+        /// Сообщить о новой величине щита: чистым клиентам — единым каналом статусов, этому пиру —
+        /// фактом презентации (рисует клиентская сборка, см. ShieldBarDisplay). Только сервер (правило 6).
+        /// </summary>
+        private static void NotifyShieldBar(Unit target, float amount)
+        {
+            if (NetworkConnectionHandler.isClient || target == null) return;
+
+            if (NetworkDataSync.instance != null) NetworkDataSync.instance.UnitShieldSend(target, amount);
+            SkillPresentationEvents.RaiseShieldChanged(target, amount);
+        }
+
         private bool destroyed; // компонент уже помечен на снятие: Destroy(this) отложен до конца кадра
 
         private void Cleanup()
         {
             if (destroyed) return;
             destroyed = true;
+
+            // Сегмент на полоске: щита больше нет. Мёртвому носителю не шлём — сегмент умирает вместе с ним.
+            if (unit != null && !unit.dead) NotifyShieldBar(unit, 0f);
 
             if (unit != null)
                 for (int i = 0; i < unit.OnBeforeGetDamageCallbacks.Count; i++)

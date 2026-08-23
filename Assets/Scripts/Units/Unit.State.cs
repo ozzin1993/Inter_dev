@@ -1620,6 +1620,12 @@ namespace StrategyCore
         {
             if (staticObject) return;
 
+            // [Interflow fix 2026-08-23 no-status-on-dead] Решение Artsiom: на мёртвых статусы
+            // не вешаются (близнец запрета эффекторов в EffectorAdd). Урон в этом же вызове мог убить
+            // цель (рывок, метеор, снаряд): статус по трупу слал клиентам снятый netID («Desync!»)
+            // и заново подписывал труп на Tick до истечения статуса.
+            if (dead) return;
+
             // [Interflow fix 2026-07-06 control-immunity] Иммунитет к контролю (Железный Приговор и будущие эффекты). Маркер ControlImmunity
             // на юните → стан не применяется. Проверка per-unit (только этот юнит), см. concepts/control-immunity.
             if (TryGetComponent<ControlImmunity>(out var __controlImmunity) && __controlImmunity.Active) return;
@@ -1731,6 +1737,11 @@ namespace StrategyCore
         public void Mute(float time)
         {
             if (staticObject) return;
+            // [Interflow fix 2026-08-23 no-status-on-dead] Решение Artsiom: на мёртвых статусы
+            // не вешаются (близнец запрета эффекторов в EffectorAdd). Урон в этом же вызове мог убить
+            // цель (рывок, метеор, снаряд): статус по трупу слал клиентам снятый netID («Desync!»)
+            // и заново подписывал труп на Tick до истечения статуса.
+            if (dead) return;
             // If already muted, means currently permanently muted
             if (muted) return;
 
@@ -1809,6 +1820,11 @@ namespace StrategyCore
         public void Disarm(float time)
         {
             if (!canAttack) return;
+            // [Interflow fix 2026-08-23 no-status-on-dead] Решение Artsiom: на мёртвых статусы
+            // не вешаются (близнец запрета эффекторов в EffectorAdd). Урон в этом же вызове мог убить
+            // цель (рывок, метеор, снаряд): статус по трупу слал клиентам снятый netID («Desync!»)
+            // и заново подписывал труп на Tick до истечения статуса.
+            if (dead) return;
             // If already disarmed, means currently permanently disarmed
             if (disarmed) return;
 

@@ -18,7 +18,7 @@ MonoBehaviour:
     \u0438 \u043F\u0435\u0440\u0435\u0434\u0432\u0438\u0436\u0435\u043D\u0438\u044F"
   icon: {fileID: 0}
   description: 
-  VFX: {fileID: 0}
+  VFX: {fileID: 8847030502823628414, guid: 659b97f6e24449a438ddbe8ce7d0ee1b, type: 3}
   aboveHead: 0
   permanent: 0
   duration: 3
