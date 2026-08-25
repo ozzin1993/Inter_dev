@@ -105,6 +105,15 @@ namespace StrategyCore
         {
             if (cfg == null) yield break;
 
+            // Пауза волн тестового полигона (MatchManager.TestArena.cs). В обычном матче флаг всегда false —
+            // поведение не меняется. Снимаем лок состава и уведомляем UI, иначе пометки залипнут заблокированными.
+            if (testWavesPaused)
+            {
+                cfg.compositionLocked = false;
+                OnWaveMarksChanged?.Invoke(teamIndex);
+                yield break;
+            }
+
             // 1) Тик перерождения героя (тикает и на пропущенной волне — интервал есть волна).
             if (cfg.heroWavesToSkip > 0) cfg.heroWavesToSkip--;
 

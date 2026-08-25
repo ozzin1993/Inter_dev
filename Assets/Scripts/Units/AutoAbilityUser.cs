@@ -30,6 +30,18 @@ namespace StrategyCore
         // Обычные Ability (не конструктор) компонент больше не принимает: три класса, проходивших
         // по типу (ShieldAlly, HolyFire, CorruptionBurstActive), переводятся в конструктор.
 
+        /// <summary>
+        /// Список авто-умений для чтения снаружи (панель тестового полигона показывает, что юнит кастует сам).
+        /// Отдаётся сам массив, без копии: состав задаётся в Inspector и в рантайме не меняется.
+        /// </summary>
+        public CompositeSkill[] AutoAbilities => autoAbilities;
+
+        /// <summary>
+        /// Пауза авто-применения у ЭТОГО юнита (переключатель «Авто-применение» на полигоне).
+        /// Не сериализуется: в обычном матче всегда false, поведение не меняется.
+        /// </summary>
+        [System.NonSerialized] public bool testAutoCastSuspended;
+
         // --- внутреннее состояние ---
         private Unit unit;
         private bool subscribed;
@@ -97,6 +109,7 @@ namespace StrategyCore
 
         private void TryAutoCast()
         {
+            if (testAutoCastSuspended) return;                       // пауза авто-применения (тестовый полигон)
             if (unit.unitState == UnitStates.AbilityCasting) return; // уже кастует
             if (autoAbilities == null) return;
 

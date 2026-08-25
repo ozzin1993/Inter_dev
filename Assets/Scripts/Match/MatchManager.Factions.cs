@@ -32,6 +32,17 @@ namespace StrategyCore
             FactionConfig faction = ResolveFaction(cfg.ownerPlayer);
             if (faction == null) return;
 
+            ApplyFactionContent(cfg, faction);
+        }
+
+        // Тело применения расы БЕЗ резолва: перезаписывает контентные поля cfg значениями переданной расы.
+        // Отделено от ApplyFaction, чтобы тестовый полигон мог назначить расу стороне явным ассетом
+        // (MatchManager.TestArena.TestApplyFaction) — при прямом запуске сцены резолв по playerFaction
+        // дал бы обеим сторонам одну расу. Штатное поведение не меняется: ApplyFaction зовёт это же тело.
+        void ApplyFactionContent(TeamWaveConfig cfg, FactionConfig faction)
+        {
+            if (cfg == null || faction == null) return;
+
             cfg.techTiers                = CloneTechTiers(faction.techTiers); // дерево тиров — ГЛУБОКИЙ клон (урок waveComposition; ассет не мутируем)
             cfg.mainBuildingShapesByLevel = CloneArray(faction.mainBuildingShapesByLevel);
             cfg.centralAbilities         = faction.centralAbilities != null
