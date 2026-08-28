@@ -12,9 +12,9 @@ namespace StrategyCore
         Started
     }
 
-    public class SlotManager : MonoBehaviour
+    public class SlotManager : MonoBehaviour, IStartupService
     {
-        public static SlotManager instance;
+        public static SlotManager Instance { get; private set; }
 
         [HideInInspector] public bool gameOn = false; // Only for Unit Update check, for checking the game state use variable below!
         public GameState gameStarted = GameState.Menu; // If game has been started, or are we still in the lobby
@@ -69,7 +69,13 @@ namespace StrategyCore
 
         private bool instanceSet = false;
 
-        void Awake()
+        void Awake() => Startup();
+
+        /// <summary>
+        /// Подъём службы (IStartupService). Идемпотентен: InstanceSet сам различает первый вызов,
+        /// повторный на том же объекте и дубликат, пришедший из меню.
+        /// </summary>
+        public void Startup()
         {
 #if !(UNITY_EDITOR || DEVELOPMENT_BUILD)
             // Ревью 1.1/п.9: галка debugMode обходит проверку владения в 22 местах NetworkCommandSync —
@@ -86,10 +92,10 @@ namespace StrategyCore
         /// </summary>
         public void InstanceSet()
         {
-            if (instance == null)
+            if (Instance == null)
             {
                 // Directly playing the scene
-                instance = this;
+                Instance = this;
                 instanceSet = true;
 
                 // Enable EventSystem
@@ -122,8 +128,8 @@ namespace StrategyCore
             // Default player ID values
             for (int i = 0; i < playerID.Length; i++) playerID[i] = -1;
 
-            if (SceneHandler.instance.sceneData == null || SceneHandler.instance.sceneIndex >= SceneHandler.instance.sceneData.Length) return;
-            SceneData sceneData = SceneHandler.instance.sceneData[SceneHandler.instance.sceneIndex];
+            if (SceneHandler.Instance.sceneData == null || SceneHandler.Instance.sceneIndex >= SceneHandler.Instance.sceneData.Length) return;
+            SceneData sceneData = SceneHandler.Instance.sceneData[SceneHandler.Instance.sceneIndex];
             int currentPlayerIndex = 0;
 
             // User defined data
@@ -134,31 +140,31 @@ namespace StrategyCore
                     // Bot data
                     if (sceneData.teamsAndPlayers[t].players[i].isBot)
                     {
-                        if (sceneData.teamsAndPlayers[t].players[i].dontShow) SlotManager.instance.slotType[currentPlayerIndex] = SlotType.BotHidden;
-                        else SlotManager.instance.slotType[currentPlayerIndex] = SlotType.Bot;
-                        SlotManager.instance.playerName[currentPlayerIndex] = sceneData.teamsAndPlayers[t].players[i].botName;
+                        if (sceneData.teamsAndPlayers[t].players[i].dontShow) SlotManager.Instance.slotType[currentPlayerIndex] = SlotType.BotHidden;
+                        else SlotManager.Instance.slotType[currentPlayerIndex] = SlotType.Bot;
+                        SlotManager.Instance.playerName[currentPlayerIndex] = sceneData.teamsAndPlayers[t].players[i].botName;
                     }
 
-                    if (sceneData.chooseTeams) SlotManager.instance.playerTeam[currentPlayerIndex] = currentPlayerIndex;
-                    else SlotManager.instance.playerTeam[currentPlayerIndex] = t;
-                    SlotManager.instance.playerName[i] = "Player " + i;
+                    if (sceneData.chooseTeams) SlotManager.Instance.playerTeam[currentPlayerIndex] = currentPlayerIndex;
+                    else SlotManager.Instance.playerTeam[currentPlayerIndex] = t;
+                    SlotManager.Instance.playerName[i] = "Player " + i;
                     currentPlayerIndex++;
                 }
             }
 
             // Fill the rest of the player-team relations
-            SlotManager.instance.playerTeam[(int)Players.NeutralPassive] = (int)Teams.NeutralPassive;
-            SlotManager.instance.playerName[(int)Players.NeutralPassive] = "Neutral Passive";
-            SlotManager.instance.playerTeam[(int)Players.NeutralActive] = (int)Teams.NeutralActive;
-            SlotManager.instance.playerName[(int)Players.NeutralActive] = "Neutral Active";
+            SlotManager.Instance.playerTeam[(int)Players.NeutralPassive] = (int)Teams.NeutralPassive;
+            SlotManager.Instance.playerName[(int)Players.NeutralPassive] = "Neutral Passive";
+            SlotManager.Instance.playerTeam[(int)Players.NeutralActive] = (int)Teams.NeutralActive;
+            SlotManager.Instance.playerName[(int)Players.NeutralActive] = "Neutral Active";
 
             for (int i = currentPlayerIndex; i < Enum.GetNames(typeof(Players)).Length - 2; i++)
             {
                 // Assign names
-                SlotManager.instance.playerName[i] = "Player " + i;
+                SlotManager.Instance.playerName[i] = "Player " + i;
 
                 // Assign teams
-                SlotManager.instance.playerTeam[i] = i;
+                SlotManager.Instance.playerTeam[i] = i;
             }
         }
 
@@ -170,8 +176,8 @@ namespace StrategyCore
             // берём из внешних серверных конфигов (StreamingAssets/ServerConfigs/factions.json). Без этого
             // декремент 1-based → 0-based пропускался и выбор фракций «сбрасывался» перед стартом матча.
             SceneData sceneData = null;
-            if (SceneHandler.instance.sceneData != null && SceneHandler.instance.sceneIndex < SceneHandler.instance.sceneData.Length)
-                sceneData = SceneHandler.instance.sceneData[SceneHandler.instance.sceneIndex];
+            if (SceneHandler.Instance.sceneData != null && SceneHandler.Instance.sceneIndex < SceneHandler.Instance.sceneData.Length)
+                sceneData = SceneHandler.Instance.sceneData[SceneHandler.Instance.sceneIndex];
             else
                 Debug.LogWarning("[SlotManager] RandomizeSlotData: sceneData недоступен (порча сцены в билде?) — фракции по внешним конфигам.");
 
@@ -181,30 +187,30 @@ namespace StrategyCore
             if (factionCount <= 0)
                 Debug.LogWarning("[SlotManager] RandomizeSlotData: число фракций неизвестно (sceneData пуст и внешних конфигов нет) — индексы фракций останутся сырыми (1-based).");
 
-            for (int i = 0; i < SlotManager.instance.slotType.Length; i++)
+            for (int i = 0; i < SlotManager.Instance.slotType.Length; i++)
             {
-                if (SlotManager.instance.slotType[i] != SlotType.Empty)
+                if (SlotManager.Instance.slotType[i] != SlotType.Empty)
                 {
                     // Randomize the faction for this player, or reduce the index by one since 0 is random
                     if (factionCount > 0)
                     {
-                        if (SlotManager.instance.playerFaction[i] == 0)
+                        if (SlotManager.Instance.playerFaction[i] == 0)
                         {
-                            SlotManager.instance.playerFaction[i] = UnityEngine.Random.Range(0, factionCount);
+                            SlotManager.Instance.playerFaction[i] = UnityEngine.Random.Range(0, factionCount);
                         }
-                        else SlotManager.instance.playerFaction[i]--;
+                        else SlotManager.Instance.playerFaction[i]--;
                     }
 
                     // Randomize spawn position if needed, or reduce the index by one since 0 is random
                     if (sceneData != null && sceneData.spawnPointCount > 0)
                     {
-                        if (SlotManager.instance.playerPosition[i] == 0)
-                            SlotManager.instance.playerPosition[i] = UnityEngine.Random.Range(0, sceneData.spawnPointCount);
-                        else SlotManager.instance.playerPosition[i]--;
+                        if (SlotManager.Instance.playerPosition[i] == 0)
+                            SlotManager.Instance.playerPosition[i] = UnityEngine.Random.Range(0, sceneData.spawnPointCount);
+                        else SlotManager.Instance.playerPosition[i]--;
                     }
                 }
             }
-            if (NetworkDataSync.instance) NetworkDataSync.instance.PlayerListSend(0, true);
+            if (NetworkDataSync.Instance) NetworkDataSync.Instance.PlayerListSend(0, true);
         }
 
         // ============================= WIN LOSE ==============================================================================
@@ -262,8 +268,8 @@ namespace StrategyCore
         /// <returns>Index of the player`s slot. -1 if no slots are available.</returns>
         public int AddClientID(ulong clientID, string playerName)
         {
-            if (SceneHandler.instance.sceneData == null || SceneHandler.instance.sceneIndex >= SceneHandler.instance.sceneData.Length) return -1;
-            SceneData sceneData = SceneHandler.instance.sceneData[SceneHandler.instance.sceneIndex];
+            if (SceneHandler.Instance.sceneData == null || SceneHandler.Instance.sceneIndex >= SceneHandler.Instance.sceneData.Length) return -1;
+            SceneData sceneData = SceneHandler.Instance.sceneData[SceneHandler.Instance.sceneIndex];
 
             // Find empty slot
             int currentPlayerIndex = 0;
@@ -271,11 +277,11 @@ namespace StrategyCore
             {
                 for (int i = 0; i < sceneData.teamsAndPlayers[t].players.Length; i++)
                 {
-                    if (SlotManager.instance.slotType[currentPlayerIndex] == SlotType.Empty)
+                    if (SlotManager.Instance.slotType[currentPlayerIndex] == SlotType.Empty)
                     {
-                        SlotManager.instance.slotType[currentPlayerIndex] = SlotType.Player;
-                        SlotManager.instance.playerID[currentPlayerIndex] = (int)clientID;
-                        SlotManager.instance.playerName[currentPlayerIndex] = playerName;
+                        SlotManager.Instance.slotType[currentPlayerIndex] = SlotType.Player;
+                        SlotManager.Instance.playerID[currentPlayerIndex] = (int)clientID;
+                        SlotManager.Instance.playerName[currentPlayerIndex] = playerName;
 
                         return currentPlayerIndex;
                     }
@@ -292,13 +298,13 @@ namespace StrategyCore
         /// <param name="clientID">Client`s network ID.</param>
         public void RemoveClientID(ulong clientID)
         {
-            for (int i = 0; i < SlotManager.instance.playerID.Length; i++)
+            for (int i = 0; i < SlotManager.Instance.playerID.Length; i++)
             {
-                if (SlotManager.instance.playerID[i] == (int)clientID && SlotManager.instance.slotType[i] == SlotType.Player)
+                if (SlotManager.Instance.playerID[i] == (int)clientID && SlotManager.Instance.slotType[i] == SlotType.Player)
                 {
-                    SlotManager.instance.slotType[i] = SlotType.Empty;
-                    SlotManager.instance.playerID[i] = -1;
-                    SlotManager.instance.playerName[i] = "";
+                    SlotManager.Instance.slotType[i] = SlotType.Empty;
+                    SlotManager.Instance.playerID[i] = -1;
+                    SlotManager.Instance.playerName[i] = "";
                     return;
                 }
             }
@@ -312,21 +318,21 @@ namespace StrategyCore
         {
             if (NetworkManager.Singleton.IsServer) // Server
             {
-                if (slot != SlotManager.instance.currentPlayer) // Not host
+                if (slot != SlotManager.Instance.currentPlayer) // Not host
                 {
-                    if (SlotManager.instance.slotType[slot] == SlotType.Player)
+                    if (SlotManager.Instance.slotType[slot] == SlotType.Player)
                     {
-                        NetworkManager.Singleton.DisconnectClient((ulong)SlotManager.instance.playerID[slot]);
-                        NetworkDataSync.instance.PlayerListSend(0, true);
+                        NetworkManager.Singleton.DisconnectClient((ulong)SlotManager.Instance.playerID[slot]);
+                        NetworkDataSync.Instance.PlayerListSend(0, true);
                     }
-                    else if (SlotManager.instance.slotType[slot] != SlotType.Empty)
+                    else if (SlotManager.Instance.slotType[slot] != SlotType.Empty)
                     {
-                        SlotManager.instance.slotType[slot] = SlotType.Empty;
-                        SlotManager.instance.playerID[slot] = -1;
-                        SlotManager.instance.playerName[slot] = "";
+                        SlotManager.Instance.slotType[slot] = SlotType.Empty;
+                        SlotManager.Instance.playerID[slot] = -1;
+                        SlotManager.Instance.playerName[slot] = "";
 
                         Presentation.MenuUI?.FillPlayerList();
-                        if (NetworkDataSync.instance) NetworkDataSync.instance.PlayerListSend(0, true);
+                        if (NetworkDataSync.Instance) NetworkDataSync.Instance.PlayerListSend(0, true);
                     }
                 }
             }
@@ -341,15 +347,15 @@ namespace StrategyCore
         {
             if (!NetworkManager.Singleton.IsServer) return;
             // Fetch current scene data
-            if (SceneHandler.instance.sceneData == null || SceneHandler.instance.sceneIndex >= SceneHandler.instance.sceneData.Length) return;
-            SceneData sceneData = SceneHandler.instance.sceneData[SceneHandler.instance.sceneIndex];
+            if (SceneHandler.Instance.sceneData == null || SceneHandler.Instance.sceneIndex >= SceneHandler.Instance.sceneData.Length) return;
+            SceneData sceneData = SceneHandler.Instance.sceneData[SceneHandler.Instance.sceneIndex];
 
             if (sceneData.chooseTeams || team >= sceneData.teamsAndPlayers.Length) return;
             if (sceneData.teamsAndPlayers[team].players == null || sceneData.teamsAndPlayers[team].players.Length == 0) return;
 
-            int currentSlot = SlotManager.instance.GetClientSlot(clientID);
+            int currentSlot = SlotManager.Instance.GetClientSlot(clientID);
             // [Interflow fix 2026-08-01 lobby-factions] slot=-1 (клиент без слота) крашил RPC-обработчик.
-            if (currentSlot < 0 || currentSlot >= SlotManager.instance.playerTeam.Length)
+            if (currentSlot < 0 || currentSlot >= SlotManager.Instance.playerTeam.Length)
             {
                 Debug.LogWarning($"[SlotManager] SwapTeamTo: у клиента {clientID} нет слота (slot={currentSlot}) — смена команды проигнорирована.");
                 return;
@@ -365,7 +371,7 @@ namespace StrategyCore
 
             // Starting index
             int startingIndex = 0;
-            if (team == SlotManager.instance.playerTeam[currentSlot])
+            if (team == SlotManager.Instance.playerTeam[currentSlot])
             {
                 startingIndex = (currentSlot - previousTeamSlots) + 1;
             }
@@ -389,23 +395,23 @@ namespace StrategyCore
                 }
 
                 // Check if slot is empty
-                if (SlotManager.instance.slotType[previousTeamSlots + i] == SlotType.Empty)
+                if (SlotManager.Instance.slotType[previousTeamSlots + i] == SlotType.Empty)
                 {
                     // Swap data to new slot
-                    SlotManager.instance.slotType[previousTeamSlots + i] = SlotManager.instance.slotType[currentSlot];
-                    SlotManager.instance.playerID[previousTeamSlots + i] = SlotManager.instance.playerID[currentSlot];
-                    SlotManager.instance.playerName[previousTeamSlots + i] = SlotManager.instance.playerName[currentSlot];
+                    SlotManager.Instance.slotType[previousTeamSlots + i] = SlotManager.Instance.slotType[currentSlot];
+                    SlotManager.Instance.playerID[previousTeamSlots + i] = SlotManager.Instance.playerID[currentSlot];
+                    SlotManager.Instance.playerName[previousTeamSlots + i] = SlotManager.Instance.playerName[currentSlot];
 
                     // Clean previous slot
-                    SlotManager.instance.slotType[currentSlot] = SlotType.Empty;
-                    SlotManager.instance.playerID[currentSlot] = -1;
-                    SlotManager.instance.playerName[currentSlot] = "";
+                    SlotManager.Instance.slotType[currentSlot] = SlotType.Empty;
+                    SlotManager.Instance.playerID[currentSlot] = -1;
+                    SlotManager.Instance.playerName[currentSlot] = "";
 
                     // Server current player update if necessary
-                    SlotManager.instance.SetCurrentPlayer(SlotManager.instance.GetClientSlot(0));
+                    SlotManager.Instance.SetCurrentPlayer(SlotManager.Instance.GetClientSlot(0));
 
                     Presentation.MenuUI?.FillPlayerList();
-                    if (NetworkDataSync.instance) NetworkDataSync.instance.PlayerListSend(0, true);
+                    if (NetworkDataSync.Instance) NetworkDataSync.Instance.PlayerListSend(0, true);
 
                     break;
                 }
@@ -421,8 +427,8 @@ namespace StrategyCore
         public bool ChangeTeamTo(ulong clientID, int team)
         {
             // Fetch current scene data
-            if (SceneHandler.instance.sceneData == null || SceneHandler.instance.sceneIndex >= SceneHandler.instance.sceneData.Length) return false;
-            SceneData sceneData = SceneHandler.instance.sceneData[SceneHandler.instance.sceneIndex];
+            if (SceneHandler.Instance.sceneData == null || SceneHandler.Instance.sceneIndex >= SceneHandler.Instance.sceneData.Length) return false;
+            SceneData sceneData = SceneHandler.Instance.sceneData[SceneHandler.Instance.sceneIndex];
 
             if (sceneData.chooseTeams)
             {
@@ -432,22 +438,22 @@ namespace StrategyCore
                     Debug.LogWarning($"[SlotManager] ChangeTeamTo: клиент {clientID} прислал некорректную команду {team} — отклонено.");
                     return false;
                 }
-                int slot = SlotManager.instance.GetClientSlot(clientID);
+                int slot = SlotManager.Instance.GetClientSlot(clientID);
                 // [Interflow fix 2026-08-01 lobby-factions] slot=-1 (клиент без слота) крашил RPC-обработчик.
-                if (slot < 0 || slot >= SlotManager.instance.playerTeam.Length)
+                if (slot < 0 || slot >= SlotManager.Instance.playerTeam.Length)
                 {
                     Debug.LogWarning($"[SlotManager] ChangeTeamTo: у клиента {clientID} нет слота (slot={slot}) — смена команды проигнорирована.");
                     return false;
                 }
-                if (SlotManager.instance.playerTeam[slot] != team)
+                if (SlotManager.Instance.playerTeam[slot] != team)
                 {
-                    SlotManager.instance.playerTeam[slot] = team;
+                    SlotManager.Instance.playerTeam[slot] = team;
 
                     // Server current player update if necessary
-                    SlotManager.instance.SetCurrentPlayer(SlotManager.instance.GetClientSlot(0));
+                    SlotManager.Instance.SetCurrentPlayer(SlotManager.Instance.GetClientSlot(0));
 
                     Presentation.MenuUI?.FillPlayerList();
-                    if (NetworkDataSync.instance) NetworkDataSync.instance.PlayerListSend(0, true);
+                    if (NetworkDataSync.Instance) NetworkDataSync.Instance.PlayerListSend(0, true);
                     return true;
                 }
             }
@@ -458,7 +464,7 @@ namespace StrategyCore
         {
             // [Interflow fix 2026-08-01 lobby-factions] Как в ChangeFactionTo: sceneData операции не нужен —
             // только warn при порче; slot=-1 больше не крашит обработчик RPC.
-            if (SceneHandler.instance.sceneData == null || SceneHandler.instance.sceneIndex >= SceneHandler.instance.sceneData.Length)
+            if (SceneHandler.Instance.sceneData == null || SceneHandler.Instance.sceneIndex >= SceneHandler.Instance.sceneData.Length)
                 Debug.LogWarning("[SlotManager] ChangeSpawnPositionTo: sceneData недоступен (порча сцены в билде?) — выбор всё равно применяю.");
 
             // [Interflow fix 2026-08-01 lobby-factions] Правило 6: валидация ввода клиента.
@@ -467,17 +473,17 @@ namespace StrategyCore
                 Debug.LogWarning($"[SlotManager] ChangeSpawnPositionTo: клиент {clientID} прислал некорректный индекс {posIndex} — отклонено.");
                 return false;
             }
-            int slot = SlotManager.instance.GetClientSlot(clientID);
-            if (slot < 0 || slot >= SlotManager.instance.playerPosition.Length)
+            int slot = SlotManager.Instance.GetClientSlot(clientID);
+            if (slot < 0 || slot >= SlotManager.Instance.playerPosition.Length)
             {
                 Debug.LogWarning($"[SlotManager] ChangeSpawnPositionTo: у клиента {clientID} нет слота (slot={slot}) — выбор проигнорирован.");
                 return false;
             }
-            if (SlotManager.instance.playerPosition[slot] != posIndex)
+            if (SlotManager.Instance.playerPosition[slot] != posIndex)
             {
-                SlotManager.instance.playerPosition[slot] = posIndex;
+                SlotManager.Instance.playerPosition[slot] = posIndex;
                 Presentation.MenuUI?.FillPlayerList();
-                if (NetworkDataSync.instance) NetworkDataSync.instance.PlayerListSend(0, true);
+                if (NetworkDataSync.Instance) NetworkDataSync.Instance.PlayerListSend(0, true);
                 return true;
             }
 
@@ -489,7 +495,7 @@ namespace StrategyCore
             // [Interflow fix 2026-08-01 lobby-factions] Проверка sceneData была лишь прокси «мы в лобби» —
             // сама операция его не использует, а на сервере с битым sceneData она ТИХО съедала выбор игрока.
             // Теперь только warn; slot=-1 (клиент без слота) раньше крашил RPC-обработчик IndexOutOfRange.
-            if (SceneHandler.instance.sceneData == null || SceneHandler.instance.sceneIndex >= SceneHandler.instance.sceneData.Length)
+            if (SceneHandler.Instance.sceneData == null || SceneHandler.Instance.sceneIndex >= SceneHandler.Instance.sceneData.Length)
                 Debug.LogWarning("[SlotManager] ChangeFactionTo: sceneData недоступен (порча сцены в билде?) — выбор всё равно применяю.");
 
             // [Interflow fix 2026-08-01 lobby-factions] Правило 6: сервер проверяет ввод клиента — мусорный
@@ -499,17 +505,17 @@ namespace StrategyCore
                 Debug.LogWarning($"[SlotManager] ChangeFactionTo: клиент {clientID} прислал некорректный индекс фракции {faction} — отклонено.");
                 return false;
             }
-            int slot = SlotManager.instance.GetClientSlot(clientID);
-            if (slot < 0 || slot >= SlotManager.instance.playerFaction.Length)
+            int slot = SlotManager.Instance.GetClientSlot(clientID);
+            if (slot < 0 || slot >= SlotManager.Instance.playerFaction.Length)
             {
                 Debug.LogWarning($"[SlotManager] ChangeFactionTo: у клиента {clientID} нет слота (slot={slot}) — выбор проигнорирован.");
                 return false;
             }
-            if (SlotManager.instance.playerFaction[slot] != faction)
+            if (SlotManager.Instance.playerFaction[slot] != faction)
             {
-                SlotManager.instance.playerFaction[slot] = faction;
+                SlotManager.Instance.playerFaction[slot] = faction;
                 Presentation.MenuUI?.FillPlayerList();
-                if (NetworkDataSync.instance) NetworkDataSync.instance.PlayerListSend(0, true);
+                if (NetworkDataSync.Instance) NetworkDataSync.Instance.PlayerListSend(0, true);
                 return true;
             }
 
@@ -524,8 +530,8 @@ namespace StrategyCore
         public int GetTotalNumberOfPlayers()
         {
             // Fetch current scene data
-            if (SceneHandler.instance.sceneData == null || SceneHandler.instance.sceneIndex >= SceneHandler.instance.sceneData.Length) return -1;
-            SceneData sceneData = SceneHandler.instance.sceneData[SceneHandler.instance.sceneIndex];
+            if (SceneHandler.Instance.sceneData == null || SceneHandler.Instance.sceneIndex >= SceneHandler.Instance.sceneData.Length) return -1;
+            SceneData sceneData = SceneHandler.Instance.sceneData[SceneHandler.Instance.sceneIndex];
 
             int totalPlayers = 0;
             for (int t = 0; t < sceneData.teamsAndPlayers.Length; t++)
@@ -552,12 +558,12 @@ namespace StrategyCore
         public void AddBot(int slotIndex)
         {
             // Check if not adding a bot on top of the host
-            if (SlotManager.instance.currentPlayer == slotIndex) return;
+            if (SlotManager.Instance.currentPlayer == slotIndex) return;
 
             // Kick existing player if there is
 
             // Add a bot
-            SlotManager.instance.slotType[slotIndex] = SlotType.Bot;
+            SlotManager.Instance.slotType[slotIndex] = SlotType.Bot;
         }
 
         /// <summary>
@@ -571,8 +577,8 @@ namespace StrategyCore
             // команда локального игрока не резолвилась (CommandTeamForLocalPlayer → fallback 0) → волна/способности уходили на team 0.
             if (slotIndex < 0 || playerTeam == null || slotIndex >= playerTeam.Length) return;
             currentPlayer = slotIndex;
-            currentTeam = SlotManager.instance.playerTeam[slotIndex];
-            currentName = SlotManager.instance.playerName[slotIndex];
+            currentTeam = SlotManager.Instance.playerTeam[slotIndex];
+            currentName = SlotManager.Instance.playerName[slotIndex];
         }
 
         /// <summary>
@@ -586,11 +592,11 @@ namespace StrategyCore
             List<int> allies = new List<int>();
             if (includePlayer) allies.Add(player);
 
-            for (int i = 0; i < SlotManager.instance.playerTeam.Length; i++)
+            for (int i = 0; i < SlotManager.Instance.playerTeam.Length; i++)
             {
                 if (player != i)
                 {
-                    if (SlotManager.instance.playerTeam[player] == SlotManager.instance.playerTeam[i])
+                    if (SlotManager.Instance.playerTeam[player] == SlotManager.Instance.playerTeam[i])
                     {
                         allies.Add(i);
                     }
@@ -608,7 +614,7 @@ namespace StrategyCore
         public bool IsAlly(int player1, int player2)
         {
             if (player1 == (int)Players.NeutralPassive || player2 == (int)Players.NeutralPassive) return true;
-            if (SlotManager.instance.playerTeam[player1] == SlotManager.instance.playerTeam[player2]) return true;
+            if (SlotManager.Instance.playerTeam[player1] == SlotManager.Instance.playerTeam[player2]) return true;
             return false;
         }
 
@@ -628,27 +634,27 @@ namespace StrategyCore
             {
                 if (unit.netID != 0) RemoveNetID(unit.netID, unit);
                 unit.netID = netID;
-                SlotManager.instance.unitNetID.Add(unit.netID, unit);
+                SlotManager.Instance.unitNetID.Add(unit.netID, unit);
             }
             // Dynamicly spawned - Server only
             else if (unit.netID == 0)
             {
                 netID = (UInt16)UnityEngine.Random.Range(1, 65535);
-                while (SlotManager.instance.unitNetID.ContainsKey(netID))
+                while (SlotManager.Instance.unitNetID.ContainsKey(netID))
                 {
                     netID = (UInt16)UnityEngine.Random.Range(1, 65535);
                 }
                 unit.netID = netID;
-                SlotManager.instance.unitNetID.Add(unit.netID, unit);
+                SlotManager.Instance.unitNetID.Add(unit.netID, unit);
             }
             // In scene placed
             else
             {
-                SlotManager.instance.unitNetID.Add(unit.netID, unit);
+                SlotManager.Instance.unitNetID.Add(unit.netID, unit);
             }
 
             unit.spawned = true;
-            GameManager.instance.AddUnitCount(unit);
+            GameManager.Instance.AddUnitCount(unit);
         }
 
         /// <summary>
@@ -659,12 +665,12 @@ namespace StrategyCore
         public void RemoveNetID(UInt16 netID, Unit unit)
         {
             // If it does not contain key, most likely we are coming from saved file and not yet initialized the scene. Skip it.
-            if (!SlotManager.instance.unitNetID.ContainsKey(netID)) return;
+            if (!SlotManager.Instance.unitNetID.ContainsKey(netID)) return;
 
             // If unit with the same id exists on the clients it probably means that this unit should die this tick, it is already dead on the server and it has been rewritten for new unit
-            if (SlotManager.instance.unitNetID[netID] == unit)
+            if (SlotManager.Instance.unitNetID[netID] == unit)
             {
-                SlotManager.instance.unitNetID.Remove(netID);
+                SlotManager.Instance.unitNetID.Remove(netID);
 
                 // Презентация: снять постоянный круг радиуса, если он был.
                 SkillPresentationEvents.RaiseUnitGone(unit);
@@ -672,16 +678,16 @@ namespace StrategyCore
                 if (NetworkManager.Singleton.IsServer)
                 {
                     // Remove from sync lists
-                    NetworkDataSync.instance.positionSyncList.Remove(netID);
-                    NetworkDataSync.instance.removeSyncList.Remove(netID);
-                    NetworkDataSync.instance.directPositionSyncList.Remove(netID);
-                    NetworkDataSync.instance.hpChangedUnits.Remove(netID);
-                    NetworkDataSync.instance.mpChangedUnits.Remove(netID);
-                    NetworkDataSync.instance.xpChangedUnits.Remove(netID);
+                    NetworkDataSync.Instance.positionSyncList.Remove(netID);
+                    NetworkDataSync.Instance.removeSyncList.Remove(netID);
+                    NetworkDataSync.Instance.directPositionSyncList.Remove(netID);
+                    NetworkDataSync.Instance.hpChangedUnits.Remove(netID);
+                    NetworkDataSync.Instance.mpChangedUnits.Remove(netID);
+                    NetworkDataSync.Instance.xpChangedUnits.Remove(netID);
                 }
             }
 
-            GameManager.instance.RemoveUnitCount(unit);
+            GameManager.Instance.RemoveUnitCount(unit);
         }
     }
 }

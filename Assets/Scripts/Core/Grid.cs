@@ -5,9 +5,11 @@ using UnityEngine;
 namespace StrategyCore
 {
     // Stores all units in grid cells for faster search functions
-    public class Grid : MonoBehaviour
+    public class Grid : MonoBehaviour, IStartupService
     {
-        public static Grid instance;
+        public static Grid Instance { get; private set; }
+
+        private bool startupDone; // защита от повторного подъёма (стартовик сцены + собственный Awake)
 
         [Tooltip("Total map coverage in scene units. \nStarts at x0,y0,z0 and increases in positive axis. For example: x10, y0, z10.")]
         public int width = 100;
@@ -24,9 +26,17 @@ namespace StrategyCore
         [HideInInspector] public static int chunkCountX; public static int chunkCountY;
 
         // Start is called before the first frame update
-        void Awake()
+        void Awake() => Startup();
+
+        /// <summary>
+        /// Подъём службы (IStartupService). Идемпотентен: повторный вызов выходит сразу.
+        /// </summary>
+        public void Startup()
         {
-            if (instance == null) instance = this;
+            if (startupDone) return;
+            startupDone = true;
+
+            if (Instance == null) Instance = this;
 
             // How many cells will be on the map depenging on grid size
             cellCountY = (int)(height / cellSize); 
@@ -80,8 +90,8 @@ namespace StrategyCore
         // Юнит за краем привязывается к крайнему чанку — это безопаснее краша; первопричину (юнит вне сетки) проверять отдельно.
         private static Coordinate ChunkCoordClamped(Unit unit)
         {
-            int cx = Mathf.Clamp((int)Math.Floor(unit.transform.position.x / Grid.instance.chunkSize), 0, chunkCountX - 1);
-            int cy = Mathf.Clamp((int)Math.Floor(unit.transform.position.z / Grid.instance.chunkSize), 0, chunkCountY - 1);
+            int cx = Mathf.Clamp((int)Math.Floor(unit.transform.position.x / Grid.Instance.chunkSize), 0, chunkCountX - 1);
+            int cy = Mathf.Clamp((int)Math.Floor(unit.transform.position.z / Grid.Instance.chunkSize), 0, chunkCountY - 1);
             return new Coordinate(cx, cy);
         }
 
@@ -590,23 +600,23 @@ namespace StrategyCore
         // Chunks
         public static Coordinate GetChunkByPosition(Vector2 pos)
         {
-            return new Coordinate((int)(pos.x / Grid.instance.chunkSize), (int)(pos.y / Grid.instance.chunkSize));
+            return new Coordinate((int)(pos.x / Grid.Instance.chunkSize), (int)(pos.y / Grid.Instance.chunkSize));
         }
 
         public static Vector2 GetChunkPosition(Coordinate cell)
         {
-            return new Vector2(cell.x * Grid.instance.chunkSize, cell.y * Grid.instance.chunkSize);
+            return new Vector2(cell.x * Grid.Instance.chunkSize, cell.y * Grid.Instance.chunkSize);
         }
 
         // Cells
         public static Coordinate GetCellByPosition(Vector2 pos)
         {
-            return new Coordinate((int)(pos.x / Grid.instance.cellSize), (int)(pos.y / Grid.instance.cellSize));
+            return new Coordinate((int)(pos.x / Grid.Instance.cellSize), (int)(pos.y / Grid.Instance.cellSize));
         }
 
         public static Vector2 GetCellPosition(Coordinate cell)
         {
-            return new Vector2(cell.x * Grid.instance.cellSize, cell.y * Grid.instance.cellSize);
+            return new Vector2(cell.x * Grid.Instance.cellSize, cell.y * Grid.Instance.cellSize);
         }
     }
 }

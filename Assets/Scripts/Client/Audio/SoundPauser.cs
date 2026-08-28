@@ -19,13 +19,13 @@ namespace StrategyCore
 
             if (checkPosition)
             {
-                GameManager.instance.Tick += VisibilityUpdate;
+                GameManager.Instance.Tick += VisibilityUpdate;
             }
         }
 
         private void OnDestroy()
         {
-            GameManager.instance.Tick -= VisibilityUpdate;
+            GameManager.Instance.Tick -= VisibilityUpdate;
         }
 
         void VisibilityUpdate()
@@ -35,7 +35,7 @@ namespace StrategyCore
 
             if (isInView)
             {
-                bool FoWVisible = FogOfWar.instance.IsVisible(transform.position, SlotManager.instance.currentPlayer);
+                bool FoWVisible = FogOfWar.Instance.IsVisible(transform.position, SlotManager.Instance.currentPlayer);
 
                 if  (FoWVisible)
                 {

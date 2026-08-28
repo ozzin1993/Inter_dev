@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.InputSystem;
@@ -10,7 +10,7 @@ namespace StrategyCore
 {
     public partial class PlayerControl : MonoBehaviour // [Interflow fix 2026-08-01 partial-split] класс разрезан на partial-файлы (задача №11)
     {
-        public static PlayerControl instance;
+        public static PlayerControl Instance { get; private set; }
         public static StrategyCoreInput coreInput;
 
         // Initial technical

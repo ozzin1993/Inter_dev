@@ -342,8 +342,8 @@ namespace StrategyCore
             }
 
             // 4) Призыв от места гибели. Лимит на носителя не нужен — носителя уже нет.
-            if (onDeath.summonPrefab != null && onDeath.summonCount > 0 && MatchManager.instance != null)
-                MatchManager.instance.SummonFromUnit(unit, onDeath.summonPrefab, onDeath.summonCount, onDeath.summonLifetime,
+            if (onDeath.summonPrefab != null && onDeath.summonCount > 0 && MatchManager.Instance != null)
+                MatchManager.Instance.SummonFromUnit(unit, onDeath.summonPrefab, onDeath.summonCount, onDeath.summonLifetime,
                     onDeath.summonObeyCommands, onDeath.summonCommand, 0, false, onDeath.summonSpawnSpread);
 
             InterflowDebug.Event("РЕАКЦИЯ «ПОГИБ» у " + InterflowDebug.Name(unit) + ": сработала");
@@ -385,9 +385,9 @@ namespace StrategyCore
         void WireKill(Unit unit, ReactionState st)
         {
             if (onKill == null || !onKill.enabled) return;
-            if (killHubWired || MatchManager.instance == null) return;
+            if (killHubWired || MatchManager.Instance == null) return;
 
-            MatchManager.instance.OnUnitDeathServer += HandleKillForReactions;
+            MatchManager.Instance.OnUnitDeathServer += HandleKillForReactions;
             killHubWired = true;
         }
 
@@ -395,7 +395,7 @@ namespace StrategyCore
         {
             if (!killHubWired) return;
 
-            if (MatchManager.instance != null) MatchManager.instance.OnUnitDeathServer -= HandleKillForReactions;
+            if (MatchManager.Instance != null) MatchManager.Instance.OnUnitDeathServer -= HandleKillForReactions;
             killHubWired = false;
         }
 
@@ -504,9 +504,9 @@ namespace StrategyCore
 
         void WireReactionTick()
         {
-            if (reactionTickWired || GameManager.instance == null) return;
+            if (reactionTickWired || GameManager.Instance == null) return;
 
-            GameManager.instance.Tick += ReactionTick;
+            GameManager.Instance.Tick += ReactionTick;
             reactionTickWired = true;
         }
 
@@ -514,16 +514,16 @@ namespace StrategyCore
         {
             if (!reactionTickWired) { return; }
 
-            if (GameManager.instance != null) GameManager.instance.Tick -= ReactionTick;
+            if (GameManager.Instance != null) GameManager.Instance.Tick -= ReactionTick;
             reactionTickWired = false;
         }
 
         /// <summary>Штатный тик 0.1 с: крутим откаты и чистим мёртвых носителей (Unit.Die не зовёт Lock).</summary>
         void ReactionTick()
         {
-            if (GameManager.instance == null || reactionCarriers.Count == 0) return;
+            if (GameManager.Instance == null || reactionCarriers.Count == 0) return;
 
-            float dt = GameManager.instance.currentDeltaTime;
+            float dt = GameManager.Instance.currentDeltaTime;
 
             reactionTickBuffer.Clear();
             reactionTickBuffer.AddRange(reactionCarriers.Keys);

@@ -41,8 +41,8 @@ namespace StrategyCore
         {
             if (_subscribed || _done) return;
             if (!ServerBootstrap.IsHeadlessServer) return;
-            if (GameManager.instance == null) return; // тик появится позже — повторим из Start
-            GameManager.instance.Tick += OnTick;
+            if (GameManager.Instance == null) return; // тик появится позже — повторим из Start
+            GameManager.Instance.Tick += OnTick;
             _subscribed = true;
         }
 
@@ -78,7 +78,7 @@ namespace StrategyCore
         private void Unsubscribe()
         {
             if (!_subscribed) return;
-            if (GameManager.instance != null) GameManager.instance.Tick -= OnTick;
+            if (GameManager.Instance != null) GameManager.Instance.Tick -= OnTick;
             _subscribed = false;
         }
 

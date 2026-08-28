@@ -20,7 +20,7 @@ namespace StrategyCore
             float x = Mathf.Clamp01(evt.localPosition.x / miniMap.resolvedStyle.width);
             float y = Mathf.Clamp01(evt.localPosition.y / miniMap.resolvedStyle.height);
 
-            cameraRig.SetPosition(new Vector3(x * Grid.instance.width, 0, (1 - y) * Grid.instance.height));
+            cameraRig.SetPosition(new Vector3(x * Grid.Instance.width, 0, (1 - y) * Grid.Instance.height));
         }
 
         void MiniMapMoveEvent(PointerMoveEvent evt)
@@ -32,7 +32,7 @@ namespace StrategyCore
                 float x = Mathf.Clamp01(evt.localPosition.x / miniMap.resolvedStyle.width);
                 float y = Mathf.Clamp01(evt.localPosition.y / miniMap.resolvedStyle.height);
 
-                cameraRig.SetPosition(new Vector3(x * Grid.instance.width, 0, (1 - y) * Grid.instance.height));
+                cameraRig.SetPosition(new Vector3(x * Grid.Instance.width, 0, (1 - y) * Grid.Instance.height));
             }
         }
 
@@ -41,10 +41,10 @@ namespace StrategyCore
         {
             if (PlayerControl.coreInput.Main.MiniMapPing.IsPressed())
             {
-                CreatePinger(SlotManager.instance.currentPlayer, new Vector2(evt.localPosition.x - 17.5f, evt.localPosition.y - 17.5f));
+                CreatePinger(SlotManager.Instance.currentPlayer, new Vector2(evt.localPosition.x - 17.5f, evt.localPosition.y - 17.5f));
 
                 // Send info to network team players
-                if (NetworkDataSync.instance) NetworkDataSync.instance.MiniMapPingSend(SlotManager.instance.currentPlayer, new Vector2(evt.localPosition.x - 17.5f, evt.localPosition.y - 17.5f));
+                if (NetworkDataSync.Instance) NetworkDataSync.Instance.MiniMapPingSend(SlotManager.Instance.currentPlayer, new Vector2(evt.localPosition.x - 17.5f, evt.localPosition.y - 17.5f));
             }
         }
 
@@ -83,7 +83,7 @@ namespace StrategyCore
             pinger.style.left = pos.x;
             pinger.style.top = pos.y;
 
-            pinger.style.unityBackgroundImageTintColor = SlotManager.instance.playerColors[owner];
+            pinger.style.unityBackgroundImageTintColor = SlotManager.Instance.playerColors[owner];
 
             miniMap.parent.Add(pinger);
 
@@ -93,17 +93,17 @@ namespace StrategyCore
         public void WorldToMiniMapPing(float x, float y)
         {
             if (!presentationReady) return;   // [Interflow fix 2026-06-26 путь1]
-            CreatePinger(SlotManager.instance.currentPlayer, new Vector2(miniMap.resolvedStyle.width * x - 17.5f, miniMap.resolvedStyle.height - miniMap.resolvedStyle.height * y - 17.5f)); // 17.5f is half the size of ping ui element
+            CreatePinger(SlotManager.Instance.currentPlayer, new Vector2(miniMap.resolvedStyle.width * x - 17.5f, miniMap.resolvedStyle.height - miniMap.resolvedStyle.height * y - 17.5f)); // 17.5f is half the size of ping ui element
 
             // Send info to network team players
-            if (NetworkDataSync.instance) NetworkDataSync.instance.MiniMapPingSend(SlotManager.instance.currentPlayer, new Vector2(miniMap.resolvedStyle.width * x - 17.5f, miniMap.resolvedStyle.height - miniMap.resolvedStyle.height * y - 17.5f));
+            if (NetworkDataSync.Instance) NetworkDataSync.Instance.MiniMapPingSend(SlotManager.Instance.currentPlayer, new Vector2(miniMap.resolvedStyle.width * x - 17.5f, miniMap.resolvedStyle.height - miniMap.resolvedStyle.height * y - 17.5f));
         }
 
         // ResourcesTab ---------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
         private void ResourceTabCreate()
         {
-            for (int i = 0; i < GameResources.instance.gameResources.Length; i++)
+            for (int i = 0; i < GameResources.Instance.gameResources.Length; i++)
             {
                 ResourceGroupBoxCreate(i);
             }
@@ -133,7 +133,7 @@ namespace StrategyCore
             Label icon = new Label();
             icon.name = "Icon";
             icon.AddToClassList("resourceIcon");
-            icon.style.backgroundImage = GameResources.instance.gameResources[index].type.icon; ;
+            icon.style.backgroundImage = GameResources.Instance.gameResources[index].type.icon; ;
             resourceGroupBox.Add(icon);
 
             resourceTab.Add(resourceGroupBox);
@@ -148,7 +148,7 @@ namespace StrategyCore
                 // Names of the groupBox are the index of the resourceTypes
                 if (int.TryParse(hoveredElement.name, out int index))
                 {
-                    FillDescriptor(GameResources.instance.gameResources[index].type.displayName, GameResources.instance.gameResources[index].type.description);
+                    FillDescriptor(GameResources.Instance.gameResources[index].type.displayName, GameResources.Instance.gameResources[index].type.description);
                 }
             }
         }
@@ -159,15 +159,15 @@ namespace StrategyCore
             if (resourceTab == null) return; // GameResource calls it in Awake, it is defined in start of UIManager
 
             var countLabel = (Label)resourceTab.ElementAt(resourceIndex).ElementAt(0);
-            if (GameResources.instance.gameResources[resourceIndex].type.limited)
+            if (GameResources.Instance.gameResources[resourceIndex].type.limited)
             {
                 // Limited resource
-                countLabel.text = GameResources.instance.playerResources[resourceIndex + SlotManager.instance.currentPlayer * GameResources.instance.gameResources.Length].ToString() + " / " + GameResources.instance.playerResourceLimits[resourceIndex + SlotManager.instance.currentPlayer * GameResources.instance.gameResources.Length];
+                countLabel.text = GameResources.Instance.playerResources[resourceIndex + SlotManager.Instance.currentPlayer * GameResources.Instance.gameResources.Length].ToString() + " / " + GameResources.Instance.playerResourceLimits[resourceIndex + SlotManager.Instance.currentPlayer * GameResources.Instance.gameResources.Length];
             }
             else
             {
                 // Standard resource
-                countLabel.text = GameResources.instance.playerResources[resourceIndex + SlotManager.instance.currentPlayer * GameResources.instance.gameResources.Length].ToString();
+                countLabel.text = GameResources.Instance.playerResources[resourceIndex + SlotManager.Instance.currentPlayer * GameResources.Instance.gameResources.Length].ToString();
             }
         }
 
@@ -175,7 +175,7 @@ namespace StrategyCore
         public void RefreshResourceTab()
         {
             if (!presentationReady) return;   // [Interflow fix 2026-06-26 путь1]
-            for (int i = 0; i < GameResources.instance.gameResources.Length; i++)
+            for (int i = 0; i < GameResources.Instance.gameResources.Length; i++)
             {
                 UpdateResourceTab(i);
             }
@@ -204,7 +204,7 @@ namespace StrategyCore
         public void ShowNotifyMsg(string msg, int player, bool calledByServer = false)
         {
             // [Interflow fix 2026-08-01 ADR-005] Серверный релей GameMsgSend перенесён в Presentation.NotifyMsg (хаб) — здесь только локальная отрисовка; фильтр адресата сохранён 1:1.
-            if (SlotManager.instance.currentPlayer != player)
+            if (SlotManager.Instance.currentPlayer != player)
             {
                 if (!calledByServer) return;
             }
@@ -222,7 +222,7 @@ namespace StrategyCore
         {
             if (currentMsgTime < msgTime)
             {
-                currentMsgTime += GameManager.instance.currentDeltaTime;
+                currentMsgTime += GameManager.Instance.currentDeltaTime;
                 if (currentMsgTime > msgTime)
                 {
                     notifyMsg.style.display = DisplayStyle.None;
@@ -273,7 +273,7 @@ namespace StrategyCore
 
             if (pc.activeUnit.canBeSeenCount.Length > 0)
             {
-                info.text += "canBeSeenCount: + " + pc.activeUnit.canBeSeenCount[SlotManager.instance.currentTeam] + "\n";
+                info.text += "canBeSeenCount: + " + pc.activeUnit.canBeSeenCount[SlotManager.Instance.currentTeam] + "\n";
             }
         }
 
@@ -283,14 +283,14 @@ namespace StrategyCore
         {
             if (!presentationReady) return;   // [Interflow fix 2026-06-26 путь1]
             if (miniMap == null) miniMap = uiDocument.rootVisualElement.Q("MiniMap").Q("Overlay");
-            miniMap.style.backgroundImage = FogOfWar.instance.visionMask;
+            miniMap.style.backgroundImage = FogOfWar.Instance.visionMask;
         }
 
         // Returns cursors position in UI space
         public Vector2 CursorToUIposition()
         {
             if (!presentationReady) return default;   // [Interflow fix 2026-06-26 путь1]
-            Vector2 mousePosition = Camera_TopDown.instance.GetCursorPosition(); // Mouse.current.position.ReadValue();
+            Vector2 mousePosition = Camera_TopDown.Instance.GetCursorPosition(); // Mouse.current.position.ReadValue();
             Vector2 mousePositionCorrected = new Vector2(mousePosition.x + 10, Screen.height - mousePosition.y + 10);
             mousePositionCorrected = RuntimePanelUtils.ScreenToPanel(uiDocument.rootVisualElement.panel, mousePositionCorrected);
             return mousePositionCorrected;

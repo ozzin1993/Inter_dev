@@ -12,8 +12,9 @@ namespace StrategyCore
     // Серверо-авторитетно (правило 6): покупка — только на сервере; клиент шлёт запрос одним ServerRpc
     // (NetworkDataSync.UnlockTechTierServerRpc → TryUnlockTierStep). Хост зовёт TryUnlockTierStep напрямую.
     // Разблокировка и синк — штатный TechnologyManager.UnlockTech (+ OnTechUnlock перерисовывает UI/контент).
-    // Оплата, проверка TechTree и уровень ГЗ — общие утилиты из MatchManager.TechUpgrade
-    // (TechUnlockedSafe / ResourcesEnough / PayResources / mainBuildingLevel / BroadcastMainBuildingLevel).
+    // Оплата и проверка TechTree — общие утилиты из MatchManager.TechUpgrade
+    // (TechUnlockedSafe / ResourcesEnough / PayResources). Уровень ГЗ покупка узлов БОЛЬШЕ НЕ трогает
+    // (целевая модель 2026-08-21) — он набирается опытом, см. MatchManager.Experience.
     //
     // Эффекты узлов — КОНТЕНТОМ (не здесь): юниты/умения/свопы лежат на самом узле (TechNode.unlock*) и
     // применяются пересчётом по OnTechUnlock (MatchManager.ContentUnlock.RecomputeUnlockedContent);
@@ -231,7 +232,10 @@ namespace StrategyCore
             }
         }
 
-        // Ступень 1 — улучшение уровня тира: гейт Т1, оплата, UnlockTech, уровень ГЗ +1 (+синк/событие, Т2).
+        // Ступень 1 — улучшение уровня тира: гейт Т1, оплата, UnlockTech.
+        // Уровень ГЗ покупка БОЛЬШЕ НЕ поднимает (целевая модель 2026-08-21): уровень набирается опытом
+        // (MatchManager.Experience) и сам открывает очередной тир. Прежний блок «инкремент → синк → событие»
+        // переехал туда без изменений (RaiseMainBuildingLevel) — иначе уровень рос бы из двух источников сразу.
         bool TryUnlockTierLevel(int team, int tier)
         {
             if (NetworkConnectionHandler.isClient) return false;
@@ -240,16 +244,7 @@ namespace StrategyCore
                 return false;
             }
             TeamWaveConfig cfg = Team(team);
-            if (!PayAndUnlock(cfg, TierAt(team, tier).levelUpgrade, $"уровень тира {tier}")) return false;
-
-            // Т2: улучшение уровня поднимает уровень ГЗ на 1 (+синк клиентам +событие). Порядок (правило 8):
-            // UnlockTech → инкремент → синк → событие: подписчики (статы/облик/контент по уровню ГЗ) видят
-            // согласованные TechTree и уровень. Идемпотентность: повторная покупка отсечена гейтом — второго
-            // инкремента нет (как было у открывашек).
-            mainBuildingLevel[team]++;
-            BroadcastMainBuildingLevel(team);
-            OnMainBuildingLevelChanged?.Invoke(team);
-            return true;
+            return PayAndUnlock(cfg, TierAt(team, tier).levelUpgrade, $"уровень тира {tier}");
         }
 
         // Ступень 2 — большой выбор: гейт (уровень куплен, эксклюзив), оплата, UnlockTech, резолв героя (вариант-герой).
@@ -337,7 +332,7 @@ namespace StrategyCore
         {
             if (cfg == null || node == null || node.technology == null) return false;
 
-            TechnologyManager tm = TechnologyManager.instance;
+            TechnologyManager tm = TechnologyManager.Instance;
             if (tm == null || tm.TechTree == null || cfg.ownerPlayer < 0 || cfg.ownerPlayer >= tm.TechTree.Length) return false;
             if (!tm.TechTree[cfg.ownerPlayer].ContainsKey(node.technology)) return false;
 
@@ -402,7 +397,7 @@ namespace StrategyCore
         {
             if (cfg == null || node == null || node.technology == null) return false;
 
-            TechnologyManager tm = TechnologyManager.instance;
+            TechnologyManager tm = TechnologyManager.Instance;
             if (tm == null || tm.TechTree == null || cfg.ownerPlayer < 0 || cfg.ownerPlayer >= tm.TechTree.Length
                 || !tm.TechTree[cfg.ownerPlayer].ContainsKey(node.technology))
             {

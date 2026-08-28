@@ -65,7 +65,7 @@ namespace StrategyCore
         /// </summary>
         public void CreateStaticCopy()
         {
-            if (unitType == UnitType.Tree || unitType == UnitType.StaticDestructible || (GameManager.instance.showBuildingsInFow && unitType == UnitType.Building))
+            if (unitType == UnitType.Tree || unitType == UnitType.StaticDestructible || (GameManager.Instance.showBuildingsInFow && unitType == UnitType.Building))
             {
                 // Enable
                 if (staticCopy)
@@ -86,7 +86,7 @@ namespace StrategyCore
                 staticCopy.rotation = transform.rotation;
                 staticCopy.tag = "StaticDestructible";
 
-                GameManager.instance.Tick += UpdateStaticPosition;
+                GameManager.Instance.Tick += UpdateStaticPosition;
             }
         }
 
@@ -105,7 +105,7 @@ namespace StrategyCore
         {
             staticCopy.position = transform.position;
             staticCopy.rotation = transform.rotation;
-            GameManager.instance.Tick -= UpdateStaticPosition;
+            GameManager.Instance.Tick -= UpdateStaticPosition;
         }
 
         // ============================= DISABLE/ENABLE ==============================================================================
@@ -121,14 +121,14 @@ namespace StrategyCore
             CommandSoundDestroy();
 
             // Remove from cell info
-            FogOfWar.instance.CellRemove(this);
+            FogOfWar.Instance.CellRemove(this);
             Grid.RemoveFromChunk(this);
 
             // Remove from selection
             Presentation.Selection?.RemoveFromSelection(this);
 
             // View Blocker
-            if (viewBlocker || singleCellViewBlocker) FogOfWar.instance.UnitViewBlockCalculate(this, true);
+            if (viewBlocker || singleCellViewBlocker) FogOfWar.Instance.UnitViewBlockCalculate(this, true);
 
             // Unsub
             Unsubscribe();
@@ -152,11 +152,11 @@ namespace StrategyCore
             }
 
             // Initial assign of the unit to the grid
-            FoWCell = FogOfWar.instance.CellAssignment(this, true);
+            FoWCell = FogOfWar.Instance.CellAssignment(this, true);
             Grid.AssignToChunkInitial(this);
 
             // View Blocker
-            if (viewBlocker || singleCellViewBlocker) FogOfWar.instance.UnitViewBlockCalculate(this);
+            if (viewBlocker || singleCellViewBlocker) FogOfWar.Instance.UnitViewBlockCalculate(this);
 
             // Set active
             gameObject.SetActive(true);
@@ -172,22 +172,22 @@ namespace StrategyCore
         public void Unsubscribe()
         {
             // State updaters
-            GameManager.instance.Tick -= StunUpdate;
-            GameManager.instance.Tick -= DisarmUpdate;
-            GameManager.instance.Tick -= MuteUpdate;
-            GameManager.instance.Tick -= PolymorphUpdate;
+            GameManager.Instance.Tick -= StunUpdate;
+            GameManager.Instance.Tick -= DisarmUpdate;
+            GameManager.Instance.Tick -= MuteUpdate;
+            GameManager.Instance.Tick -= PolymorphUpdate;
 
             // Command sound
             if (commandSound != null) Destroy(commandSound.gameObject);
-            GameManager.instance.Tick -= CommandSoundTimerUpdate;
+            GameManager.Instance.Tick -= CommandSoundTimerUpdate;
 
-            TechnologyManager.instance.OnTechUnlock[owner] -= AllAbilityLockLevelsCalculate;
+            TechnologyManager.Instance.OnTechUnlock[owner] -= AllAbilityLockLevelsCalculate;
 
-            if (idleRandomTime != 0) GameManager.instance.Tick -= RandomIdleAnimation;
-            GameManager.instance.Tick -= HandleEffectors;
-            GameManager.instance.Tick -= HandleEveryFrameAbilities;
+            if (idleRandomTime != 0) GameManager.Instance.Tick -= RandomIdleAnimation;
+            GameManager.Instance.Tick -= HandleEffectors;
+            GameManager.Instance.Tick -= HandleEveryFrameAbilities;
 
-            if (staticCopy) GameManager.instance.Tick -= UpdateStaticPosition;
+            if (staticCopy) GameManager.Instance.Tick -= UpdateStaticPosition;
         }
 
         /// <summary>
@@ -195,11 +195,11 @@ namespace StrategyCore
         /// </summary>
         private void Subscribe()
         {
-            TechnologyManager.instance.OnTechUnlock[owner] += AllAbilityLockLevelsCalculate;
+            TechnologyManager.Instance.OnTechUnlock[owner] += AllAbilityLockLevelsCalculate;
 
-            if (idleRandomTime != 0) GameManager.instance.Tick += RandomIdleAnimation;
-            GameManager.instance.Tick += HandleEffectors;
-            GameManager.instance.Tick += HandleEveryFrameAbilities;
+            if (idleRandomTime != 0) GameManager.Instance.Tick += RandomIdleAnimation;
+            GameManager.Instance.Tick += HandleEffectors;
+            GameManager.Instance.Tick += HandleEveryFrameAbilities;
         }
 
         /// <summary>
@@ -208,7 +208,7 @@ namespace StrategyCore
         public void TeamChanged()
         {
             // Healthbar colors change?
-            if (SlotManager.instance.currentTeam == team) FoWVisible = true;
+            if (SlotManager.Instance.currentTeam == team) FoWVisible = true;
         }
 
         /// <summary>
@@ -217,7 +217,7 @@ namespace StrategyCore
         public void HPSyncFalse()
         {
             hpSync = false;
-            if (NetworkManager.Singleton.IsServer) NetworkDataSync.instance.onHPCleared -= HPSyncFalse;
+            if (NetworkManager.Singleton.IsServer) NetworkDataSync.Instance.onHPCleared -= HPSyncFalse;
         }
 
         /// <summary>
@@ -226,7 +226,7 @@ namespace StrategyCore
         public void MPSyncFalse()
         {
             mpSync = false;
-            if (NetworkManager.Singleton.IsServer) NetworkDataSync.instance.onMPCleared -= MPSyncFalse;
+            if (NetworkManager.Singleton.IsServer) NetworkDataSync.Instance.onMPCleared -= MPSyncFalse;
         }
 
         /// <summary>
@@ -235,7 +235,7 @@ namespace StrategyCore
         public void XPSyncFalse()
         {
             xpSync = false;
-            if (NetworkManager.Singleton.IsServer) NetworkDataSync.instance.onXPCleared -= XPSyncFalse;
+            if (NetworkManager.Singleton.IsServer) NetworkDataSync.Instance.onXPCleared -= XPSyncFalse;
         }
 
         // ============================= OWNERSHIP ==============================================================================
@@ -250,15 +250,15 @@ namespace StrategyCore
             if (team == -1)
             {
                 owner = newOwner;
-                team = SlotManager.instance.playerTeam[newOwner];
+                team = SlotManager.Instance.playerTeam[newOwner];
 
                 // Start will set all necessary parameters
             }
             // Change the ownership
             else if (owner != newOwner)
             {
-                GameManager.instance.RemoveUnitCount(this);
-                int newTeam = SlotManager.instance.playerTeam[newOwner];
+                GameManager.Instance.RemoveUnitCount(this);
+                int newTeam = SlotManager.Instance.playerTeam[newOwner];
 
                 // UI Reset
                 if (Presentation.Selection?.ActiveUnit != null)
@@ -272,8 +272,8 @@ namespace StrategyCore
                 {
                     var healthBar = transform.Find("HealthBar(Clone)");
                     if (healthBar) { healthBar.SetParent(null); GameManager.Destroy(healthBar.gameObject); }
-                    if (newTeam != SlotManager.instance.currentTeam && newTeam != (int)Teams.NeutralPassive) Instantiate(ReferenceManager.instance.healthBarEnemy, this.transform).name = "HealthBar(Clone)";
-                    else Instantiate(ReferenceManager.instance.healthBar, this.transform);
+                    if (newTeam != SlotManager.Instance.currentTeam && newTeam != (int)Teams.NeutralPassive) Instantiate(ReferenceManager.Instance.healthBarEnemy, this.transform).name = "HealthBar(Clone)";
+                    else Instantiate(ReferenceManager.Instance.healthBar, this.transform);
                 }
 
                 // Minimap icon
@@ -281,25 +281,25 @@ namespace StrategyCore
                 if (!Utils.Headless)
                 {
                     var minimapIcon = transform.Find("MiniMapIcon(Clone)");
-                    if (minimapIcon == null) minimapIcon = Instantiate(ReferenceManager.instance.miniMapIcon, this.transform);
+                    if (minimapIcon == null) minimapIcon = Instantiate(ReferenceManager.Instance.miniMapIcon, this.transform);
                     // [Interflow fix 2026-08-01 grid-headless] гейт стрипнутого SpriteRenderer (как в Initialize).
                     SpriteRenderer minimapIconSR = minimapIcon.GetComponent<SpriteRenderer>();
-                    if (minimapIconSR != null) minimapIconSR.color = SlotManager.instance.playerColors[newOwner];
+                    if (minimapIconSR != null) minimapIconSR.color = SlotManager.Instance.playerColors[newOwner];
                 }
 
                 // FoW Cell assignment
                 if (newTeam != team)
                 {
                     // Remove from previous team
-                    FogOfWar.instance.CellRemove(this);
+                    FogOfWar.Instance.CellRemove(this);
 
                     // Add new team
                     team = newTeam;
-                    if (FogOfWar.instance.TurnOff) FoWVisible = true;
+                    if (FogOfWar.Instance.TurnOff) FoWVisible = true;
                     else
                     {
-                        FoWCell = FogOfWar.instance.CellAssignment(this, true);
-                        if (SlotManager.instance.currentTeam == team) FoWVisible = true;
+                        FoWCell = FogOfWar.Instance.CellAssignment(this, true);
+                        if (SlotManager.Instance.currentTeam == team) FoWVisible = true;
                     }
                 }
 
@@ -308,7 +308,7 @@ namespace StrategyCore
                 if (!isBeingBuilt)
                 {
                     // When this unit dies we should lock the tech that this unit unlocks. If there are other units of this type, tech will not be locked
-                    TechnologyManager.instance.LockTeck(this);
+                    TechnologyManager.Instance.LockTeck(this);
 
                     // Production and Costs
                     if (resourceProduced != null)
@@ -316,7 +316,7 @@ namespace StrategyCore
                         for (int i = 0; i < resourceProduced.Length; i++)
                         {
                             // [Interflow fix 2026-08-01 limited-res-sync] серверный учёт + рассылка (см. Unit.Init).
-                            if (resourceProduced[i].type.limited) GameResources.instance.ChangeLimit(owner, resourceProduced[i], true, true);
+                            if (resourceProduced[i].type.limited) GameResources.Instance.ChangeLimit(owner, resourceProduced[i], true, true);
                             // For regular resource types we do not take them away
                         }
                     }
@@ -327,30 +327,30 @@ namespace StrategyCore
                 {
                     for (int i = 0; i < resourceCost.Length; i++)
                     {
-                        if (resourceCost[i].type.limited) GameResources.instance.ChangeAmount(owner, resourceCost[i]); // We decrease the limited resource usage
+                        if (resourceCost[i].type.limited) GameResources.Instance.ChangeAmount(owner, resourceCost[i]); // We decrease the limited resource usage
                                                                                                                        // For regular resource types we do not add them back
                     }
                 }
 
                 // TechTree subscribe to it
-                TechnologyManager.instance.OnTechUnlock[owner] -= AllAbilityLockLevelsCalculate; // When new tech is unlocked, check if there are any abilities to unlock
-                TechnologyManager.instance.OnTechUnlock[newOwner] += AllAbilityLockLevelsCalculate;
+                TechnologyManager.Instance.OnTechUnlock[owner] -= AllAbilityLockLevelsCalculate; // When new tech is unlocked, check if there are any abilities to unlock
+                TechnologyManager.Instance.OnTechUnlock[newOwner] += AllAbilityLockLevelsCalculate;
 
                 // Below data for new ownership
                 owner = newOwner;
-                GameManager.instance.AddUnitCount(this);
+                GameManager.Instance.AddUnitCount(this);
                 if (!isBeingBuilt)
                 {
                     // Unlock TechTree when this unit is created, if there is something to unlock
-                    TechnologyManager.instance.UnlockTech(this);
+                    TechnologyManager.Instance.UnlockTech(this);
 
                     // Resource Production when unit is created. For limited resource it increases the limits
                     if (resourceProduced != null)
                     {
                         for (int i = 0; i < resourceProduced.Length; i++)
                         {
-                            if (resourceProduced[i].type.limited) GameResources.instance.ChangeLimit(owner, resourceProduced[i]);
-                            else GameResources.instance.ChangeAmount(owner, resourceProduced[i]);
+                            if (resourceProduced[i].type.limited) GameResources.Instance.ChangeLimit(owner, resourceProduced[i]);
+                            else GameResources.Instance.ChangeAmount(owner, resourceProduced[i]);
                         }
                     }
                 }
@@ -360,7 +360,7 @@ namespace StrategyCore
                 {
                     for (int i = 0; i < resourceCost.Length; i++)
                     {
-                        if (resourceCost[i].type.limited) GameResources.instance.ChangeAmount(owner, resourceCost[i], 1, true); // We decrease the resource
+                        if (resourceCost[i].type.limited) GameResources.Instance.ChangeAmount(owner, resourceCost[i], 1, true); // We decrease the resource
                     }
                 }
 
@@ -429,7 +429,7 @@ namespace StrategyCore
             if (NetworkConnectionHandler.isClient) return null;
 
             // Get unit type to spawn
-            if (GameManager.instance.gameUnits.TryGetValue(typeID, out Unit unitRef))
+            if (GameManager.Instance.gameUnits.TryGetValue(typeID, out Unit unitRef))
             {
                 positionR = (positionR == 0) ? unitRef.unitRadius : positionR;
                 position = Utils.CircleCheck(new Vector2(position.x, position.z), positionR, unitRef.unitRadius, unitRef.isGround, unitRef.isWater, unitRef.isAir);
@@ -459,7 +459,7 @@ namespace StrategyCore
             Unit unit = Instantiate(unitRef, position, Quaternion.identity);
             unit.SetUnitRotation(rotation);
             unit.SetOwnership(owner);
-            SlotManager.instance.AssignNetID(unit, netID);
+            SlotManager.Instance.AssignNetID(unit, netID);
             unit.AddColliders();
             unit.Initialize();
 
@@ -467,7 +467,7 @@ namespace StrategyCore
             if (unit.readySound.Length > 0) Presentation.Audio?.PlayCommandSound(unit, unit.readySound, 1, true);
 
             // Network sync
-            if (NetworkManager.Singleton.IsServer) NetworkDataSync.instance.UnitSpawn(unit.unitTypeID, position, rotation, owner, unit.netID);
+            if (NetworkManager.Singleton.IsServer) NetworkDataSync.Instance.UnitSpawn(unit.unitTypeID, position, rotation, owner, unit.netID);
             return unit;
         }
     }

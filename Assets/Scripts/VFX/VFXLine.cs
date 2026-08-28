@@ -248,7 +248,7 @@ namespace StrategyCore
         {
             // FoW Visibilty
             if (thisUnit && thisUnit.FoWVisible) Show(); // Origin unit is visible
-            else if (thisUnit == null && FogOfWar.instance.IsVisible(transform.position, SlotManager.instance.currentTeam)) Show(); // Origin position is visible
+            else if (thisUnit == null && FogOfWar.Instance.IsVisible(transform.position, SlotManager.Instance.currentTeam)) Show(); // Origin position is visible
             else if (target.FoWVisible) Show(); // Target is visible
             else
             {
@@ -264,8 +264,8 @@ namespace StrategyCore
         {
             // FoW Visibilty
             if (thisUnit && thisUnit.FoWVisible) Show(); // Origin unit is visible
-            else if (thisUnit == null && FogOfWar.instance.IsVisible(transform.position, SlotManager.instance.currentTeam)) Show(); // Origin position is visible
-            else if (FogOfWar.instance.IsVisible(targetPosition, SlotManager.instance.currentTeam)) Show(); // Target position is visible
+            else if (thisUnit == null && FogOfWar.Instance.IsVisible(transform.position, SlotManager.Instance.currentTeam)) Show(); // Origin position is visible
+            else if (FogOfWar.Instance.IsVisible(targetPosition, SlotManager.Instance.currentTeam)) Show(); // Target position is visible
             else
             {
                 Deactivate();
@@ -280,7 +280,7 @@ namespace StrategyCore
         {
             // FoW Visibilty
             // If origin unit not visible (if specified) or origin position is not visible, and target not visible we turn off VFX
-            if (((thisUnit && !thisUnit.FoWVisible) || (thisUnit == null && !FogOfWar.instance.IsVisible(transform.position, SlotManager.instance.currentTeam))) && !target[0].FoWVisible)
+            if (((thisUnit && !thisUnit.FoWVisible) || (thisUnit == null && !FogOfWar.Instance.IsVisible(transform.position, SlotManager.Instance.currentTeam))) && !target[0].FoWVisible)
             {
                 Deactivate();
                 return;
@@ -296,7 +296,7 @@ namespace StrategyCore
         {
             // FoW Visibilty
             // If origin unit not visible (if specified) or origin position is not visible, and target not visible we turn off VFX
-            if (((thisUnit && !thisUnit.FoWVisible) || (thisUnit == null && !FogOfWar.instance.IsVisible(transform.position, SlotManager.instance.currentTeam))) && !target[0].FoWVisible)
+            if (((thisUnit && !thisUnit.FoWVisible) || (thisUnit == null && !FogOfWar.Instance.IsVisible(transform.position, SlotManager.Instance.currentTeam))) && !target[0].FoWVisible)
             {
                 Deactivate();
                 return;

@@ -25,14 +25,14 @@ namespace StrategyCore
 
             pc.activeUnit.OnRedrawAbilityView += AbilityInventoryDisplay;
             pc.activeUnit.OnInventoryChange += InventoryDisplay;
-            GameManager.instance.Tick += CooldownTimerUpdate;
+            GameManager.Instance.Tick += CooldownTimerUpdate;
 
             // Subscribe AbilityDisplay to Technology Lock and Unlock. 
-            TechnologyManager.instance.OnTechUnlock[pc.activeUnit.owner] += AbilityInventoryDisplay;
-            TechnologyManager.instance.OnTechLock[pc.activeUnit.owner] += AbilityInventoryDisplay;
+            TechnologyManager.Instance.OnTechUnlock[pc.activeUnit.owner] += AbilityInventoryDisplay;
+            TechnologyManager.Instance.OnTechLock[pc.activeUnit.owner] += AbilityInventoryDisplay;
 
             // Process
-            if (pc.activeUnit.team == SlotManager.instance.currentTeam)
+            if (pc.activeUnit.team == SlotManager.Instance.currentTeam)
             {
                 // Processing unit
                 if (pc.activeUnit.canProcess)
@@ -81,17 +81,17 @@ namespace StrategyCore
             if (pc.activeUnit.lifetimeUnit)
             {
                 lifetimeBar.style.display = DisplayStyle.Flex;
-                GameManager.instance.Tick += LifetimeUpdate;
+                GameManager.Instance.Tick += LifetimeUpdate;
             }
             else if (pc.activeUnit.isBeingBuilt)
             {
                 lifetimeBar.style.display = DisplayStyle.Flex;
-                GameManager.instance.Tick += ConstructionUpdate;
+                GameManager.Instance.Tick += ConstructionUpdate;
             }
             else if (pc.activeUnit.polymorphed)
             {
                 lifetimeBar.style.display = DisplayStyle.Flex;
-                GameManager.instance.Tick += PolymorphUpdate;
+                GameManager.Instance.Tick += PolymorphUpdate;
             }
             else lifetimeBar.style.display = DisplayStyle.None;
 
@@ -103,7 +103,7 @@ namespace StrategyCore
             pc.activeUnit.WaypointUpdate += pc.activeUnit.ShowWaypoint;
 
             // Debug
-            // GameManager.instance.Tick += SetUnitInfo;
+            // GameManager.Instance.Tick += SetUnitInfo;
         }
 
         // Active unit is no longer there, unsubscribe and hide the icon/abilities
@@ -113,11 +113,11 @@ namespace StrategyCore
             // Subscribe AbilityDisplay to Technology Lock and Unlock.
             pc.activeUnit.OnRedrawAbilityView -= AbilityInventoryDisplay;
             pc.activeUnit.OnInventoryChange -= InventoryDisplay;
-            TechnologyManager.instance.OnTechUnlock[pc.activeUnit.owner] -= AbilityInventoryDisplay;
-            TechnologyManager.instance.OnTechLock[pc.activeUnit.owner] -= AbilityInventoryDisplay;
+            TechnologyManager.Instance.OnTechUnlock[pc.activeUnit.owner] -= AbilityInventoryDisplay;
+            TechnologyManager.Instance.OnTechLock[pc.activeUnit.owner] -= AbilityInventoryDisplay;
 
             // Cooldown
-            GameManager.instance.Tick -= CooldownTimerUpdate;
+            GameManager.Instance.Tick -= CooldownTimerUpdate;
             cooldownElements.Clear();
             cooldownTimers.Clear();
             cooldownIndex.Clear();
@@ -139,9 +139,9 @@ namespace StrategyCore
             pc.activeUnit.OnCharacteristicsChange -= UpdateArmorInfo;
 
             // LifeTime
-            if (pc.activeUnit.lifetimeUnit) GameManager.instance.Tick -= LifetimeUpdate;
-            else if (pc.activeUnit.constructionUnit) GameManager.instance.Tick -= ConstructionUpdate;
-            GameManager.instance.Tick -= PolymorphUpdate;
+            if (pc.activeUnit.lifetimeUnit) GameManager.Instance.Tick -= LifetimeUpdate;
+            else if (pc.activeUnit.constructionUnit) GameManager.Instance.Tick -= ConstructionUpdate;
+            GameManager.Instance.Tick -= PolymorphUpdate;
 
             //HideStatusTab();
 
@@ -155,11 +155,11 @@ namespace StrategyCore
             PlayerControl.coreInput.Main.AnyKey.performed -= AnyKeyPressed;
 
             // Waypoint
-            ReferenceManager.instance.HideWaypoint();
+            ReferenceManager.Instance.HideWaypoint();
             pc.activeUnit.WaypointUpdate -= pc.activeUnit.ShowWaypoint;
 
             // Debug
-            // GameManager.instance.Tick -= SetUnitInfo;
+            // GameManager.Instance.Tick -= SetUnitInfo;
         }
 
         // Redraw the active unit info by resubscribing to it
@@ -397,7 +397,7 @@ namespace StrategyCore
                 else
                 {
                     lifetimeBar.style.display = DisplayStyle.None;
-                    GameManager.instance.Tick -= PolymorphUpdate;
+                    GameManager.Instance.Tick -= PolymorphUpdate;
                 }
             }
         }
@@ -435,7 +435,7 @@ namespace StrategyCore
         private void ShowCommands()
         {
             // Check if unit belongs to the current player
-            if (!SlotManager.instance.debugMode && pc.activeUnit.owner != SlotManager.instance.currentPlayer) return;
+            if (!SlotManager.Instance.debugMode && pc.activeUnit.owner != SlotManager.Instance.currentPlayer) return;
 
             // Construction cancel button
             if (pc.activeUnit.isBeingBuilt)

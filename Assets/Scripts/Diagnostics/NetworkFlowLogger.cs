@@ -72,8 +72,8 @@ namespace StrategyCore
         // самый надёжный момент логировать команду/owner клиента.
         private void HookGameStart()
         {
-            if (gameStartHooked || SlotManager.instance == null) return;
-            SlotManager.instance.OnGameStart += OnMatchStarted;
+            if (gameStartHooked || SlotManager.Instance == null) return;
+            SlotManager.Instance.OnGameStart += OnMatchStarted;
             gameStartHooked = true;
         }
 
@@ -97,8 +97,8 @@ namespace StrategyCore
 
         private void LogStateTransition()
         {
-            if (SlotManager.instance == null) return;
-            GameState s = SlotManager.instance.gameStarted;
+            if (SlotManager.Instance == null) return;
+            GameState s = SlotManager.Instance.gameStarted;
             if (s != lastState)
             {
                 Log($"gameStarted: {lastState} -> {s}");
@@ -132,7 +132,7 @@ namespace StrategyCore
         // почему команды клиента режутся (NetworkCommandSync применяет только если слот == unit.owner).
         private void LogOwnershipState()
         {
-            SlotManager sm = SlotManager.instance;
+            SlotManager sm = SlotManager.Instance;
             if (sm == null) { Log("Дамп владения: SlotManager отсутствует."); return; }
 
             NetworkManager nm = NetworkManager.Singleton;
@@ -144,15 +144,15 @@ namespace StrategyCore
 
             StringBuilder sb = new StringBuilder();
             sb.AppendLine($"=== Дамп владения ({Role()}) ===");
-            string stage = NetworkConnectionHandler.instance != null ? NetworkConnectionHandler.instance.connectionStage.ToString() : "?";
+            string stage = NetworkConnectionHandler.Instance != null ? NetworkConnectionHandler.Instance.connectionStage.ToString() : "?";
             sb.AppendLine($"LocalClientId={localId}; мой слот (GetClientSlot)={mySlot}; currentPlayer={sm.currentPlayer}; connectionStage={stage} (2=mid-game, RPC игнорятся).");
             sb.AppendLine($"Я: имя='{sm.currentName}', слот={mySlot}, currentTeam={sm.currentTeam}, команда слота={myTeam}. " +
                           $"Командовать смогу юнитами с owner=={mySlot} (NetworkCommandSync проверяет слот==owner).");
 
-            if (MatchManager.instance != null)
+            if (MatchManager.Instance != null)
             {
-                TeamWaveConfig a = MatchManager.instance.Team(0);
-                TeamWaveConfig b = MatchManager.instance.Team(1);
+                TeamWaveConfig a = MatchManager.Instance.Team(0);
+                TeamWaveConfig b = MatchManager.Instance.Team(1);
                 string ao = a != null ? a.ownerPlayer.ToString() : "-";
                 string bo = b != null ? b.ownerPlayer.ToString() : "-";
                 sb.AppendLine($"MatchManager: teamA.ownerPlayer={ao}; teamB.ownerPlayer={bo}.");
@@ -211,8 +211,8 @@ namespace StrategyCore
                 nm.OnClientDisconnectCallback -= OnClientDisconnect;
                 if (nm.SceneManager != null) nm.SceneManager.OnSceneEvent -= OnSceneEvent;
             }
-            if (gameStartHooked && SlotManager.instance != null)
-                SlotManager.instance.OnGameStart -= OnMatchStarted;
+            if (gameStartHooked && SlotManager.Instance != null)
+                SlotManager.Instance.OnGameStart -= OnMatchStarted;
         }
     }
 }

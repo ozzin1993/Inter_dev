@@ -8,9 +8,11 @@ using UnityEngine.UIElements;
 
 namespace StrategyCore
 {
-    public partial class UIManagerMenu : MonoBehaviour // [Interflow fix 2026-08-01 partial-split] класс разрезан на partial-файлы (задача №11)
+    public partial class UIManagerMenu : MonoBehaviour, IStartupService // [Interflow fix 2026-08-01 partial-split] класс разрезан на partial-файлы (задача №11)
     {
-        public static UIManagerMenu instance;
+        public static UIManagerMenu Instance { get; private set; }
+
+        private bool startupDone; // защита от повторного подъёма (стартовик сцены + собственный Awake)
         [HideInInspector] public UIDocument UIDocument;
         [HideInInspector] public int currentMenuIndex;
 
@@ -41,11 +43,19 @@ namespace StrategyCore
         // На headless-сервере Start выходит по init-гейту раньше → остаётся false, серверо-достижимые методы no-op по своему состоянию.
         private bool presentationReady;
 
-        void Awake()
+        void Awake() => Startup();
+
+        /// <summary>
+        /// Подъём службы (IStartupService). Идемпотентен: повторный вызов выходит сразу.
+        /// </summary>
+        public void Startup()
         {
-            if (instance == null)
+            if (startupDone) return;
+            startupDone = true;
+
+            if (Instance == null)
             {
-                instance = this;
+                Instance = this;
             }
         }
 
@@ -104,7 +114,7 @@ namespace StrategyCore
         {
             chatBox.Clear();
             TextField tf = (TextField)UIDocument.rootVisualElement.Q("Menu").Q("PlayerName");
-            NetworkConnectionHandler.instance.StartHost(tf.value);
+            NetworkConnectionHandler.Instance.StartHost(tf.value);
         }
 
         void JoinButton(ClickEvent evt)
@@ -113,7 +123,7 @@ namespace StrategyCore
             TextField ip = (TextField)UIDocument.rootVisualElement.Q("Menu").Q("IpInput");
             TextField port = (TextField)UIDocument.rootVisualElement.Q("Menu").Q("PortInput");
             TextField tf = (TextField)UIDocument.rootVisualElement.Q("Menu").Q("PlayerName");
-            NetworkConnectionHandler.instance.StartClient(tf.value, ip.value, port.value);
+            NetworkConnectionHandler.Instance.StartClient(tf.value, ip.value, port.value);
         }
 
         void SaveButton(ClickEvent evt)
@@ -124,7 +134,7 @@ namespace StrategyCore
         void QuitButton(ClickEvent evt)
         {
             if (currentMenuIndex == 0) Application.Quit();
-            if (NetworkManager.Singleton.IsListening) NetworkConnectionHandler.instance.Shutdown();
+            if (NetworkManager.Singleton.IsListening) NetworkConnectionHandler.Instance.Shutdown();
         }
 
         // LOBBY -----------------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -132,14 +142,14 @@ namespace StrategyCore
         void PlayerListHandler(ClickEvent evt)
         {
             VisualElement target = evt.target as VisualElement;
-            bool loadingSaveFile = SceneHandler.instance.saveFileName != "";
+            bool loadingSaveFile = SceneHandler.Instance.saveFileName != "";
 
             // Disconnect
             if (target.name.StartsWith("Remove"))
             {
                 if (int.TryParse(target.parent.name, out int playerSlot))
                 {
-                    SlotManager.instance.DisconnectPlayer(playerSlot);
+                    SlotManager.Instance.DisconnectPlayer(playerSlot);
                 }
             }
             else if (loadingSaveFile == false)
@@ -152,12 +162,12 @@ namespace StrategyCore
                         if (NetworkConnectionHandler.isClient)
                         {
                             // Network
-                            NetworkDataSync.instance.SwapTeamToServerRpc(teamIndex);
+                            NetworkDataSync.Instance.SwapTeamToServerRpc(teamIndex);
                         }
                         else
                         {
                             // Single player or Server
-                            SlotManager.instance.SwapTeamTo((ulong)SlotManager.instance.playerID[SlotManager.instance.currentPlayer], teamIndex);
+                            SlotManager.Instance.SwapTeamTo((ulong)SlotManager.Instance.playerID[SlotManager.Instance.currentPlayer], teamIndex);
                         }
                     }
                 }
@@ -166,12 +176,12 @@ namespace StrategyCore
                 {
                     if (int.TryParse(target.parent.name, out int playerSlot))
                     {
-                        if (playerSlot == SlotManager.instance.currentPlayer || !NetworkConnectionHandler.isClient)
+                        if (playerSlot == SlotManager.Instance.currentPlayer || !NetworkConnectionHandler.isClient)
                         {
                             // Fill possible teams
                             floatingMenu.Clear();
 
-                            for (int i = 0; i < SlotManager.instance.GetTotalNumberOfPlayers(); i++)
+                            for (int i = 0; i < SlotManager.Instance.GetTotalNumberOfPlayers(); i++)
                             {
                                 FloatingMenuEntry("t" + playerSlot + "_" + i, "Team:" + i);
                             }
@@ -184,11 +194,11 @@ namespace StrategyCore
                 {
                     if (int.TryParse(target.parent.name, out int playerSlot))
                     {
-                        if (playerSlot == SlotManager.instance.currentPlayer || !NetworkConnectionHandler.isClient)
+                        if (playerSlot == SlotManager.Instance.currentPlayer || !NetworkConnectionHandler.isClient)
                         {
                             // Fill possible teams
                             floatingMenu.Clear();
-                            SceneData sceneData = SceneHandler.instance.sceneData[SceneHandler.instance.sceneIndex];
+                            SceneData sceneData = SceneHandler.Instance.sceneData[SceneHandler.Instance.sceneIndex];
                             FloatingMenuEntry("f" + playerSlot + "_0", "Random");
                             for (int i = 0; i < sceneData.factions.Length; i++)
                             {
@@ -203,11 +213,11 @@ namespace StrategyCore
                 {
                     if (int.TryParse(target.parent.name, out int playerSlot))
                     {
-                        if (playerSlot == SlotManager.instance.currentPlayer || !NetworkConnectionHandler.isClient)
+                        if (playerSlot == SlotManager.Instance.currentPlayer || !NetworkConnectionHandler.isClient)
                         {
                             // Fill possible teams
                             floatingMenu.Clear();
-                            SceneData sceneData = SceneHandler.instance.sceneData[SceneHandler.instance.sceneIndex];
+                            SceneData sceneData = SceneHandler.Instance.sceneData[SceneHandler.Instance.sceneIndex];
                             FloatingMenuEntry("s" + playerSlot + "_0", "Random");
                             for (int i = 0; i < sceneData.spawnPointCount; i++)
                             {
@@ -225,36 +235,36 @@ namespace StrategyCore
         {
             if (NetworkConnectionHandler.isClient) return;
 
-            SlotManager.instance.RandomizeSlotData();
+            SlotManager.Instance.RandomizeSlotData();
             // Before loading the scene (starting the game) we must send the save data if it exists
-            if (SceneHandler.instance.saveFileName != "")
+            if (SceneHandler.Instance.saveFileName != "")
             {
-                NetworkConnectionHandler.instance.connectionStage = 1;
-                SceneHandler.instance.SceneStartedLoading();
+                NetworkConnectionHandler.Instance.connectionStage = 1;
+                SceneHandler.Instance.SceneStartedLoading();
 
                 // Add all clients to the waiting list
-                NetworkConnectionHandler.instance.AddClientsToWaitingList(true);
+                NetworkConnectionHandler.Instance.AddClientsToWaitingList(true);
                 // No one to send, start the game
-                if (NetworkConnectionHandler.instance.clientsLoading.Count == 0)
+                if (NetworkConnectionHandler.Instance.clientsLoading.Count == 0)
                 {
-                    NetworkConnectionHandler.instance.clientsListUpdated += NetworkDataSync.instance.ServerPlayersFinishedLoading;
-                    SceneHandler.instance.LoadScene();
+                    NetworkConnectionHandler.Instance.clientsListUpdated += NetworkDataSync.Instance.ServerPlayersFinishedLoading;
+                    SceneHandler.Instance.LoadScene();
                 }
                 // Send Data to clients
-                else NetworkDataSync.instance.SendSaveSceneData(SceneHandler.instance.saveFileName, true);
+                else NetworkDataSync.Instance.SendSaveSceneData(SceneHandler.Instance.saveFileName, true);
             }
             else
             {
                 // No save data, start immediately
-                SceneHandler.instance.LoadScene();
+                SceneHandler.Instance.LoadScene();
             }
         }
 
         // Cancel button
         void CancelButton(ClickEvent evt)
         {
-            SceneHandler.instance.saveFileName = "";
-            NetworkConnectionHandler.instance.Shutdown();
+            SceneHandler.Instance.saveFileName = "";
+            NetworkConnectionHandler.Instance.Shutdown();
         }
 
         // WIN MENU -----------------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -269,7 +279,7 @@ namespace StrategyCore
             }
             else if (target.name.StartsWith("Quit"))
             {
-                if (NetworkManager.Singleton.IsListening) NetworkConnectionHandler.instance.Shutdown();
+                if (NetworkManager.Singleton.IsListening) NetworkConnectionHandler.Instance.Shutdown();
             }
         }
 
@@ -286,9 +296,9 @@ namespace StrategyCore
                 if (msg != "")
                 {
                     msg = msg.Length > msgInput.maxLength ? msg.Substring(0, msgInput.maxLength) : msg;
-                    AddChatMsg(msgInput.value.Trim(), SlotManager.instance.currentPlayer);
+                    AddChatMsg(msgInput.value.Trim(), SlotManager.Instance.currentPlayer);
                     // Send info to other players
-                    if (NetworkDataSync.instance) NetworkDataSync.instance.MsgSend(msg, false);
+                    if (NetworkDataSync.Instance) NetworkDataSync.Instance.MsgSend(msg, false);
                 }
 
                 // Clear and Focus
@@ -305,8 +315,8 @@ namespace StrategyCore
             chatBox.Add(wrapper1);
 
             Label playerName = new Label();
-            playerName.text = SlotManager.instance.playerName[owner] + ": ";
-            playerName.style.color = SlotManager.instance.playerColors[owner];
+            playerName.text = SlotManager.Instance.playerName[owner] + ": ";
+            playerName.style.color = SlotManager.Instance.playerColors[owner];
             wrapper1.Add(playerName);
 
             VisualElement wrapper2 = new VisualElement();
@@ -322,7 +332,7 @@ namespace StrategyCore
             }
 
             // Cheats
-            if (SlotManager.instance.debugMode) Cheats.MsgAdded(msg, owner);
+            if (SlotManager.Instance.debugMode) Cheats.MsgAdded(msg, owner);
             // Scroll to bottom
             StartCoroutine(ChatScrollToBottom());
         }

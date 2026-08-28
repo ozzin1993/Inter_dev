@@ -34,7 +34,7 @@ namespace StrategyCore
             // Certain events in game happen only on the server, but we still want them to be shown in local players
             if (sync && NetworkManager.Singleton.IsServer)
             {
-                NetworkDataSync.instance.FloatingTextSend(player, position, text, color);
+                NetworkDataSync.Instance.FloatingTextSend(player, position, text, color);
             }
 
             // [Interflow fix 2026-06-20] На headless-сервере камеры/FoW нет: после релая клиентам выходим (локальный текст не создаём).
@@ -43,9 +43,9 @@ namespace StrategyCore
             // Do noy play audio if not in the camera view
             if (!Utils.IsInView(position)) return;
             // Do not play if FoW not visible
-            if (!FogOfWar.instance.IsVisible(position, SlotManager.instance.currentPlayer)) return;
+            if (!FogOfWar.Instance.IsVisible(position, SlotManager.Instance.currentPlayer)) return;
 
-            TextMeshPro textMesh = Instantiate(ReferenceManager.instance.floatingText, position, Quaternion.identity);
+            TextMeshPro textMesh = Instantiate(ReferenceManager.Instance.floatingText, position, Quaternion.identity);
             textMesh.text = text;
             textMesh.color = color;
             Destroy(textMesh.gameObject, destroyTime);

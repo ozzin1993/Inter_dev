@@ -114,7 +114,7 @@ namespace StrategyCore
         static bool IsPlaceholder(Texture2D t)
         {
             if (t == null) return false;
-            Texture2D missing = ReferenceManager.instance != null ? ReferenceManager.instance.missingTexture : null;
+            Texture2D missing = ReferenceManager.Instance != null ? ReferenceManager.Instance.missingTexture : null;
             return missing != null && t == missing;
         }
 

@@ -106,9 +106,9 @@ namespace StrategyCore
 
             // Подписываемся ВСЕГДА, даже у бессрочного щита: тик — единственное место,
             // где безопасно снимать хук и дёргать реакции (см. pendingDepleted)
-            if (!subscribed && GameManager.instance != null)
+            if (!subscribed && GameManager.Instance != null)
             {
-                GameManager.instance.Tick += OnTick;
+                GameManager.Instance.Tick += OnTick;
                 subscribed = true;
             }
 
@@ -146,7 +146,7 @@ namespace StrategyCore
         private void OnTick()
         {
             if (unit == null || unit.dead) { Cleanup(); return; }
-            if (GameManager.instance == null) return;
+            if (GameManager.Instance == null) return;
 
             // Щит пробит на прошлом кадре — теперь мы вне цикла колбэков и можем спокойно всё снять
             if (pendingDepleted)
@@ -162,7 +162,7 @@ namespace StrategyCore
 
             if (remainingTime > 0f)
             {
-                remainingTime -= GameManager.instance.currentDeltaTime;
+                remainingTime -= GameManager.Instance.currentDeltaTime;
                 if (remainingTime <= 0f) Cleanup();
             }
         }
@@ -175,7 +175,7 @@ namespace StrategyCore
         {
             if (NetworkConnectionHandler.isClient || target == null) return;
 
-            if (NetworkDataSync.instance != null) NetworkDataSync.instance.UnitShieldSend(target, amount);
+            if (NetworkDataSync.Instance != null) NetworkDataSync.Instance.UnitShieldSend(target, amount);
             SkillPresentationEvents.RaiseShieldChanged(target, amount);
         }
 
@@ -192,7 +192,7 @@ namespace StrategyCore
             if (unit != null)
                 for (int i = 0; i < unit.OnBeforeGetDamageCallbacks.Count; i++)
                     if (unit.OnBeforeGetDamageCallbacks[i].Callback == hook) { unit.OnBeforeGetDamageCallbacks.RemoveAt(i); break; }
-            if (subscribed && GameManager.instance != null) GameManager.instance.Tick -= OnTick;
+            if (subscribed && GameManager.Instance != null) GameManager.Instance.Tick -= OnTick;
             subscribed = false;
 
             // Щит снят по любой причине — даём снять сопутствующие эффекты (реакция на бьющих и т.п.).
@@ -206,7 +206,7 @@ namespace StrategyCore
 
         private void OnDestroy()
         {
-            if (subscribed && GameManager.instance != null) GameManager.instance.Tick -= OnTick;
+            if (subscribed && GameManager.Instance != null) GameManager.Instance.Tick -= OnTick;
             subscribed = false;
 
             // Страховка: объект снесли мимо Cleanup (умер носитель, выгрузили сцену) — реакции всё равно снимаем

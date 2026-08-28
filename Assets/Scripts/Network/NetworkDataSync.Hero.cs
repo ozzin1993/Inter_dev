@@ -18,15 +18,15 @@ namespace StrategyCore
         [Rpc(SendTo.Server)]
         public void CastHeroAbilityServerRpc(int teamIndex, int abilityId, RpcParams rpcParams = default)
         {
-            if (MatchManager.instance == null) return;
+            if (MatchManager.Instance == null) return;
             if (teamIndex != 0 && teamIndex != 1) return; // MVP: только две команды A/B
 
             // Авторизация: отправитель должен управлять этой командой (как в CastCentralAbilityServerRpc).
-            int senderPlayer = SlotManager.instance.GetClientSlot(rpcParams.Receive.SenderClientId);
-            TeamWaveConfig cfg = MatchManager.instance.Team(teamIndex);
+            int senderPlayer = SlotManager.Instance.GetClientSlot(rpcParams.Receive.SenderClientId);
+            TeamWaveConfig cfg = MatchManager.Instance.Team(teamIndex);
             if (cfg == null || senderPlayer != cfg.ownerPlayer) return; // нет прав на эту команду
 
-            MatchManager.instance.CastHeroAbilityById(teamIndex, abilityId);
+            MatchManager.Instance.CastHeroAbilityById(teamIndex, abilityId);
         }
 
         // [UI-сессия 2026-07-06] Синк состояния героя клиенту — для дизейбла кнопки призыва у клиента.
@@ -37,9 +37,9 @@ namespace StrategyCore
         [Rpc(SendTo.NotServer, InvokePermission = RpcInvokePermission.Server)]
         public void HeroAliveClientRpc(int teamIndex, bool alive)
         {
-            if (MatchManager.instance == null) return;
+            if (MatchManager.Instance == null) return;
             if (teamIndex != 0 && teamIndex != 1) return;
-            MatchManager.instance.ApplyHeroAliveClient(teamIndex, alive);
+            MatchManager.Instance.ApplyHeroAliveClient(teamIndex, alive);
         }
 
         // [UI-сессия 2026-07-06] Синк уровня героя клиенту — для .locked умений героя по уровню у клиента.
@@ -50,9 +50,9 @@ namespace StrategyCore
         [Rpc(SendTo.NotServer, InvokePermission = RpcInvokePermission.Server)]
         public void HeroLevelClientRpc(int teamIndex, int level)
         {
-            if (MatchManager.instance == null) return;
+            if (MatchManager.Instance == null) return;
             if (teamIndex != 0 && teamIndex != 1) return;
-            MatchManager.instance.ApplyHeroLevelClient(teamIndex, level);
+            MatchManager.Instance.ApplyHeroLevelClient(teamIndex, level);
         }
     }
 }

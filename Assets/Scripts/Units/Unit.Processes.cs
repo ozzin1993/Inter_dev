@@ -52,7 +52,7 @@ namespace StrategyCore
                         ProcessMoveForward(0); // Move next process forward
                         OnProcessUpdate?.Invoke();
 
-                        if (NetworkManager.Singleton.IsServer) NetworkDataSync.instance.FinishProcess(this);
+                        if (NetworkManager.Singleton.IsServer) NetworkDataSync.Instance.FinishProcess(this);
                     }
                 }
             }
@@ -97,7 +97,7 @@ namespace StrategyCore
         {
             if (NetworkConnectionHandler.isClient)
             {
-                NetworkCommandSync.instance.CancelProcessCommandSend(this, index);
+                NetworkCommandSync.Instance.CancelProcessCommandSend(this, index);
                 return false;
             }
 
@@ -107,18 +107,18 @@ namespace StrategyCore
                 if (activeProcess[index] is Research)
                 {
                     Research research = (Research)activeProcess[index];
-                    TechnologyManager.instance.TechFinishedProcessing(research.unlockTech[processLevel[index]], owner);
+                    TechnologyManager.Instance.TechFinishedProcessing(research.unlockTech[processLevel[index]], owner);
                 }
 
                 // Return the cost
-                if (activeProcess[index].cost.Length > processLevel[index]) GameResources.instance.ChangeAmount(owner, activeProcess[index].cost[processLevel[index]].data, 1, false, true);
+                if (activeProcess[index].cost.Length > processLevel[index]) GameResources.Instance.ChangeAmount(owner, activeProcess[index].cost[processLevel[index]].data, 1, false, true);
 
                 ProcessMoveForward(index);
 
                 OnProcessUpdate?.Invoke();
 
                 // Send to clients
-                if (NetworkManager.Singleton.IsServer) NetworkDataSync.instance.CancelProcess(this, index);
+                if (NetworkManager.Singleton.IsServer) NetworkDataSync.Instance.CancelProcess(this, index);
                 return true;
             }
             return false;
@@ -134,7 +134,7 @@ namespace StrategyCore
         {
             if (NetworkConnectionHandler.isClient)
             {
-                NetworkCommandSync.instance.AddProcessCommandSend(this, abilityIndex, isItem);
+                NetworkCommandSync.Instance.AddProcessCommandSend(this, abilityIndex, isItem);
                 return false;
             }
 
@@ -152,10 +152,10 @@ namespace StrategyCore
                     Research upgradeAbility = (Research)currentProcess;
 
                     // If this upgrade is already being processed do not allow to process it twice
-                    if (upgradeAbility.unlockTech.Length > currentProcessLevel && !TechnologyManager.instance.IsTechBeingProcessed(upgradeAbility.unlockTech[currentProcessLevel], owner))
+                    if (upgradeAbility.unlockTech.Length > currentProcessLevel && !TechnologyManager.Instance.IsTechBeingProcessed(upgradeAbility.unlockTech[currentProcessLevel], owner))
                     {
                         // Set upgrade status to being processed, will make sure this upgrade can not be used twice
-                        TechnologyManager.instance.TechBeingProcessed(upgradeAbility.unlockTech[currentProcessLevel], owner);
+                        TechnologyManager.Instance.TechBeingProcessed(upgradeAbility.unlockTech[currentProcessLevel], owner);
                     }
                     else
                     {
@@ -193,7 +193,7 @@ namespace StrategyCore
                 OnRedrawAbilityView?.Invoke();
 
                 // Send to clients
-                if (NetworkManager.Singleton.IsServer) NetworkDataSync.instance.AddProcess(this, index, abilityIndex, isItem);
+                if (NetworkManager.Singleton.IsServer) NetworkDataSync.Instance.AddProcess(this, index, abilityIndex, isItem);
                 return true;
             }
             else

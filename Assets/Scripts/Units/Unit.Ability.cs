@@ -58,7 +58,7 @@ namespace StrategyCore
             // Clients send the command to the server
             if (NetworkConnectionHandler.isClient)
             {
-                NetworkCommandSync.instance.UseAbilityCommandSend(this, abilityIndex, isItem, unit, location);
+                NetworkCommandSync.Instance.UseAbilityCommandSend(this, abilityIndex, isItem, unit, location);
                 return true;
             }
 
@@ -144,7 +144,7 @@ namespace StrategyCore
             // When server activates any ability, we send data to clients
             if (NetworkManager.Singleton.IsServer)
             {
-                NetworkDataSync.instance.AbilityUseSend(this, ability, abilityLevel, abilityIndex, isItem, abilityTarget, abilityLocation, interrupt, shadowCasterID);
+                NetworkDataSync.Instance.AbilityUseSend(this, ability, abilityLevel, abilityIndex, isItem, abilityTarget, abilityLocation, interrupt, shadowCasterID);
             }
 
             // if interrupt we make unit visible
@@ -353,8 +353,8 @@ namespace StrategyCore
         public void HandleEveryFrameAbilities()
         {
             // MP/HP regeneration
-            if (healthRegen != 0) ChangeHP(healthRegen * GameManager.instance.currentDeltaTime, true);
-            if (manaRegen != 0) ChangeMP(manaRegen * GameManager.instance.currentDeltaTime, true);
+            if (healthRegen != 0) ChangeHP(healthRegen * GameManager.Instance.currentDeltaTime, true);
+            if (manaRegen != 0) ChangeMP(manaRegen * GameManager.Instance.currentDeltaTime, true);
 
             // Auras and Toggle abilities
             for (int i = everyFrameAbilityIndex.Count - 1; i >= 0; i--)
@@ -379,8 +379,8 @@ namespace StrategyCore
                     // Do Mana check and subtract the mana cost
                     float manaCost = 0;
 
-                    if (everyFrameAbilityIsItem[i] && items[everyFrameAbilityIndex[i]].manaCostPerSecond.Length != 0) manaCost = items[everyFrameAbilityIndex[i]].manaCostPerSecond[0] * GameManager.instance.currentDeltaTime;
-                    else if (everyFrameAbilities[i].manaCostPerSecond.Length > abilityLevel[everyFrameAbilityIndex[i]]) manaCost = everyFrameAbilities[i].manaCostPerSecond[abilityLevel[everyFrameAbilityIndex[i]]] * GameManager.instance.currentDeltaTime;
+                    if (everyFrameAbilityIsItem[i] && items[everyFrameAbilityIndex[i]].manaCostPerSecond.Length != 0) manaCost = items[everyFrameAbilityIndex[i]].manaCostPerSecond[0] * GameManager.Instance.currentDeltaTime;
+                    else if (everyFrameAbilities[i].manaCostPerSecond.Length > abilityLevel[everyFrameAbilityIndex[i]]) manaCost = everyFrameAbilities[i].manaCostPerSecond[abilityLevel[everyFrameAbilityIndex[i]]] * GameManager.Instance.currentDeltaTime;
 
                     if (mana < manaCost)
                     {
@@ -411,7 +411,7 @@ namespace StrategyCore
             // If client, send command to server
             if (NetworkConnectionHandler.isClient)
             {
-                NetworkCommandSync.instance.LevelUpAbility(this, ability, abilityIndex);
+                NetworkCommandSync.Instance.LevelUpAbility(this, ability, abilityIndex);
                 return false;
             }
 
@@ -423,7 +423,7 @@ namespace StrategyCore
                 // If level up successful server will inform clients that ability level has changed
                 if (NetworkManager.Singleton.IsServer)
                 {
-                    NetworkDataSync.instance.LevelUpAbilitySend(this, ability, abilityIndex);
+                    NetworkDataSync.Instance.LevelUpAbilitySend(this, ability, abilityIndex);
                 }
                 return true;
             }
@@ -496,7 +496,7 @@ namespace StrategyCore
             {
                 if (cooldownAbilityIndex[i] == abilityIndex && cooldownAbilityIsItem[i] == isItem)
                 {
-                    if (this == Presentation.Selection?.ActiveUnit && (SlotManager.instance.debugMode || owner == SlotManager.instance.currentPlayer)) Presentation.NotifyMsg("Wait until the cooldown is over.");
+                    if (this == Presentation.Selection?.ActiveUnit && (SlotManager.Instance.debugMode || owner == SlotManager.Instance.currentPlayer)) Presentation.NotifyMsg("Wait until the cooldown is over.");
                     return false;
                 }
             }
@@ -546,7 +546,7 @@ namespace StrategyCore
         {
             for (int i = 0; i < cooldownAbility.Count; i++)
             {
-                cooldownAbility[i] -= GameManager.instance.currentDeltaTime;
+                cooldownAbility[i] -= GameManager.Instance.currentDeltaTime;
                 if (cooldownAbility[i] <= 0)
                 {
                     // Cooldown end
@@ -669,8 +669,8 @@ namespace StrategyCore
                         // ability locked should refer to the next level of the ability if hero levelable
                         int lvl = abilityLevel[abilityIndex] + 1;
 
-                        //if (abilityLevel[abilityIndex] != -1 && TechnologyManager.instance.isUnlocked(abilityArray[i].requiredTech[abilityLevel[abilityIndex]].data, owner) && levelingUnit?.level >= abilityArray[i].requiredLevel[abilityLevel[abilityIndex]])
-                        if ((abilityArray[i].requiredTech.Length <= lvl || TechnologyManager.instance.isUnlocked(abilityArray[i].requiredTech[lvl].data, owner)) // Technology check
+                        //if (abilityLevel[abilityIndex] != -1 && TechnologyManager.Instance.isUnlocked(abilityArray[i].requiredTech[abilityLevel[abilityIndex]].data, owner) && levelingUnit?.level >= abilityArray[i].requiredLevel[abilityLevel[abilityIndex]])
+                        if ((abilityArray[i].requiredTech.Length <= lvl || TechnologyManager.Instance.isUnlocked(abilityArray[i].requiredTech[lvl].data, owner)) // Technology check
                             && (levelingUnit == null || abilityArray[i].requiredLevel.Length <= lvl || levelingUnit.level >= abilityArray[i].requiredLevel[lvl])) // Level check
                         {
                             // Ability is unlocked
@@ -733,7 +733,7 @@ namespace StrategyCore
 
                         for (int l = abilityLevel[abilityIndex]; l < requirementLength; l++)
                         {
-                            if ((abilityArray[i].requiredTech.Length <= l || TechnologyManager.instance.isUnlocked(abilityArray[i].requiredTech[l].data, owner)) // Requirement tech check
+                            if ((abilityArray[i].requiredTech.Length <= l || TechnologyManager.Instance.isUnlocked(abilityArray[i].requiredTech[l].data, owner)) // Requirement tech check
                             && (levelingUnit == null || abilityArray[i].requiredLevel.Length <= l || levelingUnit.level >= abilityArray[i].requiredLevel[abilityLevel[abilityIndex]])) // Level requirement check
                             {
                                 // We call unlock. If the same level as current level we call unlock if it was locked before
@@ -800,7 +800,7 @@ namespace StrategyCore
                 // Calculate lock state at the current level only
                 if (abilityArray[i].requiredTech.Length > 0)
                 {
-                    if (TechnologyManager.instance.isUnlocked(abilityArray[i].requiredTech[abilityLevel[abilityIndex]].data, owner))
+                    if (TechnologyManager.Instance.isUnlocked(abilityArray[i].requiredTech[abilityLevel[abilityIndex]].data, owner))
                     {
                         abilityLocked[abilityIndex] = false;
                     }
@@ -983,7 +983,7 @@ namespace StrategyCore
             // If server send signal to clients
             if (calledByServer && NetworkManager.Singleton.IsServer)
             {
-                NetworkDataSync.instance.AbilityStopSend(this);
+                NetworkDataSync.Instance.AbilityStopSend(this);
             }
         }
 
@@ -1016,7 +1016,7 @@ namespace StrategyCore
                 // {
                 //     for (int i = 0; i < items[abilityIndex].cost[0].data.Length; i++)
                 //     {
-                //         if (!GameResources.instance.CheckAmount(unitOwner, items[abilityIndex].cost[0].data[i]))
+                //         if (!GameResources.Instance.CheckAmount(unitOwner, items[abilityIndex].cost[0].data[i]))
                 //         {
                 //             Presentation.NotifyMsg("Not enough " + items[abilityIndex].cost[0].data[i].type.name);
                 //             return true;
@@ -1043,7 +1043,7 @@ namespace StrategyCore
                 {
                     for (int i = 0; i < currentAbility.cost[abilityLevel[abilityIndex]].data.Length; i++)
                     {
-                        if (!GameResources.instance.CheckAmount(player, currentAbility.cost[abilityLevel[abilityIndex]].data[i]))
+                        if (!GameResources.Instance.CheckAmount(player, currentAbility.cost[abilityLevel[abilityIndex]].data[i]))
                         {
                             Presentation.NotifyMsg("Not enough " + currentAbility.cost[abilityLevel[abilityIndex]].data[i].type.displayName, owner, true);
                             return true;
@@ -1075,7 +1075,7 @@ namespace StrategyCore
                 // {
                 //     for (int i = 0; i < items[abilityIndex].cost[0].data.Length; i++)
                 //     {
-                //         GameResources.instance.ChangeAmount(unitOwner, items[abilityIndex].cost[0].data[i], 1, true);
+                //         GameResources.Instance.ChangeAmount(unitOwner, items[abilityIndex].cost[0].data[i], 1, true);
                 //     }
                 // }
             }
@@ -1091,7 +1091,7 @@ namespace StrategyCore
                 {
                     for (int i = 0; i < currentAbility.cost[abilityLevel[abilityIndex]].data.Length; i++)
                     {
-                        GameResources.instance.ChangeAmount(player, currentAbility.cost[abilityLevel[abilityIndex]].data[i], 1, true, true);
+                        GameResources.Instance.ChangeAmount(player, currentAbility.cost[abilityLevel[abilityIndex]].data[i], 1, true, true);
                     }
                 }
             }

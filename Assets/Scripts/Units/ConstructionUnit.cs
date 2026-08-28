@@ -81,7 +81,7 @@ namespace StrategyCore
             // Destroy shadowBuilding
             if (shadowBuilding) Destroy(shadowBuilding.gameObject);
             // If was going to build a building, return the resources
-            if (constructionRef) GameResources.instance.ChangeAmount(thisUnit.owner, constructionRef.resourceCost);
+            if (constructionRef) GameResources.Instance.ChangeAmount(thisUnit.owner, constructionRef.resourceCost);
             // If was working, reduce the builders count
             if (buildingObj != null) buildingObj.constructionUnit.buildersWorking--;
 
@@ -99,7 +99,7 @@ namespace StrategyCore
                 thisUnit.OnCommand -= ResetConstructionStates;
             }
 
-            GameManager.instance.Tick -= RepairUpdate;
+            GameManager.Instance.Tick -= RepairUpdate;
             thisUnit.OnCommand -= StopTheRepairs;
         }
 
@@ -189,7 +189,7 @@ namespace StrategyCore
                         if (!NetworkConnectionHandler.isClient)
                         {
                             FinishConstruction();
-                            if (NetworkManager.Singleton.IsServer) NetworkDataSync.instance.BuildingFinished(thisUnit);
+                            if (NetworkManager.Singleton.IsServer) NetworkDataSync.Instance.BuildingFinished(thisUnit);
                         }
                     }
 
@@ -204,7 +204,7 @@ namespace StrategyCore
                     // Builder stop working on a building; if building set working = false
 
                     // Network Sync
-                    if (NetworkManager.Singleton.IsServer) NetworkDataSync.instance.WorkerStopConstructing(buildingObj, thisUnit);
+                    if (NetworkManager.Singleton.IsServer) NetworkDataSync.Instance.WorkerStopConstructing(buildingObj, thisUnit);
 
                     isWorking = false;
                     buildingObj = null;
@@ -240,7 +240,7 @@ namespace StrategyCore
                         {
                             if (!thisUnit.target.resourceCost[i].type.limited)
                             {
-                                if (!GameResources.instance.CheckAmount(thisUnit.target.owner, new ResourceWrapper(thisUnit.target.resourceCost[i].type, 1)))
+                                if (!GameResources.Instance.CheckAmount(thisUnit.target.owner, new ResourceWrapper(thisUnit.target.resourceCost[i].type, 1)))
                                 {
                                     // Not enough resources to start the repairs
                                     return; 
@@ -272,18 +272,18 @@ namespace StrategyCore
             buildingObj.constructionUnit.buildersWorking++;
             accumulatedResourceCost = new float[buildingObj.resourceCost.Length];
             thisUnit.AnimatorSetBool(AnimationState.Building, true);
-            GameManager.instance.Tick += RepairUpdate;
+            GameManager.Instance.Tick += RepairUpdate;
             thisUnit.OnCommand += StopTheRepairs;
 
-            if (NetworkManager.Singleton.IsServer) NetworkDataSync.instance.WorkerStartTheRepairs(thisUnit, buildingObj);                                     
+            if (NetworkManager.Singleton.IsServer) NetworkDataSync.Instance.WorkerStartTheRepairs(thisUnit, buildingObj);                                     
         }
 
         // Builder: stops the repairs
         public void StopTheRepairs(bool issuedByPlayer)
         {
-            if (NetworkManager.Singleton.IsServer) NetworkDataSync.instance.WorkerStopTheRepairs(thisUnit);
+            if (NetworkManager.Singleton.IsServer) NetworkDataSync.Instance.WorkerStopTheRepairs(thisUnit);
            
-            GameManager.instance.Tick -= RepairUpdate;
+            GameManager.Instance.Tick -= RepairUpdate;
             thisUnit.OnCommand -= StopTheRepairs;
             if (buildingObj) buildingObj.constructionUnit.buildersWorking--;
             buildingObj = null;
@@ -302,7 +302,7 @@ namespace StrategyCore
                 {
                     if (!buildingObj.resourceCost[i].type.limited)
                     {
-                        accumulatedResourceCost[i] += buildingObj.resourceCost[i].value / buildingObj.constructionUnit.constructionTime * GameManager.instance.currentDeltaTime;
+                        accumulatedResourceCost[i] += buildingObj.resourceCost[i].value / buildingObj.constructionUnit.constructionTime * GameManager.Instance.currentDeltaTime;
 
                         // Convert accumulated cost to an integer amount
                         int costToDeduct = Mathf.FloorToInt(accumulatedResourceCost[i]);
@@ -311,10 +311,10 @@ namespace StrategyCore
                         {
                             ResourceWrapper rw = new ResourceWrapper(buildingObj.resourceCost[i].type, costToDeduct);
 
-                            if (GameResources.instance.CheckAmount(buildingObj.owner, rw))
+                            if (GameResources.Instance.CheckAmount(buildingObj.owner, rw))
                             {
                                 // Subtract the integer part
-                                GameResources.instance.ChangeAmount(buildingObj.owner, rw, 1, true, true);
+                                GameResources.Instance.ChangeAmount(buildingObj.owner, rw, 1, true, true);
                                 // Keep only the remaining fraction
                                 accumulatedResourceCost[i] -= costToDeduct;
                             }
@@ -336,7 +336,7 @@ namespace StrategyCore
                 {
                     // Repair, not full HP
                     // Increase hp depending on construction time
-                    buildingObj.ChangeHP(buildingObj.maxHealth / buildingObj.constructionUnit.constructionTime * GameManager.instance.currentDeltaTime);
+                    buildingObj.ChangeHP(buildingObj.maxHealth / buildingObj.constructionUnit.constructionTime * GameManager.Instance.currentDeltaTime);
                 }
             }
             else
@@ -357,14 +357,14 @@ namespace StrategyCore
             thisUnit.OnCommand += StopTheConstruction;
 
             // Network Sync
-            if (NetworkManager.Singleton.IsServer) NetworkDataSync.instance.WorkerStartConstructing(building, thisUnit);
+            if (NetworkManager.Singleton.IsServer) NetworkDataSync.Instance.WorkerStartConstructing(building, thisUnit);
         }
 
         // Builder: commanded to do something else
         public void StopTheConstruction(bool issuedByPlayer)
         {
             // Network Sync
-            if (isWorking && NetworkManager.Singleton.IsServer) NetworkDataSync.instance.WorkerStopConstructing(buildingObj, thisUnit);
+            if (isWorking && NetworkManager.Singleton.IsServer) NetworkDataSync.Instance.WorkerStopConstructing(buildingObj, thisUnit);
 
             thisUnit.OnCommand -= StopTheConstruction;
             if (buildingObj != null) buildingObj.constructionUnit.buildersWorking--;
@@ -416,10 +416,10 @@ namespace StrategyCore
         public void ResetConstructionStates(bool issuedByPlayer)
         {
             // Send info to client
-            if (NetworkManager.Singleton.IsServer) NetworkDataSync.instance.ResetConstructionState(thisUnit, false);
+            if (NetworkManager.Singleton.IsServer) NetworkDataSync.Instance.ResetConstructionState(thisUnit, false);
 
             // Resources return
-            GameResources.instance.ChangeAmount(thisUnit.owner, constructionRef.resourceCost); // Return resources
+            GameResources.Instance.ChangeAmount(thisUnit.owner, constructionRef.resourceCost); // Return resources
 
             if (shadowBuilding) Destroy(shadowBuilding.gameObject); // Destroy shadowBUilding
             constructionRef = null;
@@ -431,14 +431,14 @@ namespace StrategyCore
         public void ResetConstructionStatesReached()
         {
             // Send info to client
-            if (NetworkManager.Singleton.IsServer) NetworkDataSync.instance.ResetConstructionState(thisUnit, true);
+            if (NetworkManager.Singleton.IsServer) NetworkDataSync.Instance.ResetConstructionState(thisUnit, true);
 
             // Limited resources return
             if (constructionRef.resourceCost != null)
             {
                 for (int i = 0; i < constructionRef.resourceCost.Length; i++)
                 {
-                    if (constructionRef.resourceCost[i].type.limited) GameResources.instance.ChangeAmount(thisUnit.owner, constructionRef.resourceCost[i]); // We decrease the resource
+                    if (constructionRef.resourceCost[i].type.limited) GameResources.Instance.ChangeAmount(thisUnit.owner, constructionRef.resourceCost[i]); // We decrease the resource
                 }
             }
 
@@ -469,9 +469,9 @@ namespace StrategyCore
                 // Replace NetID
                 upgradedUnit.netID = thisUnit.netID;
                 upgradedUnit.spawned = true;
-                if (thisUnit.netID != 0) SlotManager.instance.RemoveNetID(thisUnit.netID, thisUnit);
-                SlotManager.instance.unitNetID.Add(upgradedUnit.netID, upgradedUnit);
-                GameManager.instance.AddUnitCount(upgradedUnit);
+                if (thisUnit.netID != 0) SlotManager.Instance.RemoveNetID(thisUnit.netID, thisUnit);
+                SlotManager.Instance.unitNetID.Add(upgradedUnit.netID, upgradedUnit);
+                GameManager.Instance.AddUnitCount(upgradedUnit);
 
                 // ConstructionUnit parameters
                 ConstructionUnit cu = upgradedUnit.GetComponent<ConstructionUnit>();
@@ -499,7 +499,7 @@ namespace StrategyCore
                 {
                     for (int i = 0; i < upgradeCost.Length; i++)
                     {
-                        if (upgradeCost[i].type.limited) GameResources.instance.ChangeAmount(thisUnit.owner, upgradeCost[i]); // We decrease the limited resource usage
+                        if (upgradeCost[i].type.limited) GameResources.Instance.ChangeAmount(thisUnit.owner, upgradeCost[i]); // We decrease the limited resource usage
                     }
                 }
 
@@ -507,7 +507,7 @@ namespace StrategyCore
                 thisUnit.Die(-1, null, false, false, true);
 
                 // Play upgrade sound
-                if (ReferenceManager.instance.upgradeComplete != null) Presentation.Audio?.PlayVoiceClip(ReferenceManager.instance.upgradeComplete, 1);
+                if (ReferenceManager.Instance.upgradeComplete != null) Presentation.Audio?.PlayVoiceClip(ReferenceManager.Instance.upgradeComplete, 1);
             }
             else
             {
@@ -517,19 +517,19 @@ namespace StrategyCore
                 buildingObj.AnimatorSetBool(AnimationState.Idle, true);
                 buildingObj.OnRedrawAbilityView?.Invoke();
 
-                GameManager.instance.Tick += buildingObj.HandleEveryFrameAbilities;
-                GameManager.instance.Tick += buildingObj.CooldownCalculate;
+                GameManager.Instance.Tick += buildingObj.HandleEveryFrameAbilities;
+                GameManager.Instance.Tick += buildingObj.CooldownCalculate;
 
                 // Unlock TechTree when this unit is created, if there is something to unlock
-                TechnologyManager.instance.UnlockTech(buildingObj);
+                TechnologyManager.Instance.UnlockTech(buildingObj);
 
                 // Resource Production when unit is created. For limited resource it increases the limits
                 if (buildingObj.resourceProduced != null)
                 {
                     for (int i = 0; i < buildingObj.resourceProduced.Length; i++)
                     {
-                        if (buildingObj.resourceProduced[i].type.limited) GameResources.instance.ChangeLimit(buildingObj.owner, buildingObj.resourceProduced[i]);
-                        else GameResources.instance.ChangeAmount(buildingObj.owner, buildingObj.resourceProduced[i]);
+                        if (buildingObj.resourceProduced[i].type.limited) GameResources.Instance.ChangeLimit(buildingObj.owner, buildingObj.resourceProduced[i]);
+                        else GameResources.Instance.ChangeAmount(buildingObj.owner, buildingObj.resourceProduced[i]);
                     }
                 }
 
@@ -537,7 +537,7 @@ namespace StrategyCore
                 if (Presentation.Selection?.ActiveUnit == buildingObj) Presentation.Selection?.AddToSelection(buildingObj, true, true);
 
                 // Play construction complete sound
-                if (ReferenceManager.instance.buildingComplete != null) Presentation.Audio?.PlayVoiceClip(ReferenceManager.instance.buildingComplete, 1);
+                if (ReferenceManager.Instance.buildingComplete != null) Presentation.Audio?.PlayVoiceClip(ReferenceManager.Instance.buildingComplete, 1);
             }
         }
 
@@ -549,13 +549,13 @@ namespace StrategyCore
                 // If server we send the data about the cancellation of the building
                 if (NetworkConnectionHandler.isClient)
                 {
-                    NetworkCommandSync.instance.ConstructionCancelSend(thisUnit);
+                    NetworkCommandSync.Instance.ConstructionCancelSend(thisUnit);
                     return;
                 }
             }
 
             // We must the cancellation info to clients
-            if (NetworkManager.Singleton.IsServer) NetworkDataSync.instance.ConstructionCancel(thisUnit.netID);
+            if (NetworkManager.Singleton.IsServer) NetworkDataSync.Instance.ConstructionCancel(thisUnit.netID);
 
             // Building cancelled was being constructed, not upgraded
             if (!upgradeBuildingRef)
@@ -563,7 +563,7 @@ namespace StrategyCore
                 thisUnit.Die(-1, null, false, false);
 
                 // Return the cost
-                if (GameManager.instance.constructionCancelFullReturn)
+                if (GameManager.Instance.constructionCancelFullReturn)
                 {
                     // Full resources return
                     if (thisUnit.resourceCost != null)
@@ -571,7 +571,7 @@ namespace StrategyCore
                         for (int i = 0; i < thisUnit.resourceCost.Length; i++)
                         {
                             // For regular resource types we add them back
-                            if (!thisUnit.resourceCost[i].type.limited) GameResources.instance.ChangeAmount(thisUnit.owner, thisUnit.resourceCost[i]);
+                            if (!thisUnit.resourceCost[i].type.limited) GameResources.Instance.ChangeAmount(thisUnit.owner, thisUnit.resourceCost[i]);
                         }
                     }
                 }
@@ -583,7 +583,7 @@ namespace StrategyCore
                         for (int i = 0; i < thisUnit.resourceCost.Length; i++)
                         {
                             // For regular resource types we add them back
-                            if (!thisUnit.resourceCost[i].type.limited) GameResources.instance.ChangeAmount(thisUnit.owner, thisUnit.resourceCost[i], 1 - currentConstructionPercentage, false, true);
+                            if (!thisUnit.resourceCost[i].type.limited) GameResources.Instance.ChangeAmount(thisUnit.owner, thisUnit.resourceCost[i], 1 - currentConstructionPercentage, false, true);
                         }
                     }
                 }
@@ -606,7 +606,7 @@ namespace StrategyCore
                 if (Presentation.Selection?.ActiveUnit == thisUnit) Presentation.Selection?.AddToSelection(thisUnit, true, true);
 
                 // Return the cost
-                if (GameManager.instance.constructionCancelFullReturn)
+                if (GameManager.Instance.constructionCancelFullReturn)
                 {
                     // Full resources return
                     if (upgradeCost != null)
@@ -614,8 +614,8 @@ namespace StrategyCore
                         for (int i = 0; i < upgradeCost.Length; i++)
                         {
                             // For regular resource types we add them back
-                            if (!upgradeCost[i].type.limited) GameResources.instance.ChangeAmount(thisUnit.owner, upgradeCost[i]);
-                            else GameResources.instance.ChangeAmount(thisUnit.owner, upgradeCost[i]); // We decrease the limited resource usage
+                            if (!upgradeCost[i].type.limited) GameResources.Instance.ChangeAmount(thisUnit.owner, upgradeCost[i]);
+                            else GameResources.Instance.ChangeAmount(thisUnit.owner, upgradeCost[i]); // We decrease the limited resource usage
                         }
                     }
                 }
@@ -627,8 +627,8 @@ namespace StrategyCore
                         for (int i = 0; i < upgradeCost.Length; i++)
                         {
                             // For regular resource types we add them back
-                            if (!upgradeCost[i].type.limited) GameResources.instance.ChangeAmount(thisUnit.owner, upgradeCost[i], 1 - currentConstructionPercentage, false, true);
-                            else GameResources.instance.ChangeAmount(thisUnit.owner, upgradeCost[i]); // We decrease the limited resource usage
+                            if (!upgradeCost[i].type.limited) GameResources.Instance.ChangeAmount(thisUnit.owner, upgradeCost[i], 1 - currentConstructionPercentage, false, true);
+                            else GameResources.Instance.ChangeAmount(thisUnit.owner, upgradeCost[i]); // We decrease the limited resource usage
                         }
                     }
                 }

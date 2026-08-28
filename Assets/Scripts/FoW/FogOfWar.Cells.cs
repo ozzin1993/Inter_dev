@@ -27,15 +27,15 @@ namespace StrategyCore
                 unitsFoW[newCell.x + newCell.y * gridSizeX].Add(unit);
 
                 // If this unit is not current player`s team, we should hide and unhide based on the visibility of current player`s team
-                if (unit.team != SlotManager.instance.currentTeam)
+                if (unit.team != SlotManager.Instance.currentTeam)
                 {
-                    if (gridFoW[SlotManager.instance.currentTeam, unit.FoWCell.x, unit.FoWCell.y] == 0 && gridFoW[SlotManager.instance.currentTeam, newCell.x, newCell.y] > 0)
+                    if (gridFoW[SlotManager.Instance.currentTeam, unit.FoWCell.x, unit.FoWCell.y] == 0 && gridFoW[SlotManager.Instance.currentTeam, newCell.x, newCell.y] > 0)
                     {
                         // Previously was invisible, now is visible. Show the unit.
                         unit.ShowRenderers();
                         unit.FoWVisible = true;
                     }
-                    else if (gridFoW[SlotManager.instance.currentTeam, newCell.x, newCell.y] == 0 && gridFoW[SlotManager.instance.currentTeam, unit.FoWCell.x, unit.FoWCell.y] > 0)
+                    else if (gridFoW[SlotManager.Instance.currentTeam, newCell.x, newCell.y] == 0 && gridFoW[SlotManager.Instance.currentTeam, unit.FoWCell.x, unit.FoWCell.y] > 0)
                     {
                         // Previously was visible, now is invisible. Hide the unit.
                         unit.HideRenderers();
@@ -69,9 +69,9 @@ namespace StrategyCore
             unitsFoW[newCell.x + newCell.y * gridSizeX].Add(unit);
 
             // If this unit is not current player`s team, we should hide and unhide based on the visibility of current player`s team
-            if (unit.team != SlotManager.instance.currentTeam)
+            if (unit.team != SlotManager.Instance.currentTeam)
             {
-                if (gridFoW[SlotManager.instance.currentTeam, newCell.x, newCell.y] == 0)
+                if (gridFoW[SlotManager.Instance.currentTeam, newCell.x, newCell.y] == 0)
                 {
                     // Unit not visible. Hide it.
                     unit.HideRenderers();
@@ -106,12 +106,12 @@ namespace StrategyCore
         // Hide units that do not belong to current player`s team
         void HideUnits(int team, int cellIndex)
         {
-            if (team == SlotManager.instance.currentTeam)
+            if (team == SlotManager.Instance.currentTeam)
             {
                 foreach (var unit in unitsFoW[cellIndex])
                 {
                     // No need to unhide current player`s units
-                    if (unit.team != SlotManager.instance.currentTeam)
+                    if (unit.team != SlotManager.Instance.currentTeam)
                     {
                         unit.HideRenderers();
                         unit.FoWVisible = false;
@@ -127,12 +127,12 @@ namespace StrategyCore
 
         void ShowUnits(int team, int cellIndex)
         {
-            if (team == SlotManager.instance.currentTeam)
+            if (team == SlotManager.Instance.currentTeam)
             {
                 foreach (var unit in unitsFoW[cellIndex])
                 {
                     // No need to unhide current player`s units
-                    if (unit.team != SlotManager.instance.currentTeam)
+                    if (unit.team != SlotManager.Instance.currentTeam)
                     {
                         unit.ShowRenderers();
                         unit.FoWVisible = true;
@@ -197,7 +197,7 @@ namespace StrategyCore
         {
             for (int i = temporarilyRevealed.Count - 1; i >= 0; i--)
             {
-                temporarilyRevealed[i].time += GameManager.instance.currentDeltaTime;
+                temporarilyRevealed[i].time += GameManager.Instance.currentDeltaTime;
 
                 if (temporarilyRevealed[i].time > revealTime)
                 {

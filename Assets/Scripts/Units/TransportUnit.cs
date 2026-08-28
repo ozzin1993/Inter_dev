@@ -67,7 +67,7 @@ namespace StrategyCore
                     currentCapacity += unitToTake.transportWeight;
 
                     // Sync with clients
-                    if (NetworkManager.Singleton.IsServer) NetworkDataSync.instance.EmbarkSync(thisUnit, unitToTake);
+                    if (NetworkManager.Singleton.IsServer) NetworkDataSync.Instance.EmbarkSync(thisUnit, unitToTake);
                 }
 
                 transportChange?.Invoke();
@@ -129,7 +129,7 @@ namespace StrategyCore
         {
             if (NetworkConnectionHandler.isClient)
             {
-                NetworkCommandSync.instance.DisembarkCommandSend(thisUnit, unitIndex);
+                NetworkCommandSync.Instance.DisembarkCommandSend(thisUnit, unitIndex);
                 return true;
             }
 
@@ -156,7 +156,7 @@ namespace StrategyCore
                 }
 
                 // Sync with clients
-                if (NetworkManager.Singleton.IsServer) NetworkDataSync.instance.DisembarkSync(thisUnit, unitIndex, spawnPoint);
+                if (NetworkManager.Singleton.IsServer) NetworkDataSync.Instance.DisembarkSync(thisUnit, unitIndex, spawnPoint);
             }
             return true;
         }

@@ -95,10 +95,10 @@ namespace StrategyCore
 
                 // If does not belong to player, we show only items and containers containing items
                 if (pc.activeUnit.isBeingBuilt) continue;
-                if (pc.activeUnit.owner != SlotManager.instance.currentPlayer && !SlotManager.instance.debugMode)
+                if (pc.activeUnit.owner != SlotManager.Instance.currentPlayer && !SlotManager.Instance.debugMode)
                 {
                     // Only ally team
-                    if (SlotManager.instance.IsAlly(pc.activeUnit.owner, SlotManager.instance.currentPlayer))
+                    if (SlotManager.Instance.IsAlly(pc.activeUnit.owner, SlotManager.Instance.currentPlayer))
                     {
                         if (abilities[i].type == AbilityType.Container)
                         {
@@ -115,7 +115,7 @@ namespace StrategyCore
                 {
                     Research research = (Research)abilities[i];
 
-                    if (research.unlockTech.Length > 0 && TechnologyManager.instance.isUnlocked(research.unlockTech[research.unlockTech.Length - 1], pc.activeUnit.owner))
+                    if (research.unlockTech.Length > 0 && TechnologyManager.Instance.isUnlocked(research.unlockTech[research.unlockTech.Length - 1], pc.activeUnit.owner))
                     {
                         continue;
                     }
@@ -249,7 +249,7 @@ namespace StrategyCore
                         {
                             Research research = (Research)abilities[slotToAbilityIndex[i]];
 
-                            if (research.unlockTech.Length > pc.activeUnit.abilityLevel[slotToGlobalAbilityIndex[i]] && TechnologyManager.instance.IsTechBeingProcessed(research.unlockTech[pc.activeUnit.abilityLevel[slotToGlobalAbilityIndex[i]]], pc.activeUnit.owner))
+                            if (research.unlockTech.Length > pc.activeUnit.abilityLevel[slotToGlobalAbilityIndex[i]] && TechnologyManager.Instance.IsTechBeingProcessed(research.unlockTech[pc.activeUnit.abilityLevel[slotToGlobalAbilityIndex[i]]], pc.activeUnit.owner))
                             {
                                 // Locked
                                 element = ElementCreate(abilityScrollView, slotToGlobalAbilityIndex[i], IconAt(abilities[slotToAbilityIndex[i]].icon, iconLevel), true, false, pathPrefix);
@@ -670,7 +670,7 @@ namespace StrategyCore
                         {
                             for (int i = 0; i < hoveredAbility.requiredTech[abilityLevel].data.Length; i++)
                             {
-                                if (!TechnologyManager.instance.isUnlocked(hoveredAbility.requiredTech[abilityLevel].data[i], pc.activeUnit.owner))
+                                if (!TechnologyManager.Instance.isUnlocked(hoveredAbility.requiredTech[abilityLevel].data[i], pc.activeUnit.owner))
                                 {
                                     // Not unlocked, display the name of the tech
                                     LockNameCreate(hoveredAbility.requiredTech[abilityLevel].data[i].displayName, hoveredAbility.requiredTech[abilityLevel].data[i].description);

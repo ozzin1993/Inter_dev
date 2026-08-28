@@ -32,22 +32,22 @@ namespace StrategyCore
         void GravesWire()
         {
             OnUnitSpawned += HandleUnitSpawnedForGrave;                     // подписка на смерть — при спавне юнита
-            if (SlotManager.instance != null) SlotManager.instance.OnGameStart += GravesHookTick;
+            if (SlotManager.Instance != null) SlotManager.Instance.OnGameStart += GravesHookTick;
         }
 
         // Отписка (вызывается из OnDestroy MatchManager, рядом с HeroUnwire).
         void GravesUnwire()
         {
             OnUnitSpawned -= HandleUnitSpawnedForGrave;
-            if (SlotManager.instance != null) SlotManager.instance.OnGameStart -= GravesHookTick;
-            if (gravesTickHooked && GameManager.instance != null) { GameManager.instance.Tick -= GravesTick; gravesTickHooked = false; }
+            if (SlotManager.Instance != null) SlotManager.Instance.OnGameStart -= GravesHookTick;
+            if (gravesTickHooked && GameManager.Instance != null) { GameManager.Instance.Tick -= GravesTick; gravesTickHooked = false; }
         }
 
-        // Тик времени жизни подключаем по старту игры (GameManager.instance к Awake ещё может не быть). Только сервер.
+        // Тик времени жизни подключаем по старту игры (GameManager.Instance к Awake ещё может не быть). Только сервер.
         void GravesHookTick()
         {
             if (NetworkConnectionHandler.isClient) return;                 // отсчёт времени — только сервер (правило 6)
-            if (GameManager.instance != null && !gravesTickHooked) { GameManager.instance.Tick += GravesTick; gravesTickHooked = true; }
+            if (GameManager.Instance != null && !gravesTickHooked) { GameManager.Instance.Tick += GravesTick; gravesTickHooked = true; }
         }
 
         // При спавне юнита (сервер): если он помечен — подписаться на его смерть.
@@ -82,8 +82,8 @@ namespace StrategyCore
             rec.visual = SpawnGraveVisual(data, faction.gravePrefab);      // визуал на этом пире (хост)
 
             // Рассылка визуала клиентам (ADR-002 Вариант А). SendTo.NotServer — хост не дублируется.
-            if (NetworkDataSync.instance != null)
-                NetworkDataSync.instance.GraveSpawnClientRpc(rec.graveId, data.unitTypeID, data.owner, data.team, (int)data.unitCategory, data.tier, data.position);
+            if (NetworkDataSync.Instance != null)
+                NetworkDataSync.Instance.GraveSpawnClientRpc(rec.graveId, data.unitTypeID, data.owner, data.team, (int)data.unitCategory, data.tier, data.position);
         }
 
         // Локальный спавн визуал-префаба могилки. Обычный Instantiate (не Unit, не NGO) — не карвит навмеш.
@@ -100,7 +100,7 @@ namespace StrategyCore
         void GravesTick()
         {
             if (graves.Count == 0) return;
-            float dt = GameManager.instance != null ? GameManager.instance.currentDeltaTime : 0f;
+            float dt = GameManager.Instance != null ? GameManager.Instance.currentDeltaTime : 0f;
             for (int i = graves.Count - 1; i >= 0; i--)
             {
                 graves[i].remaining -= dt;
@@ -112,7 +112,7 @@ namespace StrategyCore
         void RemoveGraveAt(int index)
         {
             if (index < 0 || index >= graves.Count) return;
-            if (NetworkDataSync.instance != null) NetworkDataSync.instance.GraveDespawnClientRpc(graves[index].graveId);
+            if (NetworkDataSync.Instance != null) NetworkDataSync.Instance.GraveDespawnClientRpc(graves[index].graveId);
             if (graves[index].visual != null) Destroy(graves[index].visual);
             graves.RemoveAt(index);
         }

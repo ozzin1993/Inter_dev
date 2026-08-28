@@ -13,15 +13,19 @@ namespace StrategyCore
         const float NavSampleMaxDistance = 2f;
 
         /// <summary>Отбросить target от sourcePos на distance; опц. заморозка stunTime. respectControlImmunity —
-        /// уважать иммунитет к контролю (B12) для отброса (заморозку Unit.Stun гейтит сам ассет). Только сервер.</summary>
+        /// уважать иммунитет к контролю (B12) для отброса (заморозку гейтит приёмник, куда уходит Unit.Stun). Только сервер.</summary>
         public static void Apply(Unit target, Vector3 sourcePos, float distance, float stunTime, bool respectControlImmunity)
         {
             if (NetworkConnectionHandler.isClient) return;                 // отброс/стан — только сервер (правило 6)
             if (target == null || target.dead) return;
             if (!target.canMove || target.agent == null) return;           // неподвижных/строения/без агента не двигаем
 
-            // Иммунитет к контролю (B12): по флагу пропустить отброс (заморозку Stun гейтит ассет всегда).
-            if (respectControlImmunity && target.TryGetComponent<ControlImmunity>(out ControlImmunity ci) && ci.Active)
+            // Иммунитет к контролю (B12): по флагу пропустить отброс (заморозку Stun гейтит приёмник всегда).
+            // Шаг 1 схемы «пакет и приёмник» (§3.1): спрашиваем приёмник цели, а не ищем компонент
+            // на каждый отброс — у приёмника найденный ControlImmunity закеширован.
+            // Флаг проверяется ПЕРВЫМ: при false приёмник не запрашивается и не создаётся.
+            // Проверки выше уже отсеяли мёртвых, поэтому обращение к приёмнику здесь безопасно.
+            if (respectControlImmunity && target.ReceiverEnsure().ControlImmune)
                 return;
 
             Vector3 tp = target.transform.position;
@@ -34,7 +38,7 @@ namespace StrategyCore
             if (NavMesh.SamplePosition(desired, out NavMeshHit hit, NavSampleMaxDistance, NavMesh.AllAreas))
                 target.agent.Warp(hit.position);                          // валидная точка на меше; иначе — не двигаем (§6)
 
-            if (stunTime > 0f) target.Stun(stunTime);                     // Unit.Stun сам уважает ControlImmunity
+            if (stunTime > 0f) target.Stun(stunTime);                     // Unit.Stun уходит в тот же приёмник и там спрашивает иммунитет
         }
 
         /// <summary>
@@ -49,7 +53,8 @@ namespace StrategyCore
             if (target == null || target.dead) return false;
             if (!target.canMove || target.agent == null) return false;
 
-            if (respectControlImmunity && target.TryGetComponent<ControlImmunity>(out ControlImmunity ci) && ci.Active)
+            // Тот же вопрос приёмнику, что и в Apply (§3.1 схемы): флаг — первым, мёртвые отсеяны выше.
+            if (respectControlImmunity && target.ReceiverEnsure().ControlImmune)
                 return false;
 
             if (!NavMesh.SamplePosition(destination, out NavMeshHit hit, NavSampleMaxDistance, NavMesh.AllAreas))

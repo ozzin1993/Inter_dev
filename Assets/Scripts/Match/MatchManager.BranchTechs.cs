@@ -223,7 +223,7 @@ namespace StrategyCore
             SoulBranchOption opt = OptionInTier(faction.soulBranches[branch].tiers[tier], option);
 
             // Технология должна быть в TechTree (лежать в Resources/Technology) — иначе штатный UnlockTech упадёт.
-            TechnologyManager tm = TechnologyManager.instance;
+            TechnologyManager tm = TechnologyManager.Instance;
             if (tm == null || tm.TechTree == null || cfg.ownerPlayer < 0 || cfg.ownerPlayer >= tm.TechTree.Length
                 || !tm.TechTree[cfg.ownerPlayer].ContainsKey(opt.technology))
             {
@@ -249,7 +249,7 @@ namespace StrategyCore
             SoulBranchOption opt = SoulOptionAt(team, branch, tier, option);
             if (cfg == null || opt == null) return false;
             if (opt.cost == null || opt.cost.Length == 0) return true;
-            return GameResources.instance != null && GameResources.instance.CheckAmount(cfg.ownerPlayer, opt.cost);
+            return GameResources.Instance != null && GameResources.Instance.CheckAmount(cfg.ownerPlayer, opt.cost);
         }
     }
 }

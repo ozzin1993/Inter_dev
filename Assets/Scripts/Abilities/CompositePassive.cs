@@ -94,6 +94,7 @@ namespace StrategyCore
             auraDamageTypeWarned = false;
             UnwireTick();
             ResetReactions();
+            ResetOnHit();
         }
 
         /// <summary>
@@ -121,6 +122,7 @@ namespace StrategyCore
             ApplyAttackEffectors(unit, c);
             ApplyAura(unit, c);
             WireReactions(unit, level);
+            WireOnHit(unit, level);
 
             if (c.slowImmunity || c.aura) WireTick();
 
@@ -144,6 +146,7 @@ namespace StrategyCore
             // они живут тиком, и достаточно убрать носителя из списка.
 
             UnwireReactions(unit);
+            UnwireOnHit(unit, level);
 
             carriers.Remove(unit);
 
@@ -187,9 +190,9 @@ namespace StrategyCore
 
         void WireTick()
         {
-            if (tickWired || GameManager.instance == null) return;
+            if (tickWired || GameManager.Instance == null) return;
 
-            GameManager.instance.Tick += OnTick;
+            GameManager.Instance.Tick += OnTick;
             tickWired = true;
         }
 
@@ -197,7 +200,7 @@ namespace StrategyCore
         {
             if (!tickWired) return;
 
-            if (GameManager.instance != null) GameManager.instance.Tick -= OnTick;
+            if (GameManager.Instance != null) GameManager.Instance.Tick -= OnTick;
             tickWired = false;
         }
 
@@ -207,7 +210,7 @@ namespace StrategyCore
         /// </summary>
         void OnTick()
         {
-            if (NetworkConnectionHandler.isClient || GameManager.instance == null) return;
+            if (NetworkConnectionHandler.isClient || GameManager.Instance == null) return;
             if (carriers.Count == 0) return;
 
             tickBuffer.Clear();

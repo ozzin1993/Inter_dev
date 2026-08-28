@@ -347,7 +347,7 @@ namespace StrategyCore
             float r = LevelValue(radius, c.level, 0f);
             if (r <= 0f) return;
 
-            float dt = GameManager.instance.currentDeltaTime;
+            float dt = GameManager.Instance.currentDeltaTime;
             bool dealsDamage = aura.damagePerSecond > 0f && aura.damageType != null;
 
             // Урон без типа молча не наносится — предупреждаем один раз за матч, а не глотаем (правило 9).

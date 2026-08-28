@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using Unity.Netcode;
 using UnityEngine;
@@ -206,7 +206,7 @@ namespace StrategyCore
 
             if (unitThatKills != null)
             {
-                float killRewardFactor = (killedUnit.team == unitThatKills.team) ? GameManager.instance.allyKillReward : 1;
+                float killRewardFactor = (killedUnit.team == unitThatKills.team) ? GameManager.Instance.allyKillReward : 1;
 
                 // Reward the killing unit
                 if (unitThatKills.levelingUnit)
@@ -217,7 +217,7 @@ namespace StrategyCore
                 // Resource reward. Only the one that kills gets the resources
                 for (int i = 0; i < killedUnit.resourceReward.Length; i++)
                 {
-                    GameResources.instance.ChangeAmount(unitThatKills.owner, killedUnit.resourceReward[i], killRewardFactor, false, true);
+                    GameResources.Instance.ChangeAmount(unitThatKills.owner, killedUnit.resourceReward[i], killRewardFactor, false, true);
                 }
             }
         }
@@ -230,10 +230,10 @@ namespace StrategyCore
         private static void HandleRewardGain(Unit killedUnit, int playerID)
         {
             // Resource reward. Only the one that kills gets the resources
-            float killRewardFactor = (killedUnit.team == SlotManager.instance.playerTeam[playerID]) ? GameManager.instance.allyKillReward : 1;
+            float killRewardFactor = (killedUnit.team == SlotManager.Instance.playerTeam[playerID]) ? GameManager.Instance.allyKillReward : 1;
             for (int i = 0; i < killedUnit.resourceReward.Length; i++)
             {
-                GameResources.instance.ChangeAmount(playerID, killedUnit.resourceReward[i], killRewardFactor, false, true);
+                GameResources.Instance.ChangeAmount(playerID, killedUnit.resourceReward[i], killRewardFactor, false, true);
             }
         }
 
@@ -246,13 +246,13 @@ namespace StrategyCore
         private static int SpreadRewardXP(Unit killedUnit, Unit excludeUnit = null)
         {
             int xp = killedUnit.xpReward;
-            if (GameManager.instance.spreadEXP)
+            if (GameManager.Instance.spreadEXP)
             {
                 // We obtan all units in radius of killedUnit that are enemies 
                 UnitSelector enemySelector = new UnitSelector(false, false, true, true, true, true, true, true, true, true, true, true);
-                Unit[] enemyUnits = Utils.GetUnitsInRadius(new Vector2(killedUnit.transform.position.x, killedUnit.transform.position.z), GameManager.instance.spreadRange, killedUnit.owner, enemySelector, -1, killedUnit);
+                Unit[] enemyUnits = Utils.GetUnitsInRadius(new Vector2(killedUnit.transform.position.x, killedUnit.transform.position.z), GameManager.Instance.spreadRange, killedUnit.owner, enemySelector, -1, killedUnit);
 
-                if (GameManager.instance.equalEXP)
+                if (GameManager.Instance.equalEXP)
                 {
                     // Equal XP
                     for (int i = 0; i < enemyUnits.Length; i++)

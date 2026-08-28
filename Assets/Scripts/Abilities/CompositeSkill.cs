@@ -432,7 +432,7 @@ namespace StrategyCore
 
                 case SkillTargetMode.WholeTeam:
                 {
-                    MatchManager mm = MatchManager.instance;
+                    MatchManager mm = MatchManager.Instance;
                     if (mm == null) return result;
 
                     List<Unit> team = mm.GetCommandUnitsForPlayer(castingPlayer);
@@ -544,9 +544,9 @@ namespace StrategyCore
         Vector3 SearchOriginPoint(Unit castingUnit, int castingPlayer)
         {
             Vector3 casterPos = castingUnit != null ? castingUnit.transform.position : Vector3.zero;
-            if (searchOrigin == SkillSearchOrigin.Caster || MatchManager.instance == null) return casterPos;
+            if (searchOrigin == SkillSearchOrigin.Caster || MatchManager.Instance == null) return casterPos;
 
-            Vector2 point = MatchManager.instance.AttackTarget(castingPlayer);
+            Vector2 point = MatchManager.Instance.AttackTarget(castingPlayer);
             if (point == Vector2.zero) return casterPos; // направления нет — считаем от кастера
 
             return new Vector3(point.x, casterPos.y, point.y);
@@ -563,7 +563,7 @@ namespace StrategyCore
         /// </summary>
         Unit[] ButtonCastCandidates(Unit castingUnit, int castingPlayer, int level)
         {
-            MatchManager mm = MatchManager.instance;
+            MatchManager mm = MatchManager.Instance;
             if (mm == null) return null;
 
             // Ноль/пусто — дальность не ограничена. Сравниваем квадраты: корень не нужен.
@@ -738,13 +738,13 @@ namespace StrategyCore
                 netIDs.Add(t.netID);
             }
 
-            if (netIDs.Count == 0 || NetworkDataSync.instance == null) return;
+            if (netIDs.Count == 0 || NetworkDataSync.Instance == null) return;
 
             // [2026-08-05 единый канал статусов] Значки и VFX эффекторов скилл больше НЕ шлёт сам:
             // их отправляет ядро в момент наложения (Effector.EffectorAdd → UnitStatusEffectorSend) —
             // одинаково для атак, аур и скиллов (решение Artsiom 2026-08-05). Здесь остался только
             // VFX длящегося бафа — он не эффектор и в ядре точки наложения не имеет.
-            if (hasBuffVfx) NetworkDataSync.instance.SkillBuffVfxSend(netIDs.ToArray(), id, level, buffDuration);
+            if (hasBuffVfx) NetworkDataSync.Instance.SkillBuffVfxSend(netIDs.ToArray(), id, level, buffDuration);
         }
 
         // ================================================================== СВОДКА ==

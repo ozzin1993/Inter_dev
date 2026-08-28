@@ -16,7 +16,7 @@ namespace StrategyCore
 
         void InventoryHandler(PointerUpEvent evt)
         {
-            if (pc.activeUnit != null && pc.activeUnit.owner != SlotManager.instance.currentPlayer && !SlotManager.instance.debugMode) return;
+            if (pc.activeUnit != null && pc.activeUnit.owner != SlotManager.Instance.currentPlayer && !SlotManager.Instance.debugMode) return;
 
             VisualElement clickedElement = evt.target as VisualElement;
 
@@ -114,7 +114,7 @@ namespace StrategyCore
                     {
                         for (int i = 0; i < pc.activeUnit.items[index].cost[0].data.Length; i++)
                         {
-                            CostElementCreate(pc.activeUnit.items[index].cost[0].data[i].value * GameManager.instance.sellPriceReduction, false, false, pc.activeUnit.items[index].cost[0].data[i].type.icon);
+                            CostElementCreate(pc.activeUnit.items[index].cost[0].data[i].value * GameManager.Instance.sellPriceReduction, false, false, pc.activeUnit.items[index].cost[0].data[i].type.icon);
                             descriptorCostBox.style.display = DisplayStyle.Flex;
                         }
                     }
@@ -145,7 +145,7 @@ namespace StrategyCore
 
         void InventoryDragStart(InputAction.CallbackContext context)
         {
-            if (pc.activeUnit != null && pc.activeUnit.owner != SlotManager.instance.currentPlayer && !SlotManager.instance.debugMode) return;
+            if (pc.activeUnit != null && pc.activeUnit.owner != SlotManager.Instance.currentPlayer && !SlotManager.Instance.debugMode) return;
 
             // Check if inventory item was clicked
             Vector2 mousePositionCorrected = CursorToUIposition();
@@ -181,13 +181,13 @@ namespace StrategyCore
         void InventoryDragFinish()
         {
             // If cursor is not over UI we try dropping the item
-            if (!pc.IsOverUI(Camera_TopDown.instance.GetCursorPosition()))
+            if (!pc.IsOverUI(Camera_TopDown.Instance.GetCursorPosition()))
             {
                 Unit unit = Utils.GetUnitAtCursor();
                 if (unit == null)
                 {
                     // Drop item at position
-                    Vector3 point = Utils.TerrainScreenRaycast(Camera_TopDown.instance.GetCursorPosition());
+                    Vector3 point = Utils.TerrainScreenRaycast(Camera_TopDown.Instance.GetCursorPosition());
                     if (point != Vector3.zero)
                     {
                         pc.activeUnit.DropItem(currentItemIndex, point);

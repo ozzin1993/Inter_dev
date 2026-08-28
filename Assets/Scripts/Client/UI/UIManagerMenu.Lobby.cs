@@ -16,8 +16,8 @@ namespace StrategyCore
             if (!presentationReady) return;   // [Interflow fix 2026-06-26 путь1]
             playerList.Clear();
 
-            if (SceneHandler.instance.sceneData == null || SceneHandler.instance.sceneIndex >= SceneHandler.instance.sceneData.Length) return;
-            SceneData sceneData = SceneHandler.instance.sceneData[SceneHandler.instance.sceneIndex];
+            if (SceneHandler.Instance.sceneData == null || SceneHandler.Instance.sceneIndex >= SceneHandler.Instance.sceneData.Length) return;
+            SceneData sceneData = SceneHandler.Instance.sceneData[SceneHandler.Instance.sceneIndex];
             int currentPlayerIndex = 0;
 
             for (int t = 0; t < sceneData.teamsAndPlayers.Length; t++)
@@ -34,24 +34,24 @@ namespace StrategyCore
                 {
                     if (!sceneData.teamsAndPlayers[t].players[i].dontShow)
                     {
-                        if (SlotManager.instance.slotType[currentPlayerIndex] == SlotType.Player || SlotManager.instance.slotType[currentPlayerIndex] == SlotType.Bot)
+                        if (SlotManager.Instance.slotType[currentPlayerIndex] == SlotType.Player || SlotManager.Instance.slotType[currentPlayerIndex] == SlotType.Bot)
                         {
                             // Bot or Player
-                            // bool currentPlayer = (!NetworkConnectionHandler.isClient || SlotManager.instance.currentPlayer == currentPlayerIndex);
-                            // int team = (sceneData.chooseTeams && currentPlayer) ? SlotManager.instance.playerTeam[currentPlayerIndex] : -1;
+                            // bool currentPlayer = (!NetworkConnectionHandler.isClient || SlotManager.Instance.currentPlayer == currentPlayerIndex);
+                            // int team = (sceneData.chooseTeams && currentPlayer) ? SlotManager.Instance.playerTeam[currentPlayerIndex] : -1;
                             string spawnPos = null;
                             if (sceneData.spawnPointCount != 0)
                             {
-                                if (SlotManager.instance.playerPosition[currentPlayerIndex] == 0) spawnPos = "Random";
-                                else spawnPos = (SlotManager.instance.playerPosition[currentPlayerIndex] - 1).ToString();
+                                if (SlotManager.Instance.playerPosition[currentPlayerIndex] == 0) spawnPos = "Random";
+                                else spawnPos = (SlotManager.Instance.playerPosition[currentPlayerIndex] - 1).ToString();
                             }
                             string faction = null;
                             if (sceneData.factions != null && sceneData.factions.Length > 0)
                             {
-                                if (SlotManager.instance.playerFaction[currentPlayerIndex] == 0) faction = "Random";
-                                else faction = sceneData.factions[SlotManager.instance.playerFaction[currentPlayerIndex] - 1];
+                                if (SlotManager.Instance.playerFaction[currentPlayerIndex] == 0) faction = "Random";
+                                else faction = sceneData.factions[SlotManager.Instance.playerFaction[currentPlayerIndex] - 1];
                             }
-                            ListEntryAdd(i, currentPlayerIndex.ToString(), SlotManager.instance.playerName[currentPlayerIndex], SlotManager.instance.playerTeam[currentPlayerIndex], faction, spawnPos, playerList, false);
+                            ListEntryAdd(i, currentPlayerIndex.ToString(), SlotManager.Instance.playerName[currentPlayerIndex], SlotManager.Instance.playerTeam[currentPlayerIndex], faction, spawnPos, playerList, false);
                         }
                         else
                         {

@@ -20,24 +20,24 @@ namespace StrategyCore
             if (allClients)
             {
                 PlayersListClientRpc(
-                    JsonHelper.ToJson<SlotType>(SlotManager.instance.slotType),
-                    JsonHelper.ToJson<int>(SlotManager.instance.playerID),
-                    JsonHelper.ToJson<int>(SlotManager.instance.playerTeam),
-                    JsonHelper.ToJson<string>(SlotManager.instance.playerName),
-                    JsonHelper.ToJson<int>(SlotManager.instance.playerPosition),
-                    JsonHelper.ToJson<int>(SlotManager.instance.playerFaction),
-                    JsonHelper.ToJson<bool>(SlotManager.instance.playerLost));
+                    JsonHelper.ToJson<SlotType>(SlotManager.Instance.slotType),
+                    JsonHelper.ToJson<int>(SlotManager.Instance.playerID),
+                    JsonHelper.ToJson<int>(SlotManager.Instance.playerTeam),
+                    JsonHelper.ToJson<string>(SlotManager.Instance.playerName),
+                    JsonHelper.ToJson<int>(SlotManager.Instance.playerPosition),
+                    JsonHelper.ToJson<int>(SlotManager.Instance.playerFaction),
+                    JsonHelper.ToJson<bool>(SlotManager.Instance.playerLost));
             }
             else
             {
-                PlayerListClientRpc(SlotManager.instance.GetClientSlot(clientID),
-                                    JsonHelper.ToJson<SlotType>(SlotManager.instance.slotType),
-                                    JsonHelper.ToJson<int>(SlotManager.instance.playerID),
-                                    JsonHelper.ToJson<int>(SlotManager.instance.playerTeam),
-                                    JsonHelper.ToJson<string>(SlotManager.instance.playerName),
-                                    JsonHelper.ToJson<int>(SlotManager.instance.playerPosition),
-                                    JsonHelper.ToJson<int>(SlotManager.instance.playerFaction),
-                                    JsonHelper.ToJson<bool>(SlotManager.instance.playerLost),
+                PlayerListClientRpc(SlotManager.Instance.GetClientSlot(clientID),
+                                    JsonHelper.ToJson<SlotType>(SlotManager.Instance.slotType),
+                                    JsonHelper.ToJson<int>(SlotManager.Instance.playerID),
+                                    JsonHelper.ToJson<int>(SlotManager.Instance.playerTeam),
+                                    JsonHelper.ToJson<string>(SlotManager.Instance.playerName),
+                                    JsonHelper.ToJson<int>(SlotManager.Instance.playerPosition),
+                                    JsonHelper.ToJson<int>(SlotManager.Instance.playerFaction),
+                                    JsonHelper.ToJson<bool>(SlotManager.Instance.playerLost),
                                     RpcTarget.Single(clientID, RpcTargetUse.Temp));
             }
         }
@@ -46,33 +46,33 @@ namespace StrategyCore
         [Rpc(SendTo.SpecifiedInParams, InvokePermission = RpcInvokePermission.Server)]
         private void PlayerListClientRpc(int playerSlot, string slotType, string playerID, string playerTeam, string playerName, string playerPosition, string playerFaction, string playerLost, RpcParams rpcParams)
         {
-            SlotManager.instance.slotType = JsonHelper.FromJson<SlotType>(slotType);
-            SlotManager.instance.playerID = JsonHelper.FromJson<int>(playerID);
-            SlotManager.instance.playerTeam = JsonHelper.FromJson<int>(playerTeam);
-            SlotManager.instance.playerName = JsonHelper.FromJson<string>(playerName);
-            SlotManager.instance.playerPosition = JsonHelper.FromJson<int>(playerPosition);
-            SlotManager.instance.playerFaction = JsonHelper.FromJson<int>(playerFaction);
-            SlotManager.instance.playerLost = JsonHelper.FromJson<bool>(playerLost);
-            SlotManager.instance.SetCurrentPlayer(playerSlot);
+            SlotManager.Instance.slotType = JsonHelper.FromJson<SlotType>(slotType);
+            SlotManager.Instance.playerID = JsonHelper.FromJson<int>(playerID);
+            SlotManager.Instance.playerTeam = JsonHelper.FromJson<int>(playerTeam);
+            SlotManager.Instance.playerName = JsonHelper.FromJson<string>(playerName);
+            SlotManager.Instance.playerPosition = JsonHelper.FromJson<int>(playerPosition);
+            SlotManager.Instance.playerFaction = JsonHelper.FromJson<int>(playerFaction);
+            SlotManager.Instance.playerLost = JsonHelper.FromJson<bool>(playerLost);
+            SlotManager.Instance.SetCurrentPlayer(playerSlot);
 
-            if (SlotManager.instance.gameStarted == GameState.Menu) Presentation.MenuUI?.FillPlayerList();
+            if (SlotManager.Instance.gameStarted == GameState.Menu) Presentation.MenuUI?.FillPlayerList();
         }
 
         // Clients receive the list of players in the game
         [Rpc(SendTo.NotServer, InvokePermission = RpcInvokePermission.Server)]
         private void PlayersListClientRpc(string slotType, string playerID, string playerTeam, string playerName, string playerPosition, string playerFaction, string playerLost)
         {
-            SlotManager.instance.slotType = JsonHelper.FromJson<SlotType>(slotType);
-            SlotManager.instance.playerID = JsonHelper.FromJson<int>(playerID);
-            SlotManager.instance.playerTeam = JsonHelper.FromJson<int>(playerTeam);
-            SlotManager.instance.playerName = JsonHelper.FromJson<string>(playerName);
-            SlotManager.instance.playerPosition = JsonHelper.FromJson<int>(playerPosition);
-            SlotManager.instance.playerFaction = JsonHelper.FromJson<int>(playerFaction);
-            SlotManager.instance.playerLost = JsonHelper.FromJson<bool>(playerLost);
+            SlotManager.Instance.slotType = JsonHelper.FromJson<SlotType>(slotType);
+            SlotManager.Instance.playerID = JsonHelper.FromJson<int>(playerID);
+            SlotManager.Instance.playerTeam = JsonHelper.FromJson<int>(playerTeam);
+            SlotManager.Instance.playerName = JsonHelper.FromJson<string>(playerName);
+            SlotManager.Instance.playerPosition = JsonHelper.FromJson<int>(playerPosition);
+            SlotManager.Instance.playerFaction = JsonHelper.FromJson<int>(playerFaction);
+            SlotManager.Instance.playerLost = JsonHelper.FromJson<bool>(playerLost);
             // Current player update if necessary
-            SlotManager.instance.SetCurrentPlayer(SlotManager.instance.GetClientSlot(NetworkManager.LocalClientId));
+            SlotManager.Instance.SetCurrentPlayer(SlotManager.Instance.GetClientSlot(NetworkManager.LocalClientId));
 
-            if (SlotManager.instance.gameStarted == GameState.Menu) Presentation.MenuUI?.FillPlayerList();
+            if (SlotManager.Instance.gameStarted == GameState.Menu) Presentation.MenuUI?.FillPlayerList();
         }
 
         // WIN LOSE -----
@@ -80,37 +80,37 @@ namespace StrategyCore
         // Server sends data to certain player that he won
         public void PlayerWinsSend(int player)
         {
-            PlayerWinsClientRpc(RpcTarget.Single((ulong)SlotManager.instance.playerID[player], RpcTargetUse.Temp));
+            PlayerWinsClientRpc(RpcTarget.Single((ulong)SlotManager.Instance.playerID[player], RpcTargetUse.Temp));
         }
 
         [Rpc(SendTo.SpecifiedInParams, InvokePermission = RpcInvokePermission.Server)]
         private void PlayerWinsClientRpc(RpcParams rpcParams)
         {
-            SlotManager.instance.PlayerWins();
+            SlotManager.Instance.PlayerWins();
         }
 
         // Server sends data to certain player that he lost
         public void PlayerLosesSend(int player)
         {
-            PlayerLosesClientRpc(RpcTarget.Single((ulong)SlotManager.instance.playerID[player], RpcTargetUse.Temp));
+            PlayerLosesClientRpc(RpcTarget.Single((ulong)SlotManager.Instance.playerID[player], RpcTargetUse.Temp));
         }
 
         [Rpc(SendTo.SpecifiedInParams, InvokePermission = RpcInvokePermission.Server)]
         private void PlayerLosesClientRpc(RpcParams rpcParams)
         {
-            SlotManager.instance.PlayerLoses();
+            SlotManager.Instance.PlayerLoses();
         }
 
         // Servers sends data to certain player that his team lost
         public void TeamLosesSend(int player)
         {
-            TeamLosesClientRpc(RpcTarget.Single((ulong)SlotManager.instance.playerID[player], RpcTargetUse.Temp));
+            TeamLosesClientRpc(RpcTarget.Single((ulong)SlotManager.Instance.playerID[player], RpcTargetUse.Temp));
         }
 
         [Rpc(SendTo.SpecifiedInParams, InvokePermission = RpcInvokePermission.Server)]
         private void TeamLosesClientRpc(RpcParams rpcParams)
         {
-            SlotManager.instance.TeamLoses();
+            SlotManager.Instance.TeamLoses();
         }
 
         // CLIENT SWAP TEAM -----
@@ -119,7 +119,7 @@ namespace StrategyCore
         [Rpc(SendTo.Server)]
         public void SwapTeamToServerRpc(int team, RpcParams rpcParams = default)
         {
-            SlotManager.instance.SwapTeamTo(rpcParams.Receive.SenderClientId, team);
+            SlotManager.Instance.SwapTeamTo(rpcParams.Receive.SenderClientId, team);
         }
 
         // CLIENT CHANGE TEAM -----
@@ -128,19 +128,19 @@ namespace StrategyCore
         [Rpc(SendTo.Server)]
         public void ChangeTeamToServerRpc(int team, RpcParams rpcParams = default)
         {
-            SlotManager.instance.ChangeTeamTo(rpcParams.Receive.SenderClientId, team);
+            SlotManager.Instance.ChangeTeamTo(rpcParams.Receive.SenderClientId, team);
         }
 
         [Rpc(SendTo.Server)]
         public void ChangeSpawnToServerRpc(int index, RpcParams rpcParams = default)
         {
-            SlotManager.instance.ChangeSpawnPositionTo(rpcParams.Receive.SenderClientId, index);
+            SlotManager.Instance.ChangeSpawnPositionTo(rpcParams.Receive.SenderClientId, index);
         }
 
         [Rpc(SendTo.Server)]
         public void ChangeFactionToServerRpc(int index, RpcParams rpcParams = default)
         {
-            SlotManager.instance.ChangeFactionTo(rpcParams.Receive.SenderClientId, index);
+            SlotManager.Instance.ChangeFactionTo(rpcParams.Receive.SenderClientId, index);
         }
 
         // INGAME Connection Data Sync --------------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -151,50 +151,50 @@ namespace StrategyCore
         [Rpc(SendTo.Server)]
         public void ClientFinishedLoadingSaveServerRpc(RpcParams rpcParams = default)
         {
-            NetworkConnectionHandler.instance.ClientsWaitingListRemove(rpcParams.Receive.SenderClientId);
+            NetworkConnectionHandler.Instance.ClientsWaitingListRemove(rpcParams.Receive.SenderClientId);
         }
 
         public void ServerPlayersFinishedLoading()
         {
             // If everyone finished loading the game, start the game
-            if (NetworkConnectionHandler.instance.clientsLoading.Count == 0)
+            if (NetworkConnectionHandler.Instance.clientsLoading.Count == 0)
             {
-                NetworkConnectionHandler.instance.clientsListUpdated -= NetworkDataSync.instance.ServerPlayersFinishedLoading;
+                NetworkConnectionHandler.Instance.clientsListUpdated -= NetworkDataSync.Instance.ServerPlayersFinishedLoading;
 
                 // Means we were loading the save file, initialize the units and start the game
-                if (NetworkConnectionHandler.instance.connectionStage == 1)
+                if (NetworkConnectionHandler.Instance.connectionStage == 1)
                 {
                     // Sync
-                    NetworkDataSync.instance.ResumeTheGameSend(true, true);
+                    NetworkDataSync.Instance.ResumeTheGameSend(true, true);
                     // Tell units to initialize
-                    SlotManager.instance.OnGameStart?.Invoke();
+                    SlotManager.Instance.OnGameStart?.Invoke();
                     SaveManager.SetUnitData();
                     // Start the game
-                    SceneHandler.instance.saveFileName = "";
-                    SceneHandler.instance.saveSceneData = "";
-                    SceneHandler.instance.StartTheGame(false);
+                    SceneHandler.Instance.saveFileName = "";
+                    SceneHandler.Instance.saveSceneData = "";
+                    SceneHandler.Instance.StartTheGame(false);
                 }
-                else if (SceneHandler.instance.saveFileName != "" || SceneHandler.instance.saveSceneData != "")
+                else if (SceneHandler.Instance.saveFileName != "" || SceneHandler.Instance.saveSceneData != "")
                 {
                     // Initial save file load finished
 
                     // Clear saves
-                    SceneHandler.instance.saveFileName = "";
-                    SceneHandler.instance.saveSceneData = "";
+                    SceneHandler.Instance.saveFileName = "";
+                    SceneHandler.Instance.saveSceneData = "";
 
                     // After loading the scene, we wait for units to be instantiated
-                    // NetworkConnectionHandler.instance.connectionStage = 1;
-                    // NetworkConnectionHandler.instance.AddClientsToWaitingList();
+                    // NetworkConnectionHandler.Instance.connectionStage = 1;
+                    // NetworkConnectionHandler.Instance.AddClientsToWaitingList();
 
                     // Sync
-                    NetworkDataSync.instance.ResumeTheGameSend(true, false);
+                    NetworkDataSync.Instance.ResumeTheGameSend(true, false);
                     // Start the game
-                    SceneHandler.instance.StartTheGame(false);
+                    SceneHandler.Instance.StartTheGame(false);
                 }
                 else
                 {
                     // MidGame join
-                    NetworkConnectionHandler.instance.ResumeTheGame(true);
+                    NetworkConnectionHandler.Instance.ResumeTheGame(true);
                 }
             }
         }
@@ -210,7 +210,7 @@ namespace StrategyCore
             if (System.IO.File.Exists(fileName))
             {
                 // Subscribe to updates
-                NetworkConnectionHandler.instance.clientsListUpdated += NetworkDataSync.instance.ServerStartLoading;
+                NetworkConnectionHandler.Instance.clientsListUpdated += NetworkDataSync.Instance.ServerStartLoading;
 
                 // Retrieve content
                 string sceneData = System.IO.File.ReadAllText(fileName);
@@ -226,7 +226,7 @@ namespace StrategyCore
         [Rpc(SendTo.NotServer, InvokePermission = RpcInvokePermission.Server)]
         private void ReceiveSceneDataClientRpc(byte[] chunk, int index, int totalChunks, int streamId)
         {
-            NetworkConnectionHandler.instance.connectionStage = 1;
+            NetworkConnectionHandler.Instance.connectionStage = 1;
             ReceiveChunk(chunk, index, totalChunks, streamId);
         }
 
@@ -234,20 +234,20 @@ namespace StrategyCore
         [Rpc(SendTo.Server)]
         public void SaveSceneDataServerRpc(RpcParams rpcParams = default)
         {
-            NetworkConnectionHandler.instance.ClientsWaitingListRemove(rpcParams.Receive.SenderClientId);
+            NetworkConnectionHandler.Instance.ClientsWaitingListRemove(rpcParams.Receive.SenderClientId);
         }
 
         public void ServerStartLoading()
         {
             // If everyone got save file data, start loading the game
-            if (NetworkConnectionHandler.instance.clientsLoading.Count == 0)
+            if (NetworkConnectionHandler.Instance.clientsLoading.Count == 0)
             {
-                NetworkConnectionHandler.instance.clientsListUpdated -= NetworkDataSync.instance.ServerStartLoading;
+                NetworkConnectionHandler.Instance.clientsListUpdated -= NetworkDataSync.Instance.ServerStartLoading;
 
-                NetworkConnectionHandler.instance.AddClientsToWaitingList();
-                NetworkConnectionHandler.instance.clientsListUpdated += NetworkDataSync.instance.ServerPlayersFinishedLoading;
+                NetworkConnectionHandler.Instance.AddClientsToWaitingList();
+                NetworkConnectionHandler.Instance.clientsListUpdated += NetworkDataSync.Instance.ServerPlayersFinishedLoading;
 
-                SceneHandler.instance.LoadScene();
+                SceneHandler.Instance.LoadScene();
             }
         }
     }

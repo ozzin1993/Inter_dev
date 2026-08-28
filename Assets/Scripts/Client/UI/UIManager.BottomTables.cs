@@ -298,10 +298,10 @@ namespace StrategyCore
         /// </summary>
         int CommandTeamForLocalPlayer()
         {
-            MatchManager mm = MatchManager.instance;
-            if (mm != null && SlotManager.instance != null)
+            MatchManager mm = MatchManager.Instance;
+            if (mm != null && SlotManager.Instance != null)
             {
-                int p = SlotManager.instance.currentPlayer;
+                int p = SlotManager.Instance.currentPlayer;
                 for (int i = 0; i < 2; i++)
                 {
                     TeamWaveConfig cfg = mm.Team(i);
@@ -422,7 +422,7 @@ namespace StrategyCore
         // Все способности на кастере с Awake; правила апгрейдов лишь показывают/скрывают (каст — по Ability.id).
         IReadOnlyList<Ability> CurrentTeamAbilities()
         {
-            MatchManager mm = MatchManager.instance;
+            MatchManager mm = MatchManager.Instance;
             if (mm == null) return null;
             return mm.VisibleCentralAbilities(CommandTeamForLocalPlayer());
         }
@@ -471,7 +471,7 @@ namespace StrategyCore
         List<BottomTableButton> BuildCentralAbilitySlots(int team)
         {
             List<BottomTableButton> res = new List<BottomTableButton>();
-            MatchManager mm = MatchManager.instance;
+            MatchManager mm = MatchManager.Instance;
 
             for (int slot = 0; slot < MatchManager.CentralAbilitySlotCount; slot++)
             {
@@ -495,7 +495,7 @@ namespace StrategyCore
         List<BottomTableButton> BuildHeroAbilitySlots(int team, int count)
         {
             List<BottomTableButton> res = new List<BottomTableButton>();
-            MatchManager mm = MatchManager.instance;
+            MatchManager mm = MatchManager.Instance;
 
             if (mm == null || !mm.HeroAlive(team))              // 1б: до призыва / после смерти — пусто
             {
@@ -529,7 +529,7 @@ namespace StrategyCore
         // Набор умений героя: живой герой (хост) или префаб расы (клиент/фоллбэк — набор детерминирован).
         IReadOnlyList<Ability> HeroAbilitySet(int team)
         {
-            MatchManager mm = MatchManager.instance;
+            MatchManager mm = MatchManager.Instance;
             if (mm == null) return null;
             Unit hero = mm.HeroUnit(team);
             if (hero != null && hero.abilities != null) return hero.abilities;              // хост: реальный герой
@@ -541,7 +541,7 @@ namespace StrategyCore
         bool HeroAbilityUnlocked(int team, Ability ab)
         {
             if (ab == null || ab.requiredLevel == null || ab.requiredLevel.Length == 0) return true;
-            MatchManager mm = MatchManager.instance;
+            MatchManager mm = MatchManager.Instance;
             int heroLevel;
             if (NetworkConnectionHandler.isClient)
             {
@@ -561,11 +561,11 @@ namespace StrategyCore
         {
             if (NetworkConnectionHandler.isClient)
             {
-                if (NetworkDataSync.instance != null) NetworkDataSync.instance.CastHeroAbilityServerRpc(team, abilityId);
+                if (NetworkDataSync.Instance != null) NetworkDataSync.Instance.CastHeroAbilityServerRpc(team, abilityId);
             }
             else
             {
-                if (MatchManager.instance != null) MatchManager.instance.CastHeroAbilityById(team, abilityId);
+                if (MatchManager.Instance != null) MatchManager.Instance.CastHeroAbilityById(team, abilityId);
             }
         }
 
@@ -574,7 +574,7 @@ namespace StrategyCore
         // При неизменной команде работы нет (только сравнение), перерисовка — лишь по смене/видимости.
         void LateUpdate()
         {
-            if (MatchManager.instance == null || !SlotPanelsReady) return;
+            if (MatchManager.Instance == null || !SlotPanelsReady) return;
             int team = CommandTeamForLocalPlayer();
             if (team != lastAbilitySlotsTeam)
             {
@@ -603,11 +603,11 @@ namespace StrategyCore
             // Серверо-авторитетно: хост кастует напрямую, клиент шлёт запрос серверу (валидация — в MatchManager).
             if (NetworkConnectionHandler.isClient)
             {
-                if (NetworkDataSync.instance != null) NetworkDataSync.instance.CastCentralAbilityServerRpc(team, ability.id);
+                if (NetworkDataSync.Instance != null) NetworkDataSync.Instance.CastCentralAbilityServerRpc(team, ability.id);
             }
             else
             {
-                if (MatchManager.instance != null) MatchManager.instance.CastCentralAbilityById(team, ability.id);
+                if (MatchManager.Instance != null) MatchManager.Instance.CastCentralAbilityById(team, ability.id);
             }
         }
 
@@ -678,18 +678,58 @@ namespace StrategyCore
         void ExecuteBottomTableCommand(BottomTableAction action, int commandGroup)
         {
             if (action == BottomTableAction.None) return;
-            MatchManager mm = MatchManager.instance;
+            MatchManager mm = MatchManager.Instance;
             if (mm == null) return;
             int team = CommandTeamForLocalPlayer();
             if (NetworkConnectionHandler.isClient)
             {
                 // Клиент: команда серверо-авторитетна — шлём намерение серверу (с рядом).
-                if (NetworkDataSync.instance != null) NetworkDataSync.instance.TeamCommandServerRpc(team, (int)action, commandGroup);
+                if (NetworkDataSync.Instance != null) NetworkDataSync.Instance.TeamCommandServerRpc(team, (int)action, commandGroup);
             }
             else
             {
                 if (action == BottomTableAction.Attack)        mm.SendAttackCommand(team, commandGroup);
                 else if (action == BottomTableAction.Defence)  mm.SendDefenceCommand(team, commandGroup);
+            }
+        }
+
+        /// <summary>
+        /// Показать присланный сервером режим ряда (Атака/Защита) подсветкой соответствующей ячейки.
+        /// Зовут хост локально и клиент по сети (NetworkDataSync.TeamCommand.cs) через фасад Presentation.UI.
+        /// Только отрисовка: команду отсюда не отдаём — режим уже стоит на сервере (правило 6).
+        /// Чужая команда игнорируется (игрок видит только свой режим). Таблицы ещё не построены — тихо выходим.
+        /// </summary>
+        public void ShowTeamCommand(int teamIndex, int groupIndex, BottomTableAction action)
+        {
+            if (bottomTableContentRoots == null) return;            // интерфейс ещё не построен
+            if (action == BottomTableAction.None) return;           // «режим не выбран» подсветкой не отражаем
+            if (teamIndex != CommandTeamForLocalPlayer()) return;   // режим чужой команды не показываем
+
+            for (int t = 0; t < bottomTableContentRoots.Length; t++)
+            {
+                VisualElement table = bottomTableContentRoots[t];
+                if (table == null) continue;
+
+                // Сначала ищем ячейку нужного ряда с нужным действием: снимаем подсветку только если нашли,
+                // иначе ряд погас бы, а подсвечивать было бы нечего.
+                VisualElement target = null;
+                for (int i = 0; i < table.childCount; i++)
+                {
+                    BottomTableButton b = table.ElementAt(i).userData as BottomTableButton;
+                    if (b != null && b.commandGroup == groupIndex && b.action == action) { target = table.ElementAt(i); break; }
+                }
+                if (target == null) continue;
+
+                // Снять подсветку с ячеек ТОГО ЖЕ РЯДА этой таблицы и поставить на нужную — тот же порядок,
+                // что у клика (OnBottomTableClick): ряды независимы, кнопки других рядов не гаснут.
+                for (int i = 0; i < table.childCount; i++)
+                {
+                    VisualElement cell = table.ElementAt(i);
+                    BottomTableButton b = cell.userData as BottomTableButton;
+                    if (b != null && b.commandGroup == groupIndex) cell.RemoveFromClassList("activeAbility");
+                }
+                target.AddToClassList("activeAbility");
+                return;
             }
         }
 

@@ -30,8 +30,8 @@ namespace StrategyCore
             Unit.UnitCategory[] priority =
                 (unit.targetPriority != null && unit.targetPriority.Length > 0)
                     ? unit.targetPriority
-                    : (MatchManager.instance != null
-                        ? MatchManager.instance.GetTeamTargetPriorityForOwner(unit.owner)
+                    : (MatchManager.Instance != null
+                        ? MatchManager.Instance.GetTeamTargetPriorityForOwner(unit.owner)
                         : null);
 
             // 2) Приоритета нет → штатный ближайший (базовая ветка; правило 2).
@@ -57,7 +57,7 @@ namespace StrategyCore
                     if (u == null) continue;
                     if (u.unitCategory != cat) continue;
                     // Тот же фильтр тумана, что в GetClosestUnit (иначе приоритет «видел бы» сквозь туман).
-                    if (FoWVisible && !FogOfWar.instance.IsVisible(u.FoWCell, unit.team)) continue;
+                    if (FoWVisible && !FogOfWar.Instance.IsVisible(u.FoWCell, unit.team)) continue;
                     // Та же метрика дистанции, что в GetClosestUnit («ближайший»).
                     float dist = Vector2.Distance(
                                      new Vector2(u.transform.position.x, u.transform.position.z), pos)

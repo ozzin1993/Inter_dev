@@ -66,13 +66,13 @@ namespace StrategyCore
             if (EH.effector.damageAmount != 0)
             {
                 // [Interflow fix 2026-08-02 effector-unify] Урон в секунду масштабируется множителем силы наложения.
-                unitHolder.GetDamage(EH.effector.damageAmount * EH.powerMultiplier * GameManager.instance.currentDeltaTime, EH.effector.damageType, EH.owner, EH.unitOwner, false, out float _);
+                unitHolder.GetDamage(EH.effector.damageAmount * EH.powerMultiplier * GameManager.Instance.currentDeltaTime, EH.effector.damageType, EH.owner, EH.unitOwner, false, out float _);
             }
 
             // If it is a permanent effector, we do not handle removal logic
             if (EH.effector.permanent) return;
 
-            EH.currentTime += GameManager.instance.currentDeltaTime;
+            EH.currentTime += GameManager.Instance.currentDeltaTime;
 
             // REMOVAL OF EFFECTOR
             // [Interflow fix 2026-08-02 effector-unify] Длительность берётся у наложения, а не у общего ассета.
@@ -88,7 +88,7 @@ namespace StrategyCore
                 for (int i = 0; i < unitHolder.effectors.Count; i++)
                 {
                     // Remove the effector
-                    if (unitHolder.effectors[i] == EH && SlotManager.instance.playerTeam[unitHolder.effectors[i].owner] == SlotManager.instance.playerTeam[EH.owner])
+                    if (unitHolder.effectors[i] == EH && SlotManager.Instance.playerTeam[unitHolder.effectors[i].owner] == SlotManager.Instance.playerTeam[EH.owner])
                     {
                         if (EH.effector.VFX != null) unitHolder.RemoveVFX(EH.effector.VFX);
                         unitHolder.effectors.RemoveAt(i);
@@ -111,9 +111,9 @@ namespace StrategyCore
                 // [Interflow fix 2026-08-05 unit-status-sync] Эффектор истёк — сообщить клиентам «снят»
                 // (фикс §8.6), но только если на юните не осталось других наложений того же эффектора
                 // (разная сила/длительность сосуществуют — значок ещё заслужен).
-                if ((EH.effector.icon != null || EH.effector.VFX != null) && NetworkDataSync.instance != null
+                if ((EH.effector.icon != null || EH.effector.VFX != null) && NetworkDataSync.Instance != null
                     && !HasEffectorWithId(unitHolder, EH.effector.id))
-                    NetworkDataSync.instance.UnitStatusEffectorRemoveSend(unitHolder, EH.effector.id);
+                    NetworkDataSync.Instance.UnitStatusEffectorRemoveSend(unitHolder, EH.effector.id);
             }
         }
 
@@ -158,7 +158,7 @@ namespace StrategyCore
                 {
                     EffectorHolder existing = unit.effectors[i];
                     if (existing.effector.id != effector.id) continue;
-                    if (SlotManager.instance.playerTeam[existing.owner] != SlotManager.instance.playerTeam[owner]) continue;
+                    if (SlotManager.Instance.playerTeam[existing.owner] != SlotManager.Instance.playerTeam[owner]) continue;
 
                     // Слипаются только ПОЛНОСТЬЮ одинаковые наложения. Разная сила или разная длительность —
                     // разные эффекты: они сосуществуют и суммируются. Так было и до схлопывания ассетов,
@@ -169,8 +169,8 @@ namespace StrategyCore
                     existing.currentTime = 0;
                     // [Interflow fix 2026-08-05 unit-status-sync] Продление наложения — сообщить клиентам
                     // (единый канал статусов; внутри гейт «только сервер» — локальные ауры клиента не шлют).
-                    if ((effector.icon != null || effector.VFX != null) && NetworkDataSync.instance != null)
-                        NetworkDataSync.instance.UnitStatusEffectorSend(unit, effector.id, duration);
+                    if ((effector.icon != null || effector.VFX != null) && NetworkDataSync.Instance != null)
+                        NetworkDataSync.Instance.UnitStatusEffectorSend(unit, effector.id, duration);
                     return;
                 }
             }
@@ -197,8 +197,8 @@ namespace StrategyCore
             // появился» из ОДНОЙ точки — покрывает атаки, ауры и скиллы одинаково (решение Artsiom
             // 2026-08-05). Шлём только то, что клиенту есть чем показать (значок или VFX);
             // гейт «только сервер» живёт внутри UnitStatusEffectorSend.
-            if ((newEH.effector.icon != null || newEH.effector.VFX != null) && NetworkDataSync.instance != null)
-                NetworkDataSync.instance.UnitStatusEffectorSend(unit, newEH.effector.id, duration);
+            if ((newEH.effector.icon != null || newEH.effector.VFX != null) && NetworkDataSync.Instance != null)
+                NetworkDataSync.Instance.UnitStatusEffectorSend(unit, newEH.effector.id, duration);
         }
 
         // Add Effector[] by unitOwner
@@ -232,7 +232,7 @@ namespace StrategyCore
             for (int i = 0; i < unitHolder.effectors.Count; i++)
             {
                 // Remove the effector
-                if (unitHolder.effectors[i] == EH && SlotManager.instance.playerTeam[unitHolder.effectors[i].owner] == SlotManager.instance.playerTeam[EH.owner])
+                if (unitHolder.effectors[i] == EH && SlotManager.Instance.playerTeam[unitHolder.effectors[i].owner] == SlotManager.Instance.playerTeam[EH.owner])
                 {
                     if (EH.effector.VFX != null) unitHolder.RemoveVFX(EH.effector.VFX);
                     unitHolder.effectors.RemoveAt(i);
@@ -254,9 +254,9 @@ namespace StrategyCore
 
             // [Interflow fix 2026-08-05 unit-status-sync] Досрочное снятие (диспел) — сообщить клиентам
             // «снят» (фикс §8.6: раньше досрочное снятие и permanent-эффекторы висели у клиента вечно).
-            if ((EH.effector.icon != null || EH.effector.VFX != null) && NetworkDataSync.instance != null
+            if ((EH.effector.icon != null || EH.effector.VFX != null) && NetworkDataSync.Instance != null
                 && !HasEffectorWithId(unitHolder, EH.effector.id))
-                NetworkDataSync.instance.UnitStatusEffectorRemoveSend(unitHolder, EH.effector.id);
+                NetworkDataSync.Instance.UnitStatusEffectorRemoveSend(unitHolder, EH.effector.id);
         }
 
         // [Interflow fix 2026-08-05 unit-status-sync] Остались ли на юните наложения эффектора с этим id
@@ -271,7 +271,7 @@ namespace StrategyCore
         // Returns the effector by its ID
         public static Effector GetEffectorByID(int effectorID)
         {
-            if (GameManager.instance.gameEffectors.TryGetValue(effectorID, out Effector effector))
+            if (GameManager.Instance.gameEffectors.TryGetValue(effectorID, out Effector effector))
             {
                 return effector;
             }

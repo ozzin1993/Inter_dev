@@ -44,7 +44,7 @@ namespace StrategyCore
                 }
 
                 // Animation off if we are not moving
-                if (GameManager.instance.tickThisFrame)
+                if (GameManager.Instance.tickThisFrame)
                 {
                     if (currentMagnitude < 0.05f)
                     {
@@ -71,7 +71,7 @@ namespace StrategyCore
                     if (currentSpeed < 0.1f)
                     {
                         // Agent's destination sometimes does not update, fix it
-                        if (GameManager.instance.tickThisFrame)
+                        if (GameManager.Instance.tickThisFrame)
                         {
                             if (unitState == UnitStates.Move || unitState == UnitStates.AttackMove)
                             {
@@ -157,7 +157,7 @@ namespace StrategyCore
 
                 // Update chunk and FoW info
                 Grid.AssignToChunk(this);
-                FogOfWar.instance.CellAssignment(this);
+                FogOfWar.Instance.CellAssignment(this);
             }
 
             if (unitState == UnitStates.AbilityCasting)
@@ -165,7 +165,7 @@ namespace StrategyCore
                 // Check target visibility
                 if (activeAbilityUnit)
                 {
-                    if (!FogOfWar.instance.IsVisible(activeAbilityUnit.FoWCell, team) || !activeAbilityUnit.IsVisible(team))
+                    if (!FogOfWar.Instance.IsVisible(activeAbilityUnit.FoWCell, team) || !activeAbilityUnit.IsVisible(team))
                     {
                         Idle();
                         return;
@@ -214,7 +214,7 @@ namespace StrategyCore
                             if (sendToClients)
                             {
                                 sendToClients = false;
-                                if (NetworkManager.Singleton.IsServer) NetworkDataSync.instance.AbilityStopCastSend(this);
+                                if (NetworkManager.Singleton.IsServer) NetworkDataSync.Instance.AbilityStopCastSend(this);
                             }
 
                             if (activeAbilityUnit)
@@ -240,7 +240,7 @@ namespace StrategyCore
                 // First time sending info to clients to start rotating towards target. When server starts to cast any ability, we send data to clients
                 if (!sendToClients && NetworkManager.Singleton.IsServer)
                 {
-                    NetworkDataSync.instance.AbilityCastStartSend(this, activeAbility, activeAbilityUnit, activeAbilityLocation);
+                    NetworkDataSync.Instance.AbilityCastStartSend(this, activeAbility, activeAbilityUnit, activeAbilityLocation);
                     sendToClients = true;
                 }
 
@@ -339,7 +339,7 @@ namespace StrategyCore
                         // If along the way unit is attacked we then will go to attack that unit
                         if (isMoving)
                         {
-                            if (target != null && FogOfWar.instance.IsVisible(target.FoWCell, team) && target.IsVisible(team))
+                            if (target != null && FogOfWar.Instance.IsVisible(target.FoWCell, team) && target.IsVisible(team))
                             {
                                 // Target is visible, we go to hit it
                                 isTargetGround = false;
@@ -399,7 +399,7 @@ namespace StrategyCore
                     else
                     {
                         // Target not visible, Go to last known target position
-                        if (!FogOfWar.instance.IsVisible(target.FoWCell, team) || !target.IsVisible(team))
+                        if (!FogOfWar.Instance.IsVisible(target.FoWCell, team) || !target.IsVisible(team))
                         {
                             if (!firstAttack) AttackStop();
                             if (canMove)
@@ -493,7 +493,7 @@ namespace StrategyCore
                     }
                     else
                     {
-                        if (!FogOfWar.instance.IsVisible(target.FoWCell, team) || !target.IsVisible(team))
+                        if (!FogOfWar.Instance.IsVisible(target.FoWCell, team) || !target.IsVisible(team))
                         {
                             // Target not visible
                             if (!firstAttack) AttackStop();
@@ -556,12 +556,12 @@ namespace StrategyCore
             {
                 // In follow state we try to reach friendly unit or static destructible. Following an enemy is impossible, it is done in the attack state
 
-                if (canMove && target != null && target.IsVisible(team) && (target.unitType == UnitType.Tree || target.unitType == UnitType.StaticDestructible || FogOfWar.instance.IsVisible(target.FoWCell, team)))
+                if (canMove && target != null && target.IsVisible(team) && (target.unitType == UnitType.Tree || target.unitType == UnitType.StaticDestructible || FogOfWar.Instance.IsVisible(target.FoWCell, team)))
                 {
                     float distanceToTarget = Vector2.Distance(new Vector2(transform.position.x, transform.position.z), new Vector2(target.transform.position.x, target.transform.position.z));
 
                     // Use reaction range
-                    if (FogOfWar.instance.IsVisible(target.FoWCell, team) && ((stopDistance == 0 && (distanceToTarget < target.unitRadius + unitRadius + Utils.stopDistanceOffset || distanceToTarget < attackRange)) || distanceToTarget <= stopDistance))
+                    if (FogOfWar.Instance.IsVisible(target.FoWCell, team) && ((stopDistance == 0 && (distanceToTarget < target.unitRadius + unitRadius + Utils.stopDistanceOffset || distanceToTarget < attackRange)) || distanceToTarget <= stopDistance))
                     {
                         if (!isMoving)
                         {
@@ -621,7 +621,7 @@ namespace StrategyCore
                     else
                     {
                         // Target exists, either visible or not visible
-                        if (!FogOfWar.instance.IsVisible(target.FoWCell, team) || !target.IsVisible(team))
+                        if (!FogOfWar.Instance.IsVisible(target.FoWCell, team) || !target.IsVisible(team))
                         {
                             // Not visible: Stop the attack and go to the last known position
                             if (!firstAttack) AttackStop();
@@ -631,7 +631,7 @@ namespace StrategyCore
                                 initialPosition = Vector2.one; // Inidicate that target is not visible
 
                                 // Reach check: Only if position is fow visible
-                                if (FogOfWar.instance.IsVisible(targetPosition, team))
+                                if (FogOfWar.Instance.IsVisible(targetPosition, team))
                                 {
                                     // Check if we have reached the position and if target either is null or not visible
                                     float distanceToTarget = Vector2.Distance(new Vector2(transform.position.x, transform.position.z), targetPosition);
@@ -673,7 +673,7 @@ namespace StrategyCore
                     // Target position
                     float distanceToTarget = Vector2.Distance(new Vector2(transform.position.x, transform.position.z), targetPosition);
 
-                    if (FogOfWar.instance.IsVisible(targetPosition, team) && (melee && distanceToTarget < target.unitRadius + unitRadius + Utils.stopDistanceOffset || distanceToTarget < attackRange))
+                    if (FogOfWar.Instance.IsVisible(targetPosition, team) && (melee && distanceToTarget < target.unitRadius + unitRadius + Utils.stopDistanceOffset || distanceToTarget < attackRange))
                     {
                         // Target reached
                         MakeAgent(false);
@@ -707,7 +707,7 @@ namespace StrategyCore
                     float distanceToTarget = Vector2.Distance(new Vector2(transform.position.x, transform.position.z), new Vector2(target.transform.position.x, target.transform.position.z));
 
                     // Go back to main objective
-                    if (isInvisible || !FogOfWar.instance.IsVisible(target.FoWCell, team) || !target.IsVisible(team) || distanceToTarget > visionRange)
+                    if (isInvisible || !FogOfWar.Instance.IsVisible(target.FoWCell, team) || !target.IsVisible(team) || distanceToTarget > visionRange)
                     {
                         SetDestination(targetPosition, true);
                     }
@@ -878,7 +878,7 @@ namespace StrategyCore
 
                     // Update chunk and FoW info
                     Grid.AssignToChunk(this);
-                    FogOfWar.instance.CellAssignment(this);
+                    FogOfWar.Instance.CellAssignment(this);
                 }
 
                 // Attack update
@@ -1214,7 +1214,7 @@ namespace StrategyCore
                             // Sync additional targets
                             if (targetsUpdated && NetworkManager.Singleton.IsServer)
                             {
-                                NetworkDataSync.instance.AdditionalTargetsSend(this, additionalTargets);
+                                NetworkDataSync.Instance.AdditionalTargetsSend(this, additionalTargets);
                             }
 
                             // Deal damage
@@ -1374,7 +1374,7 @@ namespace StrategyCore
                         // Sync additional targets
                         if (targetsUpdated && NetworkManager.Singleton.IsServer)
                         {
-                            NetworkDataSync.instance.AdditionalTargetsSend(this, additionalTargets);
+                            NetworkDataSync.Instance.AdditionalTargetsSend(this, additionalTargets);
                         }
 
                         // Deal damage
@@ -1534,7 +1534,7 @@ namespace StrategyCore
                     // Sync additional targets
                     if (targetsUpdated && NetworkManager.Singleton.IsServer)
                     {
-                        NetworkDataSync.instance.AdditionalTargetsSend(this, additionalTargets);
+                        NetworkDataSync.Instance.AdditionalTargetsSend(this, additionalTargets);
                     }
 
                     // Launch projectiles
@@ -1626,10 +1626,29 @@ namespace StrategyCore
             // и заново подписывал труп на Tick до истечения статуса.
             if (dead) return;
 
-            // [Interflow fix 2026-07-06 control-immunity] Иммунитет к контролю (Железный Приговор и будущие эффекты). Маркер ControlImmunity
-            // на юните → стан не применяется. Проверка per-unit (только этот юнит), см. concepts/control-immunity.
-            if (TryGetComponent<ControlImmunity>(out var __controlImmunity) && __controlImmunity.Active) return;
+            // Шаг 1 схемы «пакет и приёмник» (§11.2, §16.1): воронка собирает пакет и отдаёт его
+            // приёмнику. Решение (иммунитет и состояние) — там, исполнение — ниже, в *Apply.
+            // Проверки выше остались здесь по решению Artsiom 28.08.2026: это отсев «есть ли кому
+            // адресовать пакет», и он обязан отработать ДО обращения к приёмнику — дойти до приёмника
+            // значит тронуть игровой объект (TryGetComponent, при первом обращении AddComponent).
+            // Так же устроен шаг 0: dead проверяется в обёртке GetDamage (Unit.Combat.cs:127).
+            // Сигнатура не изменилась — ни одно из мест вызова не трогается.
+            ControlPacket packet = new ControlPacket(ControlType.Stun, time);
 
+            ReceiverEnsure().Receive(in packet);
+        }
+
+        /// <summary>
+        /// Исполнитель оглушения: замораживает юнита и рассылает статус клиентам.
+        /// Тело перенесено из <see cref="Stun(float)"/> без изменений — уехали только проверки
+        /// (отсев в воронку, иммунитет к контролю в приёмник).
+        /// ВНИМАНИЕ: штатный вход — воронка <see cref="Stun(float)"/>. Прямой вызов обходит отсев
+        /// и иммунитет к контролю; метод публичен только потому, что его зовёт приёмник
+        /// <see cref="UnitReceiver"/> — а он отдельный класс и приватные члены Unit не видит.
+        /// </summary>
+        /// <param name="time">Время оглушения.</param>
+        public void StunApply(float time)
+        {
             if (stunTime == 0)
             {
                 // [Interflow fix 2026-08-05 unit-status-sync] Одиночная станная анимация над головой
@@ -1648,7 +1667,7 @@ namespace StrategyCore
 
                 stunned = true;
                 stunTime = time;
-                GameManager.instance.Tick += StunUpdate;
+                GameManager.Instance.Tick += StunUpdate;
             }
             else if (time > stunTime)
             {
@@ -1656,7 +1675,7 @@ namespace StrategyCore
                 stunTime = time;
             }
 
-            if (NetworkManager.Singleton.IsServer) NetworkDataSync.instance.StunSetSend(this, true);
+            if (NetworkManager.Singleton.IsServer) NetworkDataSync.Instance.StunSetSend(this, true);
         }
 
         /// <summary>
@@ -1703,13 +1722,13 @@ namespace StrategyCore
         /// </summary>
         private void StunUpdate()
         {
-            stunTime -= GameManager.instance.currentDeltaTime;
+            stunTime -= GameManager.Instance.currentDeltaTime;
 
             if (stunTime <= 0f)
             {
                 stunned = false;
                 stunTime = 0;
-                GameManager.instance.Tick -= StunUpdate;
+                GameManager.Instance.Tick -= StunUpdate;
 
                 // Ability cast
                 if (unitState == UnitStates.AbilityCasting)
@@ -1726,7 +1745,7 @@ namespace StrategyCore
                 }
 
                 if (stunnedVFX != null) Destroy(stunnedVFX.gameObject);
-                if (NetworkManager.Singleton.IsServer) NetworkDataSync.instance.StunSetSend(this, false);
+                if (NetworkManager.Singleton.IsServer) NetworkDataSync.Instance.StunSetSend(this, false);
             }
         }
 
@@ -1742,9 +1761,30 @@ namespace StrategyCore
             // цель (рывок, метеор, снаряд): статус по трупу слал клиентам снятый netID («Desync!»)
             // и заново подписывал труп на Tick до истечения статуса.
             if (dead) return;
-            // If already muted, means currently permanently muted
-            if (muted) return;
 
+            // Шаг 1 схемы «пакет и приёмник» (§11.2, §16.1): воронка собирает пакет и отдаёт его
+            // приёмнику. Решение (иммунитет и состояние) — там, исполнение — ниже, в *Apply.
+            // Проверки выше остались здесь по решению Artsiom 28.08.2026: это отсев «есть ли кому
+            // адресовать пакет», и он обязан отработать ДО обращения к приёмнику — дойти до приёмника
+            // значит тронуть игровой объект (TryGetComponent, при первом обращении AddComponent).
+            // Так же устроен шаг 0: dead проверяется в обёртке GetDamage (Unit.Combat.cs:127).
+            // Сигнатура не изменилась — ни одно из мест вызова не трогается.
+            ControlPacket packet = new ControlPacket(ControlType.Mute, time);
+
+            ReceiverEnsure().Receive(in packet);
+        }
+
+        /// <summary>
+        /// Исполнитель немоты: запрещает юниту применять умения и рассылает статус клиентам.
+        /// Тело перенесено из <see cref="Mute(float)"/> без изменений — уехали только проверки
+        /// (отсев в воронку, «уже в немоте» и иммунитет в приёмник).
+        /// ВНИМАНИЕ: штатный вход — воронка <see cref="Mute(float)"/>. Прямой вызов обходит отсев
+        /// и иммунитет к контролю; метод публичен только потому, что его зовёт приёмник
+        /// <see cref="UnitReceiver"/> — а он отдельный класс и приватные члены Unit не видит.
+        /// </summary>
+        /// <param name="time">Время немоты.</param>
+        public void MuteApply(float time)
+        {
             if (currentMuteTime == 0)
             {
                 // [Interflow fix 2026-08-05 unit-status-sync] Одиночная анимация немоты над головой
@@ -1757,7 +1797,7 @@ namespace StrategyCore
 
                 muted = true;
                 currentMuteTime = time;
-                GameManager.instance.Tick += MuteUpdate;
+                GameManager.Instance.Tick += MuteUpdate;
             }
             else if (time > currentMuteTime)
             {
@@ -1765,7 +1805,7 @@ namespace StrategyCore
                 currentMuteTime = time;
             }
 
-            if (NetworkManager.Singleton.IsServer) NetworkDataSync.instance.MuteSetSend(this, true);
+            if (NetworkManager.Singleton.IsServer) NetworkDataSync.Instance.MuteSetSend(this, true);
         }
 
         /// <summary>
@@ -1792,13 +1832,13 @@ namespace StrategyCore
         /// </summary>
         private void MuteUpdate()
         {
-            currentMuteTime -= GameManager.instance.currentDeltaTime;
+            currentMuteTime -= GameManager.Instance.currentDeltaTime;
 
             if (currentMuteTime <= 0f)
             {
                 muted = false;
                 currentMuteTime = 0;
-                GameManager.instance.Tick -= MuteUpdate;
+                GameManager.Instance.Tick -= MuteUpdate;
 
                 // Ability cast
                 if (unitState == UnitStates.AbilityCasting)
@@ -1809,7 +1849,7 @@ namespace StrategyCore
                 }
 
                 if (mutedVFX != null) Destroy(mutedVFX.gameObject);
-                if (NetworkManager.Singleton.IsServer) NetworkDataSync.instance.MuteSetSend(this, false);
+                if (NetworkManager.Singleton.IsServer) NetworkDataSync.Instance.MuteSetSend(this, false);
             }
         }
 
@@ -1825,9 +1865,30 @@ namespace StrategyCore
             // цель (рывок, метеор, снаряд): статус по трупу слал клиентам снятый netID («Desync!»)
             // и заново подписывал труп на Tick до истечения статуса.
             if (dead) return;
-            // If already disarmed, means currently permanently disarmed
-            if (disarmed) return;
 
+            // Шаг 1 схемы «пакет и приёмник» (§11.2, §16.1): воронка собирает пакет и отдаёт его
+            // приёмнику. Решение (иммунитет и состояние) — там, исполнение — ниже, в *Apply.
+            // Проверки выше остались здесь по решению Artsiom 28.08.2026: это отсев «есть ли кому
+            // адресовать пакет», и он обязан отработать ДО обращения к приёмнику — дойти до приёмника
+            // значит тронуть игровой объект (TryGetComponent, при первом обращении AddComponent).
+            // Так же устроен шаг 0: dead проверяется в обёртке GetDamage (Unit.Combat.cs:127).
+            // Сигнатура не изменилась — ни одно из мест вызова не трогается.
+            ControlPacket packet = new ControlPacket(ControlType.Disarm, time);
+
+            ReceiverEnsure().Receive(in packet);
+        }
+
+        /// <summary>
+        /// Исполнитель обезоруживания: останавливает атаку и рассылает статус клиентам.
+        /// Тело перенесено из <see cref="Disarm(float)"/> без изменений — уехали только проверки
+        /// (отсев в воронку, «уже обезоружен» и иммунитет в приёмник).
+        /// ВНИМАНИЕ: штатный вход — воронка <see cref="Disarm(float)"/>. Прямой вызов обходит отсев
+        /// и иммунитет к контролю; метод публичен только потому, что его зовёт приёмник
+        /// <see cref="UnitReceiver"/> — а он отдельный класс и приватные члены Unit не видит.
+        /// </summary>
+        /// <param name="time">Время обезоруживания.</param>
+        public void DisarmApply(float time)
+        {
             if (currentDisarmTime == 0)
             {
                 // [Interflow fix 2026-08-05 unit-status-sync] Одиночная анимация безоружия над головой
@@ -1838,7 +1899,7 @@ namespace StrategyCore
 
                 disarmed = true;
                 currentDisarmTime = time;
-                GameManager.instance.Tick += DisarmUpdate;
+                GameManager.Instance.Tick += DisarmUpdate;
             }
             else if (time > currentDisarmTime)
             {
@@ -1846,7 +1907,7 @@ namespace StrategyCore
                 currentDisarmTime = time;
             }
 
-            if (NetworkManager.Singleton.IsServer) NetworkDataSync.instance.DisarmSetSend(this, true);
+            if (NetworkManager.Singleton.IsServer) NetworkDataSync.Instance.DisarmSetSend(this, true);
         }
 
         /// <summary>
@@ -1873,16 +1934,16 @@ namespace StrategyCore
         /// </summary>
         private void DisarmUpdate()
         {
-            currentDisarmTime -= GameManager.instance.currentDeltaTime;
+            currentDisarmTime -= GameManager.Instance.currentDeltaTime;
 
             if (currentDisarmTime <= 0f)
             {
                 disarmed = false;
                 currentDisarmTime = 0;
-                GameManager.instance.Tick -= DisarmUpdate;
+                GameManager.Instance.Tick -= DisarmUpdate;
 
                 if (disarmedVFX != null) Destroy(disarmedVFX.gameObject);
-                if (NetworkManager.Singleton.IsServer) NetworkDataSync.instance.DisarmSetSend(this, false);
+                if (NetworkManager.Singleton.IsServer) NetworkDataSync.Instance.DisarmSetSend(this, false);
             }
         }
 
@@ -1902,7 +1963,7 @@ namespace StrategyCore
             }
             else
             {
-                GameManager.instance.Tick += PolymorphUpdate;
+                GameManager.Instance.Tick += PolymorphUpdate;
             }
 
             polymorphed = true;
@@ -1920,14 +1981,14 @@ namespace StrategyCore
         /// </summary>
         private void PolymorphUpdate()
         {
-            polymorphTime -= GameManager.instance.currentDeltaTime;
+            polymorphTime -= GameManager.Instance.currentDeltaTime;
 
             if (polymorphTime <= 0f)
             {
                 polymorphed = false;
                 polymorphTime = 0;
                 polymorphAbility.Deactivate(this, this.owner, polymorphLvl);
-                GameManager.instance.Tick -= PolymorphUpdate;
+                GameManager.Instance.Tick -= PolymorphUpdate;
             }
         }
 

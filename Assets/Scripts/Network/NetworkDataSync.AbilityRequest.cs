@@ -19,15 +19,15 @@ namespace StrategyCore
         [Rpc(SendTo.Server)]
         public void CastCentralAbilityServerRpc(int teamIndex, int abilityId, RpcParams rpcParams = default)
         {
-            if (MatchManager.instance == null) return;
+            if (MatchManager.Instance == null) return;
             if (teamIndex != 0 && teamIndex != 1) return; // MVP: только две команды A/B
 
             // Авторизация: отправитель должен управлять этой командой (как в TeamCommandServerRpc).
-            int senderPlayer = SlotManager.instance.GetClientSlot(rpcParams.Receive.SenderClientId);
-            TeamWaveConfig cfg = MatchManager.instance.Team(teamIndex);
+            int senderPlayer = SlotManager.Instance.GetClientSlot(rpcParams.Receive.SenderClientId);
+            TeamWaveConfig cfg = MatchManager.Instance.Team(teamIndex);
             if (cfg == null || senderPlayer != cfg.ownerPlayer) return; // нет прав на эту команду
 
-            MatchManager.instance.CastCentralAbilityById(teamIndex, abilityId);
+            MatchManager.Instance.CastCentralAbilityById(teamIndex, abilityId);
         }
     }
 }

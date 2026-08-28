@@ -51,8 +51,8 @@ namespace StrategyCore
             GroundDamageZone zone = zoneObject.GetComponent<GroundDamageZone>();
             if (zone != null) zone.SetZoneId(rec.zoneId);
 
-            if (NetworkDataSync.instance != null)
-                NetworkDataSync.instance.GroundZoneSpawnSend(rec.zoneId, rec.abilityID, rec.level, rec.position);
+            if (NetworkDataSync.Instance != null)
+                NetworkDataSync.Instance.GroundZoneSpawnSend(rec.zoneId, rec.abilityID, rec.level, rec.position);
         }
 
         /// <summary>
@@ -62,12 +62,12 @@ namespace StrategyCore
         public void ResendGroundZonesTo(ulong clientID)
         {
             if (NetworkConnectionHandler.isClient) return;
-            if (groundZones.Count == 0 || NetworkDataSync.instance == null) return;
+            if (groundZones.Count == 0 || NetworkDataSync.Instance == null) return;
 
             for (int i = 0; i < groundZones.Count; i++)
             {
                 GroundZoneRecord rec = groundZones[i];
-                NetworkDataSync.instance.GroundZoneResendSend(clientID, rec.zoneId, rec.abilityID, rec.level, rec.position);
+                NetworkDataSync.Instance.GroundZoneResendSend(clientID, rec.zoneId, rec.abilityID, rec.level, rec.position);
             }
         }
 
@@ -84,7 +84,7 @@ namespace StrategyCore
             {
                 if (groundZones[i].zoneId != zoneId) continue;
                 groundZones.RemoveAt(i);
-                if (NetworkDataSync.instance != null) NetworkDataSync.instance.GroundZoneDespawnSend(zoneId);
+                if (NetworkDataSync.Instance != null) NetworkDataSync.Instance.GroundZoneDespawnSend(zoneId);
                 return;
             }
         }

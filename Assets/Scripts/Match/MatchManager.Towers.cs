@@ -47,6 +47,17 @@ namespace StrategyCore
             // Серверо-авторитетно: разослать новое владение клиентам (только живой захват, без позднего входа).
             BroadcastPointTeam(poi, newTeam);
 
+            // Опыт ГЗ за уничтоженную башню — команде захватчика (той же, что получила точку). Величина —
+            // штатное поле xpReward самой башни (правило 1, как и за юнита): через хаб смертей башни не
+            // проходят, поэтому начисляем здесь. Начисляем ДО раннего выхода по rebuildOnCapture ниже —
+            // опыт дают все башни, не только центральная.
+            // newTeam — команда в терминах SlotManager.playerTeam, а AddExperience ждёт индекс конфига
+            // (0=A, 1=B), поэтому переводим через игрока-владельца. Нейтральный/неизвестный владелец даёт −1
+            // и начисление пропускается.
+            int captureTeamIndex = TeamIndexOfOwner(FindPlayerByTeam(newTeam));
+            if (captureTeamIndex >= 0 && unit.xpReward > 0)
+                AddExperience(captureTeamIndex, unit.xpReward, ExperienceSource.Tower);
+
             // Фронт сместился — обновить хранимые точки и переотдать текущие команды обеим командам.
             RefreshTargetPoints();
 
@@ -148,7 +159,7 @@ namespace StrategyCore
                 Unit racialPrefab = ResolveRacialTowerPrefab(player, cfg);
                 if (racialPrefab == null) yield break;
 
-                int[] pTeam = SlotManager.instance != null ? SlotManager.instance.playerTeam : null;
+                int[] pTeam = SlotManager.Instance != null ? SlotManager.Instance.playerTeam : null;
                 int team = (pTeam != null && player >= 0 && player < pTeam.Length) ? pTeam[player] : -1;
                 prefab = ResolveTowerSwap(team, cfg.pointKey, racialPrefab);
             }
@@ -204,7 +215,7 @@ namespace StrategyCore
             int opponent = OpponentTeam(currentTeam);
             if (opponent >= 0) return opponent;
 
-            int[] teams = SlotManager.instance.playerTeam;
+            int[] teams = SlotManager.Instance.playerTeam;
             if (playerThatKills >= 0 && playerThatKills < teams.Length) return teams[playerThatKills];
             if (unitThatKills != null) return unitThatKills.team;
             return currentTeam;
@@ -215,7 +226,7 @@ namespace StrategyCore
         int OpponentTeam(int team)
         {
             if (team < 0) return -1;
-            int[] pt = SlotManager.instance.playerTeam;
+            int[] pt = SlotManager.Instance.playerTeam;
             int tA = (teamA != null && teamA.ownerPlayer >= 0 && teamA.ownerPlayer < pt.Length) ? pt[teamA.ownerPlayer] : -1;
             int tB = (teamB != null && teamB.ownerPlayer >= 0 && teamB.ownerPlayer < pt.Length) ? pt[teamB.ownerPlayer] : -1;
             if (team == tA && tB >= 0) return tB;
@@ -225,7 +236,7 @@ namespace StrategyCore
 
         static int FindPlayerByTeam(int team)
         {
-            int[] teams = SlotManager.instance.playerTeam;
+            int[] teams = SlotManager.Instance.playerTeam;
             for (int i = 0; i < teams.Length; i++)
                 if (teams[i] == team) return i;
             return -1;
@@ -236,10 +247,10 @@ namespace StrategyCore
         // Сервер: разослать клиентам нового владельца точки (по индексу в Lane).
         void BroadcastPointTeam(PointOfInterest poi, int team)
         {
-            if (lane == null || NetworkDataSync.instance == null) return;
+            if (lane == null || NetworkDataSync.Instance == null) return;
             int index = lane.IndexOf(poi);
             if (index < 0) return;
-            NetworkDataSync.instance.PointTeamSend(index, team);
+            NetworkDataSync.Instance.PointTeamSend(index, team);
         }
 
         /// <summary>Клиент: применить владельца точки по индексу (приходит сетевым RPC). Единый вход для Lane.</summary>

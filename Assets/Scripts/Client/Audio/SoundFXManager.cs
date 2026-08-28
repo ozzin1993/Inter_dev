@@ -7,7 +7,7 @@ namespace StrategyCore
 {
     public class SoundFXManager : MonoBehaviour
     {
-        public static SoundFXManager instance;
+        public static SoundFXManager Instance { get; private set; }
 
         [Tooltip("Each subsequent sound played with have lower volume, to prevent simultaneous play of multiple clips.")]
         public int maxSoundCount = 4;
@@ -30,22 +30,22 @@ namespace StrategyCore
 
         private void Awake()
         {
-            if (instance == null)
+            if (Instance == null)
             {
-                instance = this;
+                Instance = this;
             }
         }
 
         private void Start()
         {
-            GameManager.instance.Tick += SoundCountReset;
+            GameManager.Instance.Tick += SoundCountReset;
             // [Interflow fix 2026-06-26 путь1] Подписка Tick сохраняется на всех пирах; презентацию помечаем готовой только вне headless-сервера.
             presentationReady = !ServerBootstrap.IsHeadlessServer;
         }
 
         private void OnDestroy()
         {
-            GameManager.instance.Tick -= SoundCountReset;
+            GameManager.Instance.Tick -= SoundCountReset;
         }
 
         /// <summary>
@@ -62,7 +62,7 @@ namespace StrategyCore
                 // Do noy play audio if not in the camera view
                 if (!Utils.IsInView(unit.transform.position)) return;
                 // Do not play if FoW not visible
-                if (!FogOfWar.instance.IsVisible(unit.transform.position, SlotManager.instance.currentTeam)) return;
+                if (!FogOfWar.Instance.IsVisible(unit.transform.position, SlotManager.Instance.currentTeam)) return;
             }
 
             // Random clip index
@@ -80,7 +80,7 @@ namespace StrategyCore
             // Destroy object after clip length
             unit.commandSound = audioSource.transform;
             unit.commandSoundTime = audioSource.clip.length;
-            GameManager.instance.Tick += unit.CommandSoundTimerUpdate;
+            GameManager.Instance.Tick += unit.CommandSoundTimerUpdate;
         }
 
         // Play Single sound clip
@@ -115,7 +115,7 @@ namespace StrategyCore
             // Do noy play audio if not in the camera view
             if (!Utils.IsInView(spawnTransform.position)) return;
             // Do not play if FoW not visible
-            if (!FogOfWar.instance.IsVisible(spawnTransform.position, SlotManager.instance.currentTeam)) return;
+            if (!FogOfWar.Instance.IsVisible(spawnTransform.position, SlotManager.Instance.currentTeam)) return;
 
             // Spawn new audioSource gameObject
             AudioSource audioSource = Instantiate(soundFX, spawnTransform.position, Quaternion.identity);
@@ -167,7 +167,7 @@ namespace StrategyCore
             // Do noy play audio if not in the camera view
             if (!Utils.IsInView(spawnTransform.position)) return;
             // Do not play if FoW not visible
-            if (!FogOfWar.instance.IsVisible(spawnTransform.position, SlotManager.instance.currentTeam)) return;
+            if (!FogOfWar.Instance.IsVisible(spawnTransform.position, SlotManager.Instance.currentTeam)) return;
 
             // Random clip index
             int index = Random.Range(0, audioClip.Length);
@@ -220,7 +220,7 @@ namespace StrategyCore
 
             // Position check
             bool isInView = Utils.IsInView(spawnTransform.position);
-            bool isFoWVisible = FogOfWar.instance.IsVisible(spawnTransform.position, SlotManager.instance.currentTeam);
+            bool isFoWVisible = FogOfWar.Instance.IsVisible(spawnTransform.position, SlotManager.Instance.currentTeam);
 
             if (isInView && isFoWVisible) audioSource.Play();
             else audioSource.Stop();
@@ -267,7 +267,7 @@ namespace StrategyCore
 
             // Position check
             bool isInView = Utils.IsInView(spawnTransform.position);
-            bool isFoWVisible = FogOfWar.instance.IsVisible(spawnTransform.position, SlotManager.instance.currentTeam);
+            bool isFoWVisible = FogOfWar.Instance.IsVisible(spawnTransform.position, SlotManager.Instance.currentTeam);
 
             if (isInView && isFoWVisible) audioSource.Play();
             else audioSource.Stop();

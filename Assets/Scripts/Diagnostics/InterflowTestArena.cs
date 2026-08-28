@@ -62,7 +62,7 @@ namespace StrategyCore
         [SerializeField] StartupUnit[] startupUnits = new StartupUnit[0];
 
         /// <summary>Единственный экземпляр на сцене — точка входа для панели.</summary>
-        public static InterflowTestArena instance;
+        public static InterflowTestArena Instance { get; private set; }
 
         List<Unit> catalogAll;   // кэш каталога префабов (Resources/UnitPrefabs)
 
@@ -71,19 +71,19 @@ namespace StrategyCore
 
         void Awake()
         {
-            if (instance != null && instance != this) { Destroy(this); return; }
-            instance = this;
+            if (Instance != null && Instance != this) { Destroy(this); return; }
+            Instance = this;
         }
 
         void OnDestroy()
         {
-            if (instance == this) instance = null;
+            if (Instance == this) Instance = null;
         }
 
         void Start()
         {
-            SlotManager sm = SlotManager.instance;
-            MatchManager mm = MatchManager.instance;
+            SlotManager sm = SlotManager.Instance;
+            MatchManager mm = MatchManager.Instance;
             if (sm == null || mm == null)
             {
                 Debug.LogWarning("[Полигон] Нет SlotManager или MatchManager на сцене — полигон не запущен.");
@@ -161,7 +161,7 @@ namespace StrategyCore
             Transform marker = teamIndex == 0 ? spawnA : spawnB;
             if (marker != null) return marker.position;
 
-            MatchManager mm = MatchManager.instance;
+            MatchManager mm = MatchManager.Instance;
             TeamWaveConfig cfg = mm != null ? mm.Team(teamIndex) : null;
             if (cfg != null && cfg.spawnPoint != null) return cfg.spawnPoint.position;
 

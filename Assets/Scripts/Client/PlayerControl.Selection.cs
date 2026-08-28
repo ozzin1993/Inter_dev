@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.InputSystem;
@@ -190,7 +190,7 @@ namespace StrategyCore
         private void DblClickSelection(Vector2 position)
         {
             Unit selectedUnit = Utils.GetUnitAtCursor();
-            if (selectedUnit != null && dblClickUnit == selectedUnit && selectedUnit.isSelectable && selectedUnit.owner == SlotManager.instance.currentPlayer)
+            if (selectedUnit != null && dblClickUnit == selectedUnit && selectedUnit.isSelectable && selectedUnit.owner == SlotManager.Instance.currentPlayer)
             {
                 RectSelection(true, selectedUnit.unitTypeID);
 
@@ -206,7 +206,7 @@ namespace StrategyCore
         {
             DeselectAll();
 
-            Vector2 mousePosition2 = Camera_TopDown.instance.GetCursorPosition();
+            Vector2 mousePosition2 = Camera_TopDown.Instance.GetCursorPosition();
             selectionRect = Utils.GetScreenRect(mousePosition1, mousePosition2);
 
             // Get selection rays from the camera
@@ -260,7 +260,7 @@ namespace StrategyCore
             else
             {
                 // For GUI also, so should update every frame
-                mousePosition2 = Camera_TopDown.instance.GetCursorPosition();
+                mousePosition2 = Camera_TopDown.Instance.GetCursorPosition();
                 selectionRect = Utils.GetScreenRect(mousePosition1, mousePosition2);
             }
 
@@ -362,14 +362,14 @@ namespace StrategyCore
                             if (multipleSelection && selectedUnits.Contains(Grid.chunkUnits[chunkIndex][i])) continue;
 
                             // Add to selection only visible units
-                            if (Grid.chunkUnits[chunkIndex][i].isSelectable && FogOfWar.instance.IsVisible(Grid.chunkUnits[chunkIndex][i].FoWCell, SlotManager.instance.currentTeam) && Grid.chunkUnits[chunkIndex][i].IsVisible(SlotManager.instance.currentTeam))
+                            if (Grid.chunkUnits[chunkIndex][i].isSelectable && FogOfWar.Instance.IsVisible(Grid.chunkUnits[chunkIndex][i].FoWCell, SlotManager.Instance.currentTeam) && Grid.chunkUnits[chunkIndex][i].IsVisible(SlotManager.Instance.currentTeam))
                             {
                                 Vector3 pos = Grid.chunkUnits[chunkIndex][i].transform.position;
 
                                 if (Utils.PyramidCheck(pos, frustumCorners, Grid.chunkUnits[chunkIndex][i].unitRadius))
                                 {
                                     // Skip if not own
-                                    if (Grid.chunkUnits[chunkIndex][i].owner != SlotManager.instance.currentPlayer)
+                                    if (Grid.chunkUnits[chunkIndex][i].owner != SlotManager.Instance.currentPlayer)
                                     {
                                         if (notOwnUnit != null && notOwnUnit.unitType == UnitType.Unit) continue;
                                         notOwnUnit = Grid.chunkUnits[chunkIndex][i];
@@ -413,9 +413,9 @@ namespace StrategyCore
                     UImanager.SubscribeToUnit();
 
                     // Click sound only when rect selection finished
-                    if (activeUnit.owner == SlotManager.instance.currentPlayer || SlotManager.instance.debugMode)
+                    if (activeUnit.owner == SlotManager.Instance.currentPlayer || SlotManager.Instance.debugMode)
                     {
-                        if (skip && activeUnit.clickSound.Length > 0) SoundFXManager.instance.PlayCommandSound(activeUnit, activeUnit.clickSound, 1);
+                        if (skip && activeUnit.clickSound.Length > 0) SoundFXManager.Instance.PlayCommandSound(activeUnit, activeUnit.clickSound, 1);
                     }
                 }
             }
@@ -470,9 +470,9 @@ namespace StrategyCore
                     selectedUnits = newSelection;
 
                     // Click sound
-                    if (activeUnit.owner == SlotManager.instance.currentPlayer || SlotManager.instance.debugMode)
+                    if (activeUnit.owner == SlotManager.Instance.currentPlayer || SlotManager.Instance.debugMode)
                     {
-                        if (skip && activeUnit.clickSound.Length > 0) SoundFXManager.instance.PlayCommandSound(activeUnit, activeUnit.clickSound, 1);
+                        if (skip && activeUnit.clickSound.Length > 0) SoundFXManager.Instance.PlayCommandSound(activeUnit, activeUnit.clickSound, 1);
                     }
                 }
                 else
@@ -509,9 +509,9 @@ namespace StrategyCore
             UImanager.SubscribeToUnit();
 
             // Click sound 
-            if (!noSound && (activeUnit.owner == SlotManager.instance.currentPlayer || SlotManager.instance.debugMode))
+            if (!noSound && (activeUnit.owner == SlotManager.Instance.currentPlayer || SlotManager.Instance.debugMode))
             {
-                if (activeUnit.clickSound.Length > 0) SoundFXManager.instance.PlayCommandSound(activeUnit, activeUnit.clickSound, 1);
+                if (activeUnit.clickSound.Length > 0) SoundFXManager.Instance.PlayCommandSound(activeUnit, activeUnit.clickSound, 1);
             }
         }
 
@@ -546,7 +546,7 @@ namespace StrategyCore
             {
                 // Remove null units from quick selection
                 List<Unit> tempList = new List<Unit>();
-                for (int i = 0; i < quickSelection[index].Count; i++) if (quickSelection[index][i] != null && quickSelection[index][i].owner == SlotManager.instance.currentPlayer) tempList.Add(quickSelection[index][i]);
+                for (int i = 0; i < quickSelection[index].Count; i++) if (quickSelection[index][i] != null && quickSelection[index][i].owner == SlotManager.Instance.currentPlayer) tempList.Add(quickSelection[index][i]);
 
                 // Copy to quick selection and check if any units to select left
                 quickSelection[index] = new List<Unit>(tempList);
@@ -562,7 +562,7 @@ namespace StrategyCore
                     }
 
                     activeUnit = selectedUnits[0];
-                    if (activeUnit.clickSound.Length > 0) SoundFXManager.instance.PlayCommandSound(activeUnit, activeUnit.clickSound, 1);
+                    if (activeUnit.clickSound.Length > 0) SoundFXManager.Instance.PlayCommandSound(activeUnit, activeUnit.clickSound, 1);
                     UImanager.SubscribeToUnit();
                 }
             }
@@ -607,7 +607,7 @@ namespace StrategyCore
 
         void QuickSelect(InputAction.CallbackContext ctx)
         {
-            if (UIManager.instance.chatON) return;
+            if (UIManager.Instance.chatON) return;
 
             // Select
             if (Keyboard.current.digit1Key.isPressed) ReplaceSelected(1);
@@ -627,7 +627,7 @@ namespace StrategyCore
             // Move camera to active unit
             if (activeUnit != null)
             {
-                Camera_TopDown.instance.SetPosition(activeUnit.transform.position);
+                Camera_TopDown.Instance.SetPosition(activeUnit.transform.position);
             }
         }
 

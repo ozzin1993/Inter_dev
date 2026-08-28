@@ -45,7 +45,7 @@ namespace StrategyCore
             lastPositions.Clear();
             levels.Clear();
             damageTypeWarned = false;
-            if (tickWired && GameManager.instance != null) GameManager.instance.Tick -= OnTick;
+            if (tickWired && GameManager.Instance != null) GameManager.Instance.Tick -= OnTick;
             tickWired = false;
         }
 
@@ -56,9 +56,9 @@ namespace StrategyCore
             lastPositions[unit] = unit.transform.position;
             levels[unit] = level;
 
-            if (!tickWired && GameManager.instance != null)
+            if (!tickWired && GameManager.Instance != null)
             {
-                GameManager.instance.Tick += OnTick;
+                GameManager.Instance.Tick += OnTick;
                 tickWired = true;
             }
         }
@@ -70,19 +70,19 @@ namespace StrategyCore
             lastPositions.Remove(unit);
             levels.Remove(unit);
 
-            if (lastPositions.Count == 0 && tickWired && GameManager.instance != null)
+            if (lastPositions.Count == 0 && tickWired && GameManager.Instance != null)
             {
-                GameManager.instance.Tick -= OnTick;
+                GameManager.Instance.Tick -= OnTick;
                 tickWired = false;
             }
         }
 
         void OnTick()
         {
-            if (NetworkConnectionHandler.isClient || GameManager.instance == null) return;
+            if (NetworkConnectionHandler.isClient || GameManager.Instance == null) return;
             if (lastPositions.Count == 0) return;
 
-            float dt = GameManager.instance.currentDeltaTime;
+            float dt = GameManager.Instance.currentDeltaTime;
 
             tickBuffer.Clear();
             tickBuffer.AddRange(lastPositions.Keys);

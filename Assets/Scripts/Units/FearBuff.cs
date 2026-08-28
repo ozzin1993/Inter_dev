@@ -45,9 +45,9 @@ namespace StrategyCore
                 if (!unit.disarmed) { unit.disarmed = true; weSetDisarmed = true; }
             }
 
-            if (!subscribed && GameManager.instance != null)
+            if (!subscribed && GameManager.Instance != null)
             {
-                GameManager.instance.Tick += OnTick;
+                GameManager.Instance.Tick += OnTick;
                 subscribed = true;
             }
             FleeStep(); // побежать сразу
@@ -56,9 +56,9 @@ namespace StrategyCore
         private void OnTick()
         {
             if (unit == null || unit.dead) { Cleanup(); return; }
-            if (GameManager.instance == null) return;
+            if (GameManager.Instance == null) return;
             FleeStep();
-            remaining -= GameManager.instance.currentDeltaTime;
+            remaining -= GameManager.Instance.currentDeltaTime;
             if (remaining <= 0f) Cleanup();
         }
 
@@ -76,7 +76,7 @@ namespace StrategyCore
 
         private void Cleanup()
         {
-            if (subscribed && GameManager.instance != null) GameManager.instance.Tick -= OnTick;
+            if (subscribed && GameManager.Instance != null) GameManager.Instance.Tick -= OnTick;
             subscribed = false;
             RemoveOwnStatus();
             Destroy(this);
@@ -93,7 +93,7 @@ namespace StrategyCore
 
         private void OnDestroy()
         {
-            if (subscribed && GameManager.instance != null) GameManager.instance.Tick -= OnTick;
+            if (subscribed && GameManager.Instance != null) GameManager.Instance.Tick -= OnTick;
             subscribed = false;
             RemoveOwnStatus();
         }

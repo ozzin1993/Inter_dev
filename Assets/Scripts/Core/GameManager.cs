@@ -8,9 +8,11 @@ using UnityEngine.AI;
 
 namespace StrategyCore
 {
-    public class GameManager : MonoBehaviour
+    public class GameManager : MonoBehaviour, IStartupService
     {
-        public static GameManager instance;
+        public static GameManager Instance { get; private set; }
+
+        private bool startupDone; // защита от повторного подъёма (стартовик сцены + собственный Awake)
 
         [Header("Camera")]
         // [Interflow 2026-08-01 ADR-005] Поле camera_TopDown удалено: камера — через Presentation.Camera (клиентский сервис).
@@ -116,23 +118,28 @@ namespace StrategyCore
         // VFXLines - collection of all possible VFXLines of the game
         public Dictionary<int, VFXLine> gameVFXLines = new Dictionary<int, VFXLine>();
 
-        // Start is called before the first frame update
-        void Awake()
+        void Awake() => Startup();
+
+        /// <summary>
+        /// Подъём службы (IStartupService). Идемпотентен: повторный вызов выходит сразу.
+        /// Grid и ReferenceManager обязаны быть подняты РАНЬШЕ — порядок задаёт SceneStartup.
+        /// </summary>
+        public void Startup()
         {
-            if (instance == null)
+            if (startupDone) return;
+            startupDone = true;
+
+            if (Instance == null)
             {
-                instance = this;
+                Instance = this;
             }
 
             // For performance reasons
             Utils.cachedMainCamera = Camera.main;
 
-            if (ReferenceManager.instance == null) ReferenceManager.instance = GetComponent<ReferenceManager>();
-            if (Grid.instance == null) Grid.instance = GetComponent<Grid>();
-
             // Camera bounds
             // [Interflow 2026-08-01 ADR-005] Камера — через клиентский сервис (на выделенном сервере её нет).
-            Presentation.Camera?.SetLimits(new Vector4(Grid.instance.height + cameraEdge, Grid.instance.width + cameraEdge, cameraEdge, cameraEdge));
+            Presentation.Camera?.SetLimits(new Vector4(Grid.Instance.height + cameraEdge, Grid.Instance.width + cameraEdge, cameraEdge, cameraEdge));
 
             Initialize();
             // Data dictionaries
@@ -146,14 +153,14 @@ namespace StrategyCore
         void Start()
         {
             // Properly position GameManager in the center of the map
-            transform.position = new Vector3(Grid.instance.width * 0.5f, 0, Grid.instance.height * 0.5f);
+            transform.position = new Vector3(Grid.Instance.width * 0.5f, 0, Grid.Instance.height * 0.5f);
             if (gameStartCall) GameStart(); // gameStartCall == true only when we are not coming from lobby i.e. testing in UnityEditor
         }
 
         // Update is called once per frame
         void Update()
         {
-            if (!SlotManager.instance.gameOn) return;
+            if (!SlotManager.Instance.gameOn) return;
 
             if (onlyOnce == false)
             {
@@ -350,8 +357,8 @@ namespace StrategyCore
             NavMeshSurface groundNavmesh = navmeshParent.Find("GroundNavmesh").GetComponent<NavMeshSurface>();
             NavMeshSurface waterNavmesh = navmeshParent.Find("WaterNavmesh").GetComponent<NavMeshSurface>();
 
-            groundNavmesh.center = new Vector3(Grid.instance.width * 0.5f, 0, Grid.instance.height * 0.5f);
-            groundNavmesh.size = new Vector3(Grid.instance.width - 0.5f, Utils.raycastPointY, Grid.instance.height - 0.5f);
+            groundNavmesh.center = new Vector3(Grid.Instance.width * 0.5f, 0, Grid.Instance.height * 0.5f);
+            groundNavmesh.size = new Vector3(Grid.Instance.width - 0.5f, Utils.raycastPointY, Grid.Instance.height - 0.5f);
 
             waterNavmesh.center = groundNavmesh.center;
             waterNavmesh.size = groundNavmesh.size;
@@ -360,7 +367,7 @@ namespace StrategyCore
             waterNavmesh.BuildNavMesh();
 
             // Air navmesh surface
-            Utils.airOffsetX = Grid.instance.width * 1.5f;
+            Utils.airOffsetX = Grid.Instance.width * 1.5f;
             NavMeshSurface airNavmesh = navmeshParent.Find("AirNavmesh").GetComponent<NavMeshSurface>();
             airNavmesh.transform.position = new Vector3(Utils.airOffsetX, 0, 0);
             airNavmesh.center = groundNavmesh.center;
@@ -373,7 +380,7 @@ namespace StrategyCore
             airNavmesh.BuildNavMesh();
 
             // Invisibility Navmesh
-            Utils.invisibilityOffsetY = Grid.instance.height * 1.5f;
+            Utils.invisibilityOffsetY = Grid.Instance.height * 1.5f;
             NavMeshSurface invisNav = navmeshParent.Find("InvisibilityNavmesh").GetComponent<NavMeshSurface>();
             if (gameIncludesInvisible)
             {
@@ -447,7 +454,7 @@ namespace StrategyCore
             int maxSpawnPositions = spawnPoints.transform.childCount;
 
             // Camera
-            Vector3 pos = spawnPoints.transform.GetChild(SlotManager.instance.playerPosition[SlotManager.instance.currentPlayer]).position;
+            Vector3 pos = spawnPoints.transform.GetChild(SlotManager.Instance.playerPosition[SlotManager.Instance.currentPlayer]).position;
             Presentation.Camera?.SetPosition(new Vector3(pos.x, 0, pos.z)); // [Interflow 2026-08-01 ADR-005]
 
             // Only on server
@@ -455,20 +462,20 @@ namespace StrategyCore
             // Used for spawning faction units
             if (factionData == null || factionData.Length == 0) return;
 
-            for (int i = 0; i < SlotManager.instance.slotType.Length; i++)
+            for (int i = 0; i < SlotManager.Instance.slotType.Length; i++)
             {
-                if (SlotManager.instance.slotType[i] != SlotType.Empty)
+                if (SlotManager.Instance.slotType[i] != SlotType.Empty)
                 {
                     // Checks
-                    if (SlotManager.instance.playerPosition[i] >= maxSpawnPositions)
+                    if (SlotManager.Instance.playerPosition[i] >= maxSpawnPositions)
                     {
-                        Debug.LogWarning("For player at the slot " + i + " we could not spawn the faction units, since the player position " + SlotManager.instance.playerFaction[i] + " does not exist in the scene.");
+                        Debug.LogWarning("For player at the slot " + i + " we could not spawn the faction units, since the player position " + SlotManager.Instance.playerFaction[i] + " does not exist in the scene.");
                         continue;
                     }
 
                     // Spawn units for this faction
-                    Transform playerPosition = spawnPoints.transform.GetChild(SlotManager.instance.playerPosition[i]);
-                    UnitsForSpawn[] ufs = factionData[SlotManager.instance.playerFaction[i]].UnitsForSpawn;
+                    Transform playerPosition = spawnPoints.transform.GetChild(SlotManager.Instance.playerPosition[i]);
+                    UnitsForSpawn[] ufs = factionData[SlotManager.Instance.playerFaction[i]].UnitsForSpawn;
                     for (int q = 0; q < ufs.Length; q++)
                     {
                         if (ufs[q].subSpawnIndex >= playerPosition.childCount)
@@ -484,7 +491,7 @@ namespace StrategyCore
                     }
                 }
             }
-            if (NetworkDataSync.instance) NetworkDataSync.instance.PlayerListSend(0, true);
+            if (NetworkDataSync.Instance) NetworkDataSync.Instance.PlayerListSend(0, true);
         }
 
         // ============================= WINNING CONDITIONS ==============================================================================
@@ -493,12 +500,12 @@ namespace StrategyCore
         {
             if (unit.unitType == UnitType.Unit)
             {
-                GameManager.instance.unitCount[unit.owner]++;
+                GameManager.Instance.unitCount[unit.owner]++;
             }
             else if (unit.unitType == UnitType.Building)
             {
-                GameManager.instance.unitCount[unit.owner]++;
-                GameManager.instance.buildingCount[unit.owner]++;
+                GameManager.Instance.unitCount[unit.owner]++;
+                GameManager.Instance.buildingCount[unit.owner]++;
             }
         }
 
@@ -506,12 +513,12 @@ namespace StrategyCore
         {
             if (unit.unitType == UnitType.Unit)
             {
-                GameManager.instance.unitCount[unit.owner]--;
+                GameManager.Instance.unitCount[unit.owner]--;
             }
             else if (unit.unitType == UnitType.Building)
             {
-                GameManager.instance.unitCount[unit.owner]--;
-                GameManager.instance.buildingCount[unit.owner]--;
+                GameManager.Instance.unitCount[unit.owner]--;
+                GameManager.Instance.buildingCount[unit.owner]--;
             }
 
             _checkWinUpdate = true;
@@ -545,7 +552,7 @@ namespace StrategyCore
                         playersRemaining++;
                         continue;
                     }
-                    if (SlotManager.instance.playerLost[i]) continue;
+                    if (SlotManager.Instance.playerLost[i]) continue;
                     // This player lost
                     PlayerLoses(i);
                 }
@@ -590,7 +597,7 @@ namespace StrategyCore
                         // No more units to die, win condition
                         if (specificUnitsDead[i].killerTeam)
                         {
-                            TeamWins(SlotManager.instance.playerTeam[playerThatKills]);
+                            TeamWins(SlotManager.Instance.playerTeam[playerThatKills]);
                         }
                         else
                         {
@@ -604,16 +611,16 @@ namespace StrategyCore
         // The 3 functions below are called by the server only
         public void PlayerLoses(int playerIndex)
         {
-            SlotManager.instance.playerLost[playerIndex] = true;
-            Presentation.ChatServerMsg("Player " + SlotManager.instance.playerName[playerIndex] + " has lost the game!");
+            SlotManager.Instance.playerLost[playerIndex] = true;
+            Presentation.ChatServerMsg("Player " + SlotManager.Instance.playerName[playerIndex] + " has lost the game!");
 
             // Check if allies of this player still playing
-            int[] allies = SlotManager.instance.GetPlayerAllies(playerIndex);
+            int[] allies = SlotManager.Instance.GetPlayerAllies(playerIndex);
 
             bool allyStillPlaying = false;
             for (int i = 0; i < allies.Length; i++)
             {
-                if (SlotManager.instance.playerLost[allies[i]] == false)
+                if (SlotManager.Instance.playerLost[allies[i]] == false)
                 {
                     allyStillPlaying = true;
                     break;
@@ -623,18 +630,18 @@ namespace StrategyCore
             if (allyStillPlaying)
             {
                 // Only this player lost, the rest of the player's team are still alive
-                if (NetworkDataSync.instance) NetworkDataSync.instance.PlayerLosesSend(playerIndex);
-                else if (playerIndex == SlotManager.instance.currentPlayer) SlotManager.instance.PlayerLoses();
+                if (NetworkDataSync.Instance) NetworkDataSync.Instance.PlayerLosesSend(playerIndex);
+                else if (playerIndex == SlotManager.Instance.currentPlayer) SlotManager.Instance.PlayerLoses();
             }
             else
             {
                 // The whole team lost, it is game over for them
                 for (int i = 0; i < allies.Length; i++)
                 {
-                    if (SlotManager.instance.slotType[allies[i]] == SlotType.Player)
+                    if (SlotManager.Instance.slotType[allies[i]] == SlotType.Player)
                     {
-                        if (NetworkDataSync.instance) NetworkDataSync.instance.TeamLosesSend(playerIndex);
-                        else if (playerIndex == SlotManager.instance.currentPlayer) SlotManager.instance.TeamLoses();
+                        if (NetworkDataSync.Instance) NetworkDataSync.Instance.TeamLosesSend(playerIndex);
+                        else if (playerIndex == SlotManager.Instance.currentPlayer) SlotManager.Instance.TeamLoses();
                     }
                 }
             }
@@ -642,13 +649,13 @@ namespace StrategyCore
 
         private void PlayerWins(int playerIndex)
         {
-            int[] allies = SlotManager.instance.GetPlayerAllies(playerIndex);
+            int[] allies = SlotManager.Instance.GetPlayerAllies(playerIndex);
             for (int i = 0; i < allies.Length; i++)
             {
-                if (SlotManager.instance.slotType[allies[i]] == SlotType.Player)
+                if (SlotManager.Instance.slotType[allies[i]] == SlotType.Player)
                 {
-                    if (NetworkDataSync.instance) NetworkDataSync.instance.PlayerWinsSend(playerIndex);
-                    else if (i == SlotManager.instance.currentPlayer) SlotManager.instance.PlayerWins();
+                    if (NetworkDataSync.Instance) NetworkDataSync.Instance.PlayerWinsSend(playerIndex);
+                    else if (i == SlotManager.Instance.currentPlayer) SlotManager.Instance.PlayerWins();
                 }
             }
         }
@@ -656,19 +663,19 @@ namespace StrategyCore
         private void TeamWins(int teamIndex)
         {
             // Team wins, Everyone else loses
-            for (int i = 0; i < SlotManager.instance.playerTeam.Length; i++)
+            for (int i = 0; i < SlotManager.Instance.playerTeam.Length; i++)
             {
-                if (SlotManager.instance.slotType[i] == SlotType.Player)
+                if (SlotManager.Instance.slotType[i] == SlotType.Player)
                 {
-                    if (SlotManager.instance.playerTeam[i] == teamIndex)
+                    if (SlotManager.Instance.playerTeam[i] == teamIndex)
                     {
-                        if (NetworkDataSync.instance) NetworkDataSync.instance.PlayerWinsSend(i);
-                        else if (i == SlotManager.instance.currentPlayer) SlotManager.instance.PlayerWins();
+                        if (NetworkDataSync.Instance) NetworkDataSync.Instance.PlayerWinsSend(i);
+                        else if (i == SlotManager.Instance.currentPlayer) SlotManager.Instance.PlayerWins();
                     }
                     else
                     {
-                        if (NetworkDataSync.instance) NetworkDataSync.instance.TeamLosesSend(i);
-                        else if (i == SlotManager.instance.currentPlayer) SlotManager.instance.TeamLoses();
+                        if (NetworkDataSync.Instance) NetworkDataSync.Instance.TeamLosesSend(i);
+                        else if (i == SlotManager.Instance.currentPlayer) SlotManager.Instance.TeamLoses();
                     }
                 }
             }
@@ -694,7 +701,7 @@ namespace StrategyCore
         private void ChangeTeam(int team)
         {
             // Do not use
-            SlotManager.instance.currentTeam = team;
+            SlotManager.Instance.currentTeam = team;
             OnTeamChange?.Invoke();
         }
 
@@ -707,14 +714,14 @@ namespace StrategyCore
             Presentation.Selection?.ResetSelection();
 
             // For each unit
-            foreach (KeyValuePair<UInt16, Unit> entry in SlotManager.instance.unitNetID)
+            foreach (KeyValuePair<UInt16, Unit> entry in SlotManager.Instance.unitNetID)
             {
                 // Unsubscribe from events this unit was subscribed to
                 entry.Value.Unsubscribe();
-                entry.Value.OnDie -= GameManager.instance.OnSpecificUnitDie;
-                SlotManager.instance.OnGameStart -= entry.Value.StartCallback;
-                GameManager.instance.OnTeamChange -= entry.Value.TeamChanged;
-                GameManager.instance.Tick -= entry.Value.CooldownCalculate;
+                entry.Value.OnDie -= GameManager.Instance.OnSpecificUnitDie;
+                SlotManager.Instance.OnGameStart -= entry.Value.StartCallback;
+                GameManager.Instance.OnTeamChange -= entry.Value.TeamChanged;
+                GameManager.Instance.Tick -= entry.Value.CooldownCalculate;
 
                 if (entry.Value.hpSync) entry.Value.HPSyncFalse();
                 if (entry.Value.mpSync) entry.Value.MPSyncFalse();
@@ -731,19 +738,19 @@ namespace StrategyCore
             }
 
             // Reset resources
-            GameResources.instance.playerResources = new int[Enum.GetNames(typeof(StrategyCore.Players)).Length * GameResources.instance.gameResources.Length];
-            GameResources.instance.playerResourceLimits = new int[Enum.GetNames(typeof(StrategyCore.Players)).Length * GameResources.instance.gameResources.Length];
+            GameResources.Instance.playerResources = new int[Enum.GetNames(typeof(StrategyCore.Players)).Length * GameResources.Instance.gameResources.Length];
+            GameResources.Instance.playerResourceLimits = new int[Enum.GetNames(typeof(StrategyCore.Players)).Length * GameResources.Instance.gameResources.Length];
             Presentation.UI?.RefreshResourceTab();
             // Reset technology
-            TechnologyManager.instance.Initialize();
+            TechnologyManager.Instance.Initialize();
             // Reset FoW
-            FogOfWar.instance.Initialize();
+            FogOfWar.Instance.Initialize();
             // Reset Grid
-            Grid.instance.Initialize();
+            Grid.Instance.Initialize();
             // Reset GM
-            GameManager.instance.Initialize();
+            GameManager.Instance.Initialize();
             // Reset NetworkHandler.unitNetID
-            SlotManager.instance.unitNetID = new Dictionary<UInt16, Unit>();
+            SlotManager.Instance.unitNetID = new Dictionary<UInt16, Unit>();
         }
     }
 }

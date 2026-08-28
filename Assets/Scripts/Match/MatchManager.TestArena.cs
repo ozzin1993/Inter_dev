@@ -223,7 +223,7 @@ namespace StrategyCore
         public List<Technology> TestAllTechs()
         {
             List<Technology> result = new List<Technology>();
-            TechnologyManager tm = TechnologyManager.instance;
+            TechnologyManager tm = TechnologyManager.Instance;
             if (tm == null || tm.TechTree == null || tm.TechTree.Length == 0 || tm.TechTree[0] == null) return result;
 
             foreach (KeyValuePair<Technology, bool> kv in tm.TechTree[0])
@@ -236,7 +236,7 @@ namespace StrategyCore
         /// <summary>Открыта ли технология у стороны (чтение — безопасно и на клиенте).</summary>
         public bool TestIsTechUnlocked(int teamIndex, Technology tech)
         {
-            TechnologyManager tm = TechnologyManager.instance;
+            TechnologyManager tm = TechnologyManager.Instance;
             if (tm == null || tech == null || !TechPlayerValid(teamIndex, out int player)) return false;
             if (tm.TechTree == null || tm.TechTree[player] == null || !tm.TechTree[player].ContainsKey(tech)) return false;
             return tm.isUnlocked(tech, player);
@@ -248,7 +248,7 @@ namespace StrategyCore
         bool TechPlayerValid(int teamIndex, out int player)
         {
             player = TestOwnerOf(teamIndex);
-            TechnologyManager tm = TechnologyManager.instance;
+            TechnologyManager tm = TechnologyManager.Instance;
             bool ok = player >= 0 && tm != null && tm.TechTree != null && player < tm.TechTree.Length;
             if (!ok) Debug.LogWarning($"[Полигон] У стороны {TestSideName(teamIndex)} владелец {player} вне дерева технологий — операция пропущена.");
             return ok;
@@ -261,7 +261,7 @@ namespace StrategyCore
         public void TestSetTech(int teamIndex, Technology tech, bool unlocked)
         {
             if (NetworkConnectionHandler.isClient) return;
-            TechnologyManager tm = TechnologyManager.instance;
+            TechnologyManager tm = TechnologyManager.Instance;
             if (tm == null || tech == null || !TechPlayerValid(teamIndex, out int player)) return;
             if (tm.TechTree[player] == null || !tm.TechTree[player].ContainsKey(tech)) return;
 
@@ -277,7 +277,7 @@ namespace StrategyCore
         public void TestSetTechBatch(int teamIndex, IList<Technology> techs, bool unlocked)
         {
             if (NetworkConnectionHandler.isClient) return;
-            TechnologyManager tm = TechnologyManager.instance;
+            TechnologyManager tm = TechnologyManager.Instance;
             if (tm == null || techs == null || !TechPlayerValid(teamIndex, out int player)) return;
 
             for (int i = 0; i < techs.Count; i++)

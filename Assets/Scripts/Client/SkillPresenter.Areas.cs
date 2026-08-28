@@ -137,9 +137,9 @@ namespace StrategyCore
         // Круг — штатная декаль-проектор. Родитель-кастер даёт слежение за ним даром.
         AreaView NewCircle(float radius, Unit anchor, Vector3 point)
         {
-            if (ReferenceManager.instance == null || ReferenceManager.instance.rangeProjector == null) return null;
+            if (ReferenceManager.Instance == null || ReferenceManager.Instance.rangeProjector == null) return null;
 
-            Transform t = Instantiate(ReferenceManager.instance.rangeProjector);
+            Transform t = Instantiate(ReferenceManager.Instance.rangeProjector);
             t.position = point;
             if (anchor != null) t.SetParent(anchor.transform, true);
 

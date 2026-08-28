@@ -29,11 +29,11 @@ namespace StrategyCore
                 if (isInvisible) return;
                 // Make invisible
                 isInvisible = true;
-                if (NetworkManager.Singleton.IsServer) NetworkDataSync.instance.InvisibilitySetSend(this, true);
+                if (NetworkManager.Singleton.IsServer) NetworkDataSync.Instance.InvisibilitySetSend(this, true);
                 SetOverlayColor(StateColors.Invisibility, false);
 
                 // Hide renderers if enemy team and can not be seen by current team
-                if (!IsVisible(SlotManager.instance.currentTeam)) HideRenderers();
+                if (!IsVisible(SlotManager.Instance.currentTeam)) HideRenderers();
 
                 if (!NetworkConnectionHandler.isClient)
                 {
@@ -67,7 +67,7 @@ namespace StrategyCore
                 if (!isInvisible) return;
                 // Make visible
                 isInvisible = false;
-                if (NetworkManager.Singleton.IsServer) NetworkDataSync.instance.InvisibilitySetSend(this, false);
+                if (NetworkManager.Singleton.IsServer) NetworkDataSync.Instance.InvisibilitySetSend(this, false);
                 ResetOverlayColor();
 
                 if (!NetworkConnectionHandler.isClient)
@@ -102,7 +102,7 @@ namespace StrategyCore
                 }
                 if (effectorRemoved) OnStatusUpdate?.Invoke();
 
-                if (FogOfWar.instance.IsVisible(FoWCell, SlotManager.instance.currentTeam)) ShowRenderers();
+                if (FogOfWar.Instance.IsVisible(FoWCell, SlotManager.Instance.currentTeam)) ShowRenderers();
             }
         }
 
@@ -127,7 +127,7 @@ namespace StrategyCore
                 canBeSeenCount[teamIndex]++;
 
                 // This will determine if we show or hide renderers, only decided for the player`s team
-                if (FogOfWar.instance.IsVisible(FoWCell, SlotManager.instance.currentTeam)) ShowRenderers();
+                if (FogOfWar.Instance.IsVisible(FoWCell, SlotManager.Instance.currentTeam)) ShowRenderers();
             }
             else
             {
@@ -136,7 +136,7 @@ namespace StrategyCore
                 if (canBeSeenCount[teamIndex] == 0)
                 {
                     canBeSeen[teamIndex] = false;
-                    if (teamIndex == SlotManager.instance.currentTeam && isInvisible)
+                    if (teamIndex == SlotManager.Instance.currentTeam && isInvisible)
                     {
                         HideRenderers();
                     }

@@ -63,20 +63,20 @@ namespace StrategyCore
             if (shoppingUnit == null) shoppingUnit = shopUnit;
 
             // If shop unit is null or too far, try to find one
-            if (shoppingUnit == null || Vector2.Distance(new Vector2(shoppingUnit.transform.position.x, shoppingUnit.transform.position.z), new Vector2(transform.position.x, transform.position.z)) > GameManager.instance.shopRadius)
+            if (shoppingUnit == null || Vector2.Distance(new Vector2(shoppingUnit.transform.position.x, shoppingUnit.transform.position.z), new Vector2(transform.position.x, transform.position.z)) > GameManager.Instance.shopRadius)
             {
-                shoppingUnit = Utils.GetClosestShoppingUnit(SlotManager.instance.currentPlayer, this);
+                shoppingUnit = Utils.GetClosestShoppingUnit(SlotManager.Instance.currentPlayer, this);
 
                 if (shoppingUnit == null)
                 {
-                    Presentation.NotifyMsg("No unit nearby to buy this item", SlotManager.instance.currentPlayer, false);
+                    Presentation.NotifyMsg("No unit nearby to buy this item", SlotManager.Instance.currentPlayer, false);
                     return;
                 }
             }
 
             if (NetworkConnectionHandler.isClient)
             {
-                NetworkCommandSync.instance.BuyItemCommandSend(this, shoppingUnit, abilityIndex);
+                NetworkCommandSync.Instance.BuyItemCommandSend(this, shoppingUnit, abilityIndex);
                 return;
             }
 
@@ -119,7 +119,7 @@ namespace StrategyCore
         {
             if (NetworkConnectionHandler.isClient)
             {
-                NetworkCommandSync.instance.SellItemCommandSend(this, itemIndex);
+                NetworkCommandSync.Instance.SellItemCommandSend(this, itemIndex);
                 return false;
             }
 
@@ -132,9 +132,9 @@ namespace StrategyCore
                     for (int i = 0; i < items[itemIndex].cost[0].data.Length; i++)
                     {
                         // Change the price and add the amount to the player
-                        GameResources.instance.ChangeAmount(owner,
+                        GameResources.Instance.ChangeAmount(owner,
                             new ResourceWrapper(items[itemIndex].cost[0].data[i].type,
-                                               (int)(items[itemIndex].cost[0].data[i].value * GameManager.instance.sellPriceReduction)));
+                                               (int)(items[itemIndex].cost[0].data[i].value * GameManager.Instance.sellPriceReduction)));
                     }
                 }
 
@@ -143,7 +143,7 @@ namespace StrategyCore
                 return true;
             }
 
-            Presentation.NotifyMsg("No shops nearby. Shopping radius is " + GameManager.instance.shopRadius + " meters.", owner, true);
+            Presentation.NotifyMsg("No shops nearby. Shopping radius is " + GameManager.Instance.shopRadius + " meters.", owner, true);
             return false;
         }
 
@@ -156,7 +156,7 @@ namespace StrategyCore
         {
             if (NetworkConnectionHandler.isClient)
             {
-                NetworkCommandSync.instance.DropItemCommandSend(this, itemIndex);
+                NetworkCommandSync.Instance.DropItemCommandSend(this, itemIndex);
                 return false;
             }
 
@@ -181,11 +181,11 @@ namespace StrategyCore
         {
             if (NetworkConnectionHandler.isClient)
             {
-                NetworkCommandSync.instance.DropItemPositionCommandSend(this, itemIndex, position);
+                NetworkCommandSync.Instance.DropItemPositionCommandSend(this, itemIndex, position);
                 return;
             }
 
-            Move(position, ReferenceManager.instance.itemPrefab.unitRadius);
+            Move(position, ReferenceManager.Instance.itemPrefab.unitRadius);
             dropItemIndex = itemIndex;
 
             OnCommand += CancelDropItemMove;
@@ -217,7 +217,7 @@ namespace StrategyCore
             {
                 if (NetworkConnectionHandler.isClient)
                 {
-                    NetworkCommandSync.instance.DropItemUnitCommandSend(this, itemIndex, unit);
+                    NetworkCommandSync.Instance.DropItemUnitCommandSend(this, itemIndex, unit);
                     return;
                 }
 
@@ -341,7 +341,7 @@ namespace StrategyCore
                     OnRedrawAbilityView?.Invoke();
 
                     // Add on clients
-                    if (!skipSync && NetworkManager.Singleton.IsServer) NetworkDataSync.instance.AddItem(this, i, item.id, charges, cooldown);
+                    if (!skipSync && NetworkManager.Singleton.IsServer) NetworkDataSync.Instance.AddItem(this, i, item.id, charges, cooldown);
                     return true;
                 }
             }
@@ -388,7 +388,7 @@ namespace StrategyCore
             if (!noRedraw) OnRedrawAbilityView?.Invoke();
 
             // Remove on clients
-            if (!skipSync && NetworkManager.Singleton.IsServer) NetworkDataSync.instance.RemoveItem(this, itemIndex);
+            if (!skipSync && NetworkManager.Singleton.IsServer) NetworkDataSync.Instance.RemoveItem(this, itemIndex);
         }
 
         /// <summary>
@@ -401,7 +401,7 @@ namespace StrategyCore
         {
             if (commanded && NetworkConnectionHandler.isClient)
             {
-                NetworkCommandSync.instance.SwapItemCommandSend(this, from, to);
+                NetworkCommandSync.Instance.SwapItemCommandSend(this, from, to);
                 return;
             }
 
@@ -451,7 +451,7 @@ namespace StrategyCore
             OnRedrawAbilityView?.Invoke();
 
             // Send info to clients
-            if (NetworkManager.Singleton.IsServer) NetworkDataSync.instance.SwapItem(this, from, to);
+            if (NetworkManager.Singleton.IsServer) NetworkDataSync.Instance.SwapItem(this, from, to);
         }
 
         /// <summary>

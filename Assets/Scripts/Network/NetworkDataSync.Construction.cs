@@ -17,26 +17,26 @@ namespace StrategyCore
         private void ShadowCasterSpawnClientRpc(int shadowCasterID, UInt16 castingUnitID, int abilityID, int abilityLevel, UInt16 targetID, Vector3 targetPosition, float range, float duration)
         {
             // Joining mid-game, we do not accept any data from the server. Only scene data.
-            if (NetworkConnectionHandler.instance.connectionStage == 2) return;
+            if (NetworkConnectionHandler.Instance.connectionStage == 2) return;
 
-            if (SlotManager.instance.unitNetID.TryGetValue(castingUnitID, out Unit castingUnit))
+            if (SlotManager.Instance.unitNetID.TryGetValue(castingUnitID, out Unit castingUnit))
             {
                 Unit targetUnit = null;
                 if (targetID != 0)
                 {
-                    if (!SlotManager.instance.unitNetID.TryGetValue(targetID, out targetUnit))
+                    if (!SlotManager.Instance.unitNetID.TryGetValue(targetID, out targetUnit))
                     {
                         Debug.LogError("Desync! Unit netID:" + targetID + " should exist on client, but does not! (ShadowCasterSpawn NetworkDataSync)");
                         return;
                     }
                 }
 
-                ShadowCaster sc = ShadowCaster.Spawn(shadowCasterID, castingUnit, castingUnit.owner, GameManager.instance.gameAbilities[abilityID], abilityLevel, targetUnit, targetPosition, range, duration);
+                ShadowCaster sc = ShadowCaster.Spawn(shadowCasterID, castingUnit, castingUnit.owner, GameManager.Instance.gameAbilities[abilityID], abilityLevel, targetUnit, targetPosition, range, duration);
 
                 // Activate
-                if (targetUnit) GameManager.instance.gameAbilities[abilityID].Activate(castingUnit, castingUnit.owner, abilityLevel, targetUnit, ref sc.activeAbilityVFX);
-                else if (targetPosition != Vector3.zero) GameManager.instance.gameAbilities[abilityID].Activate(castingUnit, castingUnit.owner, abilityLevel, targetPosition, ref sc.activeAbilityVFX);
-                else GameManager.instance.gameAbilities[abilityID].Activate(castingUnit, castingUnit.owner, abilityLevel, ref sc.activeAbilityVFX);
+                if (targetUnit) GameManager.Instance.gameAbilities[abilityID].Activate(castingUnit, castingUnit.owner, abilityLevel, targetUnit, ref sc.activeAbilityVFX);
+                else if (targetPosition != Vector3.zero) GameManager.Instance.gameAbilities[abilityID].Activate(castingUnit, castingUnit.owner, abilityLevel, targetPosition, ref sc.activeAbilityVFX);
+                else GameManager.Instance.gameAbilities[abilityID].Activate(castingUnit, castingUnit.owner, abilityLevel, ref sc.activeAbilityVFX);
             }
             else
             {
@@ -49,13 +49,13 @@ namespace StrategyCore
         public void ShadowCasterRemoveClientRpc(int shadowcasterID)
         {
             // Joining mid-game, we do not accept any data from the server. Only scene data.
-            if (NetworkConnectionHandler.instance.connectionStage == 2) return;
+            if (NetworkConnectionHandler.Instance.connectionStage == 2) return;
 
             // Remove from shadowcaster tracker
-            int index = GameManager.instance.shadowCasterIDs.IndexOf(shadowcasterID);
+            int index = GameManager.Instance.shadowCasterIDs.IndexOf(shadowcasterID);
             if (index != -1)
             {
-                GameManager.instance.shadowCasters[index].Remove();
+                GameManager.Instance.shadowCasters[index].Remove();
             }
         }
 
@@ -66,9 +66,9 @@ namespace StrategyCore
         public void AnimationPrefixClientRpc(UInt16 netID, float blendingIndex)
         {
             // Joining mid-game, we do not accept any data from the server. Only scene data.
-            if (NetworkConnectionHandler.instance.connectionStage == 2) return;
+            if (NetworkConnectionHandler.Instance.connectionStage == 2) return;
 
-            if (SlotManager.instance.unitNetID.TryGetValue(netID, out Unit unit))
+            if (SlotManager.Instance.unitNetID.TryGetValue(netID, out Unit unit))
             {
                 unit.SetAnimationBlendingIndex(blendingIndex);
             }
@@ -93,11 +93,11 @@ namespace StrategyCore
         private void WorkerStartConstructingClientRpc(UInt16 buildingNetID, UInt16 workerNetID)
         {
             // Joining mid-game, we do not accept any data from the server. Only scene data.
-            if (NetworkConnectionHandler.instance.connectionStage == 2) return;
+            if (NetworkConnectionHandler.Instance.connectionStage == 2) return;
 
-            if (SlotManager.instance.unitNetID.TryGetValue(buildingNetID, out Unit building))
+            if (SlotManager.Instance.unitNetID.TryGetValue(buildingNetID, out Unit building))
             {
-                if (SlotManager.instance.unitNetID.TryGetValue(workerNetID, out Unit worker))
+                if (SlotManager.Instance.unitNetID.TryGetValue(workerNetID, out Unit worker))
                 {
                     if (building.constructionUnit && worker.constructionUnit)
                     {
@@ -132,9 +132,9 @@ namespace StrategyCore
         private void WorkerStopConstructingClientRpc(UInt16 buildingNetID, UInt16 workerNetID)
         {
             // Joining mid-game, we do not accept any data from the server. Only scene data.
-            if (NetworkConnectionHandler.instance.connectionStage == 2) return;
+            if (NetworkConnectionHandler.Instance.connectionStage == 2) return;
 
-            if (SlotManager.instance.unitNetID.TryGetValue(workerNetID, out Unit worker))
+            if (SlotManager.Instance.unitNetID.TryGetValue(workerNetID, out Unit worker))
             {
                 if (worker.constructionUnit)
                 {
@@ -164,11 +164,11 @@ namespace StrategyCore
         private void WorkerStartTheRepairsClientRpc(UInt16 workerNetID, UInt16 buildingNetID)
         {
             // Joining mid-game, we do not accept any data from the server. Only scene data.
-            if (NetworkConnectionHandler.instance.connectionStage == 2) return;
+            if (NetworkConnectionHandler.Instance.connectionStage == 2) return;
 
-            if (SlotManager.instance.unitNetID.TryGetValue(buildingNetID, out Unit building))
+            if (SlotManager.Instance.unitNetID.TryGetValue(buildingNetID, out Unit building))
             {
-                if (SlotManager.instance.unitNetID.TryGetValue(workerNetID, out Unit worker))
+                if (SlotManager.Instance.unitNetID.TryGetValue(workerNetID, out Unit worker))
                 {
                     if (building.constructionUnit && worker.constructionUnit)
                     {
@@ -203,9 +203,9 @@ namespace StrategyCore
         private void WorkerStopTheRepairsClientRpc(UInt16 workerNetID)
         {
             // Joining mid-game, we do not accept any data from the server. Only scene data.
-            if (NetworkConnectionHandler.instance.connectionStage == 2) return;
+            if (NetworkConnectionHandler.Instance.connectionStage == 2) return;
 
-            if (SlotManager.instance.unitNetID.TryGetValue(workerNetID, out Unit worker))
+            if (SlotManager.Instance.unitNetID.TryGetValue(workerNetID, out Unit worker))
             {
                 if (worker.constructionUnit)
                 {
@@ -235,9 +235,9 @@ namespace StrategyCore
         private void BuildingFinishedClientRpc(UInt16 buildingNetID)
         {
             // Joining mid-game, we do not accept any data from the server. Only scene data.
-            if (NetworkConnectionHandler.instance.connectionStage == 2) return;
+            if (NetworkConnectionHandler.Instance.connectionStage == 2) return;
 
-            if (SlotManager.instance.unitNetID.TryGetValue(buildingNetID, out Unit building))
+            if (SlotManager.Instance.unitNetID.TryGetValue(buildingNetID, out Unit building))
             {
                 if (building.constructionUnit)
                 {
@@ -260,9 +260,9 @@ namespace StrategyCore
         public void ResetConstructionState(Unit worker, bool limitedOnly)
         {
             // Only for connected players and not server
-            if (SlotManager.instance.slotType[worker.owner] != SlotType.Player || SlotManager.instance.playerID[worker.owner] == 0 || SlotManager.instance.playerID[worker.owner] == -1) return;
+            if (SlotManager.Instance.slotType[worker.owner] != SlotType.Player || SlotManager.Instance.playerID[worker.owner] == 0 || SlotManager.Instance.playerID[worker.owner] == -1) return;
 
-            ResetConstructionStateClientRpc(worker.netID, limitedOnly, RpcTarget.Single((ulong)SlotManager.instance.playerID[worker.owner], RpcTargetUse.Temp));
+            ResetConstructionStateClientRpc(worker.netID, limitedOnly, RpcTarget.Single((ulong)SlotManager.Instance.playerID[worker.owner], RpcTargetUse.Temp));
         }
 
         // Client receive: Worker clear state
@@ -270,9 +270,9 @@ namespace StrategyCore
         private void ResetConstructionStateClientRpc(UInt16 workerNetID, bool limitedOnly, RpcParams rpcParams)
         {
             // Joining mid-game, we do not accept any data from the server. Only scene data.
-            if (NetworkConnectionHandler.instance.connectionStage == 2) return;
+            if (NetworkConnectionHandler.Instance.connectionStage == 2) return;
 
-            if (SlotManager.instance.unitNetID.TryGetValue(workerNetID, out Unit worker))
+            if (SlotManager.Instance.unitNetID.TryGetValue(workerNetID, out Unit worker))
             {
                 if (worker.constructionUnit)
                 {
@@ -296,9 +296,9 @@ namespace StrategyCore
         public void WorkerResetShadowBuilding(Unit worker)
         {
             // Only for connected players and not server
-            if (SlotManager.instance.slotType[worker.owner] != SlotType.Player || SlotManager.instance.playerID[worker.owner] == 0 || SlotManager.instance.playerID[worker.owner] == -1) return;
+            if (SlotManager.Instance.slotType[worker.owner] != SlotType.Player || SlotManager.Instance.playerID[worker.owner] == 0 || SlotManager.Instance.playerID[worker.owner] == -1) return;
 
-            WorkerResetShadowBuildingClientRpc(worker.netID, RpcTarget.Single((ulong)SlotManager.instance.playerID[worker.owner], RpcTargetUse.Temp));
+            WorkerResetShadowBuildingClientRpc(worker.netID, RpcTarget.Single((ulong)SlotManager.Instance.playerID[worker.owner], RpcTargetUse.Temp));
         }
 
         // Client receive: Worker clear state
@@ -306,9 +306,9 @@ namespace StrategyCore
         private void WorkerResetShadowBuildingClientRpc(UInt16 workerNetID, RpcParams rpcParams)
         {
             // Joining mid-game, we do not accept any data from the server. Only scene data.
-            if (NetworkConnectionHandler.instance.connectionStage == 2) return;
+            if (NetworkConnectionHandler.Instance.connectionStage == 2) return;
 
-            if (SlotManager.instance.unitNetID.TryGetValue(workerNetID, out Unit worker))
+            if (SlotManager.Instance.unitNetID.TryGetValue(workerNetID, out Unit worker))
             {
                 if (worker.constructionUnit)
                 {
@@ -338,9 +338,9 @@ namespace StrategyCore
         private void ConstructionCancelClientRpc(UInt16 upgradeBuildingNetID)
         {
             // Joining mid-game, we do not accept any data from the server. Only scene data.
-            if (NetworkConnectionHandler.instance.connectionStage == 2) return;
+            if (NetworkConnectionHandler.Instance.connectionStage == 2) return;
 
-            if (SlotManager.instance.unitNetID.TryGetValue(upgradeBuildingNetID, out Unit upgradeBuilding))
+            if (SlotManager.Instance.unitNetID.TryGetValue(upgradeBuildingNetID, out Unit upgradeBuilding))
             {
                 if (upgradeBuilding.constructionUnit)
                 {
@@ -372,11 +372,11 @@ namespace StrategyCore
         private void EmbarkClientRpc(UInt16 transportUnitID, UInt16 embarkedUnitID)
         {
             // Joining mid-game, we do not accept any data from the server. Only scene data.
-            if (NetworkConnectionHandler.instance.connectionStage == 2) return;
+            if (NetworkConnectionHandler.Instance.connectionStage == 2) return;
 
-            if (SlotManager.instance.unitNetID.TryGetValue(transportUnitID, out Unit transportUnit))
+            if (SlotManager.Instance.unitNetID.TryGetValue(transportUnitID, out Unit transportUnit))
             {
-                if (SlotManager.instance.unitNetID.TryGetValue(embarkedUnitID, out Unit embarkedUnit))
+                if (SlotManager.Instance.unitNetID.TryGetValue(embarkedUnitID, out Unit embarkedUnit))
                 {
                     transportUnit.transportUnit.Embark(embarkedUnit);
                 }
@@ -404,9 +404,9 @@ namespace StrategyCore
         private void DisembarkClientRpc(UInt16 transportUnitID, int index, Vector3 location)
         {
             // Joining mid-game, we do not accept any data from the server. Only scene data.
-            if (NetworkConnectionHandler.instance.connectionStage == 2) return;
+            if (NetworkConnectionHandler.Instance.connectionStage == 2) return;
 
-            if (SlotManager.instance.unitNetID.TryGetValue(transportUnitID, out Unit transportUnit))
+            if (SlotManager.Instance.unitNetID.TryGetValue(transportUnitID, out Unit transportUnit))
             {
                 transportUnit.transportUnit.DisembarkInternal(index, location);
             }
@@ -427,9 +427,9 @@ namespace StrategyCore
         private void DisembarkClientRpc(UInt16 transportUnitID, int unitsOut, Vector3[] locations)
         {
             // Joining mid-game, we do not accept any data from the server. Only scene data.
-            if (NetworkConnectionHandler.instance.connectionStage == 2) return;
+            if (NetworkConnectionHandler.Instance.connectionStage == 2) return;
 
-            if (SlotManager.instance.unitNetID.TryGetValue(transportUnitID, out Unit transportUnit))
+            if (SlotManager.Instance.unitNetID.TryGetValue(transportUnitID, out Unit transportUnit))
             {
                 transportUnit.transportUnit.DisembarkInternal(unitsOut, locations);
             }
@@ -452,10 +452,10 @@ namespace StrategyCore
         private void UnitSpawnClientRpc(int typeID, Vector3 position, float rotation, int owner, UInt16 netID = 0)
         {
             // Joining mid-game, we do not accept any data from the server. Only scene data.
-            if (NetworkConnectionHandler.instance.connectionStage == 2) return;
+            if (NetworkConnectionHandler.Instance.connectionStage == 2) return;
 
             // Get unit type to spawn
-            if (GameManager.instance.gameUnits.TryGetValue(typeID, out Unit unitRef))
+            if (GameManager.Instance.gameUnits.TryGetValue(typeID, out Unit unitRef))
             {
                 Unit.SpawnInternal(unitRef, position, rotation, owner, netID);
             }
@@ -476,9 +476,9 @@ namespace StrategyCore
         private void ItemDroppedSpawnClientRpc(int abilityID, int itemCharges, float itemcd, Vector3 position, UInt16 netID)
         {
             // Joining mid-game, we do not accept any data from the server. Only scene data.
-            if (NetworkConnectionHandler.instance.connectionStage == 2) return;
+            if (NetworkConnectionHandler.Instance.connectionStage == 2) return;
 
-            if (GameManager.instance.gameAbilities.TryGetValue(abilityID, out Ability item))
+            if (GameManager.Instance.gameAbilities.TryGetValue(abilityID, out Ability item))
             {
                 ItemDropped.SpawnInternal(item, itemCharges, itemcd, position, netID);
             }

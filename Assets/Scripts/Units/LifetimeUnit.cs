@@ -18,20 +18,20 @@ namespace StrategyCore
         public void Initialize()
         {
             currentLifeSpan = lifespan;
-            GameManager.instance.Tick += UpdateLifeTime;
+            GameManager.Instance.Tick += UpdateLifeTime;
             thisUnit = GetComponent<Unit>();
             thisUnit.OnDie += Die;
         }
 
         void Die(Unit unitThatDies, int playerKiller, Unit unitKiller, bool rewards)
         {
-            GameManager.instance.Tick -= UpdateLifeTime;
+            GameManager.Instance.Tick -= UpdateLifeTime;
             thisUnit.OnDie -= Die;
         }
 
         void UpdateLifeTime()
         {
-            currentLifeSpan -= GameManager.instance.currentDeltaTime;
+            currentLifeSpan -= GameManager.Instance.currentDeltaTime;
             if (currentLifeSpan < 0)
             {
                 // [Interflow fix 2026-08-01 client-data] Диагностика «призванные не умирают»: явный след в логе.

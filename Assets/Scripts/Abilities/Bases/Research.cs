@@ -13,12 +13,12 @@ namespace StrategyCore
 
         public override void Use(Unit castingUnit, int castingPlayer, int level)
         {
-            TechnologyManager.instance.UnlockTech(unlockTech[level], castingUnit.owner);
-            TechnologyManager.instance.TechFinishedProcessing(unlockTech[level], castingUnit.owner);
+            TechnologyManager.Instance.UnlockTech(unlockTech[level], castingUnit.owner);
+            TechnologyManager.Instance.TechFinishedProcessing(unlockTech[level], castingUnit.owner);
 
             // Play research sound and show text
             Presentation.NotifyMsg("Research " + unlockTech[level].displayName + " completed!", castingUnit.owner, false);
-            if (ReferenceManager.instance.researchComplete != null) Presentation.Audio?.PlayVoiceClip(ReferenceManager.instance.researchComplete, 1);
+            if (ReferenceManager.Instance.researchComplete != null) Presentation.Audio?.PlayVoiceClip(ReferenceManager.Instance.researchComplete, 1);
         }
     }
 }

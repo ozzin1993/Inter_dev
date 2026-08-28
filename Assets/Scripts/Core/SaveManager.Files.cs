@@ -17,8 +17,8 @@ namespace StrategyCore
         // Save to a file
         public static string SaveToFile(bool returnData = false)
         {
-            if (SceneHandler.instance.sceneData == null || SceneHandler.instance.sceneIndex >= SceneHandler.instance.sceneData.Length) return null;
-            SceneData sceneData = SceneHandler.instance.sceneData[SceneHandler.instance.sceneIndex];
+            if (SceneHandler.Instance.sceneData == null || SceneHandler.Instance.sceneIndex >= SceneHandler.Instance.sceneData.Length) return null;
+            SceneData sceneData = SceneHandler.Instance.sceneData[SceneHandler.Instance.sceneIndex];
 
             if (!returnData)
             {
@@ -85,7 +85,7 @@ namespace StrategyCore
                 // Retrieve content
                 string content = System.IO.File.ReadAllText(fileName);
 
-                GameManager.instance.StartCoroutine(SaveManager.LoadSave_Internal(content));
+                GameManager.Instance.StartCoroutine(SaveManager.LoadSave_Internal(content));
             }
             else
             {
@@ -102,7 +102,7 @@ namespace StrategyCore
             // Pause the game
             Time.timeScale = 0f;
             // Clear the scene
-            GameManager.instance.ClearScene();
+            GameManager.Instance.ClearScene();
 
             // Wait for 2 frames for scene to be cleared
             yield return null;
@@ -128,7 +128,7 @@ namespace StrategyCore
         public static void FinishedLoadingSaveFile()
         {
             // Send information that loading is finished
-            NetworkDataSync.instance.ClientFinishedLoadingSaveServerRpc();
+            NetworkDataSync.Instance.ClientFinishedLoadingSaveServerRpc();
 
             return;
         }

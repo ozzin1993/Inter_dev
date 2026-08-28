@@ -144,7 +144,7 @@ namespace StrategyCore
                 Debug.LogWarning("[ServerBootstrap] Сеть уже запущена (Host/Client/Server) — пропуск.");
                 return;
             }
-            if (NetworkConnectionHandler.instance == null || SlotManager.instance == null || SceneHandler.instance == null)
+            if (NetworkConnectionHandler.Instance == null || SlotManager.Instance == null || SceneHandler.Instance == null)
             {
                 Debug.LogError("[ServerBootstrap] Не найдены менеджеры (NCH/SlotManager/SceneHandler).");
                 return;
@@ -171,7 +171,7 @@ namespace StrategyCore
             Debug.Log($"[ServerBootstrap] Лимит кадров сервера: {serverFrameRate} к/с.");
 
             // Подготовка слотов и запуск сервера (без игрока).
-            SlotManager.instance.InitializeSlotData();
+            SlotManager.Instance.InitializeSlotData();
 
             // [Interflow fix 2026-06-21] Проверка успеха StartServer. При занятом порте StartServer вернёт
             // false; без этого guard'а дальше шёл NRE-каскад (спавн handler / SceneManager == null).
@@ -182,7 +182,7 @@ namespace StrategyCore
             }
 
             // Спавн сетевого обработчика (NetworkDataSync) — тот же префаб, что и у StartHost.
-            GameObject handlerPrefab = NetworkConnectionHandler.instance.networkHandler;
+            GameObject handlerPrefab = NetworkConnectionHandler.Instance.networkHandler;
             if (handlerPrefab != null)
             {
                 GameObject handler = Instantiate(handlerPrefab);
@@ -196,7 +196,7 @@ namespace StrategyCore
             // Синхронизация сцен клиентам — как в штатном StartHost.
             NetworkManager.Singleton.SceneManager.SetClientSynchronizationMode(LoadSceneMode.Additive);
             NetworkManager.Singleton.SceneManager.ActiveSceneSynchronizationEnabled = true;
-            NetworkManager.Singleton.SceneManager.OnSceneEvent += SceneHandler.instance.SceneManager_OnSceneEvent;
+            NetworkManager.Singleton.SceneManager.OnSceneEvent += SceneHandler.Instance.SceneManager_OnSceneEvent;
 
             // Считаем подключения клиентов для автостарта матча.
             NetworkManager.Singleton.OnClientConnectedCallback += OnClientConnected;
@@ -218,7 +218,7 @@ namespace StrategyCore
         private void TryAutoStartMatch()
         {
             if (matchStarting) return;
-            if (SlotManager.instance.gameStarted != GameState.Menu) return; // матч ещё не идёт
+            if (SlotManager.Instance.gameStarted != GameState.Menu) return; // матч ещё не идёт
             if (CountPlayerSlots() < requiredPlayers) return;
 
             matchStarting = true;
@@ -232,28 +232,28 @@ namespace StrategyCore
         {
             for (int s = startCountdownSeconds; s > 0; s--)
             {
-                if (CountPlayerSlots() < requiredPlayers || SlotManager.instance.gameStarted != GameState.Menu)
+                if (CountPlayerSlots() < requiredPlayers || SlotManager.Instance.gameStarted != GameState.Menu)
                 {
-                    if (NetworkDataSync.instance != null) NetworkDataSync.instance.MatchCountdownSend(0); // спрятать
+                    if (NetworkDataSync.Instance != null) NetworkDataSync.Instance.MatchCountdownSend(0); // спрятать
                     Debug.Log("[ServerBootstrap] Отсчёт отменён — недостаточно игроков.");
                     matchStarting = false;
                     yield break;
                 }
-                if (NetworkDataSync.instance != null) NetworkDataSync.instance.MatchCountdownSend(s);
+                if (NetworkDataSync.Instance != null) NetworkDataSync.Instance.MatchCountdownSend(s);
                 yield return new WaitForSeconds(1f);
             }
 
-            if (NetworkDataSync.instance != null) NetworkDataSync.instance.MatchCountdownSend(0); // спрятать
+            if (NetworkDataSync.Instance != null) NetworkDataSync.Instance.MatchCountdownSend(0); // спрятать
             Debug.Log("[ServerBootstrap] Отсчёт завершён — старт матча.");
-            SlotManager.instance.RandomizeSlotData();
-            SceneHandler.instance.LoadScene();
+            SlotManager.Instance.RandomizeSlotData();
+            SceneHandler.Instance.LoadScene();
         }
 
         // Сколько игровых слотов заняты живыми игроками (не боты, не нейтралы).
         private int CountPlayerSlots()
         {
             int n = 0;
-            SlotType[] slots = SlotManager.instance.slotType;
+            SlotType[] slots = SlotManager.Instance.slotType;
             for (int i = 0; i < slots.Length; i++)
                 if (slots[i] == SlotType.Player) n++;
             return n;

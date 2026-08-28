@@ -50,19 +50,19 @@ namespace StrategyCore
 
             // [2026-08-05 единый канал статусов] Слепота едет клиентам тем же путём, что и остальные
             // статусы (решение Artsiom). Повторное наложение шлёт true ещё раз — идемпотентно.
-            if (NetworkDataSync.instance != null)
-                NetworkDataSync.instance.UnitStatusFlagSend(unit, UnitStatusFlag.Blind, true);
+            if (NetworkDataSync.Instance != null)
+                NetworkDataSync.Instance.UnitStatusFlagSend(unit, UnitStatusFlag.Blind, true);
 
-            if (!subscribed && GameManager.instance != null)
+            if (!subscribed && GameManager.Instance != null)
             {
-                GameManager.instance.Tick += OnTick;
+                GameManager.Instance.Tick += OnTick;
                 subscribed = true;
             }
         }
 
         void OnTick()
         {
-            if (NetworkConnectionHandler.isClient || GameManager.instance == null) return;
+            if (NetworkConnectionHandler.isClient || GameManager.Instance == null) return;
 
             if (unit == null || unit.dead)
             {
@@ -70,7 +70,7 @@ namespace StrategyCore
                 return;
             }
 
-            remaining -= GameManager.instance.currentDeltaTime;
+            remaining -= GameManager.Instance.currentDeltaTime;
             if (remaining <= 0f) Cleanup();
         }
 
@@ -84,13 +84,13 @@ namespace StrategyCore
             {
                 InterflowCombat.MissChanceClear(unit);
                 // [2026-08-05 единый канал статусов] Слепота снята — сообщить клиентам.
-                if (NetworkDataSync.instance != null)
-                    NetworkDataSync.instance.UnitStatusFlagSend(unit, UnitStatusFlag.Blind, false);
+                if (NetworkDataSync.Instance != null)
+                    NetworkDataSync.Instance.UnitStatusFlagSend(unit, UnitStatusFlag.Blind, false);
             }
 
-            if (subscribed && GameManager.instance != null)
+            if (subscribed && GameManager.Instance != null)
             {
-                GameManager.instance.Tick -= OnTick;
+                GameManager.Instance.Tick -= OnTick;
                 subscribed = false;
             }
 
@@ -106,13 +106,13 @@ namespace StrategyCore
                 cleared = true;
                 InterflowCombat.MissChanceClear(unit);
                 // [2026-08-05 единый канал статусов] Аварийное уничтожение (смерть/выгрузка) — тоже снятие.
-                if (NetworkDataSync.instance != null)
-                    NetworkDataSync.instance.UnitStatusFlagSend(unit, UnitStatusFlag.Blind, false);
+                if (NetworkDataSync.Instance != null)
+                    NetworkDataSync.Instance.UnitStatusFlagSend(unit, UnitStatusFlag.Blind, false);
             }
 
-            if (subscribed && GameManager.instance != null)
+            if (subscribed && GameManager.Instance != null)
             {
-                GameManager.instance.Tick -= OnTick;
+                GameManager.Instance.Tick -= OnTick;
                 subscribed = false;
             }
         }

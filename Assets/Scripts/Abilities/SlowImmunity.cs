@@ -34,7 +34,7 @@ namespace StrategyCore
             base.Init();
 
             carriers.Clear();
-            if (tickWired && GameManager.instance != null) GameManager.instance.Tick -= OnTick;
+            if (tickWired && GameManager.Instance != null) GameManager.Instance.Tick -= OnTick;
             tickWired = false;
         }
 
@@ -44,9 +44,9 @@ namespace StrategyCore
 
             carriers.Add(unit);
 
-            if (!tickWired && GameManager.instance != null)
+            if (!tickWired && GameManager.Instance != null)
             {
-                GameManager.instance.Tick += OnTick;
+                GameManager.Instance.Tick += OnTick;
                 tickWired = true;
             }
         }
@@ -57,9 +57,9 @@ namespace StrategyCore
 
             carriers.Remove(unit);
 
-            if (carriers.Count == 0 && tickWired && GameManager.instance != null)
+            if (carriers.Count == 0 && tickWired && GameManager.Instance != null)
             {
-                GameManager.instance.Tick -= OnTick;
+                GameManager.Instance.Tick -= OnTick;
                 tickWired = false;
             }
         }

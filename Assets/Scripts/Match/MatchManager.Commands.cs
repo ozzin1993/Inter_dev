@@ -19,6 +19,38 @@ namespace StrategyCore
         // Размерность рядов = CommandGroupCount (см. MatchManager.CommandGroups.cs). Инициализация — в Awake.
         BottomTableAction[][] currentCommand;
 
+        // ======================== РАССЫЛКА РЕЖИМА КОМАНДЫ КЛИЕНТУ ========================
+
+        /// <summary>
+        /// Серверная корутина: разово разослать стартовые режимы всех рядов обеих команд после старта матча.
+        /// Ждёт gameOn (как PassiveIncomeLoop) — до старта клиенту нечего показывать. Запускается из Start()
+        /// (только сервер). Клиент, построивший интерфейс ПОЗЖЕ этого момента, стартовую подсветку не получит:
+        /// досылка состояния вернувшемуся игроку — отдельный блок (поздний вход, здесь не закрывается).
+        /// </summary>
+        IEnumerator BroadcastStartCommandsLoop()
+        {
+            yield return new WaitUntil(() => SlotManager.Instance != null && SlotManager.Instance.gameOn);
+
+            for (int team = 0; team < 2; team++)
+                for (int g = 0; g < CommandGroupCount; g++)
+                    BroadcastTeamCommand(team, g);
+        }
+
+        // Раздать режим ряда: хост (с интерфейсом) — локально, клиенты — по сети (SendTo.NotServer у RPC).
+        // Образец раздачи — PushWaveTimer (MatchManager.WaveTimer.cs). Серверо-авторитетно: значение берётся
+        // из currentCommand, клиент получает готовое и только подсвечивает (правило 6).
+        void BroadcastTeamCommand(int teamIndex, int groupIndex)
+        {
+            if (currentCommand == null || teamIndex < 0 || teamIndex > 1) return;
+            if (currentCommand[teamIndex] == null || !IsValidCommandGroup(groupIndex)) return;
+            if (groupIndex >= currentCommand[teamIndex].Length) return;
+
+            BottomTableAction action = currentCommand[teamIndex][groupIndex];
+            Presentation.UI?.ShowTeamCommand(teamIndex, groupIndex, action); // [Interflow 2026-08-01 ADR-005]
+            if (NetworkDataSync.Instance != null)
+                NetworkDataSync.Instance.TeamCommandSend(teamIndex, groupIndex, (int)action);
+        }
+
         // ======================== LANE-ТАРГЕТИНГ (единый источник) ========================
 
         /// <summary>Цель атаки для игрока: следующая вражеская точка линии. Vector2.zero — если линии/цели нет.</summary>
@@ -73,6 +105,7 @@ namespace StrategyCore
             Vector2 newAttackPoint = attackPOI != null ? attackPOI.Position2D : Vector2.zero;
             currentAttackPoint[teamIndex] = newAttackPoint;
             currentCommand[teamIndex][groupIndex] = BottomTableAction.Attack;
+            BroadcastTeamCommand(teamIndex, groupIndex);   // клиент видит режим (подсветка кнопки)
 
             // Фильтр: только юниты классов этого ряда (commandGroups), затем — реагирующие на приказ АТАКА
             // (AutoAbilityUser.RespondsToAttackCommand).
@@ -110,6 +143,7 @@ namespace StrategyCore
             Vector2 newDefencePoint = defencePOI != null ? defencePOI.Position2D : Vector2.zero;
             currentDefencePoint[teamIndex] = newDefencePoint;
             currentCommand[teamIndex][groupIndex] = BottomTableAction.Defence;
+            BroadcastTeamCommand(teamIndex, groupIndex);   // клиент видит режим (подсветка кнопки)
 
             // Фильтр: только юниты классов этого ряда (commandGroups).
             List<Unit> units = FilterByCommandGroup(GetGroupUnits(teamIndex), groupIndex);

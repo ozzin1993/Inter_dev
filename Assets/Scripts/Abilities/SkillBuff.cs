@@ -103,9 +103,9 @@ namespace StrategyCore
                 dieHooked = true;
             }
 
-            if (!subscribed && GameManager.instance != null)
+            if (!subscribed && GameManager.Instance != null)
             {
-                GameManager.instance.Tick += OnTick;
+                GameManager.Instance.Tick += OnTick;
                 subscribed = true;
             }
         }
@@ -121,13 +121,13 @@ namespace StrategyCore
         void OnTick()
         {
             if (unit == null || unit.dead) { Cleanup(); return; }
-            if (GameManager.instance == null) return;
+            if (GameManager.Instance == null) return;
 
             // Источник пропал (ассет выгружен) — доживать смысла нет, снимаемся сразу,
             // иначе баф завис бы навсегда: таймер стоит ниже по коду.
             if (source == null || source.buff == null) { Cleanup(); return; }
 
-            float dt = GameManager.instance.currentDeltaTime;
+            float dt = GameManager.Instance.currentDeltaTime;
             SkillBuffBlock cfg = source.buff;
 
             // Аура урона вокруг носителя (наносит сам носитель — как у огненного плаща).
@@ -195,7 +195,7 @@ namespace StrategyCore
 
             RemoveStateEffects();
 
-            if (subscribed && GameManager.instance != null) GameManager.instance.Tick -= OnTick;
+            if (subscribed && GameManager.Instance != null) GameManager.Instance.Tick -= OnTick;
             subscribed = false;
 
             Destroy(this);
@@ -228,7 +228,7 @@ namespace StrategyCore
             cleanedUp = true;
             RemoveStateEffects();
 
-            if (subscribed && GameManager.instance != null) GameManager.instance.Tick -= OnTick;
+            if (subscribed && GameManager.Instance != null) GameManager.Instance.Tick -= OnTick;
             subscribed = false;
         }
     }

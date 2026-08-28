@@ -47,8 +47,8 @@ namespace StrategyCore
         // Префаб по стабильному unitTypeID (штатный GameManager.gameUnits). null — не найден.
         Unit ResolveUnitById(int unitTypeID)
         {
-            if (GameManager.instance == null || GameManager.instance.gameUnits == null) return null;
-            return GameManager.instance.gameUnits.TryGetValue(unitTypeID, out Unit u) ? u : null;
+            if (GameManager.Instance == null || GameManager.Instance.gameUnits == null) return null;
+            return GameManager.Instance.gameUnits.TryGetValue(unitTypeID, out Unit u) ? u : null;
         }
 
         // Базовый ли это юнит команды (роль Basic в waveUnits — выходит всегда, не помечается).
@@ -144,21 +144,21 @@ namespace StrategyCore
 
             // Золото: хватает на резерв.
             if (goldResource != null && gold > 0 &&
-                !GameResources.instance.CheckAmount(cfg.ownerPlayer, new ResourceWrapper(goldResource, gold)))
+                !GameResources.Instance.CheckAmount(cfg.ownerPlayer, new ResourceWrapper(goldResource, gold)))
             {
                 return false;
             }
 
             // Лидерство: прогноз всей волны + этот разовый ≤ кап (штатная семантика limited: занято живыми + X ≤ лимит).
             if (leadershipResource != null && lead > 0 &&
-                !GameResources.instance.CheckAmount(cfg.ownerPlayer, new ResourceWrapper(leadershipResource, WaveLeadershipForecast(team) + lead)))
+                !GameResources.Instance.CheckAmount(cfg.ownerPlayer, new ResourceWrapper(leadershipResource, WaveLeadershipForecast(team) + lead)))
             {
                 return false;
             }
 
             // Резерв = фактическое списание золота в «карман» (заморозка): в кошельке денег нет → потратить нельзя.
             if (goldResource != null && gold > 0)
-                GameResources.instance.ChangeAmount(cfg.ownerPlayer, new ResourceWrapper(goldResource, gold), 1, true, true);
+                GameResources.Instance.ChangeAmount(cfg.ownerPlayer, new ResourceWrapper(goldResource, gold), 1, true, true);
             cfg.oneShot[unitTypeID] = gold;
             NotifyMarksChanged(team);
             return true;
@@ -180,7 +180,7 @@ namespace StrategyCore
             {
                 cfg.oneShot.Remove(unitTypeID);
                 if (goldResource != null && reserved > 0)
-                    GameResources.instance.ChangeAmount(cfg.ownerPlayer, new ResourceWrapper(goldResource, reserved), 1, false, true); // разморозка (возврат)
+                    GameResources.Instance.ChangeAmount(cfg.ownerPlayer, new ResourceWrapper(goldResource, reserved), 1, false, true); // разморозка (возврат)
                 NotifyMarksChanged(team);
                 return true;
             }
@@ -228,7 +228,7 @@ namespace StrategyCore
                 int reserved = cfg.oneShot[id];
                 cfg.oneShot.Remove(id);
                 if (goldResource != null && reserved > 0)
-                    GameResources.instance.ChangeAmount(cfg.ownerPlayer, new ResourceWrapper(goldResource, reserved), 1, false, true);
+                    GameResources.Instance.ChangeAmount(cfg.ownerPlayer, new ResourceWrapper(goldResource, reserved), 1, false, true);
                 changed = true;
             }
 
@@ -247,7 +247,7 @@ namespace StrategyCore
         // Сервер → клиенты: текущие пометки команды (авто-типы + разовые-типы) для отрисовки выделения.
         void BroadcastMarks(int team)
         {
-            if (NetworkConnectionHandler.isClient || NetworkDataSync.instance == null) return;
+            if (NetworkConnectionHandler.isClient || NetworkDataSync.Instance == null) return;
             TeamWaveConfig cfg = Team(team);
             if (cfg == null) return;
 
@@ -255,7 +255,7 @@ namespace StrategyCore
             cfg.autoSummon.CopyTo(autoIds);
             int[] oneIds = new int[cfg.oneShot.Count];
             cfg.oneShot.Keys.CopyTo(oneIds, 0);
-            NetworkDataSync.instance.WaveMarksSend(team, autoIds, oneIds);
+            NetworkDataSync.Instance.WaveMarksSend(team, autoIds, oneIds);
         }
 
         /// <summary>

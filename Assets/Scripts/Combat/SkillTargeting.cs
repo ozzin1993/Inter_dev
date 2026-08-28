@@ -211,9 +211,9 @@ namespace StrategyCore
         /// </summary>
         public static Unit AllyAhead(Unit[] candidates, Unit self, bool mostAdvanced)
         {
-            if (candidates == null || self == null || MatchManager.instance == null) return null;
+            if (candidates == null || self == null || MatchManager.Instance == null) return null;
 
-            Vector2 point = MatchManager.instance.AttackTarget(self.owner);
+            Vector2 point = MatchManager.Instance.AttackTarget(self.owner);
             if (point == Vector2.zero) return null;                     // нет цели-направления → каста нет
 
             Vector3 selfPos = self.transform.position;

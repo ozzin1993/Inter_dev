@@ -171,7 +171,7 @@ namespace StrategyCore
             {
                 // This cell was not visible before, we must update the texture and show units in this cell
 
-                if (team == SlotManager.instance.currentTeam)
+                if (team == SlotManager.Instance.currentTeam)
                 {
                     pixels[levelCoordinates.x + levelCoordinates.y * gridSizeX] = new Color(fogColor.r, fogColor.g, fogColor.b, 0);
                     ShowUnits(team, levelCoordinates.x + levelCoordinates.y * gridSizeX);
@@ -188,7 +188,7 @@ namespace StrategyCore
             if (gridFoW[team, levelCoordinates.x, levelCoordinates.y] == 0)
             {
                 // This cell was not visible before, we must update the texture and show units in this cell
-                if (team == SlotManager.instance.currentTeam)
+                if (team == SlotManager.Instance.currentTeam)
                 {
                     pixels[levelCoordinates.x + levelCoordinates.y * gridSizeX] = new Color(fogColor.r, fogColor.g, fogColor.b, 0);
                     ShowUnits(team, levelCoordinates.x + levelCoordinates.y * gridSizeX);
@@ -215,7 +215,7 @@ namespace StrategyCore
             {
                 // This cell became hidden, we must update the texture and hide units in this cell
 
-                if (team == SlotManager.instance.currentTeam)
+                if (team == SlotManager.Instance.currentTeam)
                 {
                     pixels[levelCoordinates.x + levelCoordinates.y * gridSizeX] = new Color(fogColor.r, fogColor.g, fogColor.b, fogColor.a);
                     HideUnits(team, levelCoordinates.x + levelCoordinates.y * gridSizeX);
@@ -232,7 +232,7 @@ namespace StrategyCore
             if (gridFoW[team, levelCoordinates.x, levelCoordinates.y] == 0)
             {
                 // This cell became hidden, we must update the texture and hide units in this cell
-                if (team == SlotManager.instance.currentTeam)
+                if (team == SlotManager.Instance.currentTeam)
                 {
                     pixels[levelCoordinates.x + levelCoordinates.y * gridSizeX] = new Color(fogColor.r, fogColor.g, fogColor.b, fogColor.a);
                     HideUnits(team, levelCoordinates.x + levelCoordinates.y * gridSizeX);
@@ -319,22 +319,22 @@ namespace StrategyCore
 
         public static Coordinate GetCellByPosition(Vector2 pos)
         {
-            return new Coordinate((int)(pos.x / FogOfWar.instance.cellSize), (int)(pos.y / FogOfWar.instance.cellSize));
+            return new Coordinate((int)(pos.x / FogOfWar.Instance.cellSize), (int)(pos.y / FogOfWar.Instance.cellSize));
         }
 
         public static Coordinate GetCellByPosition(Vector3 pos)
         {
-            return new Coordinate((int)(pos.x / FogOfWar.instance.cellSize), (int)(pos.z / FogOfWar.instance.cellSize));
+            return new Coordinate((int)(pos.x / FogOfWar.Instance.cellSize), (int)(pos.z / FogOfWar.Instance.cellSize));
         }
 
         public static Vector2Int GetCellByPositionVector2(Vector2 pos)
         {
-            return new Vector2Int((int)(pos.x / FogOfWar.instance.cellSize), (int)(pos.y / FogOfWar.instance.cellSize));
+            return new Vector2Int((int)(pos.x / FogOfWar.Instance.cellSize), (int)(pos.y / FogOfWar.Instance.cellSize));
         }
 
         public static Vector2Int GetCellByPositionVector2(Vector3 pos)
         {
-            return new Vector2Int((int)(pos.x / FogOfWar.instance.cellSize), (int)(pos.z / FogOfWar.instance.cellSize));
+            return new Vector2Int((int)(pos.x / FogOfWar.Instance.cellSize), (int)(pos.z / FogOfWar.Instance.cellSize));
         }
 
         // ============================= UNIT VISION HANDLING =============================

@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using Unity.Netcode;
 using UnityEngine;
@@ -108,7 +108,7 @@ namespace StrategyCore
             if (GetIntersectedUnit(location, spawnR, null, !air) == null)
             {
                 // Boundary check
-                if (location.x < stopDistanceOffset || location.y < stopDistanceOffset || location.x > Grid.instance.width - stopDistanceOffset || location.y > Grid.instance.height - stopDistanceOffset) { }
+                if (location.x < stopDistanceOffset || location.y < stopDistanceOffset || location.x > Grid.Instance.width - stopDistanceOffset || location.y > Grid.Instance.height - stopDistanceOffset) { }
 
                 else
                 {
@@ -141,7 +141,7 @@ namespace StrategyCore
                     Vector2 pointOnCircle = Utils.PointOnCircle(location, currentRadius, 1f / aroundCount * i);
 
                     // Boundary check
-                    if (pointOnCircle.x < stopDistanceOffset || pointOnCircle.y < stopDistanceOffset || pointOnCircle.x > Grid.instance.width - stopDistanceOffset || pointOnCircle.y > Grid.instance.height - stopDistanceOffset) continue;
+                    if (pointOnCircle.x < stopDistanceOffset || pointOnCircle.y < stopDistanceOffset || pointOnCircle.x > Grid.Instance.width - stopDistanceOffset || pointOnCircle.y > Grid.Instance.height - stopDistanceOffset) continue;
 
                     // Determine the height at this point
                     float Y = (air) ? GetTerrainHeight(pointOnCircle, true, true) : GetTerrainHeight(pointOnCircle, ground, water);

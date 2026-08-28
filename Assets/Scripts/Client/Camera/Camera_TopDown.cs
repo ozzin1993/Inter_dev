@@ -27,7 +27,7 @@ namespace Camera_TopDownNS
     // Camera Class
     public partial class Camera_TopDown : MonoBehaviour // [Interflow fix 2026-08-01 partial-split] класс разрезан на partial-файлы (задача №11)
     {
-        public static Camera_TopDown instance;
+        public static Camera_TopDown Instance { get; private set; }
 
         [SerializeField] private Transform cameraTransform;
         [SerializeField] private CameraType cameraType;
@@ -174,7 +174,7 @@ namespace Camera_TopDownNS
         {
             cameraControls = new CameraControls();
 
-            if (instance == null) instance = this;
+            if (Instance == null) Instance = this;
         }
         private void OnEnable()
         {

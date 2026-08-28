@@ -73,8 +73,8 @@ namespace StrategyCore
         // всех систем (каст/UI/свопы); тестовый запуск сцены без лобби продолжает работать.
         FactionConfig ResolveFaction(int ownerSlot)
         {
-            GameManager gm = GameManager.instance;
-            SlotManager sm = SlotManager.instance;
+            GameManager gm = GameManager.Instance;
+            SlotManager sm = SlotManager.Instance;
 
             int idx = -1;
             if (sm != null && sm.playerFaction != null && ownerSlot >= 0 && ownerSlot < sm.playerFaction.Length)

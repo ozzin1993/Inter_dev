@@ -118,16 +118,16 @@ namespace StrategyCore
             InterflowCombat.IncomingRuleAdd(unit, rule);
             entries.Add(new Entry { rule = rule, remaining = duration, holders = 1 });
 
-            if (!subscribed && GameManager.instance != null)
+            if (!subscribed && GameManager.Instance != null)
             {
-                GameManager.instance.Tick += OnTick;
+                GameManager.Instance.Tick += OnTick;
                 subscribed = true;
             }
         }
 
         void OnTick()
         {
-            if (NetworkConnectionHandler.isClient || GameManager.instance == null) return;
+            if (NetworkConnectionHandler.isClient || GameManager.Instance == null) return;
 
             if (unit == null || unit.dead)
             {
@@ -135,7 +135,7 @@ namespace StrategyCore
                 return;
             }
 
-            float dt = GameManager.instance.currentDeltaTime;
+            float dt = GameManager.Instance.currentDeltaTime;
 
             for (int i = entries.Count - 1; i >= 0; i--)
             {
@@ -156,9 +156,9 @@ namespace StrategyCore
 
             RemoveAll();
 
-            if (subscribed && GameManager.instance != null)
+            if (subscribed && GameManager.Instance != null)
             {
-                GameManager.instance.Tick -= OnTick;
+                GameManager.Instance.Tick -= OnTick;
                 subscribed = false;
             }
 
@@ -177,9 +177,9 @@ namespace StrategyCore
         {
             RemoveAll();
 
-            if (subscribed && GameManager.instance != null)
+            if (subscribed && GameManager.Instance != null)
             {
-                GameManager.instance.Tick -= OnTick;
+                GameManager.Instance.Tick -= OnTick;
                 subscribed = false;
             }
         }

@@ -48,9 +48,9 @@ namespace StrategyCore
             unit.OnStatusUpdate += MarkDirty;
             unit.OnDie += OnUnitDie;
 
-            if (GameManager.instance != null)
+            if (GameManager.Instance != null)
             {
-                GameManager.instance.Tick += OnTick;
+                GameManager.Instance.Tick += OnTick;
                 subscribed = true;
             }
         }
@@ -101,7 +101,7 @@ namespace StrategyCore
                 unit.OnStatusUpdate -= MarkDirty;
                 unit.OnDie -= OnUnitDie;
             }
-            if (subscribed && GameManager.instance != null) GameManager.instance.Tick -= OnTick;
+            if (subscribed && GameManager.Instance != null) GameManager.Instance.Tick -= OnTick;
             subscribed = false;
         }
 

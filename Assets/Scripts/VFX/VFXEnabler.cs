@@ -16,13 +16,13 @@ namespace StrategyCore
 
         private void Start()
         {
-            FogOfWar.instance.CellAssignVFX(this);
-            if (!FogOfWar.instance.IsVisible(FoWCell, SlotManager.instance.currentTeam) && !destroyUponDiscovery) Disable();
+            FogOfWar.Instance.CellAssignVFX(this);
+            if (!FogOfWar.Instance.IsVisible(FoWCell, SlotManager.Instance.currentTeam) && !destroyUponDiscovery) Disable();
         }
 
         private void OnDestroy()
         {
-            FogOfWar.instance.CellRemoveVFX(this);
+            FogOfWar.Instance.CellRemoveVFX(this);
         }
 
         public void Enable()

@@ -41,13 +41,13 @@ namespace StrategyCore
 
         public static void Stats()
         {
-            Debug.Log("NetID " + PlayerControl.instance.activeUnit.netID);
-            Debug.Log("State " + PlayerControl.instance.activeUnit.unitState);
-            Debug.Log("IsMoving " + PlayerControl.instance.activeUnit.isMoving);
+            Debug.Log("NetID " + PlayerControl.Instance.activeUnit.netID);
+            Debug.Log("State " + PlayerControl.Instance.activeUnit.unitState);
+            Debug.Log("IsMoving " + PlayerControl.Instance.activeUnit.isMoving);
             Debug.Log("Target destination ");
-            Debug.Log(PlayerControl.instance.activeUnit.targetPosition);
+            Debug.Log(PlayerControl.Instance.activeUnit.targetPosition);
             Debug.Log("Agent destination ");
-            Debug.Log(PlayerControl.instance.activeUnit.agent.destination);
+            Debug.Log(PlayerControl.Instance.activeUnit.agent.destination);
         }
 
         public static void Speed(string msg)
@@ -60,28 +60,28 @@ namespace StrategyCore
 
         public static void EdgeScroll()
         {
-            if (Camera_TopDown.instance.edgeMoveSensitivity == 0)
-                Camera_TopDown.instance.edgeMoveSensitivity = 0.7f;
+            if (Camera_TopDown.Instance.edgeMoveSensitivity == 0)
+                Camera_TopDown.Instance.edgeMoveSensitivity = 0.7f;
             else 
-                Camera_TopDown.instance.edgeMoveSensitivity = 0;
+                Camera_TopDown.Instance.edgeMoveSensitivity = 0;
         }
 
         public static void Sub(string msg)
         {
             if (ushort.TryParse(msg.Replace("sub ", ""), out ushort netID))
             {
-                if (SlotManager.instance.unitNetID.TryGetValue(netID, out Unit unit))
+                if (SlotManager.Instance.unitNetID.TryGetValue(netID, out Unit unit))
                 {
-                    PlayerControl.instance.activeUnit = unit;
-                    UIManager.instance.SubscribeToUnit();
+                    PlayerControl.Instance.activeUnit = unit;
+                    UIManager.Instance.SubscribeToUnit();
                 }
             }
         }
 
         public static void Unsub()
         {
-            if (PlayerControl.instance.activeUnit != null)
-                UIManager.instance.UnsubscribeToUnit(PlayerControl.instance.activeUnit);
+            if (PlayerControl.Instance.activeUnit != null)
+                UIManager.Instance.UnsubscribeToUnit(PlayerControl.Instance.activeUnit);
         }
 
         public static void Hide()
@@ -96,34 +96,34 @@ namespace StrategyCore
 
         public static void Chunk()
         {
-            Debug.Log(PlayerControl.instance.activeUnit.currentCell.x + PlayerControl.instance.activeUnit.currentCell.y * Grid.chunkCountX);
+            Debug.Log(PlayerControl.Instance.activeUnit.currentCell.x + PlayerControl.Instance.activeUnit.currentCell.y * Grid.chunkCountX);
         }
 
         public static void SetPosition()
         {
-            Vector2 pos2D = new Vector2(PlayerControl.instance.activeUnit.transform.position.x + 1f, PlayerControl.instance.activeUnit.transform.position.z + 1f);
-            PlayerControl.instance.activeUnit.transform.position = new Vector3(pos2D.x, Utils.GetTerrainHeight(pos2D), pos2D.y);
+            Vector2 pos2D = new Vector2(PlayerControl.Instance.activeUnit.transform.position.x + 1f, PlayerControl.Instance.activeUnit.transform.position.z + 1f);
+            PlayerControl.Instance.activeUnit.transform.position = new Vector3(pos2D.x, Utils.GetTerrainHeight(pos2D), pos2D.y);
         }
 
         public static void Greed()
         {
-            for (int i = 0; i < GameResources.instance.gameResources.Length; i++)
+            for (int i = 0; i < GameResources.Instance.gameResources.Length; i++)
             {
                 for (int p = 0; p < Enum.GetNames(typeof(Players)).Length; p++)
                 {
                     // Initialize playerResourceLimits
-                    if (GameResources.instance.gameResources[i].type.limited)
+                    if (GameResources.Instance.gameResources[i].type.limited)
                     {
                         // Change limit
-                        GameResources.instance.playerResourceLimits[i + p * GameResources.instance.gameResources.Length] = 9999999;
+                        GameResources.Instance.playerResourceLimits[i + p * GameResources.Instance.gameResources.Length] = 9999999;
                     }
                     else
                     {
                         // Regular resource
-                        GameResources.instance.ChangeAmount(p, new ResourceWrapper(GameResources.instance.gameResources[i].type, 9999999), 1, false, true);
+                        GameResources.Instance.ChangeAmount(p, new ResourceWrapper(GameResources.Instance.gameResources[i].type, 9999999), 1, false, true);
                     }
 
-                    if (SlotManager.instance.currentPlayer == p) UIManager.instance.UpdateResourceTab(i);
+                    if (SlotManager.Instance.currentPlayer == p) UIManager.Instance.UpdateResourceTab(i);
                 }
             }
         }
@@ -146,7 +146,7 @@ namespace StrategyCore
         public static void Clear()
         {
 
-            GameManager.instance.ClearScene();
+            GameManager.Instance.ClearScene();
         }
 
         public static void Save()
@@ -162,18 +162,18 @@ namespace StrategyCore
 
         public static void Host()
         {
-            NetworkConnectionHandler.instance.StartHost(SlotManager.instance.currentName);
+            NetworkConnectionHandler.Instance.StartHost(SlotManager.Instance.currentName);
 
         }
 
         public static void Join()
         {
-            NetworkConnectionHandler.instance.StartClient(SlotManager.instance.currentName);
+            NetworkConnectionHandler.Instance.StartClient(SlotManager.Instance.currentName);
         }
 
         public static void StartScene()
         {
-            SceneHandler.instance.LoadScene();
+            SceneHandler.Instance.LoadScene();
         }
     }
 }

@@ -55,7 +55,7 @@ namespace StrategyCore
         [Rpc(SendTo.SpecifiedInParams, InvokePermission = RpcInvokePermission.Server)]
         private void ReceiveSceneDataClientRpc(byte[] chunk, int index, int totalChunks, int streamId, bool isMidGame, RpcParams rpcParams)
         {
-            NetworkConnectionHandler.instance.connectionStage = 2;
+            NetworkConnectionHandler.Instance.connectionStage = 2;
             ReceiveChunk(chunk, index, totalChunks, streamId);
         }
 
@@ -93,17 +93,17 @@ namespace StrategyCore
 
             string finalString = Encoding.UTF8.GetString(fullBytes.ToArray());
 
-            if (NetworkConnectionHandler.instance.connectionStage == 2)
+            if (NetworkConnectionHandler.Instance.connectionStage == 2)
             {
                 // Mid Game
-                SlotManager.instance.SetGameState(GameState.Started);
-                GameManager.instance.StartCoroutine(SaveManager.LoadSave_Internal(finalString));
+                SlotManager.Instance.SetGameState(GameState.Started);
+                GameManager.Instance.StartCoroutine(SaveManager.LoadSave_Internal(finalString));
             }
             else
             {
                 // Set save data, send info to the server that client has successfully acquired the data
-                SceneHandler.instance.SceneStartedLoading();
-                SceneHandler.instance.saveSceneData = finalString;
+                SceneHandler.Instance.SceneStartedLoading();
+                SceneHandler.Instance.saveSceneData = finalString;
                 SaveSceneDataServerRpc();
             }
 
@@ -117,12 +117,12 @@ namespace StrategyCore
         [Rpc(SendTo.NotServer, InvokePermission = RpcInvokePermission.Server)]
         public void PauseTheGameClientRpc()
         {
-            NetworkConnectionHandler.instance.PauseTheGame();
+            NetworkConnectionHandler.Instance.PauseTheGame();
         }
 
         public void ResumeTheGameSend(bool clearSaves = false, bool initializeUnitData = false)
         {
-            NetworkDataSync.instance.ResumeTheGameClientRpc(clearSaves, initializeUnitData);
+            NetworkDataSync.Instance.ResumeTheGameClientRpc(clearSaves, initializeUnitData);
         }
 
         [Rpc(SendTo.NotServer, InvokePermission = RpcInvokePermission.Server)]
@@ -131,16 +131,16 @@ namespace StrategyCore
             if (initializeUnitData)
             {
                 // Tell units to initialize
-                SlotManager.instance.OnGameStart?.Invoke();
+                SlotManager.Instance.OnGameStart?.Invoke();
                 SaveManager.SetUnitData();
             }
             // Resume the game
-            NetworkConnectionHandler.instance.ResumeTheGame();
+            NetworkConnectionHandler.Instance.ResumeTheGame();
             // Clear saves - on clients we should clear the saves after successful load to make sure they are not going to interfere down the line?
             if (clearSaves)
             {
-                SceneHandler.instance.saveFileName = "";
-                SceneHandler.instance.saveSceneData = "";
+                SceneHandler.Instance.saveFileName = "";
+                SceneHandler.Instance.saveSceneData = "";
             }
         }
 
@@ -160,28 +160,28 @@ namespace StrategyCore
         [Rpc(SendTo.Server)]
         private void MsgSendServerRpc(string message, bool allyChat, RpcParams rpcParams = default)
         {
-            int owner = SlotManager.instance.GetClientSlot(rpcParams.Receive.SenderClientId);
+            int owner = SlotManager.Instance.GetClientSlot(rpcParams.Receive.SenderClientId);
 
             if (!allyChat)
             {
-                for (int i = 0; i < SlotManager.instance.slotType.Length; i++)
+                for (int i = 0; i < SlotManager.Instance.slotType.Length; i++)
                 {
                     // Only for connected players, and not self
-                    if (SlotManager.instance.slotType[i] != SlotType.Player || i == owner) continue;
+                    if (SlotManager.Instance.slotType[i] != SlotType.Player || i == owner) continue;
 
-                    MsgSendClientRpc(owner, message, allyChat, RpcTarget.Single((ulong)SlotManager.instance.playerID[i], RpcTargetUse.Temp));
+                    MsgSendClientRpc(owner, message, allyChat, RpcTarget.Single((ulong)SlotManager.Instance.playerID[i], RpcTargetUse.Temp));
                 }
             }
             else
             {
-                int[] allies = SlotManager.instance.GetPlayerAllies(owner);
+                int[] allies = SlotManager.Instance.GetPlayerAllies(owner);
 
                 for (int i = 0; i < allies.Length; i++)
                 {
                     // Only for connected players
-                    if (SlotManager.instance.slotType[allies[i]] != SlotType.Player) continue;
+                    if (SlotManager.Instance.slotType[allies[i]] != SlotType.Player) continue;
 
-                    MsgSendClientRpc(owner, message, allyChat, RpcTarget.Single((ulong)SlotManager.instance.playerID[allies[i]], RpcTargetUse.Temp));
+                    MsgSendClientRpc(owner, message, allyChat, RpcTarget.Single((ulong)SlotManager.Instance.playerID[allies[i]], RpcTargetUse.Temp));
                 }
             }
         }
@@ -189,7 +189,7 @@ namespace StrategyCore
         [Rpc(SendTo.SpecifiedInParams, InvokePermission = RpcInvokePermission.Server)]
         private void MsgSendClientRpc(int owner, string message, bool allyChat, RpcParams rpcParams)
         {
-            if (SlotManager.instance.gameStarted == GameState.Menu) Presentation.MenuUI?.AddChatMsg(message, owner);
+            if (SlotManager.Instance.gameStarted == GameState.Menu) Presentation.MenuUI?.AddChatMsg(message, owner);
             else
             {
                 Presentation.UI?.AddChatMsg(message, owner, allyChat);
@@ -207,7 +207,7 @@ namespace StrategyCore
         [Rpc(SendTo.NotServer, InvokePermission = RpcInvokePermission.Server)]
         private void ServerMsgClientRpc(string message)
         {
-            if (SlotManager.instance.gameStarted == GameState.Menu) Presentation.MenuUI?.AddChatServerMsg(message);
+            if (SlotManager.Instance.gameStarted == GameState.Menu) Presentation.MenuUI?.AddChatServerMsg(message);
             else Presentation.UI?.AddChatServerMsg(message);
         }
 
@@ -216,9 +216,9 @@ namespace StrategyCore
         public void GameMsgSend(string message, int player)
         {
             // Only for connected players
-            if (SlotManager.instance.slotType[player] != SlotType.Player) return;
+            if (SlotManager.Instance.slotType[player] != SlotType.Player) return;
 
-            GameMsgClientRpc(message, RpcTarget.Single((ulong)SlotManager.instance.playerID[player], RpcTargetUse.Temp));
+            GameMsgClientRpc(message, RpcTarget.Single((ulong)SlotManager.Instance.playerID[player], RpcTargetUse.Temp));
         }
 
         [Rpc(SendTo.SpecifiedInParams, InvokePermission = RpcInvokePermission.Server)]
@@ -243,15 +243,15 @@ namespace StrategyCore
         [Rpc(SendTo.Server)]
         private void MiniMapPingServerRpc(Vector2 pos, RpcParams rpcParams = default)
         {
-            int owner = SlotManager.instance.GetClientSlot(rpcParams.Receive.SenderClientId);
-            int[] allies = SlotManager.instance.GetPlayerAllies(owner);
+            int owner = SlotManager.Instance.GetClientSlot(rpcParams.Receive.SenderClientId);
+            int[] allies = SlotManager.Instance.GetPlayerAllies(owner);
 
             for (int i = 0; i < allies.Length; i++)
             {
                 // Only for connected players
-                if (SlotManager.instance.slotType[allies[i]] != SlotType.Player) continue;
+                if (SlotManager.Instance.slotType[allies[i]] != SlotType.Player) continue;
 
-                MiniMapPingClientRpc(owner, pos, RpcTarget.Single((ulong)SlotManager.instance.playerID[allies[i]], RpcTargetUse.Temp));
+                MiniMapPingClientRpc(owner, pos, RpcTarget.Single((ulong)SlotManager.Instance.playerID[allies[i]], RpcTargetUse.Temp));
             }
         }
 

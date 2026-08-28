@@ -6,11 +6,11 @@ namespace StrategyCore
 {
     public class NetworkCommandSync : NetworkBehaviour
     {
-        public static NetworkCommandSync instance;
+        public static NetworkCommandSync Instance { get; private set; }
 
         void Awake()
         {
-            if (instance == null) instance = this;
+            if (Instance == null) Instance = this;
         }
 
         // For sending commads from clients to server
@@ -28,8 +28,8 @@ namespace StrategyCore
         [Rpc(SendTo.Server)]
         public void IdleCommandServerRpc(UInt16 netID, RpcParams rpcParams = default)
         {
-            int owner = SlotManager.instance.GetClientSlot(rpcParams.Receive.SenderClientId);
-            if (SlotManager.instance.unitNetID.TryGetValue(netID, out Unit unit) && (owner == unit.owner || SlotManager.instance.debugMode))
+            int owner = SlotManager.Instance.GetClientSlot(rpcParams.Receive.SenderClientId);
+            if (SlotManager.Instance.unitNetID.TryGetValue(netID, out Unit unit) && (owner == unit.owner || SlotManager.Instance.debugMode))
             {
                 unit.Idle(true);
             }
@@ -49,8 +49,8 @@ namespace StrategyCore
         [Rpc(SendTo.Server)]
         public void HoldCommandServerRpc(UInt16 netID, RpcParams rpcParams = default)
         {
-            int owner = SlotManager.instance.GetClientSlot(rpcParams.Receive.SenderClientId);
-            if (SlotManager.instance.unitNetID.TryGetValue(netID, out Unit unit) && (owner == unit.owner || SlotManager.instance.debugMode))
+            int owner = SlotManager.Instance.GetClientSlot(rpcParams.Receive.SenderClientId);
+            if (SlotManager.Instance.unitNetID.TryGetValue(netID, out Unit unit) && (owner == unit.owner || SlotManager.Instance.debugMode))
             {
                 unit.Hold(true);
             }
@@ -70,10 +70,10 @@ namespace StrategyCore
         [Rpc(SendTo.Server)]
         public void FollowCommandServerRpc(UInt16 netID, UInt16 targetUnitID, float stopDistance, bool embark, RpcParams rpcParams = default)
         {
-            int owner = SlotManager.instance.GetClientSlot(rpcParams.Receive.SenderClientId);
-            if (SlotManager.instance.unitNetID.TryGetValue(netID, out Unit unit) && (owner == unit.owner || SlotManager.instance.debugMode))
+            int owner = SlotManager.Instance.GetClientSlot(rpcParams.Receive.SenderClientId);
+            if (SlotManager.Instance.unitNetID.TryGetValue(netID, out Unit unit) && (owner == unit.owner || SlotManager.Instance.debugMode))
             {
-                if (SlotManager.instance.unitNetID.TryGetValue(targetUnitID, out Unit targetUnit))
+                if (SlotManager.Instance.unitNetID.TryGetValue(targetUnitID, out Unit targetUnit))
                 {
                     unit.Follow(targetUnit, stopDistance, embark, true);
                 }
@@ -99,8 +99,8 @@ namespace StrategyCore
         [Rpc(SendTo.Server)]
         public void MoveCommandServerRpc(UInt16 netID, Vector2 destination, float stopDistance, RpcParams rpcParams = default)
         {
-            int owner = SlotManager.instance.GetClientSlot(rpcParams.Receive.SenderClientId);
-            if (SlotManager.instance.unitNetID.TryGetValue(netID, out Unit unit) && (owner == unit.owner || SlotManager.instance.debugMode))
+            int owner = SlotManager.Instance.GetClientSlot(rpcParams.Receive.SenderClientId);
+            if (SlotManager.Instance.unitNetID.TryGetValue(netID, out Unit unit) && (owner == unit.owner || SlotManager.Instance.debugMode))
             {
                 unit.Move(destination, stopDistance, true);
             }
@@ -120,10 +120,10 @@ namespace StrategyCore
         [Rpc(SendTo.Server)]
         public void AttackCommandServerRpc(UInt16 netID, UInt16 targetUnitID, RpcParams rpcParams = default)
         {
-            int owner = SlotManager.instance.GetClientSlot(rpcParams.Receive.SenderClientId);
-            if (SlotManager.instance.unitNetID.TryGetValue(netID, out Unit unit) && (owner == unit.owner || SlotManager.instance.debugMode))
+            int owner = SlotManager.Instance.GetClientSlot(rpcParams.Receive.SenderClientId);
+            if (SlotManager.Instance.unitNetID.TryGetValue(netID, out Unit unit) && (owner == unit.owner || SlotManager.Instance.debugMode))
             {
-                if (SlotManager.instance.unitNetID.TryGetValue(targetUnitID, out Unit targetUnit))
+                if (SlotManager.Instance.unitNetID.TryGetValue(targetUnitID, out Unit targetUnit))
                 {
                     unit.AttackVerify(targetUnit, true);
                 }
@@ -148,8 +148,8 @@ namespace StrategyCore
         [Rpc(SendTo.Server)]
         public void AttackPositionCommandServerRpc(UInt16 netID, Vector2 attackPosition, RpcParams rpcParams = default)
         {
-            int owner = SlotManager.instance.GetClientSlot(rpcParams.Receive.SenderClientId);
-            if (SlotManager.instance.unitNetID.TryGetValue(netID, out Unit unit) && (owner == unit.owner || SlotManager.instance.debugMode))
+            int owner = SlotManager.Instance.GetClientSlot(rpcParams.Receive.SenderClientId);
+            if (SlotManager.Instance.unitNetID.TryGetValue(netID, out Unit unit) && (owner == unit.owner || SlotManager.Instance.debugMode))
             {
                 unit.Attack(attackPosition, true);
             }
@@ -169,8 +169,8 @@ namespace StrategyCore
         [Rpc(SendTo.Server)]
         public void AttackMoveCommandServerRpc(UInt16 netID, Vector2 attackPosition, RpcParams rpcParams = default)
         {
-            int owner = SlotManager.instance.GetClientSlot(rpcParams.Receive.SenderClientId);
-            if (SlotManager.instance.unitNetID.TryGetValue(netID, out Unit unit) && (owner == unit.owner || SlotManager.instance.debugMode))
+            int owner = SlotManager.Instance.GetClientSlot(rpcParams.Receive.SenderClientId);
+            if (SlotManager.Instance.unitNetID.TryGetValue(netID, out Unit unit) && (owner == unit.owner || SlotManager.Instance.debugMode))
             {
                 unit.AttackMove(attackPosition, true);
             }
@@ -196,8 +196,8 @@ namespace StrategyCore
         [Rpc(SendTo.Server)]
         public void UseAbilityCommandServerRpc(UInt16 netID, int abilityIndex, bool isItem, RpcParams rpcParams = default)
         {
-            int owner = SlotManager.instance.GetClientSlot(rpcParams.Receive.SenderClientId);
-            if (SlotManager.instance.unitNetID.TryGetValue(netID, out Unit unit) && (owner == unit.owner || SlotManager.instance.debugMode))
+            int owner = SlotManager.Instance.GetClientSlot(rpcParams.Receive.SenderClientId);
+            if (SlotManager.Instance.unitNetID.TryGetValue(netID, out Unit unit) && (owner == unit.owner || SlotManager.Instance.debugMode))
             {
                 bool success = unit.UseAbilityItem(abilityIndex, isItem, null, Vector3.zero, true);
             }
@@ -213,10 +213,10 @@ namespace StrategyCore
         [Rpc(SendTo.Server)]
         public void UseAbilityUnitCommandServerRpc(UInt16 netID, int abilityIndex, bool isItem, UInt16 targetUnitID, RpcParams rpcParams = default)
         {
-            int owner = SlotManager.instance.GetClientSlot(rpcParams.Receive.SenderClientId);
-            if (SlotManager.instance.unitNetID.TryGetValue(netID, out Unit unit) && (owner == unit.owner || SlotManager.instance.debugMode))
+            int owner = SlotManager.Instance.GetClientSlot(rpcParams.Receive.SenderClientId);
+            if (SlotManager.Instance.unitNetID.TryGetValue(netID, out Unit unit) && (owner == unit.owner || SlotManager.Instance.debugMode))
             {
-                if (SlotManager.instance.unitNetID.TryGetValue(targetUnitID, out Unit targetUnit))
+                if (SlotManager.Instance.unitNetID.TryGetValue(targetUnitID, out Unit targetUnit))
                 {
                     bool success = unit.UseAbilityItem(abilityIndex, isItem, targetUnit, Vector3.zero, true);
                 }
@@ -236,8 +236,8 @@ namespace StrategyCore
         [Rpc(SendTo.Server)]
         public void UseAbilityPositionCommandServerRpc(UInt16 netID, int abilityIndex, bool isItem, Vector3 position, RpcParams rpcParams = default)
         {
-            int owner = SlotManager.instance.GetClientSlot(rpcParams.Receive.SenderClientId);
-            if (SlotManager.instance.unitNetID.TryGetValue(netID, out Unit unit) && (owner == unit.owner || SlotManager.instance.debugMode))
+            int owner = SlotManager.Instance.GetClientSlot(rpcParams.Receive.SenderClientId);
+            if (SlotManager.Instance.unitNetID.TryGetValue(netID, out Unit unit) && (owner == unit.owner || SlotManager.Instance.debugMode))
             {
                 bool success = unit.UseAbilityItem(abilityIndex, isItem, null, position, true);
                 
@@ -247,7 +247,7 @@ namespace StrategyCore
                     if (currentAbility is Construction)
                     {
                         // If construction, we remove shadowBuilding on client
-                        NetworkDataSync.instance.WorkerResetShadowBuilding(unit);
+                        NetworkDataSync.Instance.WorkerResetShadowBuilding(unit);
                     }
                 }
             }
@@ -267,12 +267,12 @@ namespace StrategyCore
         [Rpc(SendTo.Server)]
         public void LevelUpAbilityServerRpc(UInt16 netID, int abilityID, int abilityIndex, RpcParams rpcParams = default)
         {
-            int owner = SlotManager.instance.GetClientSlot(rpcParams.Receive.SenderClientId);
-            if (SlotManager.instance.unitNetID.TryGetValue(netID, out Unit unit) && (owner == unit.owner || SlotManager.instance.debugMode))
+            int owner = SlotManager.Instance.GetClientSlot(rpcParams.Receive.SenderClientId);
+            if (SlotManager.Instance.unitNetID.TryGetValue(netID, out Unit unit) && (owner == unit.owner || SlotManager.Instance.debugMode))
             {
                 if (unit.levelingUnit)
                 {
-                    unit.LevelUpAbilityCommand(GameManager.instance.gameAbilities[abilityID], abilityIndex);
+                    unit.LevelUpAbilityCommand(GameManager.Instance.gameAbilities[abilityID], abilityIndex);
                 }
                 else Debug.LogError("Desync! Client " + owner + " send a command to Unit without component netID:" + netID + "! (LevelUpAbility NetworkCommandSync)");
             }
@@ -294,8 +294,8 @@ namespace StrategyCore
         [Rpc(SendTo.Server)]
         public void AddProcessCommandServerRpc(UInt16 netID, int abilityIndex, bool isItem, RpcParams rpcParams = default)
         {
-            int owner = SlotManager.instance.GetClientSlot(rpcParams.Receive.SenderClientId);
-            if (SlotManager.instance.unitNetID.TryGetValue(netID, out Unit unit) && (owner == unit.owner || SlotManager.instance.debugMode))
+            int owner = SlotManager.Instance.GetClientSlot(rpcParams.Receive.SenderClientId);
+            if (SlotManager.Instance.unitNetID.TryGetValue(netID, out Unit unit) && (owner == unit.owner || SlotManager.Instance.debugMode))
             {
                 unit.AddProcess(abilityIndex, isItem);
             }
@@ -315,8 +315,8 @@ namespace StrategyCore
         [Rpc(SendTo.Server)]
         public void CancelProcessCommandServerRpc(UInt16 netID, int index, RpcParams rpcParams = default)
         {
-            int owner = SlotManager.instance.GetClientSlot(rpcParams.Receive.SenderClientId);
-            if (SlotManager.instance.unitNetID.TryGetValue(netID, out Unit unit) && (owner == unit.owner || SlotManager.instance.debugMode))
+            int owner = SlotManager.Instance.GetClientSlot(rpcParams.Receive.SenderClientId);
+            if (SlotManager.Instance.unitNetID.TryGetValue(netID, out Unit unit) && (owner == unit.owner || SlotManager.Instance.debugMode))
             {
                 unit.CancelProcess(index);
             }
@@ -338,10 +338,10 @@ namespace StrategyCore
         [Rpc(SendTo.Server)]
         public void BuyItemCommandServerRpc(UInt16 netID, UInt16 targetUnitID, int abilityIndex, RpcParams rpcParams = default)
         {
-            int owner = SlotManager.instance.GetClientSlot(rpcParams.Receive.SenderClientId);
-            if (SlotManager.instance.unitNetID.TryGetValue(netID, out Unit unit) && (owner == unit.owner || SlotManager.instance.debugMode))
+            int owner = SlotManager.Instance.GetClientSlot(rpcParams.Receive.SenderClientId);
+            if (SlotManager.Instance.unitNetID.TryGetValue(netID, out Unit unit) && (owner == unit.owner || SlotManager.Instance.debugMode))
             {
-                if (SlotManager.instance.unitNetID.TryGetValue(targetUnitID, out Unit targetUnit))
+                if (SlotManager.Instance.unitNetID.TryGetValue(targetUnitID, out Unit targetUnit))
                 {
                     unit.BuyItem(abilityIndex, targetUnit);
                 }
@@ -366,8 +366,8 @@ namespace StrategyCore
         [Rpc(SendTo.Server)]
         public void SellItemCommandServerRpc(UInt16 netID, int itemIndex, RpcParams rpcParams = default)
         {
-            int owner = SlotManager.instance.GetClientSlot(rpcParams.Receive.SenderClientId);
-            if (SlotManager.instance.unitNetID.TryGetValue(netID, out Unit unit) && (owner == unit.owner || SlotManager.instance.debugMode))
+            int owner = SlotManager.Instance.GetClientSlot(rpcParams.Receive.SenderClientId);
+            if (SlotManager.Instance.unitNetID.TryGetValue(netID, out Unit unit) && (owner == unit.owner || SlotManager.Instance.debugMode))
             {
                 unit.SellItem(itemIndex);
             }
@@ -389,8 +389,8 @@ namespace StrategyCore
         [Rpc(SendTo.Server)]
         public void DropItemCommandServerRpc(UInt16 netID, int itemIndex, RpcParams rpcParams = default)
         {
-            int owner = SlotManager.instance.GetClientSlot(rpcParams.Receive.SenderClientId);
-            if (SlotManager.instance.unitNetID.TryGetValue(netID, out Unit unit) && (owner == unit.owner || SlotManager.instance.debugMode))
+            int owner = SlotManager.Instance.GetClientSlot(rpcParams.Receive.SenderClientId);
+            if (SlotManager.Instance.unitNetID.TryGetValue(netID, out Unit unit) && (owner == unit.owner || SlotManager.Instance.debugMode))
             {
                 unit.DropItem(itemIndex);
             }
@@ -410,8 +410,8 @@ namespace StrategyCore
         [Rpc(SendTo.Server)]
         public void DropItemPositionCommandServerRpc(UInt16 netID, int itemIndex, Vector3 position, RpcParams rpcParams = default)
         {
-            int owner = SlotManager.instance.GetClientSlot(rpcParams.Receive.SenderClientId);
-            if (SlotManager.instance.unitNetID.TryGetValue(netID, out Unit unit) && (owner == unit.owner || SlotManager.instance.debugMode))
+            int owner = SlotManager.Instance.GetClientSlot(rpcParams.Receive.SenderClientId);
+            if (SlotManager.Instance.unitNetID.TryGetValue(netID, out Unit unit) && (owner == unit.owner || SlotManager.Instance.debugMode))
             {
                 unit.DropItem(itemIndex, position);
             }
@@ -431,10 +431,10 @@ namespace StrategyCore
         [Rpc(SendTo.Server)]
         public void DropItemUnitCommandServerRpc(UInt16 netID, int itemIndex, UInt16 targetUnitID, RpcParams rpcParams = default)
         {
-            int owner = SlotManager.instance.GetClientSlot(rpcParams.Receive.SenderClientId);
-            if (SlotManager.instance.unitNetID.TryGetValue(netID, out Unit unit) && (owner == unit.owner || SlotManager.instance.debugMode))
+            int owner = SlotManager.Instance.GetClientSlot(rpcParams.Receive.SenderClientId);
+            if (SlotManager.Instance.unitNetID.TryGetValue(netID, out Unit unit) && (owner == unit.owner || SlotManager.Instance.debugMode))
             {
-                if (SlotManager.instance.unitNetID.TryGetValue(targetUnitID, out Unit targetUnit))
+                if (SlotManager.Instance.unitNetID.TryGetValue(targetUnitID, out Unit targetUnit))
                 {
                     unit.DropItem(itemIndex, targetUnit);
                 }
@@ -459,8 +459,8 @@ namespace StrategyCore
         [Rpc(SendTo.Server)]
         public void SwapItemCommandServerRpc(UInt16 netID, int itemIndex, int itemIndex2, RpcParams rpcParams = default)
         {
-            int owner = SlotManager.instance.GetClientSlot(rpcParams.Receive.SenderClientId);
-            if (SlotManager.instance.unitNetID.TryGetValue(netID, out Unit unit) && (owner == unit.owner || SlotManager.instance.debugMode))
+            int owner = SlotManager.Instance.GetClientSlot(rpcParams.Receive.SenderClientId);
+            if (SlotManager.Instance.unitNetID.TryGetValue(netID, out Unit unit) && (owner == unit.owner || SlotManager.Instance.debugMode))
             {
                 unit.SwapItem(itemIndex, itemIndex2);
             }
@@ -480,8 +480,8 @@ namespace StrategyCore
         [Rpc(SendTo.Server)]
         public void ConstructionCancelServerRpc(UInt16 netID, RpcParams rpcParams = default)
         {
-            int owner = SlotManager.instance.GetClientSlot(rpcParams.Receive.SenderClientId);
-            if (SlotManager.instance.unitNetID.TryGetValue(netID, out Unit unit) && (owner == unit.owner || SlotManager.instance.debugMode))
+            int owner = SlotManager.Instance.GetClientSlot(rpcParams.Receive.SenderClientId);
+            if (SlotManager.Instance.unitNetID.TryGetValue(netID, out Unit unit) && (owner == unit.owner || SlotManager.Instance.debugMode))
             {
                 if (unit.constructionUnit)
                 {
@@ -505,8 +505,8 @@ namespace StrategyCore
         [Rpc(SendTo.Server)]
         public void DisembarkCommandServerRpc(UInt16 netID, int index, RpcParams rpcParams = default)
         {
-            int owner = SlotManager.instance.GetClientSlot(rpcParams.Receive.SenderClientId);
-            if (SlotManager.instance.unitNetID.TryGetValue(netID, out Unit unit) && (owner == unit.owner || SlotManager.instance.debugMode))
+            int owner = SlotManager.Instance.GetClientSlot(rpcParams.Receive.SenderClientId);
+            if (SlotManager.Instance.unitNetID.TryGetValue(netID, out Unit unit) && (owner == unit.owner || SlotManager.Instance.debugMode))
             {
                 if (unit.transportUnit)
                 {
@@ -533,13 +533,13 @@ namespace StrategyCore
         [Rpc(SendTo.Server)]
         public void SetWaypointCommandServerRpc(UInt16 netID, UInt16 waypointUnitNetID, Vector2 waypointLocation, RpcParams rpcParams = default)
         {
-            int owner = SlotManager.instance.GetClientSlot(rpcParams.Receive.SenderClientId);
-            if (SlotManager.instance.unitNetID.TryGetValue(netID, out Unit unit) && (owner == unit.owner || SlotManager.instance.debugMode))
+            int owner = SlotManager.Instance.GetClientSlot(rpcParams.Receive.SenderClientId);
+            if (SlotManager.Instance.unitNetID.TryGetValue(netID, out Unit unit) && (owner == unit.owner || SlotManager.Instance.debugMode))
             {
                 if (waypointUnitNetID != 0)
                 {
                     // Unit
-                    if (SlotManager.instance.unitNetID.TryGetValue(waypointUnitNetID, out Unit waypointUnit))
+                    if (SlotManager.Instance.unitNetID.TryGetValue(waypointUnitNetID, out Unit waypointUnit))
                     {
                         unit.SetWaypoint(waypointUnit);
                     }

@@ -10,7 +10,7 @@ namespace StrategyCore
 
     public partial class NetworkDataSync : NetworkBehaviour // [Interflow fix 2026-07-09] partial для наших расширений NetworkDataSync.*.cs
     {
-        public static NetworkDataSync instance;
+        public static NetworkDataSync Instance { get; private set; }
 
         // Sending and Receiving scene data
         private const int CHUNK_SIZE = 1000; // Save file will be divided into chunks to not overflow the buffer
@@ -36,7 +36,7 @@ namespace StrategyCore
 
         void Awake()
         {
-            if (instance == null) instance = this;
+            if (Instance == null) Instance = this;
         }
 
         public override void OnNetworkSpawn()
@@ -44,7 +44,7 @@ namespace StrategyCore
             // Идемпотентность: снятие перед подпиской — повторный вход не плодит дубликаты
             NetworkManager.NetworkTickSystem.Tick -= ProjectWideTick;
             NetworkManager.NetworkTickSystem.Tick += ProjectWideTick;
-            if (SlotManager.instance.gameStarted == GameState.Started)
+            if (SlotManager.Instance.gameStarted == GameState.Started)
             {
                 NetworkManager.NetworkTickSystem.Tick -= Tick;
                 NetworkManager.NetworkTickSystem.Tick += Tick;
@@ -72,7 +72,7 @@ namespace StrategyCore
         // InGame Tick
         public void Tick()
         {
-            if (!SlotManager.instance.gameOn) return;
+            if (!SlotManager.Instance.gameOn) return;
 
             if (IsServer)
             {

@@ -103,7 +103,7 @@ namespace StrategyCore
 
         void Update()
         {
-            if (!SlotManager.instance.gameOn) return;
+            if (!SlotManager.Instance.gameOn) return;
 
             // If there is no target, destroy itself and end execution.
             if (!target && followTarget)
@@ -112,7 +112,7 @@ namespace StrategyCore
                 // Play ground hit Sound - Attack sound, target and audio clips must be defined
                 if (impactSound != null && impactSound.groundHitClips != null && impactSound.groundHitClips.Length > 0) Presentation.Audio?.PlaySoundClip(impactSound.groundHitClips, this.transform, 1);
 
-                GameManager.instance.Tick -= VisibilityCheck;
+                GameManager.Instance.Tick -= VisibilityCheck;
                 Destroy(gameObject);
 
                 return; // Stops executing this function.
@@ -208,7 +208,7 @@ namespace StrategyCore
                     if (unit == null)
                     {
                         // No such unit in radius, destroy projectile
-                        GameManager.instance.Tick -= VisibilityCheck;
+                        GameManager.Instance.Tick -= VisibilityCheck;
                         Destroy(gameObject);
                     }
                     else
@@ -235,7 +235,7 @@ namespace StrategyCore
                 else
                 {
                     // We have reached the target and it is not bouncy projectile so there is no need to look for the next target. Destroy it.
-                    GameManager.instance.Tick -= VisibilityCheck;
+                    GameManager.Instance.Tick -= VisibilityCheck;
                     Destroy(gameObject);
                 }
             }
@@ -446,20 +446,20 @@ namespace StrategyCore
             }
 
             // FoW Visibility checks
-            if (!FogOfWar.instance.TurnOff && FoWVisibilityCheck)
+            if (!FogOfWar.Instance.TurnOff && FoWVisibilityCheck)
             {
                 if (whoSent != null)
                 {
-                    if (!FogOfWar.instance.IsVisible(whoSent.FoWCell, SlotManager.instance.currentTeam)) p.DisableRenderers(true);
+                    if (!FogOfWar.Instance.IsVisible(whoSent.FoWCell, SlotManager.Instance.currentTeam)) p.DisableRenderers(true);
                     else p.renderersEnabled = true;
                 }
                 else
                 {
-                    if (!FogOfWar.instance.IsVisible(position, SlotManager.instance.currentTeam)) p.DisableRenderers(true);
+                    if (!FogOfWar.Instance.IsVisible(position, SlotManager.Instance.currentTeam)) p.DisableRenderers(true);
                     else p.renderersEnabled = true;
                 }
 
-                GameManager.instance.Tick += p.VisibilityCheck;
+                GameManager.Instance.Tick += p.VisibilityCheck;
             }
 
             p.searchUnitSelector = searchUnitSelector;
@@ -474,7 +474,7 @@ namespace StrategyCore
         /// </summary>
         public void VisibilityCheck()
         {
-            if (FogOfWar.instance.IsVisible(FogOfWar.GetCellByPosition(transform.position), SlotManager.instance.currentTeam))
+            if (FogOfWar.Instance.IsVisible(FogOfWar.GetCellByPosition(transform.position), SlotManager.Instance.currentTeam))
             {
                 EnableRenderers();      
             }

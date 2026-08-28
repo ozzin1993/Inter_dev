@@ -7,7 +7,7 @@ namespace StrategyCore
 {
     public class TechnologyManager : MonoBehaviour
     {
-        public static TechnologyManager instance;
+        public static TechnologyManager Instance { get; private set; }
         // Convert to hashset?
 
         // Tech tree holder for all players
@@ -26,9 +26,9 @@ namespace StrategyCore
 
         void Awake()
         {
-            if (instance == null)
+            if (Instance == null)
             {
-                instance = this;
+                Instance = this;
             }
 
             Initialize();
@@ -70,13 +70,13 @@ namespace StrategyCore
                 wasUnlocked = true;
 
                 // Send a message previously unknown tech was unlocked
-                instance.OnTechUnlock[playerIndex]?.Invoke();
+                Instance.OnTechUnlock[playerIndex]?.Invoke();
             }
 
             // Shared tech
             if (tech.shared)
             {
-                int[] allies = SlotManager.instance.GetPlayerAllies(playerIndex);
+                int[] allies = SlotManager.Instance.GetPlayerAllies(playerIndex);
 
                 for (int i = 0; i < allies.Length; i++)
                 {
@@ -86,14 +86,14 @@ namespace StrategyCore
                         wasUnlocked = true;
 
                         // Send a message previously unknown tech was unlocked
-                        instance.OnTechUnlock[allies[i]]?.Invoke();
+                        Instance.OnTechUnlock[allies[i]]?.Invoke();
                     }
                 }
             }
 
             if (wasUnlocked)
                 if (NetworkManager.Singleton.IsServer)
-                    NetworkDataSync.instance.TechnologySync(playerIndex, tech.id, true);
+                    NetworkDataSync.Instance.TechnologySync(playerIndex, tech.id, true);
         }
 
         // Upon unit creation if it has unlockTech, unlocks the tech and adds unit to the list
@@ -110,13 +110,13 @@ namespace StrategyCore
                 wasUnlocked = true;
 
                 // Send a message previously unknown tech was unlocked
-                instance.OnTechUnlock[unit.owner]?.Invoke();
+                Instance.OnTechUnlock[unit.owner]?.Invoke();
             }
 
             // Shared tech
             if (unit.unlockTech.shared)
             {
-                int[] allies = SlotManager.instance.GetPlayerAllies(unit.owner);
+                int[] allies = SlotManager.Instance.GetPlayerAllies(unit.owner);
 
                 for (int i = 0; i < allies.Length; i++)
                 {
@@ -126,14 +126,14 @@ namespace StrategyCore
                         wasUnlocked = true;
 
                         // Send a message previously unknown tech was unlocked
-                        instance.OnTechUnlock[allies[i]]?.Invoke();
+                        Instance.OnTechUnlock[allies[i]]?.Invoke();
                     }
                 }
             }
 
             if (wasUnlocked)
                 if (NetworkManager.Singleton.IsServer)
-                    NetworkDataSync.instance.TechnologySync(unit.owner, unit.unlockTech.id, true);
+                    NetworkDataSync.Instance.TechnologySync(unit.owner, unit.unlockTech.id, true);
 
             // Add to unlock counter
             if (unlockingCount[unit.owner].ContainsKey(unit.unlockTech.id)) unlockingCount[unit.owner][unit.unlockTech.id]++;
@@ -151,21 +151,21 @@ namespace StrategyCore
             // Shared tech
             if (tech.shared)
             {
-                int[] allies = SlotManager.instance.GetPlayerAllies(playerIndex);
+                int[] allies = SlotManager.Instance.GetPlayerAllies(playerIndex);
 
                 for (int i = 0; i < allies.Length; i++)
                 {
                     TechTree[allies[i]][tech] = false;
 
                     // Send a message tech was locked
-                    instance.OnTechLock[allies[i]]?.Invoke();
+                    Instance.OnTechLock[allies[i]]?.Invoke();
                 }
             }
 
-            if (NetworkManager.Singleton.IsServer) NetworkDataSync.instance.TechnologySync(playerIndex, tech.id, false);
+            if (NetworkManager.Singleton.IsServer) NetworkDataSync.Instance.TechnologySync(playerIndex, tech.id, false);
 
             // Send a message tech was locked
-            instance.OnTechLock[playerIndex]?.Invoke();
+            Instance.OnTechLock[playerIndex]?.Invoke();
         }
 
         // When unit dies this method is called, it will lock the technology if no units unlocking it are alive
@@ -185,7 +185,7 @@ namespace StrategyCore
             // Shared tech. Test ally units
             if (unit.unlockTech.shared)
             {
-                int[] allies = SlotManager.instance.GetPlayerAllies(unit.owner);
+                int[] allies = SlotManager.Instance.GetPlayerAllies(unit.owner);
 
                 for (int i = 0; i < allies.Length; i++)
                 {
@@ -202,16 +202,16 @@ namespace StrategyCore
                     TechTree[allies[i]][unit.unlockTech] = false;
 
                     // Send a message tech was locked
-                    instance.OnTechLock[allies[i]]?.Invoke();
+                    Instance.OnTechLock[allies[i]]?.Invoke();
                 }
             }
 
             // No unit unlocking the tech has been found, lock it for owner
             TechTree[unit.owner][unit.unlockTech] = false;
-            if (NetworkManager.Singleton.IsServer) NetworkDataSync.instance.TechnologySync(unit.owner, unit.unlockTech.id, false);
+            if (NetworkManager.Singleton.IsServer) NetworkDataSync.Instance.TechnologySync(unit.owner, unit.unlockTech.id, false);
 
             // Send a message tech was locked
-            instance.OnTechLock[unit.owner]?.Invoke();
+            Instance.OnTechLock[unit.owner]?.Invoke();
         }
 
         // Takes an array of required techTypes and returns true if all techTypes are unlocked
@@ -248,7 +248,7 @@ namespace StrategyCore
             // Shared tech. Set for allies
             if (tech.shared)
             {
-                int[] allies = SlotManager.instance.GetPlayerAllies(playerIndex);
+                int[] allies = SlotManager.Instance.GetPlayerAllies(playerIndex);
 
                 for (int i = 0; i < allies.Length; i++)
                 {
@@ -264,7 +264,7 @@ namespace StrategyCore
             // Shared tech. Set for allies
             if (tech.shared)
             {
-                int[] allies = SlotManager.instance.GetPlayerAllies(playerIndex);
+                int[] allies = SlotManager.Instance.GetPlayerAllies(playerIndex);
 
                 for (int i = 0; i < allies.Length; i++)
                 {

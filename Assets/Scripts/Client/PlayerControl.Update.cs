@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.InputSystem;
@@ -13,9 +13,9 @@ namespace StrategyCore
     {
         private void Awake()
         {
-            if (instance == null)
+            if (Instance == null)
             {
-                instance = this;
+                Instance = this;
             }
             coreInput = new StrategyCoreInput();
         }
@@ -28,7 +28,7 @@ namespace StrategyCore
             PlayerControl.coreInput.Main.AnyKey.performed += QuickSelect;
             PlayerControl.coreInput.Main.AnyKeyDbl.performed += QuickSelectDbl;
             PlayerControl.coreInput.Main.Chat.performed += UImanager.ChatButtonPressed;
-            if (UIManagerMenu.instance) PlayerControl.coreInput.Main.Menu.performed += ShowInGameMenu;
+            if (UIManagerMenu.Instance) PlayerControl.coreInput.Main.Menu.performed += ShowInGameMenu;
 
             Camera_TopDown.onDoubleClick += DblClickSelection;
         }
@@ -50,9 +50,9 @@ namespace StrategyCore
         {
             if (ServerBootstrap.IsHeadlessServer) return;   // [Interflow fix 2026-06-20]
             // VFX
-            moveVFX = Instantiate(ReferenceManager.instance.moveVFX, Vector3.zero, Quaternion.identity);
+            moveVFX = Instantiate(ReferenceManager.Instance.moveVFX, Vector3.zero, Quaternion.identity);
             moveVFX.gameObject.SetActive(false);
-            moveAttackVFX = Instantiate(ReferenceManager.instance.moveAttackVFX, Vector3.zero, Quaternion.identity);
+            moveAttackVFX = Instantiate(ReferenceManager.Instance.moveAttackVFX, Vector3.zero, Quaternion.identity);
             moveAttackVFX.gameObject.SetActive(false);
 
             // Healthbar display
@@ -70,7 +70,7 @@ namespace StrategyCore
         {
             if (ServerBootstrap.IsHeadlessServer) return;   // [Interflow fix 2026-06-20]
             // Static bool to know if cursor currently over UI elements
-            isCursorOverUI = IsOverUI(Camera_TopDown.instance.GetCursorPosition());
+            isCursorOverUI = IsOverUI(Camera_TopDown.Instance.GetCursorPosition());
 
             // When over UI we turn off drag selection and hide the projector.
             // When in projection we show cursor over ui, but hide when not
@@ -81,14 +81,14 @@ namespace StrategyCore
             if (isCursorOverUI)
             {
                 dragSelect = false;
-                if (Camera_TopDown.instance.cursorHidden) Camera_TopDown.instance.ShowCursor();
+                if (Camera_TopDown.Instance.cursorHidden) Camera_TopDown.Instance.ShowCursor();
                 if (mode == PCMode.DragDrop) UnitProjectorUpdate();
                 else UnitProjectorHide();
             }
             else
             {
                 if (!isProjectionMode) UnitProjectorUpdate();
-                else if (!Camera_TopDown.instance.cursorHidden) Camera_TopDown.instance.HideCursor();
+                else if (!Camera_TopDown.Instance.cursorHidden) Camera_TopDown.Instance.HideCursor();
 
                 // COMMANDS
 
@@ -100,13 +100,13 @@ namespace StrategyCore
                     if (!dblClickWasPerformedThisFrame && coreInput.Main.Select.WasPressedThisFrame())
                     {
                         dragSelect = true;
-                        mousePosition1 = Camera_TopDown.instance.GetCursorPosition();
+                        mousePosition1 = Camera_TopDown.Instance.GetCursorPosition();
                         currentTime = 0;
                     }
 
                     if (dragSelect == true)
                     {
-                        Vector2 mousePosition2 = Camera_TopDown.instance.GetCursorPosition();
+                        Vector2 mousePosition2 = Camera_TopDown.Instance.GetCursorPosition();
                         // Check if group selection is occuring
                         if (coreInput.Main.Select.IsPressed())
                         {
@@ -135,7 +135,7 @@ namespace StrategyCore
 
                                 if (selectedUnit && selectedUnit.isSelectable)
                                 {
-                                    if (FogOfWar.instance.IsVisible(selectedUnit.FoWCell, SlotManager.instance.currentTeam) && selectedUnit.IsVisible(SlotManager.instance.currentTeam))
+                                    if (FogOfWar.Instance.IsVisible(selectedUnit.FoWCell, SlotManager.Instance.currentTeam) && selectedUnit.IsVisible(SlotManager.Instance.currentTeam))
                                     {
                                         // Add to selection only visible units
                                         if (coreInput.Main.MultipleSelection.IsPressed())
@@ -158,13 +158,13 @@ namespace StrategyCore
                     else if (coreInput.Main.AttackPosition.IsPressed() && coreInput.Main.Command.WasReleasedThisFrame())
                     {
                         // Attack position
-                        Vector3 terrainPoint = Utils.TerrainScreenRaycast(Camera_TopDown.instance.GetCursorPosition());
+                        Vector3 terrainPoint = Utils.TerrainScreenRaycast(Camera_TopDown.Instance.GetCursorPosition());
 
                         bool someoneCommanded = false;
                         for (int i = 0; i < selectedUnits.Count; i++)
                         {
                             // Control only player units
-                            if (selectedUnits[i].owner != SlotManager.instance.currentPlayer && !SlotManager.instance.debugMode) continue;
+                            if (selectedUnits[i].owner != SlotManager.Instance.currentPlayer && !SlotManager.Instance.debugMode) continue;
 
                             if (selectedUnits[i].isSplash && !selectedUnits[i].isBeingBuilt)
                             {
@@ -173,7 +173,7 @@ namespace StrategyCore
                             }
                         }
                         // Attack sound
-                        if (someoneCommanded && activeUnit.attackCommandSound.Length > 0) SoundFXManager.instance.PlayCommandSound(activeUnit, activeUnit.attackCommandSound, 1);
+                        if (someoneCommanded && activeUnit.attackCommandSound.Length > 0) SoundFXManager.Instance.PlayCommandSound(activeUnit, activeUnit.attackCommandSound, 1);
                     }
 
                     // COMMANDS ---------------------------------------------------------------------------------------------------------------------------------------
@@ -181,7 +181,7 @@ namespace StrategyCore
                     else if (coreInput.Main.Command.WasReleasedThisFrame())
                     {
                         // Cast ray to see if units was selected to be followed/attacked or we are moving to a position
-                        Ray ray = Utils.MainCamera.ScreenPointToRay(Camera_TopDown.instance.GetCursorPosition());
+                        Ray ray = Utils.MainCamera.ScreenPointToRay(Camera_TopDown.Instance.GetCursorPosition());
                         RaycastHit hit;
 
                         if (Physics.Raycast(ray, out hit, rayDistance))
@@ -192,12 +192,12 @@ namespace StrategyCore
                             bool wasCommanded = false;
 
                             // Player commanded (RightClick on unit) to Follow/Attack unit
-                            if (hitUnit && hitUnit.IsVisible(SlotManager.instance.currentTeam) && (hitUnit.unitType == UnitType.StaticDestructible || hitUnit.unitType == UnitType.Tree || FogOfWar.instance.IsVisible(hitUnit.FoWCell, SlotManager.instance.currentTeam)))
+                            if (hitUnit && hitUnit.IsVisible(SlotManager.Instance.currentTeam) && (hitUnit.unitType == UnitType.StaticDestructible || hitUnit.unitType == UnitType.Tree || FogOfWar.Instance.IsVisible(hitUnit.FoWCell, SlotManager.Instance.currentTeam)))
                             {
                                 for (int i = 0; i < selectedUnits.Count; i++)
                                 {
                                     // Control only player units
-                                    if (selectedUnits[i].owner != SlotManager.instance.currentPlayer && !SlotManager.instance.debugMode) continue;
+                                    if (selectedUnits[i].owner != SlotManager.Instance.currentPlayer && !SlotManager.Instance.debugMode) continue;
 
                                     // Waypoint - Unit
                                     if (selectedUnits[i].isWaypoint)
@@ -221,13 +221,13 @@ namespace StrategyCore
                                                 if (selectedUnits[i].canMove || Vector2.Distance(new Vector2(selectedUnits[i].transform.position.x, selectedUnits[i].transform.position.z), new Vector2(hitUnit.transform.position.x, hitUnit.transform.position.z)) <= selectedUnits[i].attackRange)
                                                 {
                                                     selectedUnits[i].Attack(hitUnit, true);
-                                                    if (!soundPlayOnce && activeUnit.attackCommandSound.Length > 0) SoundFXManager.instance.PlayCommandSound(activeUnit, activeUnit.attackCommandSound, 1);
+                                                    if (!soundPlayOnce && activeUnit.attackCommandSound.Length > 0) SoundFXManager.Instance.PlayCommandSound(activeUnit, activeUnit.attackCommandSound, 1);
                                                     soundPlayOnce = true;
                                                     wasCommanded = true;
                                                 }
                                                 else
                                                 {
-                                                    UIManager.instance.ShowNotifyMsg("This unit is too far!", SlotManager.instance.currentPlayer, false);
+                                                    UIManager.Instance.ShowNotifyMsg("This unit is too far!", SlotManager.Instance.currentPlayer, false);
                                                 }
                                             }
                                         }
@@ -236,16 +236,16 @@ namespace StrategyCore
                                         {
                                             wasCommanded = true;
                                             // Enemy unit is invulnerable
-                                            if (hitUnit.isInvulnerable && hitUnit.team != SlotManager.instance.currentTeam && hitUnit.team != SlotManager.instance.playerTeam[(int)Players.NeutralPassive])
+                                            if (hitUnit.isInvulnerable && hitUnit.team != SlotManager.Instance.currentTeam && hitUnit.team != SlotManager.Instance.playerTeam[(int)Players.NeutralPassive])
                                             {
-                                                UIManager.instance.ShowNotifyMsg("This unit is invulnerable!", SlotManager.instance.currentPlayer, false);
+                                                UIManager.Instance.ShowNotifyMsg("This unit is invulnerable!", SlotManager.Instance.currentPlayer, false);
                                             }
                                             // Friendly unit, follow it
                                             else
                                             {
                                                 if (selectedUnits[i] != hitUnit)
                                                 {
-                                                    if (!soundPlayOnce && activeUnit.moveSound.Length > 0) SoundFXManager.instance.PlayCommandSound(activeUnit, activeUnit.moveSound, 1);
+                                                    if (!soundPlayOnce && activeUnit.moveSound.Length > 0) SoundFXManager.Instance.PlayCommandSound(activeUnit, activeUnit.moveSound, 1);
                                                     soundPlayOnce = true;
 
                                                     // Transport: Either unit to enter transport or transport to take in, depending on active unit
@@ -267,14 +267,14 @@ namespace StrategyCore
                             if (!wasCommanded)
                             {
                                 // Move to position
-                                Vector3 point = Utils.TerrainScreenRaycast(Camera_TopDown.instance.GetCursorPosition());
+                                Vector3 point = Utils.TerrainScreenRaycast(Camera_TopDown.Instance.GetCursorPosition());
                                 List<Vector2> destinations = ComputeFormation(selectedUnits, point);
 
                                 // Move units that can move and belong to the player
                                 int destIndex = 0; // Destination index. If we have selected enemy units too, we should give destionations only for own units
                                 for (int i = 0; i < selectedUnits.Count; i++)
                                 {
-                                    if (selectedUnits[i].owner == SlotManager.instance.currentPlayer || SlotManager.instance.debugMode)
+                                    if (selectedUnits[i].owner == SlotManager.Instance.currentPlayer || SlotManager.Instance.debugMode)
                                     {
                                         // Waypoint - Position
                                         if (selectedUnits[i].isWaypoint)
@@ -285,7 +285,7 @@ namespace StrategyCore
                                         else if (selectedUnits[i].canMove && !selectedUnits[i].isBeingBuilt)
                                         {
                                             selectedUnits[i].Move(destinations[destIndex], 0, true);
-                                            if (!soundPlayOnce && activeUnit.moveSound.Length > 0) SoundFXManager.instance.PlayCommandSound(activeUnit, activeUnit.moveSound, 1);
+                                            if (!soundPlayOnce && activeUnit.moveSound.Length > 0) SoundFXManager.Instance.PlayCommandSound(activeUnit, activeUnit.moveSound, 1);
                                             soundPlayOnce = true;
                                             destIndex++;
                                         }
@@ -310,8 +310,8 @@ namespace StrategyCore
                 // Area ability
                 else if (mode == PCMode.Area)
                 {
-                    Vector3 currentPlanePosition = Utils.TerrainScreenRaycast(Camera_TopDown.instance.GetCursorPosition());
-                    if (currentPlanePosition == Vector3.zero) currentPlanePosition = Utils.PlaneRayCast(Camera_TopDown.instance.GetCursorPosition());
+                    Vector3 currentPlanePosition = Utils.TerrainScreenRaycast(Camera_TopDown.Instance.GetCursorPosition());
+                    if (currentPlanePosition == Vector3.zero) currentPlanePosition = Utils.PlaneRayCast(Camera_TopDown.Instance.GetCursorPosition());
 
                     areaProjectorSpawned.position = currentPlanePosition;
 
@@ -325,7 +325,7 @@ namespace StrategyCore
                 {
                     if (coreInput.Main.Select.WasReleasedThisFrame())
                     {
-                        ActivateAbilityAndResetStates(Utils.TerrainScreenRaycast(Camera_TopDown.instance.GetCursorPosition()));
+                        ActivateAbilityAndResetStates(Utils.TerrainScreenRaycast(Camera_TopDown.Instance.GetCursorPosition()));
                     }
                 }
                 // Unit ability
@@ -335,21 +335,21 @@ namespace StrategyCore
                     {
                         Unit hitUnit = Utils.GetUnitAtCursor();
 
-                        if (hitUnit && hitUnit.IsVisible(SlotManager.instance.currentTeam) && (hitUnit.unitType == UnitType.StaticDestructible || hitUnit.unitType == UnitType.Tree || FogOfWar.instance.IsVisible(hitUnit.FoWCell, SlotManager.instance.currentTeam)))
+                        if (hitUnit && hitUnit.IsVisible(SlotManager.Instance.currentTeam) && (hitUnit.unitType == UnitType.StaticDestructible || hitUnit.unitType == UnitType.Tree || FogOfWar.Instance.IsVisible(hitUnit.FoWCell, SlotManager.Instance.currentTeam)))
                         {
-                            if (UnitSelector.IsUnitCompatible(activeUnit.owner, hitUnit, activeAbility.unitSelector) && FogOfWar.instance.IsVisible(hitUnit.FoWCell, SlotManager.instance.currentTeam))
+                            if (UnitSelector.IsUnitCompatible(activeUnit.owner, hitUnit, activeAbility.unitSelector) && FogOfWar.Instance.IsVisible(hitUnit.FoWCell, SlotManager.Instance.currentTeam))
                             {
                                 // Only compatible and visible units can be targeted
                                 ActivateAbilityAndResetStates(hitUnit);
                             }
                             else
                             {
-                                UImanager.ShowNotifyMsg("You must select a compatible unit", SlotManager.instance.currentPlayer, false);
+                                UImanager.ShowNotifyMsg("You must select a compatible unit", SlotManager.Instance.currentPlayer, false);
                             }
                         }
                         else
                         {
-                            UImanager.ShowNotifyMsg("You must select a compatible unit", SlotManager.instance.currentPlayer, false);
+                            UImanager.ShowNotifyMsg("You must select a compatible unit", SlotManager.Instance.currentPlayer, false);
                         }
                     }
                 }
@@ -368,33 +368,33 @@ namespace StrategyCore
                         if (hitUnit)
                         {
                             // We check if unit is visible to make sure that it can not be abused to locate enemy units
-                            if (hitUnit.IsVisible(SlotManager.instance.currentTeam) && FogOfWar.instance.IsVisible(hitUnit.FoWCell, SlotManager.instance.currentTeam))
+                            if (hitUnit.IsVisible(SlotManager.Instance.currentTeam) && FogOfWar.Instance.IsVisible(hitUnit.FoWCell, SlotManager.Instance.currentTeam))
                             {
-                                if (hitUnit.team == SlotManager.instance.currentTeam && hitUnit.InventorySize > 0)
+                                if (hitUnit.team == SlotManager.Instance.currentTeam && hitUnit.InventorySize > 0)
                                 {
-                                    if (Vector2.Distance(new Vector2(hitUnit.transform.position.x, hitUnit.transform.position.z), new Vector2(activeUnit.transform.position.x, activeUnit.transform.position.z)) <= GameManager.instance.shopRadius)
+                                    if (Vector2.Distance(new Vector2(hitUnit.transform.position.x, hitUnit.transform.position.z), new Vector2(activeUnit.transform.position.x, activeUnit.transform.position.z)) <= GameManager.Instance.shopRadius)
                                     {
                                         activeUnit.shopUnit = hitUnit;
                                         ChangeMode(PCMode.Default);
                                     }
                                     else
                                     {
-                                        UImanager.ShowNotifyMsg("This unit is too far", SlotManager.instance.currentPlayer, false);
+                                        UImanager.ShowNotifyMsg("This unit is too far", SlotManager.Instance.currentPlayer, false);
                                     }
                                 }
                                 else
                                 {
-                                    UImanager.ShowNotifyMsg("You can only select unit that has inventory and belongs to you or your allies", SlotManager.instance.currentPlayer, false);
+                                    UImanager.ShowNotifyMsg("You can only select unit that has inventory and belongs to you or your allies", SlotManager.Instance.currentPlayer, false);
                                 }
                             }
                             else
                             {
-                                UImanager.ShowNotifyMsg("You must select a compatible unit", SlotManager.instance.currentPlayer, false);
+                                UImanager.ShowNotifyMsg("You must select a compatible unit", SlotManager.Instance.currentPlayer, false);
                             }
                         }
                         else
                         {
-                            UImanager.ShowNotifyMsg("You must select a compatible unit", SlotManager.instance.currentPlayer, false);
+                            UImanager.ShowNotifyMsg("You must select a compatible unit", SlotManager.Instance.currentPlayer, false);
                         }
                     }
                 }
@@ -406,7 +406,7 @@ namespace StrategyCore
                         bool positionSelection = true; // Attack move on unit will just command to attack
                         bool staticCopy = false; // Main unit is dead, but static copy is still there. Commanded to attack, we just move to its position
                         bool soundPlayOnce = false;
-                        Ray ray = Utils.MainCamera.ScreenPointToRay(Camera_TopDown.instance.GetCursorPosition());
+                        Ray ray = Utils.MainCamera.ScreenPointToRay(Camera_TopDown.Instance.GetCursorPosition());
                         RaycastHit hit;
 
                         // Check if attack command was made
@@ -414,7 +414,7 @@ namespace StrategyCore
                         {
                             Unit hitUnit = hit.transform.GetComponent<Unit>();
                             staticCopy = hit.transform.tag == "StaticDestructible" ? true : false;
-                            if (hitUnit && hitUnit.IsVisible(SlotManager.instance.currentTeam) && (hitUnit.unitType == UnitType.StaticDestructible || hitUnit.unitType == UnitType.Tree || FogOfWar.instance.IsVisible(hitUnit.FoWCell, SlotManager.instance.currentTeam)))
+                            if (hitUnit && hitUnit.IsVisible(SlotManager.Instance.currentTeam) && (hitUnit.unitType == UnitType.StaticDestructible || hitUnit.unitType == UnitType.Tree || FogOfWar.Instance.IsVisible(hitUnit.FoWCell, SlotManager.Instance.currentTeam)))
                             {
                                 if (UnitSelector.IsUnitCompatible(activeUnit.owner, hitUnit, activeUnit.attackUnitSelector))
                                 {
@@ -423,7 +423,7 @@ namespace StrategyCore
                                     for (int i = 0; i < selectedUnits.Count; i++)
                                     {
                                         // Control only player units
-                                        if (selectedUnits[i].owner != SlotManager.instance.currentPlayer && !SlotManager.instance.debugMode) continue;
+                                        if (selectedUnits[i].owner != SlotManager.Instance.currentPlayer && !SlotManager.Instance.debugMode) continue;
 
                                         if (selectedUnits[i] != hitUnit && !selectedUnits[i].isBeingBuilt)
                                         {
@@ -432,12 +432,12 @@ namespace StrategyCore
                                             {
                                                 selectedUnits[i].Attack(hitUnit, true);
 
-                                                if (!soundPlayOnce && activeUnit.attackCommandSound.Length > 0) SoundFXManager.instance.PlayCommandSound(activeUnit, activeUnit.attackCommandSound, 1);
+                                                if (!soundPlayOnce && activeUnit.attackCommandSound.Length > 0) SoundFXManager.Instance.PlayCommandSound(activeUnit, activeUnit.attackCommandSound, 1);
                                                 soundPlayOnce = true;
                                             }
                                             else
                                             {
-                                                UIManager.instance.ShowNotifyMsg("This unit is too far!", SlotManager.instance.currentPlayer, false);
+                                                UIManager.Instance.ShowNotifyMsg("This unit is too far!", SlotManager.Instance.currentPlayer, false);
                                             }
                                         }
                                     }
@@ -447,11 +447,11 @@ namespace StrategyCore
                                     positionSelection = false;
                                     if (hitUnit.isInvulnerable)
                                     {
-                                        UIManager.instance.ShowNotifyMsg("This unit is invulnerable!", SlotManager.instance.currentPlayer, false);
+                                        UIManager.Instance.ShowNotifyMsg("This unit is invulnerable!", SlotManager.Instance.currentPlayer, false);
                                     }
                                     else
                                     {
-                                        UIManager.instance.ShowNotifyMsg("Selected unit can not attack this target!", SlotManager.instance.currentPlayer, false);
+                                        UIManager.Instance.ShowNotifyMsg("Selected unit can not attack this target!", SlotManager.Instance.currentPlayer, false);
                                     }
                                 }
                             }
@@ -460,7 +460,7 @@ namespace StrategyCore
                             if (positionSelection || staticCopy)
                             {
                                 // Move to position
-                                Vector3 point = Utils.TerrainScreenRaycast(Camera_TopDown.instance.GetCursorPosition());
+                                Vector3 point = Utils.TerrainScreenRaycast(Camera_TopDown.Instance.GetCursorPosition());
                                 List<Vector2> destinations = ComputeFormation(selectedUnits, point);
 
                                 if (!staticCopy && destinations.Count > 0) SetMoveVFX(point, true);
@@ -469,7 +469,7 @@ namespace StrategyCore
                                 int destIndex = 0; // Destination index. If we have selected enemy units too, we should give destionations only for own units
                                 for (int i = 0; i < selectedUnits.Count; i++)
                                 {
-                                    if (selectedUnits[i].owner == SlotManager.instance.currentPlayer || SlotManager.instance.debugMode)
+                                    if (selectedUnits[i].owner == SlotManager.Instance.currentPlayer || SlotManager.Instance.debugMode)
                                     {
                                         if (selectedUnits[i].canMove && !selectedUnits[i].isBeingBuilt)
                                         {
@@ -477,7 +477,7 @@ namespace StrategyCore
                                             else selectedUnits[i].AttackMove(destinations[destIndex], true);
                                             destIndex++;
 
-                                            if (!soundPlayOnce && activeUnit.moveSound.Length > 0) SoundFXManager.instance.PlayCommandSound(activeUnit, activeUnit.moveSound, 1);
+                                            if (!soundPlayOnce && activeUnit.moveSound.Length > 0) SoundFXManager.Instance.PlayCommandSound(activeUnit, activeUnit.moveSound, 1);
                                             soundPlayOnce = true;
                                         }
                                     }
@@ -528,11 +528,11 @@ namespace StrategyCore
                     bool invalidPosition = false;
 
                     // Central raycast
-                    Vector3 currentPlanePosition = Utils.TerrainScreenRaycast(Camera_TopDown.instance.GetCursorPosition(), shadowBuildingMask);
+                    Vector3 currentPlanePosition = Utils.TerrainScreenRaycast(Camera_TopDown.Instance.GetCursorPosition(), shadowBuildingMask);
                     if (currentPlanePosition == Vector3.zero)
                     {
                         invalidPosition = true;
-                        currentPlanePosition = Utils.PlaneRayCast(Camera_TopDown.instance.GetCursorPosition());
+                        currentPlanePosition = Utils.PlaneRayCast(Camera_TopDown.Instance.GetCursorPosition());
                     }
 
                     // Check terrain, slope
@@ -553,7 +553,7 @@ namespace StrategyCore
                                     invalidPosition = true;
                                     break;
                                 }
-                                else if (pointOnCircle.x < 0 || pointOnCircle.x > Grid.instance.width || pointOnCircle.x > Grid.instance.height || pointOnCircle.y < 0 || pointOnCircle.y > Grid.instance.width || pointOnCircle.y > Grid.instance.height)
+                                else if (pointOnCircle.x < 0 || pointOnCircle.x > Grid.Instance.width || pointOnCircle.x > Grid.Instance.height || pointOnCircle.y < 0 || pointOnCircle.y > Grid.Instance.width || pointOnCircle.y > Grid.Instance.height)
                                 {
                                     // Outside the map
                                     invalidPosition = true;
@@ -584,7 +584,7 @@ namespace StrategyCore
                                     invalidPosition = true;
                                     break;
                                 }
-                                else if (corners[i].x < 0 || corners[i].x > Grid.instance.width || corners[i].x > Grid.instance.height || corners[i].y < 0 || corners[i].y > Grid.instance.width || corners[i].y > Grid.instance.height)
+                                else if (corners[i].x < 0 || corners[i].x > Grid.Instance.width || corners[i].x > Grid.Instance.height || corners[i].y < 0 || corners[i].y > Grid.Instance.width || corners[i].y > Grid.Instance.height)
                                 {
                                     // Outside the map
                                     invalidPosition = true;
@@ -669,7 +669,7 @@ namespace StrategyCore
                         foreach (var renderer in shadowBuildingRenderers)
                         {
                             Material[] materials = renderer.materials;
-                            for (int i = 0; i < materials.Length; i++) materials[i] = ReferenceManager.instance.shadowMaterialInvalid;
+                            for (int i = 0; i < materials.Length; i++) materials[i] = ReferenceManager.Instance.shadowMaterialInvalid;
                             renderer.materials = materials;
                         }
                     }
@@ -678,7 +678,7 @@ namespace StrategyCore
                         foreach (var renderer in shadowBuildingRenderers)
                         {
                             Material[] materials = renderer.materials;
-                            for (int i = 0; i < materials.Length; i++) materials[i] = ReferenceManager.instance.shadowMaterial;
+                            for (int i = 0; i < materials.Length; i++) materials[i] = ReferenceManager.Instance.shadowMaterial;
                             renderer.materials = materials;
                         }
                     }
@@ -743,7 +743,7 @@ namespace StrategyCore
             //     for (int y = minY; y <= maxY; y++)
             //     {
             //         Gizmos.color = new Color(0.8f, 0.8f, 0.95f, 0.25f);
-            //         Gizmos.DrawCube(new Vector3(x * Grid.instance.chunkSize + Grid.instance.chunkSize * 0.5f, 0, y * Grid.instance.chunkSize + Grid.instance.chunkSize * 0.5f), new Vector3(Grid.instance.chunkSize, 0.1f, Grid.instance.chunkSize));
+            //         Gizmos.DrawCube(new Vector3(x * Grid.Instance.chunkSize + Grid.Instance.chunkSize * 0.5f, 0, y * Grid.Instance.chunkSize + Grid.Instance.chunkSize * 0.5f), new Vector3(Grid.Instance.chunkSize, 0.1f, Grid.Instance.chunkSize));
             //     }
             // }
         }

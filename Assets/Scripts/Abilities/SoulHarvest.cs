@@ -30,22 +30,22 @@ namespace StrategyCore
 
             // Подписку откладываем до первого тика: к нему Unit.Initialize гарантированно установил owner
             // (иначе начальный список союзников собрался бы по неверному владельцу — замечание code-review).
-            if (GameManager.instance != null)
+            if (GameManager.Instance != null)
             {
-                GameManager.instance.Tick += WireOnFirstTick;
+                GameManager.Instance.Tick += WireOnFirstTick;
                 tickSubscribed = true;
             }
-            else Debug.LogWarning("[SoulHarvest] GameManager.instance == null — подписки не запланированы.");
+            else Debug.LogWarning("[SoulHarvest] GameManager.Instance == null — подписки не запланированы.");
         }
 
         // Отложенная инициализация (первый Tick): owner уже задан. Подписываемся на новых и уже живых союзников.
         void WireOnFirstTick()
         {
-            if (GameManager.instance != null) GameManager.instance.Tick -= WireOnFirstTick;
+            if (GameManager.Instance != null) GameManager.Instance.Tick -= WireOnFirstTick;
             tickSubscribed = false;
             if (wired) return;
 
-            MatchManager mm = MatchManager.instance;
+            MatchManager mm = MatchManager.Instance;
             if (mm == null || hero == null) { Debug.LogWarning("[SoulHarvest] MatchManager/hero недоступны на первом тике."); return; }
 
             mm.OnUnitSpawned += OnUnitSpawned;                // новые союзники — через штатное событие спавна
@@ -90,10 +90,10 @@ namespace StrategyCore
 
         void OnDestroy()
         {
-            if (tickSubscribed && GameManager.instance != null) GameManager.instance.Tick -= WireOnFirstTick;
+            if (tickSubscribed && GameManager.Instance != null) GameManager.Instance.Tick -= WireOnFirstTick;
             tickSubscribed = false;
             if (!wired) return;
-            if (MatchManager.instance != null) MatchManager.instance.OnUnitSpawned -= OnUnitSpawned;
+            if (MatchManager.Instance != null) MatchManager.Instance.OnUnitSpawned -= OnUnitSpawned;
             foreach (Unit u in hooked) if (u != null) u.OnDie -= OnAllyDied;
             hooked.Clear();
         }

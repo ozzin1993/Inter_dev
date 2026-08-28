@@ -18,7 +18,7 @@ namespace StrategyCore
         /// <returns></returns>
         public static int GetGridRadius(float radius)
         {
-            return (int)MathF.Ceiling(radius / Grid.instance.chunkSize);
+            return (int)MathF.Ceiling(radius / Grid.Instance.chunkSize);
         }
 
         /// <summary>
@@ -65,7 +65,7 @@ namespace StrategyCore
                     foreach (Unit u in Grid.chunkUnits[cellIndex])
                     {
                         if (u == unit) continue;
-                        if (FoWVisible && !FogOfWar.instance.IsVisible(u.FoWCell, unit.team)) continue;
+                        if (FoWVisible && !FogOfWar.Instance.IsVisible(u.FoWCell, unit.team)) continue;
 
                         // Checks - Owned, Enemy or Ally. Unit, building or destructible static. Air unit or ground.
                         if (UnitSelector.IsUnitCompatible(unit.owner, u, selector))
@@ -526,13 +526,13 @@ namespace StrategyCore
         }
 
         /// <summary>
-        /// Returns shop unit around the position at a GameManager.instance.shopRadius.
+        /// Returns shop unit around the position at a GameManager.Instance.shopRadius.
         /// </summary>
         /// <param name="position">Position to check.</param>
         /// <returns></returns>
         public static Unit GetNearShop(Vector2 position) // By position
         {
-            float radius = GameManager.instance.shopRadius;
+            float radius = GameManager.Instance.shopRadius;
 
             // Neighbouring cells
             int gridRadius = GetGridRadius(radius);
@@ -590,7 +590,7 @@ namespace StrategyCore
         /// <returns></returns>
         public static Unit GetClosestShoppingUnit(int playerID, Unit unit) // By Unit. Self excluded
         {
-            float radius = GameManager.instance.shopRadius;
+            float radius = GameManager.Instance.shopRadius;
             Vector2 position = new Vector2(unit.transform.position.x, unit.transform.position.z);
 
             Unit closestUnit = null;

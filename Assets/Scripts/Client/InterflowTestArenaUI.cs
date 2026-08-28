@@ -67,13 +67,13 @@ namespace StrategyCore
         void OnGUI()
         {
             if (!shown) return;
-            if (MatchManager.instance == null) return;
+            if (MatchManager.Instance == null) return;
 
             if (Time.unscaledTime >= countersNext)
             {
                 countersNext = Time.unscaledTime + Mathf.Max(0.1f, countersRefresh);
-                countA = MatchManager.instance.TestUnitCount(0);
-                countB = MatchManager.instance.TestUnitCount(1);
+                countA = MatchManager.Instance.TestUnitCount(0);
+                countB = MatchManager.Instance.TestUnitCount(1);
             }
 
             window.width = panelWidth;
@@ -101,8 +101,8 @@ namespace StrategyCore
 
         void DrawHeader()
         {
-            SlotManager sm = SlotManager.instance;
-            MatchManager mm = MatchManager.instance;
+            SlotManager sm = SlotManager.Instance;
+            MatchManager mm = MatchManager.Instance;
             int side = mm.TestTeamOfOwner(sm != null ? sm.currentPlayer : -1);
 
             GUILayout.BeginHorizontal();
@@ -124,8 +124,8 @@ namespace StrategyCore
         // Переключение активной стороны: игрок, команда, туман войны и панели интерфейса.
         void SwitchSide(int teamIndex)
         {
-            MatchManager mm = MatchManager.instance;
-            SlotManager sm = SlotManager.instance;
+            MatchManager mm = MatchManager.Instance;
+            SlotManager sm = SlotManager.Instance;
             if (mm == null || sm == null) return;
 
             int owner = mm.TestOwnerOf(teamIndex);
@@ -133,9 +133,9 @@ namespace StrategyCore
 
             sm.SetCurrentPlayer(owner);                       // штатная точка: currentPlayer + currentTeam + имя
             Presentation.Selection?.ResetSelection();          // выделение чужого юнита после смены стороны не держим
-            GameManager.instance.OnTeamChange?.Invoke();       // юниты перечитывают принадлежность, туман — команду
+            GameManager.Instance.OnTeamChange?.Invoke();       // юниты перечитывают принадлежность, туман — команду
 
-            UIManager ui = UIManager.instance;
+            UIManager ui = UIManager.Instance;
             if (ui != null)
             {
                 ui.ResetUnitUI();
@@ -162,7 +162,7 @@ namespace StrategyCore
 
         void DrawUnits()
         {
-            InterflowTestArena arena = InterflowTestArena.instance;
+            InterflowTestArena arena = InterflowTestArena.Instance;
             if (arena == null) { GUILayout.Label("На сцене нет объекта с InterflowTestArena — каталог недоступен."); return; }
 
             GUILayout.BeginHorizontal();
@@ -213,14 +213,14 @@ namespace StrategyCore
 
         void Summon(Unit prefab, int teamIndex)
         {
-            InterflowTestArena arena = InterflowTestArena.instance;
+            InterflowTestArena arena = InterflowTestArena.Instance;
             if (arena == null) return;
 
             if (!int.TryParse(countText, out int count) || count <= 0) count = 1;
             if (!float.TryParse(spreadText, out float spread) || spread < 0f) spread = arena.DefaultSpread;
 
             Vector3 at = spawnAt == 1 ? arena.CenterPosition : arena.SpawnPositionOf(teamIndex);
-            int spawned = MatchManager.instance.TestSpawnMany(prefab, count, at, teamIndex, spread, order);
+            int spawned = MatchManager.Instance.TestSpawnMany(prefab, count, at, teamIndex, spread, order);
             Debug.Log($"[Полигон] За сторону {MatchManager.TestSideName(teamIndex)} призвано {spawned} × '{prefab.name}'.");
         }
 
@@ -228,7 +228,7 @@ namespace StrategyCore
 
         void DrawTechs()
         {
-            MatchManager mm = MatchManager.instance;
+            MatchManager mm = MatchManager.Instance;
             // Пустой список не кэшируем: TechnologyManager мог быть ещё не готов на первом открытии вкладки.
             if (techs == null || techs.Count == 0) techs = mm.TestAllTechs();
 
@@ -275,10 +275,10 @@ namespace StrategyCore
 
         void DrawAbilities()
         {
-            Unit u = PlayerControl.instance != null ? PlayerControl.instance.activeUnit : null;
+            Unit u = PlayerControl.Instance != null ? PlayerControl.Instance.activeUnit : null;
             if (u == null || u.dead) { GUILayout.Label("Выдели юнита щелчком — здесь будут его умения."); return; }
 
-            MatchManager mm = MatchManager.instance;
+            MatchManager mm = MatchManager.Instance;
             GUILayout.Label($"{u.unitName} (игрок {u.owner}) — здоровье {u.health:0}/{u.maxHealth:0}, " +
                             $"мана {u.mana:0}/{u.maxMana:0}, состояние {u.unitState}");
 
@@ -339,7 +339,7 @@ namespace StrategyCore
 
         void DrawField()
         {
-            MatchManager mm = MatchManager.instance;
+            MatchManager mm = MatchManager.Instance;
 
             GUILayout.Label("Убрать юнитов (здания и кастера умений не трогаем):");
             GUILayout.BeginHorizontal();

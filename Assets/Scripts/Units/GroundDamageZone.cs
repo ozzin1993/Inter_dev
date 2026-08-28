@@ -54,17 +54,17 @@ namespace StrategyCore
         // Старт отсчёта/тика — только сервер (правило 6). Зона спавнится по ходу матча (GameManager готов).
         private void Start()
         {
-            if (started || NetworkConnectionHandler.isClient || GameManager.instance == null) return;
+            if (started || NetworkConnectionHandler.isClient || GameManager.Instance == null) return;
             started = true;
             remaining = duration;
-            GameManager.instance.Tick += OnTick;
+            GameManager.Instance.Tick += OnTick;
             subscribed = true;
         }
 
         private void OnTick()
         {
-            if (GameManager.instance == null) return;
-            float dt = GameManager.instance.currentDeltaTime;
+            if (GameManager.Instance == null) return;
+            float dt = GameManager.Instance.currentDeltaTime;
 
             bool needScan = damagePerSecond != 0f
                             || (zoneEffectors != null && zoneEffectors.Length > 0)
@@ -108,14 +108,14 @@ namespace StrategyCore
         // Деспавн зоны один раз: отписать тик (урон прекращается ДО Destroy) + уничтожить префаб.
         private void Cleanup()
         {
-            if (subscribed && GameManager.instance != null) GameManager.instance.Tick -= OnTick;
+            if (subscribed && GameManager.Instance != null) GameManager.Instance.Tick -= OnTick;
             subscribed = false;
 
             // Единственная точка смерти зоны — здесь же гасим её копию у клиентов.
             // Cleanup достижим только на сервере (на клиенте тик не подписан), отдельный гейт не нужен.
             if (zoneId != 0)
             {
-                if (MatchManager.instance != null) MatchManager.instance.UnregisterGroundZone(zoneId);
+                if (MatchManager.Instance != null) MatchManager.Instance.UnregisterGroundZone(zoneId);
                 zoneId = 0;
             }
 
@@ -124,7 +124,7 @@ namespace StrategyCore
 
         private void OnDestroy()
         {
-            if (subscribed && GameManager.instance != null) GameManager.instance.Tick -= OnTick;
+            if (subscribed && GameManager.Instance != null) GameManager.Instance.Tick -= OnTick;
             subscribed = false;
         }
     }

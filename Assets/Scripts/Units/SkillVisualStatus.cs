@@ -139,9 +139,9 @@ namespace StrategyCore
 
             entries.Add(entry);
 
-            if (!subscribed && GameManager.instance != null)
+            if (!subscribed && GameManager.Instance != null)
             {
-                GameManager.instance.Tick += OnTick;
+                GameManager.Instance.Tick += OnTick;
                 subscribed = true;
             }
 
@@ -213,9 +213,9 @@ namespace StrategyCore
         void OnTick()
         {
             if (unit == null || unit.dead) { Cleanup(); return; }
-            if (GameManager.instance == null) return;
+            if (GameManager.Instance == null) return;
 
-            float dt = GameManager.instance.currentDeltaTime;
+            float dt = GameManager.Instance.currentDeltaTime;
             bool iconRemoved = false;
 
             for (int i = entries.Count - 1; i >= 0; i--)
@@ -288,7 +288,7 @@ namespace StrategyCore
             for (int i = 0; i < entries.Count; i++) DestroyVfx(entries[i]);
             entries.Clear();
 
-            if (subscribed && GameManager.instance != null) GameManager.instance.Tick -= OnTick;
+            if (subscribed && GameManager.Instance != null) GameManager.Instance.Tick -= OnTick;
             subscribed = false;
         }
 
@@ -297,7 +297,7 @@ namespace StrategyCore
             for (int i = 0; i < entries.Count; i++) DestroyVfx(entries[i]);
             entries.Clear();
 
-            if (subscribed && GameManager.instance != null) GameManager.instance.Tick -= OnTick;
+            if (subscribed && GameManager.Instance != null) GameManager.Instance.Tick -= OnTick;
             subscribed = false;
         }
     }

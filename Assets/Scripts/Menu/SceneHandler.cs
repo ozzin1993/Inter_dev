@@ -7,7 +7,7 @@ using System.IO;
 
 namespace StrategyCore
 {
-    public class SceneHandler : MonoBehaviour
+    public class SceneHandler : MonoBehaviour, IStartupService
     {
         // Scene data fetching: we must load custom json file to correctly set team/player data.
 #if UNITY_EDITOR
@@ -41,7 +41,9 @@ namespace StrategyCore
         }
 #endif
 
-        public static SceneHandler instance;
+        public static SceneHandler Instance { get; private set; }
+
+        private bool startupDone; // защита от повторного подъёма (стартовик сцены + собственный Awake)
 
         [Tooltip("For GameScene set to itself. For MenuScene set the game scenes of your game.")]
         public SceneData[] sceneData;
@@ -51,22 +53,30 @@ namespace StrategyCore
         [HideInInspector] public string saveFileName = ""; // When assigned, after scene load, we will try to load it
         [HideInInspector] public string saveSceneData = ""; // For clients, server sends data
 
-        private void Awake()
+        private void Awake() => Startup();
+
+        /// <summary>
+        /// Подъём службы (IStartupService). Идемпотентен: повторный вызов выходит сразу.
+        /// SlotManager и GameManager обязаны быть подняты РАНЬШЕ — порядок задаёт SceneStartup.
+        /// </summary>
+        public void Startup()
         {
-            if (instance == null)
+            if (startupDone) return;
+            startupDone = true;
+
+            if (Instance == null)
             {
-                instance = this;
+                Instance = this;
 
                 // Initialize slot data is dependant on SceneHandler, so we call it here
-                if (SlotManager.instance == null) GameObject.Find("ProjectManager").GetComponent<SlotManager>().InstanceSet();
-                if (SlotManager.instance.gameStarted == GameState.Started) // We are not coming from lobby
+                if (SlotManager.Instance.gameStarted == GameState.Started) // We are not coming from lobby
                 {
-                    SlotManager.instance.InitializeSlotData();
-                    SlotManager.instance.AddClientID(0, SlotManager.instance.currentName);
-                    SlotManager.instance.gameOn = true;
-                    GameObject.Find("GameManager").GetComponent<GameManager>().gameStartCall = true;
+                    SlotManager.Instance.InitializeSlotData();
+                    SlotManager.Instance.AddClientID(0, SlotManager.Instance.currentName);
+                    SlotManager.Instance.gameOn = true;
+                    GameManager.Instance.gameStartCall = true;
                 }
-                SlotManager.instance.SetCurrentPlayer(SlotManager.instance.currentPlayer);
+                SlotManager.Instance.SetCurrentPlayer(SlotManager.Instance.currentPlayer);
             }
             else
             {
@@ -82,7 +92,7 @@ namespace StrategyCore
         /// </summary>
         public void SceneStartedLoading()
         {
-            SlotManager.instance.SetGameState(GameState.Loading);
+            SlotManager.Instance.SetGameState(GameState.Loading);
             if (Presentation.MenuUI != null) Presentation.MenuUI?.ShowMenuLobby(2);
         }
 
@@ -98,7 +108,7 @@ namespace StrategyCore
             // Pause till everybody else loads the scene, hide the UI
             if (sceneData[sceneIndex].sceneName == loadedScene.name)
             {
-                // if (SlotManager.instance.gameStarted == GameState.Started) return;  // CHANGE THE LOGIC HERE, ON CLIENTS ALREADY LOADED SCENE, WHAT SHOULD HAPPEN
+                // if (SlotManager.Instance.gameStarted == GameState.Started) return;  // CHANGE THE LOGIC HERE, ON CLIENTS ALREADY LOADED SCENE, WHAT SHOULD HAPPEN
 
                 // Initialize the scene
                 SceneManager.SetActiveScene(m_LoadedScene);
@@ -113,7 +123,7 @@ namespace StrategyCore
                 // For clients: SceneData
                 else if (saveSceneData != "")
                 {
-                    GameManager.instance.StartCoroutine(SaveManager.LoadSave_Internal(saveSceneData));
+                    GameManager.Instance.StartCoroutine(SaveManager.LoadSave_Internal(saveSceneData));
                 }
             }
         }
@@ -125,25 +135,25 @@ namespace StrategyCore
         public void StartTheGame(bool firstLoad)
         {
             // [ДИАГ] ВРЕМЕННО. Снять после диагностики.
-            Debug.Log($"[ДИАГ] StartTheGame(firstLoad={firstLoad}): saveFileName='{saveFileName}', длинаSaveSceneData={(saveSceneData == null ? -1 : saveSceneData.Length)}, clientsLoading={NetworkConnectionHandler.instance.clientsLoading.Count}");
+            Debug.Log($"[ДИАГ] StartTheGame(firstLoad={firstLoad}): saveFileName='{saveFileName}', длинаSaveSceneData={(saveSceneData == null ? -1 : saveSceneData.Length)}, clientsLoading={NetworkConnectionHandler.Instance.clientsLoading.Count}");
             // Still have a save data to load
-            if (saveFileName != "" || saveSceneData != "" || NetworkConnectionHandler.instance.clientsLoading.Count != 0) return;
+            if (saveFileName != "" || saveSceneData != "" || NetworkConnectionHandler.Instance.clientsLoading.Count != 0) return;
 
             // Everyone:
-            NetworkConnectionHandler.instance.connectionStage = 0;
+            NetworkConnectionHandler.Instance.connectionStage = 0;
             Time.timeScale = 1f;
             Presentation.MenuUI?.HideUIDocument();
-            SlotManager.instance.SetGameState(GameState.Started);
-            SlotManager.instance.OnGameStart?.Invoke();
+            SlotManager.Instance.SetGameState(GameState.Started);
+            SlotManager.Instance.OnGameStart?.Invoke();
 
-            if (firstLoad) GameManager.instance.GameStart();
+            if (firstLoad) GameManager.Instance.GameStart();
 
             // Server:
             if (NetworkManager.Singleton.IsServer)
             {
                 // Идемпотентность: при входе «игра уже идёт» Tick уже подписан в OnNetworkSpawn — не дублируем
-                NetworkManager.Singleton.NetworkTickSystem.Tick -= NetworkDataSync.instance.Tick;
-                NetworkManager.Singleton.NetworkTickSystem.Tick += NetworkDataSync.instance.Tick;
+                NetworkManager.Singleton.NetworkTickSystem.Tick -= NetworkDataSync.Instance.Tick;
+                NetworkManager.Singleton.NetworkTickSystem.Tick += NetworkDataSync.Instance.Tick;
             }
         }
 

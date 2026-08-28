@@ -131,7 +131,7 @@ namespace StrategyCore
                 {
                     // Grid data update
                     Grid.AssignToChunk(this);
-                    FogOfWar.instance.CellAssignment(this);
+                    FogOfWar.Instance.CellAssignment(this);
 
                     // We make this unit static
                     agent.enabled = false;
@@ -149,13 +149,13 @@ namespace StrategyCore
                         if (!positionsSent)
                         {
                             // We do not remove, since we first have to send the position
-                            NetworkDataSync.instance.removeSyncList.Add(netID);
+                            NetworkDataSync.Instance.removeSyncList.Add(netID);
                             removeFromPosSync = true;
                         }
                         else
                         {
-                            NetworkDataSync.instance.positionSyncList.Remove(netID);
-                            NetworkDataSync.instance.removeSyncList.Add(netID);
+                            NetworkDataSync.Instance.positionSyncList.Remove(netID);
+                            NetworkDataSync.Instance.removeSyncList.Add(netID);
                         }
                     }
                 }
@@ -195,7 +195,7 @@ namespace StrategyCore
 
                     if (NetworkManager.Singleton.IsServer)
                     {
-                        NetworkDataSync.instance.positionSyncList.Add(netID);
+                        NetworkDataSync.Instance.positionSyncList.Add(netID);
                         positionsSent = false;
                     }
                 }
@@ -212,7 +212,7 @@ namespace StrategyCore
         {
             if (NetworkConnectionHandler.isClient)
             {
-                NetworkCommandSync.instance.SetWaypointCommandSend(this, unit);
+                NetworkCommandSync.Instance.SetWaypointCommandSend(this, unit);
                 return;
             }
 
@@ -239,7 +239,7 @@ namespace StrategyCore
             }
 
             WaypointUpdate?.Invoke();
-            if (NetworkManager.Singleton.IsServer) NetworkDataSync.instance.WaypointSet(this, waypointUnit, waypointLocation);
+            if (NetworkManager.Singleton.IsServer) NetworkDataSync.Instance.WaypointSet(this, waypointUnit, waypointLocation);
         }
 
         /// <summary>
@@ -250,7 +250,7 @@ namespace StrategyCore
         {
             if (NetworkConnectionHandler.isClient)
             {
-                NetworkCommandSync.instance.SetWaypointCommandSend(this, position);
+                NetworkCommandSync.Instance.SetWaypointCommandSend(this, position);
                 return;
             }
 
@@ -268,7 +268,7 @@ namespace StrategyCore
             waypointUnit = null;
 
             WaypointUpdate?.Invoke();
-            if (NetworkManager.Singleton.IsServer) NetworkDataSync.instance.WaypointSet(this, waypointUnit, waypointLocation);
+            if (NetworkManager.Singleton.IsServer) NetworkDataSync.Instance.WaypointSet(this, waypointUnit, waypointLocation);
         }
 
         /// <summary>
@@ -317,7 +317,7 @@ namespace StrategyCore
         {
             if (!isWaypoint) return;
 
-            ReferenceManager.instance.ShowWaypoint(waypointLocation, waypointUnit);
+            ReferenceManager.Instance.ShowWaypoint(waypointLocation, waypointUnit);
         }
 
     }

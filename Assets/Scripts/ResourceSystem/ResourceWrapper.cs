@@ -28,7 +28,7 @@ namespace StrategyCore
 
         public ResourceWrapper(ResourceWrapperID rw)
         {
-            this.type = GameResources.instance.gameResources[rw.typeID].type;
+            this.type = GameResources.Instance.gameResources[rw.typeID].type;
             this.value = rw.value;
         }
 
@@ -80,7 +80,7 @@ namespace StrategyCore
 
         public ResourceWrapperID(ResourceWrapper rw)
         {
-            this.typeID = GameResources.instance.GetResourceID(rw);
+            this.typeID = GameResources.Instance.GetResourceID(rw);
             this.value = rw.value;
         }
     }

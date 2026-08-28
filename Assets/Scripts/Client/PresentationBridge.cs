@@ -23,7 +23,7 @@ namespace StrategyCore
 
         class GameUIAdapter : IGameUI
         {
-            static UIManager UI => UIManager.instance;
+            static UIManager UI => UIManager.Instance;
             public void ShowNotify(string msg) { if (UI) UI.ShowNotifyMsg(msg); }
             public void AddChatMsg(string msg, int owner, bool allyChat) { if (UI) UI.AddChatMsg(msg, owner, allyChat); }
             public void AddChatServerMsg(string msg) { if (UI) UI.AddChatServerMsg(msg); }
@@ -31,6 +31,8 @@ namespace StrategyCore
             public void UpdateResourceTab(int resourceID) { if (UI) UI.UpdateResourceTab(resourceID); }
             public void RefreshResourceTab() { if (UI) UI.RefreshResourceTab(); }
             public void ShowWaveTimer(int seconds) { if (UI) UI.ShowWaveTimer(seconds); }
+            public void ShowTeamCommand(int teamIndex, int groupIndex, BottomTableAction action) { if (UI) UI.ShowTeamCommand(teamIndex, groupIndex, action); }
+            public void ShowMainBuildingProgress(int teamIndex, int level, int experience, int experiencePerLevel) { if (UI) UI.ShowMainBuildingProgress(teamIndex, level, experience, experiencePerLevel); }
             public void ResetMiniMap() { if (UI) UI.ResetMiniMap(); }
             public void CreatePinger(int owner, Vector2 pos) { if (UI) UI.CreatePinger(owner, pos); }
             public bool IsLeveling => UI != null && UI.isLeveling;
@@ -44,7 +46,7 @@ namespace StrategyCore
 
         class MenuUIAdapter : IMenuUI
         {
-            static UIManagerMenu M => UIManagerMenu.instance;
+            static UIManagerMenu M => UIManagerMenu.Instance;
             public bool MenuReady => M != null && M.UIDocument != null && M.UIDocument.rootVisualElement != null;
             public void ShowMenuLobby(int stage) { if (M) M.ShowMenuLobby(stage); }
             public void FillPlayerList() { if (M) M.FillPlayerList(); }
@@ -107,7 +109,7 @@ namespace StrategyCore
 
         class SelectionAdapter : ISelection
         {
-            static PlayerControl PC => PlayerControl.instance;
+            static PlayerControl PC => PlayerControl.Instance;
             public Unit ActiveUnit => PC != null ? PC.activeUnit : null;
             public void AddToSelection(Unit unit, bool replaceSelection, bool noSound) { if (PC) PC.AddToSelection(unit, replaceSelection, noSound); }
             public void RemoveFromSelection(Unit unit) { if (PC) PC.RemoveFromSelection(unit); }
@@ -117,7 +119,7 @@ namespace StrategyCore
 
         class AudioAdapter : IGameAudio
         {
-            static SoundFXManager S => SoundFXManager.instance;
+            static SoundFXManager S => SoundFXManager.Instance;
             static UnityEngine.Audio.AudioMixerGroup Grp(bool fx) => (fx && S != null) ? S.fxGroup : null;
             public void PlaySoundClip(AudioClip clip, float volume, bool fxGroup) { if (S) S.PlaySoundClip(clip, volume, Grp(fxGroup)); }
             public void PlaySoundClip(AudioClip clip, Transform at, float volume, bool fxGroup) { if (S) S.PlaySoundClip(clip, at, volume, Grp(fxGroup)); }
@@ -130,7 +132,7 @@ namespace StrategyCore
 
         class CameraAdapter : IGameCamera
         {
-            static Camera_TopDown C => Camera_TopDown.instance;
+            static Camera_TopDown C => Camera_TopDown.Instance;
             public bool HasCursor => C != null;
             public Vector2 GetCursorPosition() => C != null ? C.GetCursorPosition() : Vector2.zero;
             public void SetLimits(Vector4 squareLimits) { if (C) C.squareLimits = squareLimits; }

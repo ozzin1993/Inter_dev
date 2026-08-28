@@ -61,7 +61,7 @@ namespace StrategyCore
         /// </summary>
         void SetPlayerColor()
         {
-            matBlock.SetColor("_PlayerColor", SlotManager.instance.playerColors[owner]);
+            matBlock.SetColor("_PlayerColor", SlotManager.Instance.playerColors[owner]);
 
             foreach (var renderer in meshRenderers)
             {
@@ -141,7 +141,7 @@ namespace StrategyCore
         {
             if (renderersOn) return;
             // If show renderers called while unit is not visible by the current team, ignore it
-            if (!IsVisible(SlotManager.instance.currentTeam)) return;
+            if (!IsVisible(SlotManager.Instance.currentTeam)) return;
 
             DestroyStaticCopy();
 
@@ -275,7 +275,7 @@ namespace StrategyCore
             mainRenderer.SetActive(true);
 
             // ====== Copy Unit Data ======
-            var ogUnit = GameManager.instance.gameUnits[unitTypeID];
+            var ogUnit = GameManager.Instance.gameUnits[unitTypeID];
             // Height
             unitHeight = ogUnit.unitHeight;
             // VerticalPart
@@ -396,7 +396,7 @@ namespace StrategyCore
             {
                 if (!stunned && !isMoving && target == null && !isBeingBuilt)
                 {
-                    currentActionTime += GameManager.instance.currentDeltaTime;
+                    currentActionTime += GameManager.Instance.currentDeltaTime;
 
                     if (currentActionTime > idleRandomTime && !dead)
                     {
@@ -491,7 +491,7 @@ namespace StrategyCore
             animationBlendingIndex = blendingIndex;
 
             // Sync with clients
-            if (sync && NetworkManager.Singleton.IsServer) NetworkDataSync.instance.AnimationPrefixClientRpc(netID, animationBlendingIndex);
+            if (sync && NetworkManager.Singleton.IsServer) NetworkDataSync.Instance.AnimationPrefixClientRpc(netID, animationBlendingIndex);
         }
 
         // ============================= EFFECTORS ==============================================================================
@@ -523,15 +523,15 @@ namespace StrategyCore
             else
             {
                 // Create
-                SpriteRenderer sr = Instantiate(ReferenceManager.instance.selectionRenderer, transform);
+                SpriteRenderer sr = Instantiate(ReferenceManager.Instance.selectionRenderer, transform);
                 selectionCircle = sr.transform;
                 // Sprite
-                if (unitRadius > Utils.largeSelectorSize) sr.sprite = ReferenceManager.instance.selectionLarge;
-                else if (unitRadius > Utils.mediumSelectorSize) sr.sprite = ReferenceManager.instance.selectionMedium;
-                else sr.sprite = ReferenceManager.instance.selectionSmall;
+                if (unitRadius > Utils.largeSelectorSize) sr.sprite = ReferenceManager.Instance.selectionLarge;
+                else if (unitRadius > Utils.mediumSelectorSize) sr.sprite = ReferenceManager.Instance.selectionMedium;
+                else sr.sprite = ReferenceManager.Instance.selectionSmall;
                 // Color
-                if (SlotManager.instance.currentTeam != team && team != (int)Teams.NeutralPassive) sr.color = ReferenceManager.instance.selectionEnemyColor;
-                else sr.color = ReferenceManager.instance.selectionAllyColor;
+                if (SlotManager.Instance.currentTeam != team && team != (int)Teams.NeutralPassive) sr.color = ReferenceManager.Instance.selectionEnemyColor;
+                else sr.color = ReferenceManager.Instance.selectionAllyColor;
                 // Scale
                 selectionCircle.localScale = new Vector3(unitRadius / selectionCircle.lossyScale.x, unitRadius / selectionCircle.lossyScale.y, 1);
                 // Position
@@ -554,7 +554,7 @@ namespace StrategyCore
         /// </summary>
         public void CommandSoundTimerUpdate()
         {
-            commandSoundTime -= GameManager.instance.currentDeltaTime;
+            commandSoundTime -= GameManager.Instance.currentDeltaTime;
 
             if (commandSoundTime <= 0)
             {
@@ -567,7 +567,7 @@ namespace StrategyCore
         {
             if (commandSound) Destroy(commandSound.gameObject);
             commandSoundTime = 0;
-            GameManager.instance.Tick -= CommandSoundTimerUpdate;
+            GameManager.Instance.Tick -= CommandSoundTimerUpdate;
         }
 
     }

@@ -113,7 +113,7 @@ namespace StrategyCore
         // технологий (штатное TechnologyManager.OnTechUnlock/OnTechLock, срабатывает и у хоста, и у клиента).
         void SubscribeCornerEvents()
         {
-            MatchManager mm = MatchManager.instance;
+            MatchManager mm = MatchManager.Instance;
             if (mm != null) mm.OnMainBuildingLevelChanged += OnMainBuildingLevelChangedHandler;
             if (mm != null) mm.OnTeamContentChanged += OnTeamContentChangedHandler;   // апгрейды: видимый набор способностей ГЗ
             if (mm != null) mm.OnHeroChanged += OnHeroChangedHandler;                  // герой призван/погиб: перерисовка ряда его умений (HeroUI)
@@ -121,7 +121,7 @@ namespace StrategyCore
             if (mm != null) mm.OnWaveMarksChanged += OnWaveMarksChangedHandler;        // пометки волны изменились: перерисовать панель волны
 
             List<int> players = new List<int>();
-            TechnologyManager tm = TechnologyManager.instance;
+            TechnologyManager tm = TechnologyManager.Instance;
             if (mm != null && tm != null && tm.OnTechUnlock != null)
             {
                 for (int t = 0; t < 2; t++)
@@ -173,14 +173,14 @@ namespace StrategyCore
 
         void OnDestroy()
         {
-            MatchManager mm = MatchManager.instance;
+            MatchManager mm = MatchManager.Instance;
             if (mm != null) mm.OnMainBuildingLevelChanged -= OnMainBuildingLevelChangedHandler;
             if (mm != null) mm.OnTeamContentChanged -= OnTeamContentChangedHandler;
             if (mm != null) mm.OnHeroChanged -= OnHeroChangedHandler;
             if (mm != null) mm.OnSoulsChanged -= OnSoulsChangedHandler;   // // N4
             if (mm != null) mm.OnWaveMarksChanged -= OnWaveMarksChangedHandler;
 
-            TechnologyManager tm = TechnologyManager.instance;
+            TechnologyManager tm = TechnologyManager.Instance;
             if (tm != null && subscribedTechPlayers != null)
             {
                 for (int i = 0; i < subscribedTechPlayers.Length; i++)

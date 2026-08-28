@@ -50,7 +50,7 @@ namespace StrategyCore
             base.Init();
 
             states.Clear();
-            if (tickWired && GameManager.instance != null) GameManager.instance.Tick -= OnTick;
+            if (tickWired && GameManager.Instance != null) GameManager.Instance.Tick -= OnTick;
             tickWired = false;
         }
 
@@ -62,9 +62,9 @@ namespace StrategyCore
 
             InterflowAbility.CallbackAdd(unit.OnAfterDamageDealCallbacks, this, level, OnAttack);
 
-            if (!tickWired && GameManager.instance != null)
+            if (!tickWired && GameManager.Instance != null)
             {
-                GameManager.instance.Tick += OnTick;
+                GameManager.Instance.Tick += OnTick;
                 tickWired = true;
             }
         }
@@ -77,9 +77,9 @@ namespace StrategyCore
 
             InterflowAbility.CallbackRemove(unit.OnAfterDamageDealCallbacks, this, level);
 
-            if (states.Count == 0 && tickWired && GameManager.instance != null)
+            if (states.Count == 0 && tickWired && GameManager.Instance != null)
             {
-                GameManager.instance.Tick -= OnTick;
+                GameManager.Instance.Tick -= OnTick;
                 tickWired = false;
             }
         }
@@ -123,10 +123,10 @@ namespace StrategyCore
 
         void OnTick()
         {
-            if (NetworkConnectionHandler.isClient || GameManager.instance == null) return;
+            if (NetworkConnectionHandler.isClient || GameManager.Instance == null) return;
             if (states.Count == 0) return;
 
-            float dt = GameManager.instance.currentDeltaTime;
+            float dt = GameManager.Instance.currentDeltaTime;
 
             tickBuffer.Clear();
             tickBuffer.AddRange(states.Keys);

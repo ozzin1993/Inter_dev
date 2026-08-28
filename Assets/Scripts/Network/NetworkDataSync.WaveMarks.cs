@@ -18,11 +18,11 @@ namespace StrategyCore
         [Rpc(SendTo.Server)]
         public void WaveMarkServerRpc(int teamIndex, int unitTypeID, int op, RpcParams rpcParams = default)
         {
-            if (MatchManager.instance == null) return;
+            if (MatchManager.Instance == null) return;
             if (teamIndex != 0 && teamIndex != 1) return; // в MVP только две команды A/B
 
-            int senderPlayer = SlotManager.instance.GetClientSlot(rpcParams.Receive.SenderClientId);
-            TeamWaveConfig cfg = MatchManager.instance.Team(teamIndex);
+            int senderPlayer = SlotManager.Instance.GetClientSlot(rpcParams.Receive.SenderClientId);
+            TeamWaveConfig cfg = MatchManager.Instance.Team(teamIndex);
             if (cfg == null || senderPlayer != cfg.ownerPlayer)
             {
                 UnityEngine.Debug.LogWarning($"[WaveMarks] Запрос отклонён owner-гейтом: team={teamIndex}, sender={senderPlayer}, ownerPlayer={(cfg != null ? cfg.ownerPlayer : -1)}.");
@@ -31,9 +31,9 @@ namespace StrategyCore
 
             switch (op)
             {
-                case 0: MatchManager.instance.TrySetAuto(teamIndex, unitTypeID); break;
-                case 1: MatchManager.instance.TrySetOneShot(teamIndex, unitTypeID); break;
-                case 2: MatchManager.instance.TryClearMark(teamIndex, unitTypeID); break;
+                case 0: MatchManager.Instance.TrySetAuto(teamIndex, unitTypeID); break;
+                case 1: MatchManager.Instance.TrySetOneShot(teamIndex, unitTypeID); break;
+                case 2: MatchManager.Instance.TryClearMark(teamIndex, unitTypeID); break;
             }
         }
 
@@ -50,8 +50,8 @@ namespace StrategyCore
         [Rpc(SendTo.NotServer, InvokePermission = RpcInvokePermission.Server)]
         private void WaveMarksClientRpc(int teamIndex, int[] autoIds, int[] oneShotIds)
         {
-            if (MatchManager.instance == null) return;
-            MatchManager.instance.ApplyMarks(teamIndex, autoIds, oneShotIds);
+            if (MatchManager.Instance == null) return;
+            MatchManager.Instance.ApplyMarks(teamIndex, autoIds, oneShotIds);
         }
 
         /// <summary>Сервер → клиенты: предупреждение t−warnSeconds (состав команды не влезает в лидерство).</summary>
@@ -64,8 +64,8 @@ namespace StrategyCore
         [Rpc(SendTo.NotServer, InvokePermission = RpcInvokePermission.Server)]
         private void WaveOverflowWarnClientRpc(int teamIndex)
         {
-            if (MatchManager.instance == null) return;
-            MatchManager.instance.RaiseOverflowWarningClient(teamIndex);
+            if (MatchManager.Instance == null) return;
+            MatchManager.Instance.RaiseOverflowWarningClient(teamIndex);
         }
     }
 }

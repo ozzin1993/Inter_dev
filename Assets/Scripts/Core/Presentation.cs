@@ -30,11 +30,11 @@ namespace StrategyCore
         /// Поведение оригинала сохранено полностью (включая локальный показ после серверного релея).
         public static void NotifyMsg(string msg, int player, bool calledByServer = false)
         {
-            if (SlotManager.instance.currentPlayer != player)
+            if (SlotManager.Instance.currentPlayer != player)
             {
                 if (calledByServer)
                 {
-                    if (NetworkManager.Singleton && NetworkManager.Singleton.IsServer && NetworkDataSync.instance && NetworkDataSync.instance.IsSpawned) NetworkDataSync.instance.GameMsgSend(msg, player);
+                    if (NetworkManager.Singleton && NetworkManager.Singleton.IsServer && NetworkDataSync.Instance && NetworkDataSync.Instance.IsSpawned) NetworkDataSync.Instance.GameMsgSend(msg, player);
                 }
                 else return;
             }
@@ -44,21 +44,21 @@ namespace StrategyCore
         /// Серверное сообщение в чат МАТЧА: релей всем клиентам + локальная отрисовка.
         public static void ChatServerMsg(string msg)
         {
-            if (NetworkDataSync.instance && NetworkDataSync.instance.IsSpawned && NetworkManager.Singleton && NetworkManager.Singleton.IsServer) NetworkDataSync.instance.ServerMsgSend(msg);
+            if (NetworkDataSync.Instance && NetworkDataSync.Instance.IsSpawned && NetworkManager.Singleton && NetworkManager.Singleton.IsServer) NetworkDataSync.Instance.ServerMsgSend(msg);
             UI?.AddChatServerMsg(msg);
         }
 
         /// Серверное сообщение в чат МЕНЮ: релей всем клиентам + локальная отрисовка.
         public static void MenuChatServerMsg(string msg)
         {
-            if (NetworkDataSync.instance && NetworkDataSync.instance.IsSpawned && NetworkManager.Singleton && NetworkManager.Singleton.IsServer) NetworkDataSync.instance.ServerMsgSend(msg);
+            if (NetworkDataSync.Instance && NetworkDataSync.Instance.IsSpawned && NetworkManager.Singleton && NetworkManager.Singleton.IsServer) NetworkDataSync.Instance.ServerMsgSend(msg);
             MenuUI?.AddChatServerMsg(msg);
         }
 
         /// Серверное сообщение в актуальный чат (меню или матч) — паттерн NetworkConnectionHandler.
         public static void ChatServerMsgAuto(string msg)
         {
-            if (SlotManager.instance != null && SlotManager.instance.gameStarted == GameState.Menu) MenuChatServerMsg(msg);
+            if (SlotManager.Instance != null && SlotManager.Instance.gameStarted == GameState.Menu) MenuChatServerMsg(msg);
             else ChatServerMsg(msg);
         }
     }
@@ -73,6 +73,8 @@ namespace StrategyCore
         void UpdateResourceTab(int resourceID);
         void RefreshResourceTab();
         void ShowWaveTimer(int seconds);
+        void ShowTeamCommand(int teamIndex, int groupIndex, BottomTableAction action);
+        void ShowMainBuildingProgress(int teamIndex, int level, int experience, int experiencePerLevel);
         void ResetMiniMap();
         void CreatePinger(int owner, Vector2 pos);
         bool IsLeveling { get; }

@@ -56,8 +56,8 @@ namespace StrategyCore
             {
                 yield return null;
                 waited += Time.unscaledDeltaTime;
-                if (UIManagerMenu.instance == null || UIManagerMenu.instance.UIDocument == null) continue;
-                VisualElement root = UIManagerMenu.instance.UIDocument.rootVisualElement;
+                if (UIManagerMenu.Instance == null || UIManagerMenu.Instance.UIDocument == null) continue;
+                VisualElement root = UIManagerMenu.Instance.UIDocument.rootVisualElement;
                 if (root == null) continue;
                 VisualElement menu = root.Q("Menu");
                 menuButtons = menu != null ? menu.Q("MenuButtons") : null;
@@ -161,7 +161,7 @@ namespace StrategyCore
         // Имя игрока — тем же путём, что штатный JoinButton (UIManagerMenu.cs): поле PlayerName в Menu.
         private string ReadPlayerName()
         {
-            TextField nameField = UIManagerMenu.instance.UIDocument.rootVisualElement.Q("Menu").Q("PlayerName") as TextField;
+            TextField nameField = UIManagerMenu.Instance.UIDocument.rootVisualElement.Q("Menu").Q("PlayerName") as TextField;
             return nameField != null ? nameField.value : string.Empty;
         }
 
@@ -190,8 +190,8 @@ namespace StrategyCore
             HideElement(menuButtons.Q("Load"), "MenuButtons/Load");
 
             // Чат — в экране Lobby, не в MenuButtons: прячем контейнер целиком (ChatBox + MsgInput).
-            VisualElement lobby = UIManagerMenu.instance != null && UIManagerMenu.instance.UIDocument != null
-                ? UIManagerMenu.instance.UIDocument.rootVisualElement.Q("Lobby")
+            VisualElement lobby = UIManagerMenu.Instance != null && UIManagerMenu.Instance.UIDocument != null
+                ? UIManagerMenu.Instance.UIDocument.rootVisualElement.Q("Lobby")
                 : null;
             HideElement(lobby != null ? lobby.Q("Chat") : null, "Lobby/Chat");
         }

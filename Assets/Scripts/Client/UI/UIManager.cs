@@ -10,7 +10,7 @@ namespace StrategyCore
 {
     public partial class UIManager : MonoBehaviour
     {
-        public static UIManager instance;
+        public static UIManager Instance { get; private set; }
 
         // Camera view rectangle on minimap
         public SpriteRenderer minimapRect;

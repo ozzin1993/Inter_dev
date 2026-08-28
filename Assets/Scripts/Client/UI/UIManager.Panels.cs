@@ -18,7 +18,7 @@ namespace StrategyCore
         {
             for (int i = 0; i < pc.selectedUnits.Count; i++)
             {
-                if (pc.selectedUnits[i].owner == SlotManager.instance.currentPlayer || SlotManager.instance.debugMode)
+                if (pc.selectedUnits[i].owner == SlotManager.Instance.currentPlayer || SlotManager.Instance.debugMode)
                 {
                     if (!pc.selectedUnits[i].isBeingBuilt)
                     {
@@ -32,7 +32,7 @@ namespace StrategyCore
         {
             for (int i = 0; i < pc.selectedUnits.Count; i++)
             {
-                if (pc.selectedUnits[i].owner == SlotManager.instance.currentPlayer || SlotManager.instance.debugMode)
+                if (pc.selectedUnits[i].owner == SlotManager.Instance.currentPlayer || SlotManager.Instance.debugMode)
                 {
                     if (!pc.selectedUnits[i].isBeingBuilt)
                     {
@@ -126,7 +126,7 @@ namespace StrategyCore
         {
             if (!presentationReady) return;   // [Interflow fix 2026-06-26 путь1]
             // Check if unit belongs to the current player
-            if (!SlotManager.instance.debugMode && pc.activeUnit.owner != SlotManager.instance.currentPlayer) return;
+            if (!SlotManager.Instance.debugMode && pc.activeUnit.owner != SlotManager.Instance.currentPlayer) return;
 
             Label levelLabel = (Label)levelButton.ElementAt(1);
             levelLabel.text = pc.activeUnit.levelingUnit.abilityPoints.ToString();
@@ -190,7 +190,7 @@ namespace StrategyCore
             // Name is the index of the process
             if (int.TryParse(clickedElement.name, out int index))
             {
-                if (pc.activeUnit.owner == SlotManager.instance.currentPlayer || SlotManager.instance.debugMode)
+                if (pc.activeUnit.owner == SlotManager.Instance.currentPlayer || SlotManager.Instance.debugMode)
                 {
                     pc.activeUnit.transportUnit.Disembark(index, pc.activeUnit.transform.position);
                 }
@@ -239,7 +239,7 @@ namespace StrategyCore
             // Name is the index of the process
             if (int.TryParse(clickedElement.name, out int index))
             {
-                if (pc.activeUnit.owner == SlotManager.instance.currentPlayer)
+                if (pc.activeUnit.owner == SlotManager.Instance.currentPlayer)
                 {
                     if (pc.activeUnit.CancelProcess(index))
                     {

@@ -15,14 +15,14 @@ namespace StrategyCore
 
         IEnumerator WaveLoop()
         {
-            yield return new WaitUntil(() => SlotManager.instance != null && SlotManager.instance.gameOn);
+            yield return new WaitUntil(() => SlotManager.Instance != null && SlotManager.Instance.gameOn);
             // [Interflow fix 2026-08-01 limited-res-sync] Стартовый снимок лимитных ресурсов (лидерство) клиентам:
             // дальше идут дельты на каждое изменение, но исходное состояние нужно разослать один раз.
-            if (NetworkDataSync.instance != null) NetworkDataSync.instance.LimitedResourceSyncAll();
+            if (NetworkDataSync.Instance != null) NetworkDataSync.Instance.LimitedResourceSyncAll();
 
             // [Interflow fix 2026-06-26] Диагностика: дамп связки player↔team на старте (рассинхрон teamIndex vs playerTeam).
             {
-                var sm = SlotManager.instance;
+                var sm = SlotManager.Instance;
                 int o0 = teamA != null ? teamA.ownerPlayer : -1;
                 int o1 = teamB != null ? teamB.ownerPlayer : -1;
                 string pt = (sm != null && sm.playerTeam != null) ? string.Join(",", sm.playerTeam) : "null";
@@ -76,10 +76,10 @@ namespace StrategyCore
             if (cfg == null || leadershipResource == null) return;
             int need = WaveLeadershipForecast(team);
             if (need <= 0) return;
-            if (!GameResources.instance.CheckAmount(cfg.ownerPlayer, new ResourceWrapper(leadershipResource, need)))
+            if (!GameResources.Instance.CheckAmount(cfg.ownerPlayer, new ResourceWrapper(leadershipResource, need)))
             {
                 OnWaveOverflowWarning?.Invoke(team);
-                if (NetworkDataSync.instance != null) NetworkDataSync.instance.WaveOverflowWarn(team);
+                if (NetworkDataSync.Instance != null) NetworkDataSync.Instance.WaveOverflowWarn(team);
             }
         }
 
@@ -93,7 +93,7 @@ namespace StrategyCore
             {
                 int need = WaveLeadershipForecast(team);
                 cfg.waveSkipped = need > 0 &&
-                    !GameResources.instance.CheckAmount(cfg.ownerPlayer, new ResourceWrapper(leadershipResource, need));
+                    !GameResources.Instance.CheckAmount(cfg.ownerPlayer, new ResourceWrapper(leadershipResource, need));
                 if (cfg.waveSkipped)
                     Debug.LogWarning($"[MatchManager] Команда {team}: вердикт t−{lockSeconds:0} — волна не влезает ({need}), пропуск целиком.");
             }
@@ -137,12 +137,12 @@ namespace StrategyCore
 
             // 3) Начислить базовый доход золота (в момент призыва волны).
             if (goldResource != null && cfg.baseIncome > 0)
-                GameResources.instance.ChangeAmount(cfg.ownerPlayer, new ResourceWrapper(goldResource, cfg.baseIncome), 1, false, true);
+                GameResources.Instance.ChangeAmount(cfg.ownerPlayer, new ResourceWrapper(goldResource, cfg.baseIncome), 1, false, true);
 
             // 4) Списать автопризыв (Σ цена×count ≤ baseIncome — гарантировано пометками; списание ПОСЛЕ начисления → нехватка невозможна).
             int autoGold = AutoResourceSum(teamIndex, goldResource);
             if (goldResource != null && autoGold > 0)
-                GameResources.instance.ChangeAmount(cfg.ownerPlayer, new ResourceWrapper(goldResource, autoGold), 1, true, true);
+                GameResources.Instance.ChangeAmount(cfg.ownerPlayer, new ResourceWrapper(goldResource, autoGold), 1, true, true);
 
             // 5) Собрать состав: базовые ×count + авто ×count + разовые ×count (count — единый источник waveUnits).
             List<Unit> composition = BuildWaveComposition(cfg);
@@ -252,7 +252,7 @@ namespace StrategyCore
             if (goldResource != null)
                 foreach (KeyValuePair<int, int> kv in cfg.oneShot)
                     if (kv.Value > 0)
-                        GameResources.instance.ChangeAmount(cfg.ownerPlayer, new ResourceWrapper(goldResource, kv.Value), 1, false, true);
+                        GameResources.Instance.ChangeAmount(cfg.ownerPlayer, new ResourceWrapper(goldResource, kv.Value), 1, false, true);
             cfg.oneShot.Clear();
         }
     }

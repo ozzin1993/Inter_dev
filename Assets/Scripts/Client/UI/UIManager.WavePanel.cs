@@ -198,7 +198,7 @@ namespace StrategyCore
             waveNextBox.Clear();
             waveUnitList.Clear();
 
-            MatchManager mm = MatchManager.instance;
+            MatchManager mm = MatchManager.Instance;
             if (mm == null) return;
             int team = CommandTeamForLocalPlayer();
 
@@ -290,15 +290,15 @@ namespace StrategyCore
 
             if (!NetworkConnectionHandler.isClient)
             {
-                MatchManager mm = MatchManager.instance;
+                MatchManager mm = MatchManager.Instance;
                 if (mm == null) return;
                 if (op == 0) mm.TrySetAuto(team, prefab.unitTypeID);
                 else if (op == 1) mm.TrySetOneShot(team, prefab.unitTypeID);
                 else mm.TryClearMark(team, prefab.unitTypeID);
             }
-            else if (NetworkDataSync.instance != null)
+            else if (NetworkDataSync.Instance != null)
             {
-                NetworkDataSync.instance.WaveMarkServerRpc(team, prefab.unitTypeID, op);
+                NetworkDataSync.Instance.WaveMarkServerRpc(team, prefab.unitTypeID, op);
             }
         }
     }

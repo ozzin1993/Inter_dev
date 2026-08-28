@@ -73,8 +73,8 @@ namespace StrategyCore
         private void TrySubscribe()
         {
             if (subscribed) return;
-            if (GameManager.instance == null) return;
-            GameManager.instance.Tick += OnTick;
+            if (GameManager.Instance == null) return;
+            GameManager.Instance.Tick += OnTick;
             prevState = unit != null ? unit.unitState : UnitStates.Idle;
             subscribed = true;
         }
@@ -82,7 +82,7 @@ namespace StrategyCore
         private void Unsubscribe()
         {
             if (!subscribed) return;
-            if (GameManager.instance != null) GameManager.instance.Tick -= OnTick;
+            if (GameManager.Instance != null) GameManager.Instance.Tick -= OnTick;
             subscribed = false;
         }
 
@@ -97,8 +97,8 @@ namespace StrategyCore
             //    движение не прерывают — для них этот блок не срабатывает, что и нужно.
             if (prevState == UnitStates.AbilityCasting && unit.unitState != UnitStates.AbilityCasting)
             {
-                if (MatchManager.instance != null)
-                    MatchManager.instance.ReissueCurrentCommand(unit);
+                if (MatchManager.Instance != null)
+                    MatchManager.Instance.ReissueCurrentCommand(unit);
             }
 
             // 2) Попытка авто-каста.

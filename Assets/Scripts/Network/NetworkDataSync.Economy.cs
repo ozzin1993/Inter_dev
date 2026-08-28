@@ -11,13 +11,13 @@ namespace StrategyCore
     {
 
         // RESOURCES --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-        public List<Vector3Int> resourceChanged = new List<Vector3Int>(); // [0] = player index, [1] = resource index (GameResources.instance.gameResources), [2] = resource amount
+        public List<Vector3Int> resourceChanged = new List<Vector3Int>(); // [0] = player index, [1] = resource index (GameResources.Instance.gameResources), [2] = resource amount
 
         // Server adds the data through this function
         public void ResourceSendAdd(int player, int resourceType, int resourceAmount)
         {
             // Only for connected players and not server
-            if (SlotManager.instance.slotType[player] != SlotType.Player || SlotManager.instance.playerID[player] == 0 || SlotManager.instance.playerID[player] == -1) return;
+            if (SlotManager.Instance.slotType[player] != SlotType.Player || SlotManager.Instance.playerID[player] == 0 || SlotManager.Instance.playerID[player] == -1) return;
 
             bool newResourceEntry = true;
             for (int i = 0; i < resourceChanged.Count; i++)
@@ -41,9 +41,9 @@ namespace StrategyCore
                 for (int i = 0; i < resourceChanged.Count; i++)
                 {
                     // Only for connected players and not server
-                    if (SlotManager.instance.slotType[resourceChanged[i].x] != SlotType.Player || SlotManager.instance.playerID[resourceChanged[i].x] == 0 || SlotManager.instance.playerID[resourceChanged[i].x] == -1) continue;
+                    if (SlotManager.Instance.slotType[resourceChanged[i].x] != SlotType.Player || SlotManager.Instance.playerID[resourceChanged[i].x] == 0 || SlotManager.Instance.playerID[resourceChanged[i].x] == -1) continue;
 
-                    ResourceChangeClientRpc(new Vector2Int(resourceChanged[i].y, GameResources.instance.playerResources[resourceChanged[i].y + resourceChanged[i].x * GameResources.instance.gameResources.Length]), RpcTarget.Single((ulong)SlotManager.instance.playerID[resourceChanged[i].x], RpcTargetUse.Temp));
+                    ResourceChangeClientRpc(new Vector2Int(resourceChanged[i].y, GameResources.Instance.playerResources[resourceChanged[i].y + resourceChanged[i].x * GameResources.Instance.gameResources.Length]), RpcTarget.Single((ulong)SlotManager.Instance.playerID[resourceChanged[i].x], RpcTargetUse.Temp));
                 }
 
                 resourceChanged.Clear();
@@ -54,14 +54,14 @@ namespace StrategyCore
         [Rpc(SendTo.SpecifiedInParams, InvokePermission = RpcInvokePermission.Server)]
         private void ResourceChangeClientRpc(Vector2Int resourceAmount, RpcParams rpcParams)
         {
-            if (GameResources.instance.gameResources[resourceAmount.x].type.limited)
+            if (GameResources.Instance.gameResources[resourceAmount.x].type.limited)
             {
                 // Limited only max value is changed, current value is changed locally
-                GameResources.instance.playerResourceLimits[resourceAmount.x + SlotManager.instance.currentPlayer * GameResources.instance.gameResources.Length] = resourceAmount.y;
+                GameResources.Instance.playerResourceLimits[resourceAmount.x + SlotManager.Instance.currentPlayer * GameResources.Instance.gameResources.Length] = resourceAmount.y;
             }
             else
             {
-                GameResources.instance.playerResources[resourceAmount.x + SlotManager.instance.currentPlayer * GameResources.instance.gameResources.Length] = resourceAmount.y;
+                GameResources.Instance.playerResources[resourceAmount.x + SlotManager.Instance.currentPlayer * GameResources.Instance.gameResources.Length] = resourceAmount.y;
             }
             Presentation.UI?.UpdateResourceTab(resourceAmount.x);
         }
@@ -85,9 +85,9 @@ namespace StrategyCore
         private void DieClientRpc(UInt16 netID, int killingPlayer, UInt16 killingUnitID, bool rewards, bool destroy)
         {
             // Joining mid-game, we do not accept any data from the server. Only scene data.
-            if (NetworkConnectionHandler.instance.connectionStage == 2) return;
+            if (NetworkConnectionHandler.Instance.connectionStage == 2) return;
 
-            if (SlotManager.instance.unitNetID.TryGetValue(netID, out Unit unit))
+            if (SlotManager.Instance.unitNetID.TryGetValue(netID, out Unit unit))
             {
                 if (killingUnitID == 0)
                 {
@@ -97,7 +97,7 @@ namespace StrategyCore
                 else
                 {
                     // Killing unit
-                    if (SlotManager.instance.unitNetID.TryGetValue(killingUnitID, out Unit killingUnit))
+                    if (SlotManager.Instance.unitNetID.TryGetValue(killingUnitID, out Unit killingUnit))
                     {
                         unit.Die(killingPlayer, killingUnit, rewards, false, destroy);
                     }
@@ -130,7 +130,7 @@ namespace StrategyCore
 
                 for (int i = 0; i < hpChangedUnits.Count; i++)
                 {
-                    if (SlotManager.instance.unitNetID.TryGetValue(hpChangedUnits[i], out Unit unit))
+                    if (SlotManager.Instance.unitNetID.TryGetValue(hpChangedUnits[i], out Unit unit))
                     {
                         hpAmount[i] = unit.health;
                     }
@@ -146,11 +146,11 @@ namespace StrategyCore
         private void HPChangeClientRpc(UInt16[] unitID, float[] unitHealth)
         {
             // Joining mid-game, we do not accept any data from the server. Only scene data.
-            if (NetworkConnectionHandler.instance.connectionStage == 2) return;
+            if (NetworkConnectionHandler.Instance.connectionStage == 2) return;
 
             for (int i = 0; i < unitID.Length; i++)
             {
-                if (SlotManager.instance.unitNetID.TryGetValue(unitID[i], out Unit unit))
+                if (SlotManager.Instance.unitNetID.TryGetValue(unitID[i], out Unit unit))
                 {
                     unit.SetHP(unitHealth[i]);
                 }
@@ -171,7 +171,7 @@ namespace StrategyCore
 
                 for (int i = 0; i < mpChangedUnits.Count; i++)
                 {
-                    if (SlotManager.instance.unitNetID.TryGetValue(mpChangedUnits[i], out Unit unit))
+                    if (SlotManager.Instance.unitNetID.TryGetValue(mpChangedUnits[i], out Unit unit))
                     {
                         mpAmount[i] = unit.mana;
                     }
@@ -186,11 +186,11 @@ namespace StrategyCore
         private void MPChangeClientRpc(UInt16[] unitID, float[] unitMana)
         {
             // Joining mid-game, we do not accept any data from the server. Only scene data.
-            if (NetworkConnectionHandler.instance.connectionStage == 2) return;
+            if (NetworkConnectionHandler.Instance.connectionStage == 2) return;
 
             for (int i = 0; i < unitID.Length; i++)
             {
-                if (SlotManager.instance.unitNetID.TryGetValue(unitID[i], out Unit unit))
+                if (SlotManager.Instance.unitNetID.TryGetValue(unitID[i], out Unit unit))
                 {
                     unit.SetMP(unitMana[i]);
                 }
@@ -213,7 +213,7 @@ namespace StrategyCore
 
                 for (int i = 0; i < xpChangedUnits.Count; i++)
                 {
-                    if (SlotManager.instance.unitNetID.TryGetValue(xpChangedUnits[i], out Unit unit))
+                    if (SlotManager.Instance.unitNetID.TryGetValue(xpChangedUnits[i], out Unit unit))
                     {
                         xpAmount[i] = unit.levelingUnit.currentExp;
                         lvl[i] = unit.levelingUnit.level;
@@ -232,11 +232,11 @@ namespace StrategyCore
         private void XPChangeClientRpc(UInt16[] unitID, int[] unitXp, int[] lvl, int[] abilityPoints)
         {
             // Joining mid-game, we do not accept any data from the server. Only scene data.
-            if (NetworkConnectionHandler.instance.connectionStage == 2) return;
+            if (NetworkConnectionHandler.Instance.connectionStage == 2) return;
 
             for (int i = 0; i < unitID.Length; i++)
             {
-                if (SlotManager.instance.unitNetID.TryGetValue(unitID[i], out Unit unit))
+                if (SlotManager.Instance.unitNetID.TryGetValue(unitID[i], out Unit unit))
                 {
                     unit.levelingUnit.SetLevel(lvl[i], unitXp[i], abilityPoints[i], true, false, false);
                 }

@@ -16,8 +16,8 @@ namespace StrategyCore
         public void GraveSpawnClientRpc(int graveId, int unitTypeID, int owner, int team, int unitCategory, int tier, Vector3 position)
         {
             // Опоздавший клиент (mid-game join) в стадии загрузки сцены — не принимаем (как DieClientRpc).
-            if (NetworkConnectionHandler.instance != null && NetworkConnectionHandler.instance.connectionStage == 2) return;
-            if (MatchManager.instance == null) return;
+            if (NetworkConnectionHandler.Instance != null && NetworkConnectionHandler.Instance.connectionStage == 2) return;
+            if (MatchManager.Instance == null) return;
 
             GraveData data = new GraveData
             {
@@ -28,15 +28,15 @@ namespace StrategyCore
                 tier = tier,
                 position = position
             };
-            MatchManager.instance.ClientSpawnGrave(graveId, data);
+            MatchManager.Instance.ClientSpawnGrave(graveId, data);
         }
 
         /// <summary>Сервер → клиенты: убрать визуал могилки по id. Применяется в MatchManager.ClientDespawnGrave.</summary>
         [Rpc(SendTo.NotServer, InvokePermission = RpcInvokePermission.Server)]
         public void GraveDespawnClientRpc(int graveId)
         {
-            if (MatchManager.instance == null) return;
-            MatchManager.instance.ClientDespawnGrave(graveId);
+            if (MatchManager.Instance == null) return;
+            MatchManager.Instance.ClientDespawnGrave(graveId);
         }
     }
 }

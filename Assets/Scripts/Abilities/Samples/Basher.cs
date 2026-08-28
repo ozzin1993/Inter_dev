@@ -54,7 +54,7 @@ namespace StrategyCore
                         if (NetworkManager.Singleton.IsServer)
                         {
                             // Set the HP sync for this tick
-                            NetworkDataSync.instance.ForceSync();
+                            NetworkDataSync.Instance.ForceSync();
                         }
                     }
                 }

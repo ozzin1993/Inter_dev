@@ -18,7 +18,7 @@ namespace StrategyCore
     /// </summary>
     public partial class SkillPresenter : MonoBehaviour
     {
-        public static SkillPresenter instance;
+        public static SkillPresenter Instance { get; private set; }
 
         // Настройки презентации. Ассета может не быть — тогда работаем на значениях по умолчанию
         // (недоступен окажется только сектор конуса, ему нужен материал).
@@ -36,11 +36,11 @@ namespace StrategyCore
         static void Create()
         {
             if (Utils.Headless) return;      // показывать некому
-            if (instance != null) return;    // уничтоженный объект Unity сравнивается с null как null — пересоздастся
+            if (Instance != null) return;    // уничтоженный объект Unity сравнивается с null как null — пересоздастся
 
             GameObject go = new GameObject("SkillPresenter");
             DontDestroyOnLoad(go);
-            instance = go.AddComponent<SkillPresenter>();
+            Instance = go.AddComponent<SkillPresenter>();
         }
 
         void OnEnable()
@@ -181,8 +181,8 @@ namespace StrategyCore
         // Умения не-конструкторы (кодовые пассивки) презентации пока не описывают — для них null.
         static CompositeSkill ResolveSkill(int abilityID)
         {
-            if (GameManager.instance == null) return null;
-            if (!GameManager.instance.gameAbilities.TryGetValue(abilityID, out Ability ability)) return null;
+            if (GameManager.Instance == null) return null;
+            if (!GameManager.Instance.gameAbilities.TryGetValue(abilityID, out Ability ability)) return null;
 
             return ability as CompositeSkill;
         }

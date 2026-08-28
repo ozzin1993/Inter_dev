@@ -37,7 +37,7 @@ namespace Camera_TopDownNS
                 clickPressed = true;
 
                 // DoubleClick
-                if (PlayerControl.instance.mode == PCMode.Default && PlayerControl.isCursorOverUI == false)
+                if (PlayerControl.Instance.mode == PCMode.Default && PlayerControl.isCursorOverUI == false)
                 {
                     if (secondClickTimeout < 0)
                     {
@@ -46,7 +46,7 @@ namespace Camera_TopDownNS
                         secondClickTimeout = Time.time + doubleClickTime;
 
                         // Strategy core specific
-                        if (PlayerControl.instance != null) PlayerControl.instance.dblClickUnit = Utils.GetUnitAtCursor();
+                        if (PlayerControl.Instance != null) PlayerControl.Instance.dblClickUnit = Utils.GetUnitAtCursor();
                     }
                     else
                     {

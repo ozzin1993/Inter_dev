@@ -18,20 +18,20 @@ namespace StrategyCore
         {
             if (NetworkManager.Singleton == null || !NetworkManager.Singleton.IsServer) return;
             if (!IsSpawned) return; // сеть ещё/уже не поднята — молча пропускаем (как прочие релеи хаба)
-            if (GameResources.instance == null || SlotManager.instance == null) return;
-            if (player < 0 || player >= SlotManager.instance.slotType.Length) return;
+            if (GameResources.Instance == null || SlotManager.Instance == null) return;
+            if (player < 0 || player >= SlotManager.Instance.slotType.Length) return;
 
             // Только реальным подключённым игрокам (не боты, не сам сервер) — как в штатном ResourceSend.
-            if (SlotManager.instance.slotType[player] != SlotType.Player) return;
-            int id = SlotManager.instance.playerID[player];
+            if (SlotManager.Instance.slotType[player] != SlotType.Player) return;
+            int id = SlotManager.Instance.playerID[player];
             if (id <= 0) return;
 
-            int len = GameResources.instance.gameResources.Length;
+            int len = GameResources.Instance.gameResources.Length;
             if (resourceID < 0 || resourceID >= len) return;
             int idx = resourceID + player * len;
 
-            LimitedResourceClientRpc(new Vector3Int(resourceID, GameResources.instance.playerResources[idx],
-                                                    GameResources.instance.playerResourceLimits[idx]),
+            LimitedResourceClientRpc(new Vector3Int(resourceID, GameResources.Instance.playerResources[idx],
+                                                    GameResources.Instance.playerResourceLimits[idx]),
                                      RpcTarget.Single((ulong)id, RpcTargetUse.Temp));
         }
 
@@ -39,16 +39,16 @@ namespace StrategyCore
         public void LimitedResourceSyncAll()
         {
             if (NetworkManager.Singleton == null || !NetworkManager.Singleton.IsServer) return;
-            if (GameResources.instance == null || SlotManager.instance == null) return;
+            if (GameResources.Instance == null || SlotManager.Instance == null) return;
 
-            int len = GameResources.instance.gameResources.Length;
-            for (int p = 0; p < SlotManager.instance.slotType.Length; p++)
+            int len = GameResources.Instance.gameResources.Length;
+            for (int p = 0; p < SlotManager.Instance.slotType.Length; p++)
             {
-                if (SlotManager.instance.slotType[p] != SlotType.Player) continue;
+                if (SlotManager.Instance.slotType[p] != SlotType.Player) continue;
                 for (int r = 0; r < len; r++)
                 {
-                    if (GameResources.instance.gameResources[r].type == null) continue;
-                    if (!GameResources.instance.gameResources[r].type.limited) continue;
+                    if (GameResources.Instance.gameResources[r].type == null) continue;
+                    if (!GameResources.Instance.gameResources[r].type.limited) continue;
                     LimitedResourceSend(p, r);
                 }
             }
@@ -58,16 +58,16 @@ namespace StrategyCore
         [Rpc(SendTo.SpecifiedInParams, InvokePermission = RpcInvokePermission.Server)]
         private void LimitedResourceClientRpc(Vector3Int data, RpcParams rpcParams)
         {
-            if (GameResources.instance == null || SlotManager.instance == null) return;
-            int len = GameResources.instance.gameResources.Length;
+            if (GameResources.Instance == null || SlotManager.Instance == null) return;
+            int len = GameResources.Instance.gameResources.Length;
             int resourceID = data.x;
             if (resourceID < 0 || resourceID >= len) return;
 
-            int idx = resourceID + SlotManager.instance.currentPlayer * len;
-            if (idx < 0 || idx >= GameResources.instance.playerResources.Length) return;
+            int idx = resourceID + SlotManager.Instance.currentPlayer * len;
+            if (idx < 0 || idx >= GameResources.Instance.playerResources.Length) return;
 
-            GameResources.instance.playerResources[idx] = data.y;      // расход (usage)
-            GameResources.instance.playerResourceLimits[idx] = data.z; // лимит
+            GameResources.Instance.playerResources[idx] = data.y;      // расход (usage)
+            GameResources.Instance.playerResourceLimits[idx] = data.z; // лимит
             Presentation.UI?.UpdateResourceTab(resourceID);
         }
     }

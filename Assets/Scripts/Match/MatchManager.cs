@@ -172,7 +172,7 @@ namespace StrategyCore
         public Resource LeadershipResource => leadershipResource;
 
         /// <summary>Единственный экземпляр. Единый источник Lane-таргетинга и спавна для волн и UI-команд.</summary>
-        public static MatchManager instance;
+        public static MatchManager Instance { get; private set; }
 
         /// <summary>Вызывается после спавна каждого юнита волны. Параметры: индекс команды (0=A, 1=B), юнит.</summary>
         public event Action<int, Unit> OnUnitSpawned;
@@ -193,15 +193,22 @@ namespace StrategyCore
         void Awake()
         {
             // Доступен и на клиенте (UI-команды читают цели/состав через него); сами волны — только сервер.
-            if (instance != null && instance != this) { Destroy(this); return; }
-            instance = this;
+            if (Instance != null && Instance != this) { Destroy(this); return; }
+            Instance = this;
 
             teamUnits = new List<Unit>[2] { new List<Unit>(), new List<Unit>() };
 
-            // Режим команды по каждому ряду (см. MatchManager.CommandGroups.cs). Изначально None у всех рядов.
+            // Режим команды по каждому ряду (см. MatchManager.CommandGroups.cs). Стартовый режим обеих команд —
+            // Защита (целевая модель 2026-08-21: один из двух режимов выбран всегда, на старте — Защита).
+            // Юнитов на старте нет, саму команду рассылать не нужно — достаточно состояния: первая волна
+            // унаследует режим ряда при спавне (MatchManager.Waves.cs, переотдача по рядам).
             int groupCount = CommandGroupCount;
             currentCommand = new BottomTableAction[2][];
-            for (int t = 0; t < 2; t++) currentCommand[t] = new BottomTableAction[groupCount];
+            for (int t = 0; t < 2; t++)
+            {
+                currentCommand[t] = new BottomTableAction[groupCount];
+                for (int g = 0; g < groupCount; g++) currentCommand[t][g] = BottomTableAction.Defence;
+            }
 
             // Раса стороны: ДО AssignCasterAbilities заполняем runtime-копию TeamWaveConfig контентом
             // фракции (по ссылке GameManager.factionData[playerFaction].config). Детерминированно — см. ApplyFactions.
@@ -214,7 +221,7 @@ namespace StrategyCore
             AssignCasterAbilities(teamB);
 
             // Апгрейды контента: подписка на триггеры + начальный пересчёт — по OnGameStart. См. MatchManager.ContentUnlock.cs.
-            if (SlotManager.instance != null) SlotManager.instance.OnGameStart += WireContentTriggers;
+            if (SlotManager.Instance != null) SlotManager.Instance.OnGameStart += WireContentTriggers;
 
             MainBuildingStatsWire(); // Статы ГЗ по уровню: подписка на OnMainBuildingLevelChanged. Отписка — в OnDestroy.
             MainBuildingShapeWire(); // Облик ГЗ по уровню: подписка на OnMainBuildingLevelChanged. Отписка — в OnDestroy.
@@ -246,14 +253,14 @@ namespace StrategyCore
             foreach (Unit tower in hookedTowers.Keys)
                 if (tower != null) tower.OnDie -= HandleTowerDie;
             hookedTowers.Clear();
-            if (SlotManager.instance != null) SlotManager.instance.OnGameStart -= WireContentTriggers;
+            if (SlotManager.Instance != null) SlotManager.Instance.OnGameStart -= WireContentTriggers;
             UnwireContentTriggers();
             MainBuildingStatsUnwire(); // Статы ГЗ по уровню: отписка (см. MainBuildingStatsWire / MatchManager.MainBuildingStats.cs).
             MainBuildingShapeUnwire(); // Облик ГЗ по уровню: отписка (см. MainBuildingShapeWire / MatchManager.MainBuildingShape.cs).
             GravesUnwire(); // Могилки: отписка (см. GravesWire / MatchManager.Graves.cs).
             DeathEventsUnwire(); // Хаб смертей: отписка (см. DeathEventsWire / MatchManager.DeathEvents.cs).
             SoulsUnwire(); // Ресурс «Души»: отписка от хаба + очистка модификаторов (см. SoulsWire / MatchManager.Souls.cs).
-            if (instance == this) instance = null;
+            if (Instance == this) Instance = null;
         }
 
         void Start()
@@ -266,6 +273,13 @@ namespace StrategyCore
             // чтобы effectiveTowerSwaps был уже вычислен. Pre-placed башни в сцене не нужны.
 
             StartCoroutine(WaveLoop());
+            // Стартовые режимы рядов (Защита) — разово клиентам после gameOn (см. MatchManager.Commands.cs).
+            StartCoroutine(BroadcastStartCommandsLoop());
+            // Периодические источники опыта ГЗ (серверо-авторитетно; см. MatchManager.Experience.cs).
+            StartCoroutine(CentreHoldExperienceLoop());
+            StartCoroutine(AttackStanceExperienceLoop());
+            // «Часы» опыта: раз в секунду досылают клиентам изменившееся значение (см. MatchManager.Experience.cs).
+            StartCoroutine(ExperienceSyncLoop());
             // Пассивный доход золота (серверо-авторитетно; см. MatchManager.PassiveIncome.cs).
             StartCoroutine(PassiveIncomeLoop());
             // Генерация душ Нежити по уровню ГЗ (серверо-авторитетно; см. MatchManager.Souls.cs). Для не-Нежити тик пустой.
@@ -305,8 +319,8 @@ namespace StrategyCore
             }
 
             // Победа — штатная (GameManager.specificUnitsDead). Менеджер её не реализует.
-            if (GameManager.instance != null &&
-                (GameManager.instance.specificUnitsDead == null || GameManager.instance.specificUnitsDead.Length == 0))
+            if (GameManager.Instance != null &&
+                (GameManager.Instance.specificUnitsDead == null || GameManager.Instance.specificUnitsDead.Length == 0))
                 Debug.LogWarning("[MatchManager] GameManager.specificUnitsDead не настроен — " +
                                  "победа по уничтожению базы не сработает. Задайте NetID баз и winningTeam в Inspector у GameManager.");
         }

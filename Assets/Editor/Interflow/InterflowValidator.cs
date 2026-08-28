@@ -290,6 +290,18 @@ namespace StrategyCore
                         $"«{unit.name}»: MultiTarget и Bounce одновременно при Continuous-атаке несовместимы — оставь что-то одно.",
                         "Гайд 04 шаг 3 (⚠ несовместимость)", unit));
             }
+
+            // 7. xpReward у КОНТЕНТНЫХ юнитов и башен: это же число кормит и уровень героя, и опыт главного
+            //    здания (MatchManager.Experience). Ноль — убийство не даёт ни того, ни другого. Проверяем только
+            //    контент фракций (волна, башни, герой, узлы дерева): декоративные префабы опыта давать не обязаны.
+            foreach (var (unit, _) in units)
+            {
+                if (!factionUnits.Contains(unit)) continue;
+                if (unit.xpReward > 0) continue;
+                issues.Add(new InterflowIssue(InterflowIssueSeverity.Warning,
+                    $"«{unit.name}»: xpReward = 0 — за его убийство не начислится ни опыт главного здания, ни опыт героя.",
+                    "Unit.xpReward; MatchManager.Experience (опыт за убийство и за башню)", unit));
+            }
         }
 
         // ======================== БЛОК «УМЕНИЯ» (шаг 2) ========================
@@ -1202,23 +1214,48 @@ namespace StrategyCore
                     "MatchManager.leadershipResource не назначен — проверки капа лидерства будут пропущены.",
                     "MatchManager.ValidateSetup; MatchManager.LeadershipResource", mm));
 
-            // 4. Достижимый уровень ГЗ (старт + число тиров) vs таблицы уровня (решение Artsiom 2026-07-24).
+            // 3б. Числа опыта главного здания (MatchManager.Experience): без порога уровень не растёт вовсе,
+            //     а неположительный период за центр означал бы тик каждый кадр (в корутине он поднят до секунды).
+            int xpPerLevel = so.FindProperty("experiencePerLevel")?.intValue ?? 0;
+            if (xpPerLevel <= 0)
+                issues.Add(new InterflowIssue(InterflowIssueSeverity.Warning,
+                    $"MatchManager.experiencePerLevel = {xpPerLevel} — порог опыта на уровень не задан, уровень главного здания не поднимется никогда.",
+                    "MatchManager.Experience.AddExperience (порог ≤ 0 → выход)", mm));
+
+            float centrePeriod = so.FindProperty("centreHoldPeriod")?.floatValue ?? 0f;
+            if (centrePeriod <= 0f)
+                issues.Add(new InterflowIssue(InterflowIssueSeverity.Warning,
+                    $"MatchManager.centreHoldPeriod = {centrePeriod} — период начисления опыта за центр должен быть больше нуля (корутина подставит 1 секунду).",
+                    "MatchManager.Experience.CentreHoldExperienceLoop", mm));
+
+            // 4. Достижимый уровень ГЗ (предел = число тиров) vs таблицы уровня (решение Artsiom 2026-07-24).
             //    Подписчики клампят индекс (Clamp(level−1, 0, len−1)) — ошибки не будет, но выше последней записи
             //    прогрессия молча замирает; предупреждаем, чтобы дизайнер дозаполнил таблицы. Пустая таблица —
             //    фича не используется, не ворним. Прежняя проверка «лимит Лидерства = пул×3» удалена: поле
             //    waveLeadershipPool снесено Волной 2.0 (лимит лидерства задаёт дизайнер напрямую в GameResources).
-            int mbStart = so.FindProperty("startMainBuildingLevel")?.intValue ?? 1;
+            int mbStart = so.FindProperty("startMainBuildingLevel")?.intValue ?? 0;
             var mbStats = so.FindProperty("mainBuildingStatsByLevel");
             int mbStatsLen = (mbStats != null && mbStats.isArray) ? mbStats.arraySize : 0;
             foreach (var f in factions)
             {
                 int tiers = (f != null && f.techTiers != null) ? f.techTiers.Length : 0;
-                if (tiers == 0) continue; // дерево тиров не настроено — уровень ГЗ не растёт
-                int maxLevel = mbStart + tiers; // каждая покупка «уровня тира» = +1 к уровню ГЗ (MatchManager.TechTiers)
+                if (tiers == 0)
+                {
+                    // Предел уровня ГЗ = числу тиров (MatchManager.Experience.AddExperience). Ноль тиров —
+                    // уровень не поднимется никогда, сколько бы опыта команда ни набрала.
+                    issues.Add(new InterflowIssue(InterflowIssueSeverity.Warning,
+                        $"У фракции «{(f != null ? f.name : "?")}» дерево тиров пусто — предел уровня главного здания равен нулю, уровень не поднимется никогда (опыт будет копиться впустую).",
+                        "MatchManager.TechTierCount ↔ MatchManager.Experience (предел уровня)", f));
+                    continue;
+                }
+                // Достижимый максимум уровня: старт задаётся в Inspector, а рост опытом упирается в число тиров
+                // (MatchManager.Experience.AddExperience: mainBuildingLevel < TechTierCount). Прежняя формула
+                // «старт + тиры» отвечала модели «покупка узла = +1 уровень» и после перехода на опыт завышала предел.
+                int maxLevel = Mathf.Max(mbStart, tiers);
 
                 if (mbStatsLen > 0 && mbStatsLen < maxLevel)
                     issues.Add(new InterflowIssue(InterflowIssueSeverity.Warning,
-                        $"Статов ГЗ (mainBuildingStatsByLevel: {mbStatsLen}) меньше достижимого уровня {maxLevel} (старт {mbStart} + {tiers} тиров «{f.name}») — выше уровня {mbStatsLen} статы замрут на последней записи.",
+                        $"Статов ГЗ (mainBuildingStatsByLevel: {mbStatsLen}) меньше достижимого уровня {maxLevel} (старт {mbStart}, предел по числу тиров «{f.name}» — {tiers}) — выше уровня {mbStatsLen} статы замрут на последней записи.",
                         "MatchManager.mainBuildingStatsByLevel ↔ FactionConfig.techTiers", mm));
                 if (f.mainBuildingShapesByLevel != null && f.mainBuildingShapesByLevel.Length > 0 && f.mainBuildingShapesByLevel.Length < maxLevel)
                     issues.Add(new InterflowIssue(InterflowIssueSeverity.Warning,

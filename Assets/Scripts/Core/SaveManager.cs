@@ -12,7 +12,7 @@ namespace StrategyCore
 
     public partial class SaveManager : MonoBehaviour // [Interflow fix 2026-08-01 partial-split] класс разрезан на partial-файлы (задача №11)
     {
-        public static SaveManager instance;
+        public static SaveManager Instance { get; private set; }
 
         public static string sceneUnitData; // Unit data that we must load after every client finishes loading the scene
 
@@ -27,19 +27,19 @@ namespace StrategyCore
 
         public static string SavePlayerData()
         {
-            string content = JsonHelper.ToJson<SlotType>(SlotManager.instance.slotType);
+            string content = JsonHelper.ToJson<SlotType>(SlotManager.Instance.slotType);
             content += delSecondary;
-            content += JsonHelper.ToJson<int>(SlotManager.instance.playerID);
+            content += JsonHelper.ToJson<int>(SlotManager.Instance.playerID);
             content += delSecondary;
-            content += JsonHelper.ToJson<int>(SlotManager.instance.playerTeam);
+            content += JsonHelper.ToJson<int>(SlotManager.Instance.playerTeam);
             content += delSecondary;
-            content += JsonHelper.ToJson<string>(SlotManager.instance.playerName);
+            content += JsonHelper.ToJson<string>(SlotManager.Instance.playerName);
             content += delSecondary;
-            content += JsonHelper.ToJson<int>(SlotManager.instance.playerPosition);
+            content += JsonHelper.ToJson<int>(SlotManager.Instance.playerPosition);
             content += delSecondary;
-            content += JsonHelper.ToJson<int>(SlotManager.instance.playerFaction);
+            content += JsonHelper.ToJson<int>(SlotManager.Instance.playerFaction);
             content += delSecondary;
-            content += JsonHelper.ToJson<bool>(SlotManager.instance.playerLost);
+            content += JsonHelper.ToJson<bool>(SlotManager.Instance.playerLost);
 
             return content;
         }
@@ -62,10 +62,10 @@ namespace StrategyCore
             bool[] playerLosts = JsonHelper.FromJson<bool>(playerDataSplit[6]);
 
             // We only copy teams, factions, positions and player losts + bots
-            SlotManager.instance.playerTeam = playerTeams;
-            SlotManager.instance.playerPosition = playerPositions;
-            SlotManager.instance.playerFaction = playerFactions;
-            SlotManager.instance.playerLost = playerLosts;
+            SlotManager.Instance.playerTeam = playerTeams;
+            SlotManager.Instance.playerPosition = playerPositions;
+            SlotManager.Instance.playerFaction = playerFactions;
+            SlotManager.Instance.playerLost = playerLosts;
 
             // For factions and positions we must add 1 index, since 0 is occupied by Random option
             for (int i = 0; i < playerPositions.Length; i++)
@@ -79,16 +79,16 @@ namespace StrategyCore
             {
                 if (slotTypes[i] != SlotType.Player && slotTypes[i] != SlotType.Empty)
                 {
-                    SlotManager.instance.slotType[i] = slotTypes[i];
-                    SlotManager.instance.playerID[i] = playerIDs[i];
-                    SlotManager.instance.playerName[i] = playerNames[i];
+                    SlotManager.Instance.slotType[i] = slotTypes[i];
+                    SlotManager.Instance.playerID[i] = playerIDs[i];
+                    SlotManager.Instance.playerName[i] = playerNames[i];
                 }
             }
 
             // Assign arrays - not used
-            // SlotManager.instance.slotType = slotTypes;
-            // SlotManager.instance.playerID = playerIDs;
-            // SlotManager.instance.playerName = playerNames;
+            // SlotManager.Instance.slotType = slotTypes;
+            // SlotManager.Instance.playerID = playerIDs;
+            // SlotManager.Instance.playerName = playerNames;
         }
 
         // TECHNOLOGY ----------------------------------------------------------------------------------------------------------------------------------------------------
@@ -107,7 +107,7 @@ namespace StrategyCore
                 List<int> beingProcessedTech = new List<int>();
 
                 // Tech unlocked
-                foreach (var kvp in TechnologyManager.instance.TechTree[p])
+                foreach (var kvp in TechnologyManager.Instance.TechTree[p])
                 {
                     if (kvp.Value == true)
                     {
@@ -116,7 +116,7 @@ namespace StrategyCore
                 }
 
                 // Tech being Processed
-                foreach (var kvp in TechnologyManager.instance.TechTreeProcessing[p])
+                foreach (var kvp in TechnologyManager.Instance.TechTreeProcessing[p])
                 {
                     if (kvp.Value == true)
                     {
@@ -151,7 +151,7 @@ namespace StrategyCore
                 }
 
                 // Unlock tech
-                var techTree = TechnologyManager.instance.TechTree[i];
+                var techTree = TechnologyManager.Instance.TechTree[i];
                 var keys = techTree.Keys.ToList(); // Create a list of keys
 
                 for (int j = 0; j < keys.Count; j++)
@@ -162,7 +162,7 @@ namespace StrategyCore
                 }
 
                 // Tech being processed
-                techTree = TechnologyManager.instance.TechTreeProcessing[i];
+                techTree = TechnologyManager.Instance.TechTreeProcessing[i];
                 keys = techTree.Keys.ToList(); // Create a list of keys
 
                 for (int j = 0; j < keys.Count; j++)
@@ -172,7 +172,7 @@ namespace StrategyCore
                     techTree[key] = unlocked; // Update the dictionary value
                 }
 
-                TechnologyManager.instance.OnTechUnlock[i]?.Invoke();
+                TechnologyManager.Instance.OnTechUnlock[i]?.Invoke();
             }
         }
 
@@ -180,9 +180,9 @@ namespace StrategyCore
 
         public static string SaveResources()
         {
-            string content = JsonHelper.ToJson(GameResources.instance.playerResources);
+            string content = JsonHelper.ToJson(GameResources.Instance.playerResources);
             content += delSecondary;
-            content += JsonHelper.ToJson(GameResources.instance.playerResourceLimits);
+            content += JsonHelper.ToJson(GameResources.Instance.playerResourceLimits);
 
             return content;
         }
@@ -193,8 +193,8 @@ namespace StrategyCore
 
             if (delimiterIndex != -1)
             {
-                GameResources.instance.playerResources = JsonHelper.FromJson<int>(resources.Substring(0, delimiterIndex));
-                GameResources.instance.playerResourceLimits = JsonHelper.FromJson<int>(resources.Substring(delimiterIndex + delSecondary.Length));
+                GameResources.Instance.playerResources = JsonHelper.FromJson<int>(resources.Substring(0, delimiterIndex));
+                GameResources.Instance.playerResourceLimits = JsonHelper.FromJson<int>(resources.Substring(delimiterIndex + delSecondary.Length));
             }
             else
             {
@@ -208,20 +208,20 @@ namespace StrategyCore
 
         public static string SaveShadowcasters()
         {
-            ShadowCasterSyncData[] shadowCasterData = new ShadowCasterSyncData[GameManager.instance.shadowCasters.Count];
+            ShadowCasterSyncData[] shadowCasterData = new ShadowCasterSyncData[GameManager.Instance.shadowCasters.Count];
 
-            for (int i = 0; i < GameManager.instance.shadowCasters.Count; i++)
+            for (int i = 0; i < GameManager.Instance.shadowCasters.Count; i++)
             {
                 shadowCasterData[i] = new ShadowCasterSyncData(
-                                                            (GameManager.instance.shadowCasters[i].thisUnit == null) ? (UInt16)0 : GameManager.instance.shadowCasters[i].thisUnit.netID, // Owner 0 == null,
-                                                            GameManager.instance.shadowCasters[i].castingPlayer,
-                                                            GameManager.instance.shadowCasters[i].id,
-                                                            GameManager.instance.shadowCasters[i].activeAbility.id,
-                                                            GameManager.instance.shadowCasters[i].activeAbilityLevel,
-                                                            (GameManager.instance.shadowCasters[i].activeAbilityUnit == null) ? (UInt16)0 : GameManager.instance.shadowCasters[i].activeAbilityUnit.netID, // Target 0 == null
-                                                            GameManager.instance.shadowCasters[i].activeAbilityLocation,
-                                                            GameManager.instance.shadowCasters[i].activeAbilityRange,
-                                                            GameManager.instance.shadowCasters[i].activeAbilityDuration - GameManager.instance.shadowCasters[i].currentTime
+                                                            (GameManager.Instance.shadowCasters[i].thisUnit == null) ? (UInt16)0 : GameManager.Instance.shadowCasters[i].thisUnit.netID, // Owner 0 == null,
+                                                            GameManager.Instance.shadowCasters[i].castingPlayer,
+                                                            GameManager.Instance.shadowCasters[i].id,
+                                                            GameManager.Instance.shadowCasters[i].activeAbility.id,
+                                                            GameManager.Instance.shadowCasters[i].activeAbilityLevel,
+                                                            (GameManager.Instance.shadowCasters[i].activeAbilityUnit == null) ? (UInt16)0 : GameManager.Instance.shadowCasters[i].activeAbilityUnit.netID, // Target 0 == null
+                                                            GameManager.Instance.shadowCasters[i].activeAbilityLocation,
+                                                            GameManager.Instance.shadowCasters[i].activeAbilityRange,
+                                                            GameManager.Instance.shadowCasters[i].activeAbilityDuration - GameManager.Instance.shadowCasters[i].currentTime
                                                             );
             }
 

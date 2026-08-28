@@ -296,7 +296,7 @@ namespace StrategyCore
         /// </summary>
         static readonly HashSet<string> REACTION_FIELDS = new HashSet<string>
         {
-            "onDamaged", "onDeath", "onKill", "onHpBelow"
+            "onDamaged", "onDeath", "onKill", "onHpBelow", "onHit"
         };
 
         /// <summary>Имена сериализованных полей, объявленных самим классом-кирпичом (а не унаследованных от Ability).</summary>

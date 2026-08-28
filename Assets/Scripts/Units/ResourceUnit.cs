@@ -292,7 +292,7 @@ namespace StrategyCore
 
             for (int i = 0; i < currentHeldResources.Count; i++)
             {
-                GameResources.instance.ChangeAmount(player, currentHeldResources[i], 1, false, true);
+                GameResources.Instance.ChangeAmount(player, currentHeldResources[i], 1, false, true);
                 FloatingText.Spawn(thisUnit.owner, thisUnit.transform.position + new Vector3(0, thisUnit.unitHeight + i * 0.5f, 0), "+" + currentHeldResources[i].value.ToString(), currentHeldResources[i].type.resourceColor, true);
             }
 

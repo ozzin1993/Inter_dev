@@ -150,13 +150,13 @@ namespace StrategyCore
 
         // ==================================================================== СЛУЖЕБНОЕ ==
 
-        static int MyTeam() => SlotManager.instance != null ? SlotManager.instance.currentTeam : 0;
+        static int MyTeam() => SlotManager.Instance != null ? SlotManager.Instance.currentTeam : 0;
 
         static IEnumerable<Unit> Alive() =>
             Object.FindObjectsByType<Unit>(FindObjectsSortMode.None).Where(u => u != null && !u.dead);
 
         static Unit Selected() =>
-            PlayerControl.instance != null ? PlayerControl.instance.activeUnit : null;
+            PlayerControl.Instance != null ? PlayerControl.Instance.activeUnit : null;
 
         /// <summary>Выделенный юнит; если не выделен — свой живой с наибольшим здоровьем.</summary>
         static Unit Target()
@@ -175,8 +175,8 @@ namespace StrategyCore
         static void AddEffector(Unit unit, int effectorId, float power)
         {
             Effector effector = null;
-            if (GameManager.instance != null && GameManager.instance.gameEffectors != null)
-                GameManager.instance.gameEffectors.TryGetValue(effectorId, out effector);
+            if (GameManager.Instance != null && GameManager.Instance.gameEffectors != null)
+                GameManager.Instance.gameEffectors.TryGetValue(effectorId, out effector);
 
             if (effector == null) { Debug.LogWarning(Tag + "Эффектор с id " + effectorId + " не найден в реестре."); return; }
             Effector.EffectorAdd(unit, effector, null, unit.owner, 0f, power, StatusSeconds);
@@ -188,7 +188,7 @@ namespace StrategyCore
         /// </summary>
         static void Report(Unit unit)
         {
-            if (GameManager.instance != null) GameManager.instance.StartCoroutine(ReportDelayed(unit));
+            if (GameManager.Instance != null) GameManager.Instance.StartCoroutine(ReportDelayed(unit));
         }
 
         static System.Collections.IEnumerator ReportDelayed(Unit unit)

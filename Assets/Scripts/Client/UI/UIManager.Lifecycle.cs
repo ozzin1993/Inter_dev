@@ -13,9 +13,9 @@ namespace StrategyCore
     {
         void Awake()
         {
-            if (instance == null)
+            if (Instance == null)
             {
-                instance = this;
+                Instance = this;
             }
         }
 
@@ -23,7 +23,7 @@ namespace StrategyCore
         {
             if (ServerBootstrap.IsHeadlessServer) return;   // [Interflow fix 2026-06-20] init-гейт: на headless UI не строим (rootVisualElement не запрашиваем)
             // Components
-            pc = PlayerControl.instance;
+            pc = PlayerControl.Instance;
 
             // Inventory dragDrop
             PlayerControl.coreInput.Main.SelectHold.performed += InventoryDragStart;
@@ -174,8 +174,8 @@ namespace StrategyCore
             // UI initialisation
 ResetUnitUI();
 
-            GameManager.instance.Tick += MsgTimerUpdate;
-            GameManager.instance.Tick += ChatTimerUpdate;
+            GameManager.Instance.Tick += MsgTimerUpdate;
+            GameManager.Instance.Tick += ChatTimerUpdate;
 
             // [Interflow fix 2026-06-26 путь1] UI построен — презентация готова. На сервере сюда не доходим (init-гейт в начале Start).
             presentationReady = true;

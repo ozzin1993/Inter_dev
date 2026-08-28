@@ -50,7 +50,7 @@ namespace StrategyCore
         void PushWaveTimer(int seconds)
         {
             Presentation.UI?.ShowWaveTimer(seconds); // [Interflow 2026-08-01 ADR-005]
-            if (NetworkDataSync.instance != null) NetworkDataSync.instance.WaveTimerSend(seconds);
+            if (NetworkDataSync.Instance != null) NetworkDataSync.Instance.WaveTimerSend(seconds);
         }
     }
 }

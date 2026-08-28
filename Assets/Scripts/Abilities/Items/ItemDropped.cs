@@ -25,13 +25,13 @@ namespace StrategyCore
         // This method can be called to create a dropped item object at the location
         public static bool Spawn(Ability dropItem, int itemCharges, float itemcd, Vector3 location, float unitRadius = 0)
         {
-            float itemRadius = ReferenceManager.instance.itemPrefab.unitRadius;
+            float itemRadius = ReferenceManager.Instance.itemPrefab.unitRadius;
 
             // Collision check
             if (unitRadius != 0)
             {
                 // Unit radius is defined, it means we check for collisions around the unit and drop the item at empty place
-                Vector3 positionOnCircle = Utils.CircleCheck(new Vector2(location.x, location.z), unitRadius, itemRadius, ReferenceManager.instance.itemPrefab.isGround, ReferenceManager.instance.itemPrefab.isWater, ReferenceManager.instance.itemPrefab.isAir);
+                Vector3 positionOnCircle = Utils.CircleCheck(new Vector2(location.x, location.z), unitRadius, itemRadius, ReferenceManager.Instance.itemPrefab.isGround, ReferenceManager.Instance.itemPrefab.isWater, ReferenceManager.Instance.itemPrefab.isAir);
 
                 if (positionOnCircle != Vector3.zero)
                 {
@@ -39,7 +39,7 @@ namespace StrategyCore
                     if (Utils.SlopeCheck(new Vector2(positionOnCircle.x, positionOnCircle.z), itemRadius))
                     {
                         SpawnInternal(dropItem, itemCharges, itemcd, positionOnCircle);
-                        // Unit itemPrefab = Instantiate(ReferenceManager.instance.itemPrefab, positionOnCircle, Quaternion.identity);
+                        // Unit itemPrefab = Instantiate(ReferenceManager.Instance.itemPrefab, positionOnCircle, Quaternion.identity);
                         // 
                         // ItemDropped item = itemPrefab.GetComponent<ItemDropped>();
                         // item.item = dropItem;
@@ -59,13 +59,13 @@ namespace StrategyCore
                     RaycastHit hit;
 
                     int mask = Utils.groundMask;
-                    if ((ReferenceManager.instance.itemPrefab.isGround && ReferenceManager.instance.itemPrefab.isWater) || ReferenceManager.instance.itemPrefab.isAir) mask = Utils.terrainMask;
-                    else if (ReferenceManager.instance.itemPrefab.isWater) mask = Utils.waterMask;
+                    if ((ReferenceManager.Instance.itemPrefab.isGround && ReferenceManager.Instance.itemPrefab.isWater) || ReferenceManager.Instance.itemPrefab.isAir) mask = Utils.terrainMask;
+                    else if (ReferenceManager.Instance.itemPrefab.isWater) mask = Utils.waterMask;
 
                     if (Physics.SphereCast(new Vector3(location.x, Utils.raycastPointY, location.z), itemRadius, Vector3.down, out hit, Utils.raycastPointY * 5f, mask))
                     {
                         SpawnInternal(dropItem, itemCharges, itemcd, location);
-                        // Unit itemPrefab = Instantiate(ReferenceManager.instance.itemPrefab, location, Quaternion.identity);
+                        // Unit itemPrefab = Instantiate(ReferenceManager.Instance.itemPrefab, location, Quaternion.identity);
                         // 
                         // ItemDropped item = itemPrefab.GetComponent<ItemDropped>();
                         // item.item = dropItem;
@@ -83,9 +83,9 @@ namespace StrategyCore
         // Use spawn, this is for internal usage
         public static Unit SpawnInternal(Ability dropItem, int itemCharges, float itemcd, Vector3 location, UInt16 netID = 0)
         {
-            Unit itemPrefab = Instantiate(ReferenceManager.instance.itemPrefab, location, Quaternion.identity);
+            Unit itemPrefab = Instantiate(ReferenceManager.Instance.itemPrefab, location, Quaternion.identity);
             itemPrefab.SetOwnership((int)Players.NeutralPassive);
-            SlotManager.instance.AssignNetID(itemPrefab, netID);
+            SlotManager.Instance.AssignNetID(itemPrefab, netID);
 
             ItemDropped item = itemPrefab.GetComponent<ItemDropped>();
             item.item = dropItem;
@@ -93,7 +93,7 @@ namespace StrategyCore
             if (itemcd != 0) item.cooldown = itemcd;
 
             // Network sync
-            if (NetworkManager.Singleton.IsServer) NetworkDataSync.instance.ItemDroppedSpawn(dropItem.id, itemCharges, itemcd, location, itemPrefab.netID);
+            if (NetworkManager.Singleton.IsServer) NetworkDataSync.Instance.ItemDroppedSpawn(dropItem.id, itemCharges, itemcd, location, itemPrefab.netID);
             return itemPrefab;
         }
     }

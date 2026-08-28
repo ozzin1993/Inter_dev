@@ -6,21 +6,23 @@ namespace StrategyCore
     // ============================= УРОВЕНЬ ГЗ + ОБЩИЕ УТИЛИТЫ ТЕХОВ (партиал MatchManager) ==
     // Счётчик уровня главного здания (ГЗ) команды и общие серверные утилиты разблокировки/оплаты,
     // переиспользуемые деревом тиров (MatchManager.TechTiers) и ветками Душ (MatchManager.BranchTechs).
-    // Серверо-авторитетно (правило 6): уровень ГЗ поднимается только на сервере (покупкой «улучшения уровня»
-    // тира — TechTiers.TryUnlockTierLevel) и синхронизируется клиентам (его читают статы/облик/контент по уровню).
+    // Серверо-авторитетно (правило 6): уровень ГЗ поднимается только на сервере (по набранному опыту —
+    // MatchManager.Experience) и синхронизируется клиентам (его читают статы/облик/контент по уровню).
     // Разблокировка техов — штатным TechnologyManager.UnlockTech; ядро ассета не трогается (правило 1).
     // История: прежний рядный гейт «ветки × уровни» (открывашки 1-3-1-3) и его классы данных дерева снесены при
     // переходе на Технологии 2.0 (тиры) — 2026-07-21.
     public partial class MatchManager : MonoBehaviour
     {
-        // Текущий уровень ГЗ каждой команды — счётчик: старт = startMainBuildingLevel, растёт при покупке
-        // «улучшения уровня» тира (MatchManager.TechTiers). Читают статы/облик/контент по уровню.
+        // Текущий уровень ГЗ каждой команды — счётчик: старт = startMainBuildingLevel, растёт по НАБРАННОМУ
+        // ОПЫТУ (MatchManager.Experience). Читают статы/облик/контент по уровню.
         // Серверо-авторитетно; на клиент приходит через ApplyMainBuildingLevel. Mid-game join НЕ покрыт.
         readonly int[] mainBuildingLevel = new int[2];
 
-        [Tooltip("Стартовый уровень ГЗ каждой команды на старте матча (по умолчанию 1). Инициализируется " +
-                 "детерминированно на всех пирах в WireContentTriggers (InitStartingMainBuildingLevel).")]
-        [SerializeField] int startMainBuildingLevel = 1;
+        [Tooltip("Стартовый уровень ГЗ каждой команды на старте матча (по умолчанию 0). Ноль означает: замок " +
+                 "стоит таким, каким его задаёт заготовка, и ни один тир дерева технологий ещё не открыт — " +
+                 "первый уровень набирается опытом (MatchManager.Experience). Инициализируется детерминированно " +
+                 "на всех пирах в WireContentTriggers (InitStartingMainBuildingLevel).")]
+        [SerializeField] int startMainBuildingLevel = 0;
 
         /// <summary>Уровень ГЗ команды изменился (0=A,1=B). Подписчики: статы/облик/контент по уровню, UI.</summary>
         public event Action<int> OnMainBuildingLevelChanged;
@@ -39,8 +41,8 @@ namespace StrategyCore
         // Сервер: разослать клиентам новый уровень ГЗ команды.
         void BroadcastMainBuildingLevel(int team)
         {
-            if (NetworkDataSync.instance == null) return;
-            NetworkDataSync.instance.MainBuildingLevelSend(team, mainBuildingLevel[team]);
+            if (NetworkDataSync.Instance == null) return;
+            NetworkDataSync.Instance.MainBuildingLevelSend(team, mainBuildingLevel[team]);
         }
 
         /// <summary>
@@ -60,7 +62,7 @@ namespace StrategyCore
         // Безопасная проверка разблокировки: без исключения, если технологии нет в TechTree (не в Resources).
         bool TechUnlockedSafe(Technology tech, int player)
         {
-            TechnologyManager tm = TechnologyManager.instance;
+            TechnologyManager tm = TechnologyManager.Instance;
             if (tm == null || tech == null || tm.TechTree == null) return false;
             if (player < 0 || player >= tm.TechTree.Length) return false;
             return tm.TechTree[player].TryGetValue(tech, out bool unlocked) && unlocked;
@@ -70,15 +72,15 @@ namespace StrategyCore
         bool ResourcesEnough(int player, ResourceWrapper[] cost)
         {
             if (cost == null || cost.Length == 0) return true;
-            if (GameResources.instance == null) return false;
-            return GameResources.instance.CheckAmount(player, cost);
+            if (GameResources.Instance == null) return false;
+            return GameResources.Instance.CheckAmount(player, cost);
         }
 
         // Списать стоимость с игрока (серверо-авторитетно, авто-синк клиентам). Пустая стоимость — ничего.
         void PayResources(int player, ResourceWrapper[] cost)
         {
-            if (cost == null || cost.Length == 0 || GameResources.instance == null) return;
-            GameResources.instance.ChangeAmount(player, cost, 1, true, true); // decrease=true, calledByServer=true
+            if (cost == null || cost.Length == 0 || GameResources.Instance == null) return;
+            GameResources.Instance.ChangeAmount(player, cost, 1, true, true); // decrease=true, calledByServer=true
         }
     }
 }

@@ -40,7 +40,7 @@ namespace StrategyCore
 
             for (int i = 0; i < units.Length; i++)
             {
-                castingUnit.DealDamage(units[i], InterflowAbility.LevelValueOrZero(damagePerSecond, level) * GameManager.instance.currentDeltaTime, damageType, false, Vector3.zero);
+                castingUnit.DealDamage(units[i], InterflowAbility.LevelValueOrZero(damagePerSecond, level) * GameManager.Instance.currentDeltaTime, damageType, false, Vector3.zero);
             }
         }
     }

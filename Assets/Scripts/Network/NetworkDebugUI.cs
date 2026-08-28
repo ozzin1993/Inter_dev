@@ -17,7 +17,7 @@ namespace StrategyCore
         {
             hostBtn.onClick.AddListener(() =>
             {
-                NetworkConnectionHandler.instance.StartHost("test player");
+                NetworkConnectionHandler.Instance.StartHost("test player");
             });
             serverBtn.onClick.AddListener(() =>
             {
@@ -25,7 +25,7 @@ namespace StrategyCore
             });
             clientBtn.onClick.AddListener(() =>
             {
-                NetworkConnectionHandler.instance.StartClient("test player");
+                NetworkConnectionHandler.Instance.StartClient("test player");
             });
         }
 

@@ -12,7 +12,7 @@ namespace StrategyCore
 
         public override void Use(Unit castingUnit, int castingPlayer, int level, Unit unit)
         {
-            if (castingUnit == unit && castingUnit.owner == SlotManager.instance.currentPlayer)
+            if (castingUnit == unit && castingUnit.owner == SlotManager.Instance.currentPlayer)
             {
                 Presentation.NotifyMsg("Can not choose itself!", castingUnit.owner, false);
                 return;

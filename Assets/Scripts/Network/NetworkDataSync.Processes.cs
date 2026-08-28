@@ -25,32 +25,32 @@ namespace StrategyCore
         private void TechnologySyncClientRpc(int player, int techID, bool unlocked)
         {
             // Joining mid-game, we do not accept any data from the server. Only scene data.
-            if (NetworkConnectionHandler.instance.connectionStage == 2) return;
+            if (NetworkConnectionHandler.Instance.connectionStage == 2) return;
 
-            Technology tech = TechnologyManager.instance.GetTechByID(techID);
+            Technology tech = TechnologyManager.Instance.GetTechByID(techID);
             if (tech != null)
             {
-                TechnologyManager.instance.TechTree[player][tech] = unlocked;
-                TechnologyManager.instance.OnTechUnlock[player]?.Invoke();
+                TechnologyManager.Instance.TechTree[player][tech] = unlocked;
+                TechnologyManager.Instance.OnTechUnlock[player]?.Invoke();
 
                 if (tech.shared)
                 {
-                    int[] allies = SlotManager.instance.GetPlayerAllies(player);
+                    int[] allies = SlotManager.Instance.GetPlayerAllies(player);
 
                     for (int i = 0; i < allies.Length; i++)
                     {
-                        if (!TechnologyManager.instance.TechTree[allies[i]][tech])
+                        if (!TechnologyManager.Instance.TechTree[allies[i]][tech])
                         {
-                            TechnologyManager.instance.TechTree[allies[i]][tech] = unlocked;
+                            TechnologyManager.Instance.TechTree[allies[i]][tech] = unlocked;
                             // Send a message previously unknown tech was unlocked
-                            TechnologyManager.instance.OnTechUnlock[allies[i]]?.Invoke();
+                            TechnologyManager.Instance.OnTechUnlock[allies[i]]?.Invoke();
                         }
                     }
                 }
             }
             else
             {
-                Debug.LogWarning("Desync on technology with an id " + techID + " (" + tech.displayName + "). It does not exist on player " + SlotManager.instance.currentPlayer);
+                Debug.LogWarning("Desync on technology with an id " + techID + " (" + tech.displayName + "). It does not exist on player " + SlotManager.Instance.currentPlayer);
             }
         }
 
@@ -69,9 +69,9 @@ namespace StrategyCore
         private void AddProcessClientRpc(UInt16 netID, int processIndex, int abilityIndex, bool isItem)
         {
             // Joining mid-game, we do not accept any data from the server. Only scene data.
-            if (NetworkConnectionHandler.instance.connectionStage == 2) return;
+            if (NetworkConnectionHandler.Instance.connectionStage == 2) return;
 
-            if (SlotManager.instance.unitNetID.TryGetValue(netID, out Unit unit))
+            if (SlotManager.Instance.unitNetID.TryGetValue(netID, out Unit unit))
             {
                 // Add process
                 Ability currentProcess = (isItem) ? unit.items[abilityIndex] : unit.abilities[abilityIndex];
@@ -80,7 +80,7 @@ namespace StrategyCore
                 if (currentProcess is Research)
                 {
                     Research upgradeAbility = (Research)currentProcess;
-                    TechnologyManager.instance.TechBeingProcessed(upgradeAbility.unlockTech[currentProcessLevel], unit.owner);
+                    TechnologyManager.Instance.TechBeingProcessed(upgradeAbility.unlockTech[currentProcessLevel], unit.owner);
                 }
 
                 unit.activeProcess[processIndex] = currentProcess;
@@ -114,14 +114,14 @@ namespace StrategyCore
         private void CancelProcessClientRpc(UInt16 netID, int processIndex)
         {
             // Joining mid-game, we do not accept any data from the server. Only scene data.
-            if (NetworkConnectionHandler.instance.connectionStage == 2) return;
+            if (NetworkConnectionHandler.Instance.connectionStage == 2) return;
 
-            if (SlotManager.instance.unitNetID.TryGetValue(netID, out Unit unit))
+            if (SlotManager.Instance.unitNetID.TryGetValue(netID, out Unit unit))
             {
                 if (unit.activeProcess[processIndex] is Research)
                 {
                     Research research = (Research)unit.activeProcess[processIndex];
-                    TechnologyManager.instance.TechFinishedProcessing(research.unlockTech[unit.processLevel[processIndex]], unit.owner);
+                    TechnologyManager.Instance.TechFinishedProcessing(research.unlockTech[unit.processLevel[processIndex]], unit.owner);
                 }
 
                 unit.ProcessMoveForward(processIndex);
@@ -147,9 +147,9 @@ namespace StrategyCore
         private void FinishProcessClientRpc(UInt16 netID)
         {
             // Joining mid-game, we do not accept any data from the server. Only scene data.
-            if (NetworkConnectionHandler.instance.connectionStage == 2) return;
+            if (NetworkConnectionHandler.Instance.connectionStage == 2) return;
 
-            if (SlotManager.instance.unitNetID.TryGetValue(netID, out Unit unit))
+            if (SlotManager.Instance.unitNetID.TryGetValue(netID, out Unit unit))
             {
                 unit.activeProcess[0].Use(unit, unit.owner, unit.processLevel[0]);
                 unit.ProcessMoveForward(0); // Move next process forward
@@ -175,17 +175,17 @@ namespace StrategyCore
         private void AddItemClientRpc(UInt16 netID, int slotIndex, int abilityId, int charges, float cooldown)
         {
             // Joining mid-game, we do not accept any data from the server. Only scene data.
-            if (NetworkConnectionHandler.instance.connectionStage == 2) return;
+            if (NetworkConnectionHandler.Instance.connectionStage == 2) return;
 
-            if (SlotManager.instance.unitNetID.TryGetValue(netID, out Unit unit))
+            if (SlotManager.Instance.unitNetID.TryGetValue(netID, out Unit unit))
             {
-                Ability ability = GameManager.instance.gameAbilities.TryGetValue(abilityId, out Ability ab) ? ab : null;
+                Ability ability = GameManager.Instance.gameAbilities.TryGetValue(abilityId, out Ability ab) ? ab : null;
 
                 if (ab)
                 {
                     unit.items[slotIndex] = ability;
                     if (charges > 0) unit.itemCharges[slotIndex] = charges;
-                    if (unit.owner == SlotManager.instance.currentPlayer && cooldown > 0) unit.ChangeAbilityCooldown(cooldown, slotIndex, true);
+                    if (unit.owner == SlotManager.Instance.currentPlayer && cooldown > 0) unit.ChangeAbilityCooldown(cooldown, slotIndex, true);
                     ability.Unlock(unit, unit.owner, 0);
                     // OnInventoryChange?.Invoke(); // Due to how cooldown is calculated currently inventory change should also trigger abilityViewRedraw
                     unit.OnRedrawAbilityView?.Invoke();
@@ -212,9 +212,9 @@ namespace StrategyCore
         private void RemoveItemClientRpc(UInt16 netID, int slotIndex)
         {
             // Joining mid-game, we do not accept any data from the server. Only scene data.
-            if (NetworkConnectionHandler.instance.connectionStage == 2) return;
+            if (NetworkConnectionHandler.Instance.connectionStage == 2) return;
 
-            if (SlotManager.instance.unitNetID.TryGetValue(netID, out Unit unit))
+            if (SlotManager.Instance.unitNetID.TryGetValue(netID, out Unit unit))
             {
                 unit.RemoveItem(slotIndex);
             }
@@ -235,9 +235,9 @@ namespace StrategyCore
         private void SwapItemClientRpc(UInt16 netID, int slotIndex, int slotIndex2)
         {
             // Joining mid-game, we do not accept any data from the server. Only scene data.
-            if (NetworkConnectionHandler.instance.connectionStage == 2) return;
+            if (NetworkConnectionHandler.Instance.connectionStage == 2) return;
 
-            if (SlotManager.instance.unitNetID.TryGetValue(netID, out Unit unit))
+            if (SlotManager.Instance.unitNetID.TryGetValue(netID, out Unit unit))
             {
                 unit.SwapItem(slotIndex, slotIndex2, false);
             }

@@ -96,8 +96,8 @@ namespace StrategyCore
             sc.activeAbilityDuration = duration;
 
             // Add to shadowcaster tracker
-            GameManager.instance.shadowCasters.Add(sc);
-            GameManager.instance.shadowCasterIDs.Add(sc.id);
+            GameManager.Instance.shadowCasters.Add(sc);
+            GameManager.Instance.shadowCasterIDs.Add(sc.id);
 
             return sc;
         }
@@ -105,8 +105,8 @@ namespace StrategyCore
         public static ShadowCaster Spawn(ShadowCasterSyncData scData)
         {
             // Prepare data
-            Unit ownerUnit = (SlotManager.instance.unitNetID[scData.thisUnitID]) ? SlotManager.instance.unitNetID[scData.thisUnitID] : null;
-            Unit targetUnit = (SlotManager.instance.unitNetID[scData.targetUnitID]) ? SlotManager.instance.unitNetID[scData.targetUnitID] : null;
+            Unit ownerUnit = (SlotManager.Instance.unitNetID[scData.thisUnitID]) ? SlotManager.Instance.unitNetID[scData.thisUnitID] : null;
+            Unit targetUnit = (SlotManager.Instance.unitNetID[scData.targetUnitID]) ? SlotManager.Instance.unitNetID[scData.targetUnitID] : null;
 
             GameObject obj = new GameObject("ShadowCaster");
             ShadowCaster sc = obj.AddComponent<ShadowCaster>();
@@ -117,7 +117,7 @@ namespace StrategyCore
             if (ownerUnit != null) sc.thisUnit.OnReferenceChange += sc.ThisUnitRefChange;
             sc.id = scData.shadowCasterID;
 
-            sc.activeAbility = GameManager.instance.gameAbilities[scData.abilityID];
+            sc.activeAbility = GameManager.Instance.gameAbilities[scData.abilityID];
             sc.activeAbilityLevel = scData.abilityLevel;
             sc.activeAbilityUnit = targetUnit;
             if (targetUnit != null)
@@ -130,8 +130,8 @@ namespace StrategyCore
             sc.activeAbilityDuration = scData.duration;
 
             // Add to shadowcaster tracker
-            GameManager.instance.shadowCasters.Add(sc);
-            GameManager.instance.shadowCasterIDs.Add(sc.id);
+            GameManager.Instance.shadowCasters.Add(sc);
+            GameManager.Instance.shadowCasterIDs.Add(sc.id);
 
             return sc;
         }
@@ -140,11 +140,11 @@ namespace StrategyCore
         public void Remove()
         {
             // Remove from shadowcaster tracker
-            int index = GameManager.instance.shadowCasterIDs.IndexOf(id);
+            int index = GameManager.Instance.shadowCasterIDs.IndexOf(id);
             if (index != -1)
             {
-                GameManager.instance.shadowCasters.RemoveAt(index);
-                GameManager.instance.shadowCasterIDs.RemoveAt(index);
+                GameManager.Instance.shadowCasters.RemoveAt(index);
+                GameManager.Instance.shadowCasterIDs.RemoveAt(index);
             }
 
             // Events clear
@@ -161,7 +161,7 @@ namespace StrategyCore
             // Send info to clients
             if (NetworkManager.Singleton.IsServer)
             {
-                NetworkDataSync.instance.ShadowCasterRemoveClientRpc(id);
+                NetworkDataSync.Instance.ShadowCasterRemoveClientRpc(id);
             }
         }
 
@@ -170,7 +170,7 @@ namespace StrategyCore
         {
             int id;
             do id = UnityEngine.Random.Range(1, 9999); // Generate a random int
-            while (GameManager.instance.shadowCasterIDs.Contains(id));
+            while (GameManager.Instance.shadowCasterIDs.Contains(id));
             return id;
         }
 

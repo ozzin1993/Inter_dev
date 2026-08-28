@@ -97,9 +97,9 @@ namespace StrategyCore
         public static void RequestForceSync()
         {
             if (NetworkManager.Singleton == null || !NetworkManager.Singleton.IsServer) return;
-            if (NetworkDataSync.instance == null) return;
+            if (NetworkDataSync.Instance == null) return;
 
-            NetworkDataSync.instance.ForceSync();
+            NetworkDataSync.Instance.ForceSync();
         }
 
         // =================================================================== БОЕВЫЕ КОЛБЭКИ ==
@@ -243,13 +243,13 @@ namespace StrategyCore
 
             public void Wire()
             {
-                if (handler == null || GameManager.instance == null) return;
+                if (handler == null || GameManager.Instance == null) return;
 
                 // Сначала снимаем, потом подписываем. Вычитание неподписанного делегата в C# — no-op,
                 // зато так подписка не задвоится и, главное, восстановится в НОВОМ матче: ассет живёт
                 // между Play-сессиями, и флаг wired мог остаться true от прошлой (тик бы молча не заработал).
-                GameManager.instance.Tick -= handler;
-                GameManager.instance.Tick += handler;
+                GameManager.Instance.Tick -= handler;
+                GameManager.Instance.Tick += handler;
                 wired = true;
             }
 
@@ -260,7 +260,7 @@ namespace StrategyCore
             public void Unwire()
             {
                 if (!wired) return;
-                if (GameManager.instance != null) GameManager.instance.Tick -= handler;
+                if (GameManager.Instance != null) GameManager.Instance.Tick -= handler;
                 wired = false;
             }
         }
@@ -299,8 +299,8 @@ namespace StrategyCore
 
             SkillPresentationEvents.RaiseSkillFired(caster, ability.id, level, aimUnit, aimPoint);
 
-            if (NetworkDataSync.instance != null)
-                NetworkDataSync.instance.SkillFiredSend(caster, ability.id, level, aimUnit, aimPoint);
+            if (NetworkDataSync.Instance != null)
+                NetworkDataSync.Instance.SkillFiredSend(caster, ability.id, level, aimUnit, aimPoint);
         }
 
         // ====================================================================== ПРЕЗЕНТАЦИЯ ==
@@ -368,9 +368,9 @@ namespace StrategyCore
         /// </summary>
         public static bool VisibleForLocalViewer(Vector3 position)
         {
-            if (FogOfWar.instance == null || SlotManager.instance == null) return false;
+            if (FogOfWar.Instance == null || SlotManager.Instance == null) return false;
 
-            return FogOfWar.instance.IsVisible(FogOfWar.GetCellByPosition(position), SlotManager.instance.currentTeam);
+            return FogOfWar.Instance.IsVisible(FogOfWar.GetCellByPosition(position), SlotManager.Instance.currentTeam);
         }
 
         /// <summary>

@@ -77,7 +77,7 @@ namespace StrategyCore
         /// </summary>
         IEnumerator SoulsGenerationLoop()
         {
-            yield return new WaitUntil(() => SlotManager.instance != null && SlotManager.instance.gameOn);
+            yield return new WaitUntil(() => SlotManager.Instance != null && SlotManager.Instance.gameOn);
 
             WaitForSeconds wait = new WaitForSeconds(soulsTickStep > 0f ? soulsTickStep : 0.5f);
             while (true)
@@ -157,7 +157,7 @@ namespace StrategyCore
             if (team < 0 || team > 1) return;
             TeamWaveConfig cfg = Team(team);
             if (!SoulsActive(cfg)) return;
-            if (GameResources.instance == null) return;
+            if (GameResources.Instance == null) return;
 
             // Модификаторы веток (N4/N5): каждый может изменить сумму. Пустой реестр → сумма без изменений.
             int amount = baseAmount;
@@ -170,11 +170,11 @@ namespace StrategyCore
 
             int owner = cfg.ownerPlayer;
             ResourceWrapper probe = new ResourceWrapper(cfg.soulsResource, amount);
-            int rid = GameResources.instance.GetResourceID(probe);
+            int rid = GameResources.Instance.GetResourceID(probe);
             if (rid < 0) return;                                   // «Души» не зарегистрированы в GameResources сцены — no-op
 
-            int[] pool = GameResources.instance.playerResources;
-            int flatIdx = rid + owner * GameResources.instance.gameResources.Length;
+            int[] pool = GameResources.Instance.playerResources;
+            int flatIdx = rid + owner * GameResources.Instance.gameResources.Length;
             if (pool == null || flatIdx < 0 || flatIdx >= pool.Length) return;
 
             // Кламп по капу банка (Standard-ресурс ядро не клампит — держим кап здесь; N1 §5).
@@ -186,7 +186,7 @@ namespace StrategyCore
                 if (amount > headroom) amount = headroom;
             }
 
-            GameResources.instance.ChangeAmount(owner, new ResourceWrapper(cfg.soulsResource, amount), 1, false, true);
+            GameResources.Instance.ChangeAmount(owner, new ResourceWrapper(cfg.soulsResource, amount), 1, false, true);
             OnSoulsChanged?.Invoke(team);
         }
     }

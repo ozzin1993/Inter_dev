@@ -90,7 +90,7 @@ namespace StrategyCore
                 {
                     if (unitToTrain[level].resourceCost[i].type.limited)
                     {
-                        GameResources.instance.ChangeAmount(castingUnit.owner, unitToTrain[level].resourceCost[i], unitCount[level], false, true); // This will decrease the limited resource usage
+                        GameResources.Instance.ChangeAmount(castingUnit.owner, unitToTrain[level].resourceCost[i], unitCount[level], false, true); // This will decrease the limited resource usage
                     }
                 }
             }

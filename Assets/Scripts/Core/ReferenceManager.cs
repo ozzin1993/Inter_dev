@@ -9,9 +9,11 @@ namespace StrategyCore
 {
     // Helpful reference manager to materials, objects ect.
 
-    public class ReferenceManager : MonoBehaviour
+    public class ReferenceManager : MonoBehaviour, IStartupService
     {
-        public static ReferenceManager instance;
+        public static ReferenceManager Instance { get; private set; }
+
+        private bool startupDone; // защита от повторного подъёма (стартовик сцены + собственный Awake)
 
         [Header("Textures")]
         public Texture2D missingTexture;
@@ -105,11 +107,19 @@ namespace StrategyCore
 
         private Transform waypointSpawned;
 
-        private void Awake()
+        private void Awake() => Startup();
+
+        /// <summary>
+        /// Подъём службы (IStartupService). Идемпотентен: повторный вызов выходит сразу.
+        /// </summary>
+        public void Startup()
         {
-            if (instance == null)
+            if (startupDone) return;
+            startupDone = true;
+
+            if (Instance == null)
             {
-                instance = this;
+                Instance = this;
             }
 
             // Transport

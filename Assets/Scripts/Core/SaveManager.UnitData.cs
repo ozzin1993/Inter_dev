@@ -17,13 +17,13 @@ namespace StrategyCore
             JSONObject unitData = new JSONObject();
 
             int u = 0;
-            foreach (KeyValuePair<UInt16, Unit> unit in SlotManager.instance.unitNetID)
+            foreach (KeyValuePair<UInt16, Unit> unit in SlotManager.Instance.unitNetID)
             {
                 var newUnitData = new JSONObject();
 
                 // By comparing original prefab`s values we decide if the parameters should be synced
 
-                Unit refUnit = GameManager.instance.gameUnits[unit.Value.unitTypeID];
+                Unit refUnit = GameManager.Instance.gameUnits[unit.Value.unitTypeID];
 
                 // NetID
                 newUnitData["netID"] = unit.Value.netID;
@@ -390,7 +390,7 @@ namespace StrategyCore
                         for (int i = 0; i < unit.Value.resourceUnit.currentHeldResources.Count; i++)
                         {
                             // The amount of resources at the hands of the collector / available resources at collectible
-                            newUnitData["currentHeldResources"] += "-" + GameResources.instance.GetResourceID(unit.Value.resourceUnit.currentHeldResources[i]) + ":" + unit.Value.resourceUnit.currentHeldResources[i].value;
+                            newUnitData["currentHeldResources"] += "-" + GameResources.Instance.GetResourceID(unit.Value.resourceUnit.currentHeldResources[i]) + ":" + unit.Value.resourceUnit.currentHeldResources[i].value;
                         }
                     }
                     else if (unit.Value.resourceUnit.collectibleResources.Length != 0)
@@ -400,7 +400,7 @@ namespace StrategyCore
                         for (int i = 0; i < unit.Value.resourceUnit.collectibleResources.Length; i++)
                         {
                             // The amount of resources at the hands of the collector / available resources at collectible
-                            newUnitData["currentHeldResources"] += "-" + GameResources.instance.GetResourceID(unit.Value.resourceUnit.collectibleResources[i]) + ":" + unit.Value.resourceUnit.collectibleResources[i].value;
+                            newUnitData["currentHeldResources"] += "-" + GameResources.Instance.GetResourceID(unit.Value.resourceUnit.collectibleResources[i]) + ":" + unit.Value.resourceUnit.collectibleResources[i].value;
                         }
                     }
                 }
@@ -525,16 +525,16 @@ namespace StrategyCore
                 JSONNode unitData = node[0];
 
                 // Instantiate units by their type
-                units[u] = Instantiate(GameManager.instance.gameUnits[unitData["unitTypeID"].AsInt], unitData["position"], Quaternion.identity);
+                units[u] = Instantiate(GameManager.Instance.gameUnits[unitData["unitTypeID"].AsInt], unitData["position"], Quaternion.identity);
                 units[u].SetOwnership(unitData["owner"].AsInt);
-                SlotManager.instance.AssignNetID(units[u], unitData["netID"].AsUShort);
-                SlotManager.instance.OnGameStart += units[u].StartCallback;
+                SlotManager.Instance.AssignNetID(units[u], unitData["netID"].AsUShort);
+                SlotManager.Instance.OnGameStart += units[u].StartCallback;
 
                 // --- DROP ITEM ---
                 if (unitData["dropID"] != null)
                 {
                     ItemDropped itd = units[u].GetComponent<ItemDropped>();
-                    itd.item = GameManager.instance.gameAbilities[unitData["dropID"]];
+                    itd.item = GameManager.Instance.gameAbilities[unitData["dropID"]];
                     itd.charges = unitData["dropCharges"];
                     itd.cooldown = unitData["dropCD"];
                 }
@@ -558,10 +558,10 @@ namespace StrategyCore
                 u++;
             }
 
-            if (NetworkConnectionHandler.instance.connectionStage == 2)
+            if (NetworkConnectionHandler.Instance.connectionStage == 2)
             {
                 // Joining mid-game: Clients only
-                SlotManager.instance.OnGameStart?.Invoke();
+                SlotManager.Instance.OnGameStart?.Invoke();
                 SetUnitData(unitDatas);
             }
             else
@@ -580,7 +580,7 @@ namespace StrategyCore
             foreach (JSONNode node in unitDatas)
             {
                 JSONNode unitData = node[0];
-                Unit u = SlotManager.instance.unitNetID[unitData["netID"].AsUShort];
+                Unit u = SlotManager.Instance.unitNetID[unitData["netID"].AsUShort];
 
                 // Disabled state
                 if (unitData["disabled"] == true) u.Disable();
@@ -627,7 +627,7 @@ namespace StrategyCore
                     for (int i = 0; i < process.Length; i++)
                     {
                         // Add process
-                        u.activeProcess[i] = GameManager.instance.gameAbilities[int.Parse(process[i])];
+                        u.activeProcess[i] = GameManager.Instance.gameAbilities[int.Parse(process[i])];
                         u.processLevel[i] = int.Parse(level[i]);
                     }
 
@@ -699,7 +699,7 @@ namespace StrategyCore
                             continue;
                         }
 
-                        Ability itemAtSlot = GameManager.instance.gameAbilities[int.Parse(items[slot])];
+                        Ability itemAtSlot = GameManager.Instance.gameAbilities[int.Parse(items[slot])];
 
                         // Check if item is the same
                         if (u.items[i] != itemAtSlot)
@@ -748,7 +748,7 @@ namespace StrategyCore
                     // Add Toggle Abilities
                     for (int i = 0; i < index.Length; i++)
                     {
-                        Ability toggleAbility = GameManager.instance.gameAbilities[int.Parse(ability[i])];
+                        Ability toggleAbility = GameManager.Instance.gameAbilities[int.Parse(ability[i])];
                         u.UseToggleAbility_Internal(toggleAbility, int.Parse(index[i]), bool.Parse(isItem[i]));
                     }
                 }
@@ -765,7 +765,7 @@ namespace StrategyCore
                     for (int i = 0; i < index.Length; i++)
                     {
                         ushort transportedUnitID = Convert.ToUInt16(index[i]);
-                        Unit transportedUnit = (transportedUnitID != 0) ? SlotManager.instance.unitNetID[transportedUnitID] : null;
+                        Unit transportedUnit = (transportedUnitID != 0) ? SlotManager.Instance.unitNetID[transportedUnitID] : null;
                         if (transportedUnit == null) continue; // Means something is wrong, transported unit does not exist on client
 
                         u.transportUnit.units.Add(transportedUnit);
@@ -785,7 +785,7 @@ namespace StrategyCore
                         ResourceWrapper[] cost = null;
                         if (unitData["upgradeCost"] != null) cost = ResourceWrapper.TypeArray(JsonHelper.FromJson<ResourceWrapperID>(unitData["upgradeCost"]));
 
-                        u.constructionUnit.UpgradeBuilding(GameManager.instance.gameUnits[unitData["upgradeBuilding"]], unitData["upgradeTime"], cost);
+                        u.constructionUnit.UpgradeBuilding(GameManager.Instance.gameUnits[unitData["upgradeBuilding"]], unitData["upgradeTime"], cost);
                     }
                     else
                     {
@@ -793,7 +793,7 @@ namespace StrategyCore
                         if (unitData["buildingRef"] != null)
                         {
                             // Builder starts working
-                            u.constructionUnit.buildingObj = SlotManager.instance.unitNetID[unitData["buildingRef"].AsUShort];
+                            u.constructionUnit.buildingObj = SlotManager.Instance.unitNetID[unitData["buildingRef"].AsUShort];
                             u.constructionUnit.buildingObj.constructionUnit.buildersWorking++;
                             u.constructionUnit.isWorking = true;
                             u.AnimatorSetBool(AnimationState.Building, true);
@@ -830,10 +830,10 @@ namespace StrategyCore
                         u.resourceUnit.isCollecting = true;
                     }
 
-                    if (unitData["storageRef"] != null) u.resourceUnit.storageObj = SlotManager.instance.unitNetID[unitData["storageRef"].AsUShort]; // current storage unit that this collector brings resources to
+                    if (unitData["storageRef"] != null) u.resourceUnit.storageObj = SlotManager.Instance.unitNetID[unitData["storageRef"].AsUShort]; // current storage unit that this collector brings resources to
                     if (unitData["collectibleRef"] != null)
                     {
-                        u.resourceUnit.collectibleObj = SlotManager.instance.unitNetID[unitData["collectibleRef"].AsUShort]; // current collectible unit that this collector takes resources from
+                        u.resourceUnit.collectibleObj = SlotManager.Instance.unitNetID[unitData["collectibleRef"].AsUShort]; // current collectible unit that this collector takes resources from
                         if (!NetworkConnectionHandler.isClient) u.resourceUnit.collectibleObj.OnDie += u.resourceUnit.CollectibleDied;
                     }
 
@@ -851,11 +851,11 @@ namespace StrategyCore
 
                                 if (u.resourceUnit.isCollector)
                                 {
-                                    u.resourceUnit.AddCurrentHeldResources(GameResources.instance.gameResources[int.Parse(typeValue[0])].type, int.Parse(typeValue[1])); // NETWORK - resources must be cleared first
+                                    u.resourceUnit.AddCurrentHeldResources(GameResources.Instance.gameResources[int.Parse(typeValue[0])].type, int.Parse(typeValue[1])); // NETWORK - resources must be cleared first
                                 }
                                 else
                                 {
-                                    int resourceIndex = u.resourceUnit.GetResourceIndex(GameResources.instance.gameResources[int.Parse(typeValue[0])].type);
+                                    int resourceIndex = u.resourceUnit.GetResourceIndex(GameResources.Instance.gameResources[int.Parse(typeValue[0])].type);
                                     if (resourceIndex == -1) Debug.LogWarning("Desync issue! Resource is not found in the scene. Probably it was changed. Collectible: " + u.unitName);
                                     else
                                     {
@@ -890,19 +890,19 @@ namespace StrategyCore
                         if (owner[i][0] == '_')
                         {
                             // no owner unit
-                            Effector.EffectorAdd(u, GameManager.instance.gameEffectors[int.Parse(idCurrentTime[0])], null, int.Parse(owner[i].Substring(1)), float.Parse(idCurrentTime[1], CultureInfo.InvariantCulture), savedPower, savedDuration);
+                            Effector.EffectorAdd(u, GameManager.Instance.gameEffectors[int.Parse(idCurrentTime[0])], null, int.Parse(owner[i].Substring(1)), float.Parse(idCurrentTime[1], CultureInfo.InvariantCulture), savedPower, savedDuration);
                         }
                         else
                         {
                             // owner unit
-                            Unit ownerUnit = SlotManager.instance.unitNetID[UInt16.Parse(owner[i])];
-                            Effector.EffectorAdd(u, GameManager.instance.gameEffectors[int.Parse(idCurrentTime[0])], ownerUnit, ownerUnit.owner, float.Parse(idCurrentTime[1], CultureInfo.InvariantCulture), savedPower, savedDuration);
+                            Unit ownerUnit = SlotManager.Instance.unitNetID[UInt16.Parse(owner[i])];
+                            Effector.EffectorAdd(u, GameManager.Instance.gameEffectors[int.Parse(idCurrentTime[0])], ownerUnit, ownerUnit.owner, float.Parse(idCurrentTime[1], CultureInfo.InvariantCulture), savedPower, savedDuration);
                         }
                     }
                 }
 
                 // --- STATE ---
-                Unit targetUnit = (unitData["stateTargetID"] != null) ? SlotManager.instance.unitNetID[unitData["stateTargetID"].AsUShort] : null;
+                Unit targetUnit = (unitData["stateTargetID"] != null) ? SlotManager.Instance.unitNetID[unitData["stateTargetID"].AsUShort] : null;
                 Vector2 targetPosition = (unitData["targetPosition"] != null) ? unitData["targetPosition"] : Vector2.zero;
 
                 if ((UnitStates)unitData["stateIndex"].AsInt == UnitStates.Idle)
@@ -1053,7 +1053,7 @@ namespace StrategyCore
 
                             if (netID != 0)
                             {
-                                u.additionalTargets[i] = SlotManager.instance.unitNetID[netID];
+                                u.additionalTargets[i] = SlotManager.Instance.unitNetID[netID];
                             }
                         }
                     }
@@ -1064,9 +1064,9 @@ namespace StrategyCore
                 {
                     // Set active ability
                     u.SetActiveAbility(
-                        GameManager.instance.gameAbilities[unitData["abilityID"]],
+                        GameManager.Instance.gameAbilities[unitData["abilityID"]],
                         unitData["abilityLevel"],
-                        (unitData["targetID"] != null) ? SlotManager.instance.unitNetID[unitData["targetID"].AsUShort] : null,
+                        (unitData["targetID"] != null) ? SlotManager.Instance.unitNetID[unitData["targetID"].AsUShort] : null,
                         unitData["targetLocation"],
                         unitData["currentActionTime"]);
                 }
@@ -1098,12 +1098,12 @@ namespace StrategyCore
                 // --- POLYMORPH STATE ---
                 if (unitData["currentMainShape"] != null)
                 {
-                    u.ReplaceRenderers(GameManager.instance.gameUnits[unitData["currentMainShape"]], true);
+                    u.ReplaceRenderers(GameManager.Instance.gameUnits[unitData["currentMainShape"]], true);
                 }
 
                 if (unitData["polymorphTime"] != null)
                 {
-                    u.Polymorph(GameManager.instance.gameAbilities[unitData["polymorphAbility"]], unitData["polymorphLvl"], unitData["polymorphTime"], GameManager.instance.gameUnits[unitData["polymorphShape"]]);
+                    u.Polymorph(GameManager.Instance.gameAbilities[unitData["polymorphAbility"]], unitData["polymorphLvl"], unitData["polymorphTime"], GameManager.Instance.gameUnits[unitData["polymorphShape"]]);
                 }
 
                 // --- INVULNERABILITY STATE ---
@@ -1156,7 +1156,7 @@ namespace StrategyCore
                 if (unitData["manaRegen"] != null) u.manaRegen = unitData["manaRegen"];
                 // Armor
                 if (unitData["armor"] != null) u.armor = unitData["armor"];
-                if (unitData["armorType"] != null) u.armorType = GameManager.instance.armorTypes[unitData["armorType"]];
+                if (unitData["armorType"] != null) u.armorType = GameManager.Instance.armorTypes[unitData["armorType"]];
                 if (unitData["isInvulnerable"] != null) u.isInvulnerable = unitData["isInvulnerable"];
 
                 // CanMove
@@ -1168,7 +1168,7 @@ namespace StrategyCore
                 u.ChangeMoveSpeedAnimationSpeed();
 
                 // Creation
-                if (unitData["unlockTech"] != null) u.unlockTech = TechnologyManager.instance.GetTechByID(unitData["unlockTech"]);
+                if (unitData["unlockTech"] != null) u.unlockTech = TechnologyManager.Instance.GetTechByID(unitData["unlockTech"]);
                 if (unitData["resourceProduced"] != null) u.resourceProduced = ResourceWrapper.TypeArray(JsonHelper.FromJson<ResourceWrapperID>(unitData["resourceProduced"]));
                 if (unitData["resourceCost"] != null) u.resourceCost = ResourceWrapper.TypeArray(JsonHelper.FromJson<ResourceWrapperID>(unitData["resourceCost"]));
 
@@ -1184,12 +1184,12 @@ namespace StrategyCore
                 if (unitData["attackRange"] != null) u.attackRange = unitData["attackRange"];
                 if (unitData["attackDamage"] != null) u.attackDamage = unitData["attackDamage"];
                 if (unitData["attackSpeed"] != null) u.attackSpeed = unitData["attackSpeed"];
-                if (unitData["damageType"] != null) u.damageType = GameManager.instance.damageTypes[unitData["damageType"].AsInt];
+                if (unitData["damageType"] != null) u.damageType = GameManager.Instance.damageTypes[unitData["damageType"].AsInt];
                 // no attack effectors
 
                 // Attack technical
-                if (unitData["projectileVFX"] != null) u.projectileGO = GameManager.instance.gameVFXLines[unitData["projectileVFX"]].gameObject;
-                else if (unitData["projectileID"] != null) u.projectileGO = GameManager.instance.gameProjectiles[unitData["projectileID"]].gameObject;
+                if (unitData["projectileVFX"] != null) u.projectileGO = GameManager.Instance.gameVFXLines[unitData["projectileVFX"]].gameObject;
+                else if (unitData["projectileID"] != null) u.projectileGO = GameManager.Instance.gameProjectiles[unitData["projectileID"]].gameObject;
                 if (unitData["animationAttackDelay"] != null) u.animationAttackDelay = unitData["animationAttackDelay"];
                 // no launch site
                 // no launch VFX
@@ -1221,8 +1221,8 @@ namespace StrategyCore
                     // Assign default projectile/continuousVFX
                     if (u.projectileGO == null)
                     {
-                        if (u.attackType == AttackType.Continuous) u.projectileGO = ReferenceManager.instance.defaultContinuousVFX.gameObject;
-                        else u.projectileGO = ReferenceManager.instance.defaultProjectile.gameObject;
+                        if (u.attackType == AttackType.Continuous) u.projectileGO = ReferenceManager.Instance.defaultContinuousVFX.gameObject;
+                        else u.projectileGO = ReferenceManager.Instance.defaultProjectile.gameObject;
                     }
                     // Assign internal variables for projectile/continuousVFX
                     if (u.attackType == AttackType.Continuous)

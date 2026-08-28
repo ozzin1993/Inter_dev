@@ -23,8 +23,8 @@ namespace StrategyCore
         [Rpc(SendTo.NotServer, InvokePermission = RpcInvokePermission.Server)]
         private void PointTeamClientRpc(int index, int team)
         {
-            if (MatchManager.instance == null) return;
-            MatchManager.instance.ApplyPointTeam(index, team);
+            if (MatchManager.Instance == null) return;
+            MatchManager.Instance.ApplyPointTeam(index, team);
         }
     }
 }

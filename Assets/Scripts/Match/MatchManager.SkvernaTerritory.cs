@@ -47,7 +47,7 @@ namespace StrategyCore
         /// каждые skvernaTickStep секунд обновляет источники и растит радиусы обеим командам. Для не-Нежити — no-op.</summary>
         IEnumerator SkvernaGrowthLoop()
         {
-            yield return new WaitUntil(() => SlotManager.instance != null && SlotManager.instance.gameOn);
+            yield return new WaitUntil(() => SlotManager.Instance != null && SlotManager.Instance.gameOn);
 
             WaitForSeconds wait = new WaitForSeconds(skvernaTickStep > 0f ? skvernaTickStep : 0.5f);
             while (true)
@@ -104,9 +104,9 @@ namespace StrategyCore
 
             if (cfg.mainBuilding != null) into.Add(cfg.mainBuilding.transform);
 
-            int teamValue = (SlotManager.instance != null && cfg.ownerPlayer >= 0
-                             && cfg.ownerPlayer < SlotManager.instance.playerTeam.Length)
-                            ? SlotManager.instance.playerTeam[cfg.ownerPlayer] : -1;
+            int teamValue = (SlotManager.Instance != null && cfg.ownerPlayer >= 0
+                             && cfg.ownerPlayer < SlotManager.Instance.playerTeam.Length)
+                            ? SlotManager.Instance.playerTeam[cfg.ownerPlayer] : -1;
 
             if (rebuildablePoints != null && teamValue >= 0)
                 foreach (PointTowerConfig pc in rebuildablePoints)

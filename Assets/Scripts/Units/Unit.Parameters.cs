@@ -79,9 +79,9 @@ namespace StrategyCore
             // Sync with clients
             if (!noSync && NetworkManager.Singleton.IsServer && !hpSync)
             {
-                NetworkDataSync.instance.hpChangedUnits.Add(netID);
+                NetworkDataSync.Instance.hpChangedUnits.Add(netID);
                 hpSync = true;
-                NetworkDataSync.instance.onHPCleared += HPSyncFalse;
+                NetworkDataSync.Instance.onHPCleared += HPSyncFalse;
             }
 
             return false;
@@ -100,9 +100,9 @@ namespace StrategyCore
             // Sync with clients
             if (NetworkManager.Singleton.IsServer && !hpSync)
             {
-                NetworkDataSync.instance.hpChangedUnits.Add(netID);
+                NetworkDataSync.Instance.hpChangedUnits.Add(netID);
                 hpSync = true;
-                NetworkDataSync.instance.onHPCleared += HPSyncFalse;
+                NetworkDataSync.Instance.onHPCleared += HPSyncFalse;
             }
         }
 
@@ -194,9 +194,9 @@ namespace StrategyCore
             // Sync with clients
             if (!noSync && NetworkManager.Singleton.IsServer && !mpSync)
             {
-                NetworkDataSync.instance.mpChangedUnits.Add(netID);
+                NetworkDataSync.Instance.mpChangedUnits.Add(netID);
                 mpSync = true;
-                NetworkDataSync.instance.onMPCleared += MPSyncFalse;
+                NetworkDataSync.Instance.onMPCleared += MPSyncFalse;
             }
         }
 
@@ -213,9 +213,9 @@ namespace StrategyCore
             // Sync with clients
             if (NetworkManager.Singleton.IsServer && !mpSync)
             {
-                NetworkDataSync.instance.mpChangedUnits.Add(netID);
+                NetworkDataSync.Instance.mpChangedUnits.Add(netID);
                 mpSync = true;
-                NetworkDataSync.instance.onMPCleared += MPSyncFalse;
+                NetworkDataSync.Instance.onMPCleared += MPSyncFalse;
             }
         }
 
@@ -579,11 +579,11 @@ namespace StrategyCore
         public void ChangeVisionRange(int visionRange)
         {
             if (this.visionRange == visionRange) return;
-            FogOfWar.instance.CellRemove(this);
+            FogOfWar.Instance.CellRemove(this);
             this.visionRange += visionRange;
             if (visionRange < 0) visionRange = 1;
             else if (visionRange > Utils.maxVisionRange) visionRange = Utils.maxVisionRange;
-            FogOfWar.instance.CellAssignment(this, true);
+            FogOfWar.Instance.CellAssignment(this, true);
         }
 
     }

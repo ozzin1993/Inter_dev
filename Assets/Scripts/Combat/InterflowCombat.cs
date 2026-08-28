@@ -59,11 +59,11 @@ namespace StrategyCore
         {
             if (tech == null) return true;                 // условия нет
             if (owner < 0) return false;                   // нейтралы технологий не изучают
-            if (TechnologyManager.instance == null) return false;
+            if (TechnologyManager.Instance == null) return false;
 
             try
             {
-                return TechnologyManager.instance.isUnlocked(tech, owner);
+                return TechnologyManager.Instance.isUnlocked(tech, owner);
             }
             catch (System.Exception e)
             {

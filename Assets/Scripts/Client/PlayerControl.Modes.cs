@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.InputSystem;
@@ -20,7 +20,7 @@ namespace StrategyCore
             if (newMode == PCMode.Default) // Reset
             {
                 // Cancel item DragDrop
-                if (mode == PCMode.DragDrop) UIManager.instance.ItemDragCancel();
+                if (mode == PCMode.DragDrop) UIManager.Instance.ItemDragCancel();
 
                 if (areaProjectorSpawned != null) GameObject.Destroy(areaProjectorSpawned.gameObject);
 
@@ -29,8 +29,8 @@ namespace StrategyCore
 
                 if (shadowBuilding) GameObject.Destroy(shadowBuilding.gameObject);
 
-                UIManager.instance.HideCancelButton();
-                Camera_TopDown.instance.ShowCursor();
+                UIManager.Instance.HideCancelButton();
+                Camera_TopDown.Instance.ShowCursor();
 
                 UnityEngine.Cursor.SetCursor(null, Vector2.zero, CursorMode.Auto);
             }
@@ -40,11 +40,11 @@ namespace StrategyCore
             }
             else if (newMode == PCMode.ShopUnit) // Shop unit change
             {
-                UnityEngine.Cursor.SetCursor(ReferenceManager.instance.modeCursor, new Vector2(64, 64), CursorMode.Auto);
+                UnityEngine.Cursor.SetCursor(ReferenceManager.Instance.modeCursor, new Vector2(64, 64), CursorMode.Auto);
             }
             else if (newMode == PCMode.AttackMove) // AttackMove command
             {
-                UnityEngine.Cursor.SetCursor(ReferenceManager.instance.modeCursor, new Vector2(64, 64), CursorMode.Auto);
+                UnityEngine.Cursor.SetCursor(ReferenceManager.Instance.modeCursor, new Vector2(64, 64), CursorMode.Auto);
             }
 
             if (mode != PCMode.Default && newMode != PCMode.Default) ChangeMode(PCMode.Default);
@@ -67,23 +67,23 @@ namespace StrategyCore
             activeIsItem = isItem;
 
             // Center cursor
-            // if (IsOverUI(Camera_TopDown.instance.GetCursorPosition())) Camera_TopDown.instance.SetCursorPosition(true);
+            // if (IsOverUI(Camera_TopDown.Instance.GetCursorPosition())) Camera_TopDown.Instance.SetCursorPosition(true);
 
             // Area selection
             if (newMode == PCMode.Area)
             {
                 CreateAreaSelector(areaRadius);
-                Camera_TopDown.instance.HideCursor();
+                Camera_TopDown.Instance.HideCursor();
             }
             // Unit/Position selection
             else if (newMode == PCMode.Unit || newMode == PCMode.Position)
             {
-                UnityEngine.Cursor.SetCursor(ReferenceManager.instance.modeCursor, new Vector2(64, 64), CursorMode.Auto);
+                UnityEngine.Cursor.SetCursor(ReferenceManager.Instance.modeCursor, new Vector2(64, 64), CursorMode.Auto);
             }
             // Building placement
             else if (newMode == PCMode.Placement)
             {
-                Camera_TopDown.instance.HideCursor();
+                Camera_TopDown.Instance.HideCursor();
                 //CreateAreaSelector(areaRadius);
 
                 // Network isOwner: create duplicate of the building that is to be built for collision checks
@@ -100,7 +100,7 @@ namespace StrategyCore
         // InGame Menu handling
         public void ShowInGameMenu(InputAction.CallbackContext ctx)
         {
-            UIManagerMenu.instance.ShowUIDocument();
+            UIManagerMenu.Instance.ShowUIDocument();
         }
 
         // Toggles HealthBar display
@@ -114,13 +114,13 @@ namespace StrategyCore
         private void MiniMapPing(InputAction.CallbackContext context)
         {
             // Ping on ground
-            bool overUI = IsOverUI(Camera_TopDown.instance.GetCursorPosition());
+            bool overUI = IsOverUI(Camera_TopDown.Instance.GetCursorPosition());
 
             if (!overUI && coreInput.Main.MiniMapPing.IsPressed())
             {
-                Vector3 clickPosition = Camera_TopDown.instance.PlaneRayCast(Camera_TopDown.instance.GetCursorPosition());
+                Vector3 clickPosition = Camera_TopDown.Instance.PlaneRayCast(Camera_TopDown.Instance.GetCursorPosition());
 
-                UIManager.instance.WorldToMiniMapPing(clickPosition.x / Grid.instance.width, clickPosition.z / Grid.instance.height);
+                UIManager.Instance.WorldToMiniMapPing(clickPosition.x / Grid.Instance.width, clickPosition.z / Grid.Instance.height);
             }
         }
 
@@ -185,7 +185,7 @@ namespace StrategyCore
                     // Turn off shadows and change material
                     shadowBuildingRenderers.Add(renderer);
                     Material[] materials = renderer.materials;
-                    for (int i = 0; i < materials.Length; i++) materials[i] = ReferenceManager.instance.shadowMaterial;
+                    for (int i = 0; i < materials.Length; i++) materials[i] = ReferenceManager.Instance.shadowMaterial;
                     renderer.materials = materials;
                     renderer.shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.Off;
                     renderer.receiveShadows = false;
@@ -217,7 +217,7 @@ namespace StrategyCore
                 // item or ability
 
                 // For placement a little bit hacky, but works. Display erro msg, if successfull clear it, if not msg either changes to error msg or stays as is.
-                if (mode == PCMode.Placement) UIManager.instance.ShowNotifyMsg("Can't do that.", SlotManager.instance.currentPlayer, false);
+                if (mode == PCMode.Placement) UIManager.Instance.ShowNotifyMsg("Can't do that.", SlotManager.Instance.currentPlayer, false);
 
                 bool success = activeUnit.UseAbilityItem(activeAbilityIndex, activeIsItem, null, position, true);
 
@@ -226,7 +226,7 @@ namespace StrategyCore
                     if (success)
                     {
                         // Save shadowBuilding
-                        if (activeUnit.owner == SlotManager.instance.currentPlayer)
+                        if (activeUnit.owner == SlotManager.Instance.currentPlayer)
                         {
                             if (activeUnit.constructionUnit.constructionRef != null)  // if constructionRef is null we already reached the destination
                             {
@@ -234,7 +234,7 @@ namespace StrategyCore
                                 shadowBuilding = null;
                             }
                         }
-                        UIManager.instance.ShowNotifyMsg("", SlotManager.instance.currentPlayer, false);
+                        UIManager.Instance.ShowNotifyMsg("", SlotManager.Instance.currentPlayer, false);
                     }
                     else
                     {
@@ -262,8 +262,8 @@ namespace StrategyCore
         {
             if (EventSystem.current != null)
             {
-                Vector2 mousePositionCorrected = UIManager.instance.CursorToUIposition();
-                VisualElement picked = UIManager.instance.uiDocument.rootVisualElement.panel.Pick(mousePositionCorrected);
+                Vector2 mousePositionCorrected = UIManager.Instance.CursorToUIposition();
+                VisualElement picked = UIManager.Instance.uiDocument.rootVisualElement.panel.Pick(mousePositionCorrected);
 
                 // Check if the cursor is over ui
                 if (picked != null)
@@ -298,11 +298,11 @@ namespace StrategyCore
 
         public void UnitProjectorCreate()
         {
-            unitProjectorSpawned = Instantiate(ReferenceManager.instance.selectionRenderer);
+            unitProjectorSpawned = Instantiate(ReferenceManager.Instance.selectionRenderer);
 
-            unitProjectorSpawned.sprite = ReferenceManager.instance.selectionSmall;
+            unitProjectorSpawned.sprite = ReferenceManager.Instance.selectionSmall;
             unitProjectorSize = 0;
-            unitProjectorSpawned.color = ReferenceManager.instance.selectionAtCursorColor;
+            unitProjectorSpawned.color = ReferenceManager.Instance.selectionAtCursorColor;
             unitProjectorColor = false;
 
             UnitProjectorHide();
@@ -317,7 +317,7 @@ namespace StrategyCore
         {
             Unit unitAtCursor = Utils.GetUnitAtCursor();
 
-            if (unitAtCursor && unitAtCursor.isSelectable && unitAtCursor != activeUnit && FogOfWar.instance.IsVisible(unitAtCursor.FoWCell, SlotManager.instance.currentTeam) && unitAtCursor.IsVisible(SlotManager.instance.currentTeam))
+            if (unitAtCursor && unitAtCursor.isSelectable && unitAtCursor != activeUnit && FogOfWar.Instance.IsVisible(unitAtCursor.FoWCell, SlotManager.Instance.currentTeam) && unitAtCursor.IsVisible(SlotManager.Instance.currentTeam))
             {
                 if (!unitProjectorSpawned.gameObject.activeSelf)
                 {
@@ -329,7 +329,7 @@ namespace StrategyCore
                 {
                     if (unitProjectorSize != 2)
                     {
-                        unitProjectorSpawned.sprite = ReferenceManager.instance.selectionLarge;
+                        unitProjectorSpawned.sprite = ReferenceManager.Instance.selectionLarge;
                         unitProjectorSize = 2;
                     }
                 }
@@ -337,28 +337,28 @@ namespace StrategyCore
                 {
                     if (unitProjectorSize != 1)
                     {
-                        unitProjectorSpawned.sprite = ReferenceManager.instance.selectionMedium;
+                        unitProjectorSpawned.sprite = ReferenceManager.Instance.selectionMedium;
                         unitProjectorSize = 1;
                     }
                 }
                 else if (unitProjectorSize != 0)
                 {
-                    unitProjectorSpawned.sprite = ReferenceManager.instance.selectionSmall;
+                    unitProjectorSpawned.sprite = ReferenceManager.Instance.selectionSmall;
                     unitProjectorSize = 0;
                 }
 
                 // Color
-                if (SlotManager.instance.currentTeam != unitAtCursor.team && unitAtCursor.team != (int)Teams.NeutralPassive)
+                if (SlotManager.Instance.currentTeam != unitAtCursor.team && unitAtCursor.team != (int)Teams.NeutralPassive)
                 {
                     if (!unitProjectorColor)
                     {
-                        unitProjectorSpawned.color = ReferenceManager.instance.selectionEnemyColor;
+                        unitProjectorSpawned.color = ReferenceManager.Instance.selectionEnemyColor;
                         unitProjectorColor = true;
                     }
                 }
                 else if (unitProjectorColor)
                 {
-                    unitProjectorSpawned.color = ReferenceManager.instance.selectionAtCursorColor;
+                    unitProjectorSpawned.color = ReferenceManager.Instance.selectionAtCursorColor;
                     unitProjectorColor = false;
                 }
 
@@ -384,7 +384,7 @@ namespace StrategyCore
             {
                 if (unitProjectorSize != 2)
                 {
-                    unitProjectorSpawned.sprite = ReferenceManager.instance.selectionLarge;
+                    unitProjectorSpawned.sprite = ReferenceManager.Instance.selectionLarge;
                     unitProjectorSize = 2;
                 }
             }
@@ -392,13 +392,13 @@ namespace StrategyCore
             {
                 if (unitProjectorSize != 1)
                 {
-                    unitProjectorSpawned.sprite = ReferenceManager.instance.selectionMedium;
+                    unitProjectorSpawned.sprite = ReferenceManager.Instance.selectionMedium;
                     unitProjectorSize = 1;
                 }
             }
             else if (unitProjectorSize != 0)
             {
-                unitProjectorSpawned.sprite = ReferenceManager.instance.selectionSmall;
+                unitProjectorSpawned.sprite = ReferenceManager.Instance.selectionSmall;
                 unitProjectorSize = 0;
             }
 
@@ -407,13 +407,13 @@ namespace StrategyCore
             {
                 if (!unitProjectorColor)
                 {
-                    unitProjectorSpawned.color = ReferenceManager.instance.selectionEnemyColor;
+                    unitProjectorSpawned.color = ReferenceManager.Instance.selectionEnemyColor;
                     unitProjectorColor = true;
                 }
             }
             else if (unitProjectorColor)
             {
-                unitProjectorSpawned.color = ReferenceManager.instance.selectionAtCursorColor;
+                unitProjectorSpawned.color = ReferenceManager.Instance.selectionAtCursorColor;
                 unitProjectorColor = false;
             }
 
@@ -425,7 +425,7 @@ namespace StrategyCore
         {
             if (rangeProjectorSpawned != null) GameObject.Destroy(rangeProjectorSpawned.gameObject);
 
-            rangeProjectorSpawned = Instantiate(ReferenceManager.instance.rangeProjector);
+            rangeProjectorSpawned = Instantiate(ReferenceManager.Instance.rangeProjector);
             rangeProjectorSpawned.position = activeUnit.transform.position;
             rangeProjectorSpawned.parent = activeUnit.transform;
             ProjectorHelper.SetSize(rangeProjectorSpawned, activeUnit.attackRange);
@@ -441,10 +441,10 @@ namespace StrategyCore
         {
             if (areaProjectorSpawned != null) GameObject.Destroy(areaProjectorSpawned.gameObject);
 
-            areaProjectorSpawned = GameObject.Instantiate(ReferenceManager.instance.areaProjector).transform;
+            areaProjectorSpawned = GameObject.Instantiate(ReferenceManager.Instance.areaProjector).transform;
             areaProjectorSpawned.localScale = new Vector3(areaRadius, areaRadius, areaRadius); // For storing area radius
 
-            areaProjectorSpawned.position = Utils.TerrainScreenRaycast(Camera_TopDown.instance.GetCursorPosition());
+            areaProjectorSpawned.position = Utils.TerrainScreenRaycast(Camera_TopDown.Instance.GetCursorPosition());
 
             ProjectorHelper.SetSize(areaProjectorSpawned, areaRadius);
         }

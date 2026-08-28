@@ -34,7 +34,7 @@ namespace StrategyCore
             Vector3 dir = (position - castingUnit.transform.position).normalized;
 
             // Check if casting unit is visible
-            if (FogOfWar.instance.IsVisible(castingUnit.FoWCell, SlotManager.instance.currentTeam) && vfx)
+            if (FogOfWar.Instance.IsVisible(castingUnit.FoWCell, SlotManager.Instance.currentTeam) && vfx)
             {
                 // Instantiate VFX
                 ParticleSystem temp = Instantiate(vfx, castingUnit.transform.position, Quaternion.LookRotation(dir));

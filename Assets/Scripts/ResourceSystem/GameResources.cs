@@ -6,7 +6,7 @@ namespace StrategyCore
 {
     public class GameResources : MonoBehaviour
     {
-        public static GameResources instance;
+        public static GameResources Instance { get; private set; }
 
         [Tooltip("Define what resources are in the game with their corresponding initial amounts. For limited resources, it sets the initial limit.")]
         public ResourceWrapper[] gameResources;
@@ -19,12 +19,12 @@ namespace StrategyCore
 
         void Awake()
         {
-            if (instance == null)
+            if (Instance == null)
             {
-                instance = this;
+                Instance = this;
             }
 
-            if (SlotManager.instance == null) GameObject.Find("ProjectManager").GetComponent<SlotManager>().InstanceSet();
+            // SlotManager обязан быть поднят РАНЬШЕ — порядок задаёт SceneStartup.
 
             // Initialize resources
             playerResources = new int[Enum.GetNames(typeof(StrategyCore.Players)).Length * gameResources.Length];
@@ -77,8 +77,8 @@ namespace StrategyCore
                 // блок синка стоял только в ветке нелимитных. В хост-модели это не замечалось (хост = локальный игрок),
                 // на выделенном сервере клиент опирался на собственный локальный подсчёт и расходился с сервером.
                 // Теперь сервер — единственный источник истины: шлём и расход, и лимит (LimitedResourceSend).
-                if (calledByServer && NetworkManager.Singleton != null && NetworkManager.Singleton.IsServer && NetworkDataSync.instance != null)
-                    NetworkDataSync.instance.LimitedResourceSend(player, resourceID);
+                if (calledByServer && NetworkManager.Singleton != null && NetworkManager.Singleton.IsServer && NetworkDataSync.Instance != null)
+                    NetworkDataSync.Instance.LimitedResourceSend(player, resourceID);
             }
             else
             {
@@ -87,10 +87,10 @@ namespace StrategyCore
                 else playerResources[resourceID + player * gameResources.Length] += (int)(resource.value * multiplier);
 
                 // Send info to clients
-                if (calledByServer && NetworkManager.Singleton.IsServer) NetworkDataSync.instance.ResourceSendAdd(player, resourceID, playerResources[resourceID + player * gameResources.Length]);
+                if (calledByServer && NetworkManager.Singleton.IsServer) NetworkDataSync.Instance.ResourceSendAdd(player, resourceID, playerResources[resourceID + player * gameResources.Length]);
             }
 
-            if (SlotManager.instance.currentPlayer == player) Presentation.UI?.UpdateResourceTab(resourceID);
+            if (SlotManager.Instance.currentPlayer == player) Presentation.UI?.UpdateResourceTab(resourceID);
         }
 
         // Changes the resource limit for the specified player
@@ -116,10 +116,10 @@ namespace StrategyCore
             // Send info to clients
             // [Interflow fix 2026-08-01 limited-res-sync] Было: лимит слался через ResourceSendAdd, а ResourceSend
             // при отправке ПЕРЕЧИТЫВАЛ playerResources (расход) — клиенту в лимит прилетал расход. Теперь явный канал.
-            if (calledByServer && NetworkManager.Singleton != null && NetworkManager.Singleton.IsServer && NetworkDataSync.instance != null)
-                NetworkDataSync.instance.LimitedResourceSend(player, resourceID);
+            if (calledByServer && NetworkManager.Singleton != null && NetworkManager.Singleton.IsServer && NetworkDataSync.Instance != null)
+                NetworkDataSync.Instance.LimitedResourceSend(player, resourceID);
 
-            if (SlotManager.instance.currentPlayer == player) Presentation.UI?.UpdateResourceTab(GetResourceID(resourceLimited));
+            if (SlotManager.Instance.currentPlayer == player) Presentation.UI?.UpdateResourceTab(GetResourceID(resourceLimited));
         }
 
         // Returns true if player has enough amount of this resource

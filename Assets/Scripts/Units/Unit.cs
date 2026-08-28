@@ -380,16 +380,16 @@ namespace StrategyCore
         void Start()
         {
             // For save and midgame connection type, for in-scene units we assign the netIDs. We need netIDs to remove the units in Scene Reset.
-            if (NetworkConnectionHandler.instance.connectionStage == 1 || NetworkConnectionHandler.instance.connectionStage == 2)
+            if (NetworkConnectionHandler.Instance.connectionStage == 1 || NetworkConnectionHandler.Instance.connectionStage == 2)
             {
-                SlotManager.instance.AssignNetID(this);
+                SlotManager.Instance.AssignNetID(this);
                 return;
             }
 
             // When standard connection type, for in-scene units initialization happens after all players finished loading the scene
-            if (!SlotManager.instance.gameOn)
+            if (!SlotManager.Instance.gameOn)
             {
-                SlotManager.instance.OnGameStart += StartCallback;
+                SlotManager.Instance.OnGameStart += StartCallback;
                 return;
             }
 
@@ -404,7 +404,7 @@ namespace StrategyCore
         // Fired when game starts after loading necessary data
         public void StartCallback()
         {
-            SlotManager.instance.OnGameStart -= StartCallback;
+            SlotManager.Instance.OnGameStart -= StartCallback;
             if (!initialized) Initialize();
             // Waypoint
             GoToWaypoint();
@@ -413,7 +413,7 @@ namespace StrategyCore
         // Update is called once per frame
         void Update()
         {
-            if (!SlotManager.instance.gameOn) return;
+            if (!SlotManager.Instance.gameOn) return;
 
             if (!staticObject)
             {

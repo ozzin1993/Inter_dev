@@ -102,10 +102,10 @@ namespace StrategyCore
 
             // Update the grid data
             Grid.AssignToChunk(castingUnit);
-            FogOfWar.instance.CellAssignment(castingUnit);
+            FogOfWar.Instance.CellAssignment(castingUnit);
 
             // Position network sync
-            if (NetworkManager.Singleton.IsServer) NetworkDataSync.instance.SetPositionDirect(castingUnit);
+            if (NetworkManager.Singleton.IsServer) NetworkDataSync.Instance.SetPositionDirect(castingUnit);
         }
     }
 }

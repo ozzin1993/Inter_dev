@@ -183,8 +183,8 @@ namespace StrategyCore
             if (sync && NetworkManager.Singleton.IsServer && !thisUnit.xpSync)
             {
                 thisUnit.xpSync = true;
-                NetworkDataSync.instance.xpChangedUnits.Add(thisUnit.netID);
-                NetworkDataSync.instance.onXPCleared += thisUnit.XPSyncFalse;
+                NetworkDataSync.Instance.xpChangedUnits.Add(thisUnit.netID);
+                NetworkDataSync.Instance.onXPCleared += thisUnit.XPSyncFalse;
             }
         }
     }

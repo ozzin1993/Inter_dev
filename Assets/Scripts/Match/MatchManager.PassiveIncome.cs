@@ -42,7 +42,7 @@ namespace StrategyCore
         /// </summary>
         IEnumerator PassiveIncomeLoop()
         {
-            yield return new WaitUntil(() => SlotManager.instance != null && SlotManager.instance.gameOn);
+            yield return new WaitUntil(() => SlotManager.Instance != null && SlotManager.Instance.gameOn);
 
             while (true)
             {
@@ -59,12 +59,12 @@ namespace StrategyCore
         /// </summary>
         void GrantPassiveIncome(TeamWaveConfig cfg)
         {
-            if (cfg == null || goldResource == null || GameResources.instance == null) return;
+            if (cfg == null || goldResource == null || GameResources.Instance == null) return;
 
             int amount = ComputeIncomeAmount(cfg.ownerPlayer);
             if (amount <= 0) return;
 
-            GameResources.instance.ChangeAmount(
+            GameResources.Instance.ChangeAmount(
                 cfg.ownerPlayer, new ResourceWrapper(goldResource, amount), 1, false, true);
         }
 
@@ -78,7 +78,7 @@ namespace StrategyCore
             int amount = baseIncomePerTick;
             if (incomeGrades == null || incomeGrades.Length == 0) return amount;
 
-            TechnologyManager tm = TechnologyManager.instance;
+            TechnologyManager tm = TechnologyManager.Instance;
             if (tm == null || tm.TechTree == null || playerIndex < 0 || playerIndex >= tm.TechTree.Length)
                 return amount;
 

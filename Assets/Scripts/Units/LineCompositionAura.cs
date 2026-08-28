@@ -33,11 +33,11 @@ namespace StrategyCore
             if (unit == null) { enabled = false; return; }
         }
 
-        // Подписка на тик — в Start (GameManager.instance гарантированно готов; образец GroundDamageZone).
+        // Подписка на тик — в Start (GameManager.Instance гарантированно готов; образец GroundDamageZone).
         private void Start()
         {
             if (unit == null) return;
-            if (!subscribed && GameManager.instance != null) { GameManager.instance.Tick += OnTick; subscribed = true; }
+            if (!subscribed && GameManager.Instance != null) { GameManager.Instance.Tick += OnTick; subscribed = true; }
         }
 
         private void OnTick()
@@ -45,7 +45,7 @@ namespace StrategyCore
             if (NetworkConnectionHandler.isClient) return;               // раздача — только сервер (правило 6)
             if (unit == null || unit.dead) { Cleanup(); return; }
 
-            MatchManager mm = MatchManager.instance;
+            MatchManager mm = MatchManager.Instance;
             if (mm == null || effectors == null || effectors.Length == 0) return;
 
             mm.EnsureLineCompositionWired();                            // ленивая инициализация счётчика (идемпотентно)
@@ -65,13 +65,13 @@ namespace StrategyCore
 
         private void Cleanup()
         {
-            if (subscribed && GameManager.instance != null) GameManager.instance.Tick -= OnTick;
+            if (subscribed && GameManager.Instance != null) GameManager.Instance.Tick -= OnTick;
             subscribed = false;
         }
 
         private void OnDestroy()
         {
-            if (subscribed && GameManager.instance != null) GameManager.instance.Tick -= OnTick;
+            if (subscribed && GameManager.Instance != null) GameManager.Instance.Tick -= OnTick;
             subscribed = false;
         }
     }

@@ -41,12 +41,12 @@ namespace StrategyCore
                         if (NetworkConnectionHandler.isClient)
                         {
                             // Network
-                            NetworkDataSync.instance.ChangeTeamToServerRpc(team);
+                            NetworkDataSync.Instance.ChangeTeamToServerRpc(team);
                         }
                         else
                         {
                             // Single player or Server
-                            SlotManager.instance.ChangeTeamTo((ulong)SlotManager.instance.playerID[playerSlot], team);
+                            SlotManager.Instance.ChangeTeamTo((ulong)SlotManager.Instance.playerID[playerSlot], team);
                         }
                     }
                 }
@@ -61,12 +61,12 @@ namespace StrategyCore
                         if (NetworkConnectionHandler.isClient)
                         {
                             // Network
-                            NetworkDataSync.instance.ChangeFactionToServerRpc(index);
+                            NetworkDataSync.Instance.ChangeFactionToServerRpc(index);
                         }
                         else
                         {
                             // Single player or Server
-                            SlotManager.instance.ChangeFactionTo((ulong)SlotManager.instance.playerID[playerSlot], index);
+                            SlotManager.Instance.ChangeFactionTo((ulong)SlotManager.Instance.playerID[playerSlot], index);
                         }
                     }
                 }
@@ -81,12 +81,12 @@ namespace StrategyCore
                         if (NetworkConnectionHandler.isClient)
                         {
                             // Network
-                            NetworkDataSync.instance.ChangeSpawnToServerRpc(index);
+                            NetworkDataSync.Instance.ChangeSpawnToServerRpc(index);
                         }
                         else
                         {
                             // Single player or Server
-                            SlotManager.instance.ChangeSpawnPositionTo((ulong)SlotManager.instance.playerID[playerSlot], index);
+                            SlotManager.Instance.ChangeSpawnPositionTo((ulong)SlotManager.Instance.playerID[playerSlot], index);
                         }
                     }
                 }
@@ -163,17 +163,17 @@ namespace StrategyCore
                 string sceneName = (index >= 0) ? saveName.Substring(0, index) : saveName;
 
                 // Set active scene
-                if (SceneHandler.instance.SetActiveScene(sceneName))
+                if (SceneHandler.Instance.SetActiveScene(sceneName))
                 {
                     // Start host
                     TextField tf = (TextField)UIDocument.rootVisualElement.Q("Menu").Q("PlayerName");
-                    NetworkConnectionHandler.instance.StartHost(tf.value);
+                    NetworkConnectionHandler.Instance.StartHost(tf.value);
 
                     // Change the player data
                     SaveManager.LoadSlotManagerData(target.parent.name, true);
 
                     // Save file name
-                    SceneHandler.instance.saveFileName = target.parent.name;
+                    SceneHandler.Instance.saveFileName = target.parent.name;
 
                     chatBox.Clear();
                 }
@@ -203,7 +203,7 @@ namespace StrategyCore
         {
             if (!presentationReady) return;   // [Interflow fix 2026-06-26 путь1]
             // InGame Menu
-            if (SlotManager.instance.gameStarted == GameState.Started)
+            if (SlotManager.Instance.gameStarted == GameState.Started)
             {
                 // Toggle
                 if (UIDocument.rootVisualElement.style.display == DisplayStyle.Flex)

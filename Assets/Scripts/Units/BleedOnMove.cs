@@ -56,16 +56,16 @@ namespace StrategyCore
             remaining = Mathf.Max(remaining, duration);
             lastPosition = target.transform.position;
 
-            if (!subscribed && GameManager.instance != null)
+            if (!subscribed && GameManager.Instance != null)
             {
-                GameManager.instance.Tick += OnTick;
+                GameManager.Instance.Tick += OnTick;
                 subscribed = true;
             }
         }
 
         void OnTick()
         {
-            if (NetworkConnectionHandler.isClient || GameManager.instance == null) return;
+            if (NetworkConnectionHandler.isClient || GameManager.Instance == null) return;
 
             if (unit == null || unit.dead)
             {
@@ -79,7 +79,7 @@ namespace StrategyCore
 
             if (moved > 0.01f) unit.GetDamage(moved * damagePerMeter, damageType, sourceOwner, source, false, out float _);
 
-            remaining -= GameManager.instance.currentDeltaTime;
+            remaining -= GameManager.Instance.currentDeltaTime;
             if (remaining <= 0f) Cleanup();
         }
 
@@ -88,9 +88,9 @@ namespace StrategyCore
             if (destroyed) return;
             destroyed = true;
 
-            if (subscribed && GameManager.instance != null)
+            if (subscribed && GameManager.Instance != null)
             {
-                GameManager.instance.Tick -= OnTick;
+                GameManager.Instance.Tick -= OnTick;
                 subscribed = false;
             }
 
@@ -99,9 +99,9 @@ namespace StrategyCore
 
         void OnDestroy()
         {
-            if (subscribed && GameManager.instance != null)
+            if (subscribed && GameManager.Instance != null)
             {
-                GameManager.instance.Tick -= OnTick;
+                GameManager.Instance.Tick -= OnTick;
                 subscribed = false;
             }
         }

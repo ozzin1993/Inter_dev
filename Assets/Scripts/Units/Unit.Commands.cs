@@ -29,11 +29,11 @@ namespace StrategyCore
                 {
                     if (targetGround)
                     {
-                        NetworkDataSync.instance.TargetAcquired(this.netID, targetPosition, attackCooldown);
+                        NetworkDataSync.Instance.TargetAcquired(this.netID, targetPosition, attackCooldown);
                     }
                     else
                     {
-                        NetworkDataSync.instance.TargetAcquired(this.netID, target.netID, attackCooldown);
+                        NetworkDataSync.Instance.TargetAcquired(this.netID, target.netID, attackCooldown);
                     }
                 }
             }
@@ -47,7 +47,7 @@ namespace StrategyCore
             if (!firstAttack)
             {
                 firstAttack = true;
-                if (NetworkManager.Singleton.IsServer) NetworkDataSync.instance.TargetLost(this.netID);
+                if (NetworkManager.Singleton.IsServer) NetworkDataSync.Instance.TargetLost(this.netID);
             }
         }
 
@@ -133,7 +133,7 @@ namespace StrategyCore
         {
             if (NetworkConnectionHandler.isClient)
             {
-                NetworkCommandSync.instance.IdleCommandSend(this);
+                NetworkCommandSync.Instance.IdleCommandSend(this);
                 return;
             }
 
@@ -147,7 +147,7 @@ namespace StrategyCore
             if (!isMoving && issuedByPlayer && animator)
             {
                 animator.CrossFade("idle0", crossFadeTime, 0, 0f);
-                if (NetworkDataSync.instance) NetworkDataSync.instance.PlayIdleAnim(netID);
+                if (NetworkDataSync.Instance) NetworkDataSync.Instance.PlayIdleAnim(netID);
             }
             MakeAgent(false);
 
@@ -162,7 +162,7 @@ namespace StrategyCore
         {
             if (NetworkConnectionHandler.isClient)
             {
-                NetworkCommandSync.instance.HoldCommandSend(this);
+                NetworkCommandSync.Instance.HoldCommandSend(this);
                 return;
             }
 
@@ -189,7 +189,7 @@ namespace StrategyCore
 
             if (NetworkConnectionHandler.isClient)
             {
-                NetworkCommandSync.instance.FollowCommandSend(this, u, stopDist, embark);
+                NetworkCommandSync.Instance.FollowCommandSend(this, u, stopDist, embark);
                 return false;
             }
 
@@ -241,7 +241,7 @@ namespace StrategyCore
         {
             if (NetworkConnectionHandler.isClient)
             {
-                NetworkCommandSync.instance.MoveCommandSend(this, position, stopDist);
+                NetworkCommandSync.Instance.MoveCommandSend(this, position, stopDist);
                 return false;
             }
 
@@ -280,7 +280,7 @@ namespace StrategyCore
         {
             if (NetworkConnectionHandler.isClient)
             {
-                NetworkCommandSync.instance.MoveCommandSend(this, position, stopDist);
+                NetworkCommandSync.Instance.MoveCommandSend(this, position, stopDist);
                 return false;
             }
 
@@ -317,7 +317,7 @@ namespace StrategyCore
         {
             if (NetworkConnectionHandler.isClient)
             {
-                NetworkCommandSync.instance.AttackCommandSend(this, u);
+                NetworkCommandSync.Instance.AttackCommandSend(this, u);
                 return;
             }
 
@@ -344,7 +344,7 @@ namespace StrategyCore
         {
             if (NetworkConnectionHandler.isClient)
             {
-                NetworkCommandSync.instance.AttackPositionCommandSend(this, targetPosition);
+                NetworkCommandSync.Instance.AttackPositionCommandSend(this, targetPosition);
                 return;
             }
 
@@ -392,7 +392,7 @@ namespace StrategyCore
         {
             if (NetworkConnectionHandler.isClient)
             {
-                NetworkCommandSync.instance.AttackMoveCommandSend(this, position);
+                NetworkCommandSync.Instance.AttackMoveCommandSend(this, position);
                 return;
             }
 

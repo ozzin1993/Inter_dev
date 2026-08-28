@@ -12,7 +12,7 @@ namespace StrategyCore
     /// </summary>
     public class ServerLogToFile : MonoBehaviour
     {
-        public static ServerLogToFile instance;
+        public static ServerLogToFile Instance { get; private set; }
 
         [Tooltip("Логировать только на headless-сервере. Сними галку, чтобы писать лог и в редакторе/на клиенте (для отладки самого логгера).")]
         [SerializeField] private bool serverOnly = true;
@@ -36,8 +36,8 @@ namespace StrategyCore
         private void Awake()
         {
             // Один экземпляр на процесс, переживает смену сцен.
-            if (instance != null) { Destroy(gameObject); return; }
-            instance = this;
+            if (Instance != null) { Destroy(gameObject); return; }
+            Instance = this;
             DontDestroyOnLoad(gameObject);
 
             // По умолчанию пишем только на настоящем headless-сервере.

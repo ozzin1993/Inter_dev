@@ -16,14 +16,14 @@ namespace StrategyCore
         [Rpc(SendTo.Server)]
         public void UnlockSoulOptionServerRpc(int teamIndex, int branch, int tier, int option, RpcParams rpcParams = default)
         {
-            if (MatchManager.instance == null) return;
+            if (MatchManager.Instance == null) return;
             if (teamIndex != 0 && teamIndex != 1) return;
 
-            int senderPlayer = SlotManager.instance.GetClientSlot(rpcParams.Receive.SenderClientId);
-            TeamWaveConfig cfg = MatchManager.instance.Team(teamIndex);
+            int senderPlayer = SlotManager.Instance.GetClientSlot(rpcParams.Receive.SenderClientId);
+            TeamWaveConfig cfg = MatchManager.Instance.Team(teamIndex);
             if (cfg == null || senderPlayer != cfg.ownerPlayer) return; // нет прав на эту команду
 
-            MatchManager.instance.TryUnlockSoulOption(teamIndex, branch, tier, option);
+            MatchManager.Instance.TryUnlockSoulOption(teamIndex, branch, tier, option);
         }
     }
 }

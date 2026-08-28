@@ -134,7 +134,7 @@ namespace StrategyCore
         {
             if (abilityName == null || abilityName.Length == 0) abilityName = new string[1] { "" };
             if (description == null || description.Length == 0) description = new string[1] { "" };
-            if (icon == null || icon.Length == 0) icon = new Texture2D[1] { ReferenceManager.instance.missingTexture };
+            if (icon == null || icon.Length == 0) icon = new Texture2D[1] { ReferenceManager.Instance.missingTexture };
 
             // Do some checks
             if (cooldown.Length == 0) cooldown = new float[1] { 0 };

@@ -57,7 +57,7 @@ namespace StrategyCore
             if (branchGrid == null) return;
             branchGrid.Clear();
 
-            MatchManager mm = MatchManager.instance;
+            MatchManager mm = MatchManager.Instance;
             if (mm == null) return;
             int team = CommandTeamForLocalPlayer();
 
@@ -121,7 +121,7 @@ namespace StrategyCore
             VisualElement cell = ResolveCornerCell(evt);
             if (cell == null || !(cell.userData is Vector3Int c)) return;
 
-            MatchManager mm = MatchManager.instance;
+            MatchManager mm = MatchManager.Instance;
             if (mm == null) return;
             int team = CommandTeamForLocalPlayer();
             if (!mm.IsSoulOptionUnlockable(team, c.x, c.y, c.z)) return;   // недоступно — молча игнор (сервер тоже валидирует)
@@ -129,8 +129,8 @@ namespace StrategyCore
 
             if (NetworkConnectionHandler.isClient)
             {
-                if (NetworkDataSync.instance != null)
-                    NetworkDataSync.instance.UnlockSoulOptionServerRpc(team, c.x, c.y, c.z);
+                if (NetworkDataSync.Instance != null)
+                    NetworkDataSync.Instance.UnlockSoulOptionServerRpc(team, c.x, c.y, c.z);
             }
             else
             {

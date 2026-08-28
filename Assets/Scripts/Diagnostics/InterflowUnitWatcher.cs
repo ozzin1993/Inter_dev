@@ -80,15 +80,15 @@ namespace StrategyCore
 
         void TrySubscribe()
         {
-            if (subscribed || GameManager.instance == null) return;
+            if (subscribed || GameManager.Instance == null) return;
 
-            GameManager.instance.Tick += OnTick;
+            GameManager.Instance.Tick += OnTick;
             subscribed = true;
         }
 
         void OnDestroy()
         {
-            if (subscribed && GameManager.instance != null) GameManager.instance.Tick -= OnTick;
+            if (subscribed && GameManager.Instance != null) GameManager.Instance.Tick -= OnTick;
             subscribed = false;
         }
 

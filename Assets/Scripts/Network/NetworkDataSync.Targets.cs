@@ -30,11 +30,11 @@ namespace StrategyCore
         private void TargetAcquiredClientRpc(UInt16 netID, UInt16 targetNetID, float startTime, float cd)
         {
             // Joining mid-game, we do not accept any data from the server. Only scene data.
-            if (NetworkConnectionHandler.instance.connectionStage == 2) return;
+            if (NetworkConnectionHandler.Instance.connectionStage == 2) return;
 
-            if (SlotManager.instance.unitNetID.TryGetValue(netID, out Unit unit))
+            if (SlotManager.Instance.unitNetID.TryGetValue(netID, out Unit unit))
             {
-                if (SlotManager.instance.unitNetID.TryGetValue(targetNetID, out Unit target))
+                if (SlotManager.Instance.unitNetID.TryGetValue(targetNetID, out Unit target))
                 {
                     TargetAcquiredInternal(unit, target, Vector2.zero, startTime, cd);
                 }
@@ -53,9 +53,9 @@ namespace StrategyCore
         private void TargetAcquiredClientRpc(UInt16 netID, Vector2 targetGround, float startTime, float cd)
         {
             // Joining mid-game, we do not accept any data from the server. Only scene data.
-            if (NetworkConnectionHandler.instance.connectionStage == 2) return;
+            if (NetworkConnectionHandler.Instance.connectionStage == 2) return;
 
-            if (SlotManager.instance.unitNetID.TryGetValue(netID, out Unit unit))
+            if (SlotManager.Instance.unitNetID.TryGetValue(netID, out Unit unit))
             {
                 TargetAcquiredInternal(unit, null, targetGround, startTime, cd);
             }
@@ -157,9 +157,9 @@ namespace StrategyCore
         private void TargetLostClientRpc(UInt16 netID)
         {
             // Joining mid-game, we do not accept any data from the server. Only scene data.
-            if (NetworkConnectionHandler.instance.connectionStage == 2) return;
+            if (NetworkConnectionHandler.Instance.connectionStage == 2) return;
 
-            if (SlotManager.instance.unitNetID.TryGetValue(netID, out Unit unit))
+            if (SlotManager.Instance.unitNetID.TryGetValue(netID, out Unit unit))
             {
                 unit.TargetSet(false);
             }
@@ -192,9 +192,9 @@ namespace StrategyCore
         private void AdditionalTargetsClientRpc(UInt16 netID, UInt16[] netIDs)
         {
             // Joining mid-game, we do not accept any data from the server. Only scene data.
-            if (NetworkConnectionHandler.instance.connectionStage == 2) return;
+            if (NetworkConnectionHandler.Instance.connectionStage == 2) return;
 
-            if (SlotManager.instance.unitNetID.TryGetValue(netID, out Unit unit))
+            if (SlotManager.Instance.unitNetID.TryGetValue(netID, out Unit unit))
             {
                 Unit[] targets = new Unit[netIDs.Length];
 
@@ -202,7 +202,7 @@ namespace StrategyCore
                 {
                     if (netIDs[i] == 0) continue;
 
-                    if (SlotManager.instance.unitNetID.TryGetValue(netIDs[i], out Unit target))
+                    if (SlotManager.Instance.unitNetID.TryGetValue(netIDs[i], out Unit target))
                     {
                         targets[i] = target;
                     }
@@ -230,9 +230,9 @@ namespace StrategyCore
         private void PlayIdleAnimClientRpc(UInt16 netID)
         {
             // Joining mid-game, we do not accept any data from the server. Only scene data.
-            if (NetworkConnectionHandler.instance.connectionStage == 2) return;
+            if (NetworkConnectionHandler.Instance.connectionStage == 2) return;
 
-            if (SlotManager.instance.unitNetID.TryGetValue(netID, out Unit unit))
+            if (SlotManager.Instance.unitNetID.TryGetValue(netID, out Unit unit))
             {
                 if (!unit.isMoving && unit.animator)
                     unit.animator.CrossFade("idle0", unit.crossFadeTime, 0, 0.01f);
@@ -254,9 +254,9 @@ namespace StrategyCore
             else
             {
                 // Only for connected players and not server
-                if (SlotManager.instance.slotType[player] != SlotType.Player || SlotManager.instance.playerID[player] == 0 || SlotManager.instance.playerID[player] == -1) return;
+                if (SlotManager.Instance.slotType[player] != SlotType.Player || SlotManager.Instance.playerID[player] == 0 || SlotManager.Instance.playerID[player] == -1) return;
 
-                FloatingTextClientRpc(position, text, color, RpcTarget.Single((ulong)SlotManager.instance.playerID[player], RpcTargetUse.Temp));
+                FloatingTextClientRpc(position, text, color, RpcTarget.Single((ulong)SlotManager.Instance.playerID[player], RpcTargetUse.Temp));
             }
         }
 
@@ -278,20 +278,20 @@ namespace StrategyCore
         public void WaypointSet(Unit unit, Unit waypointUnit, Vector2 waypointLocation)
         {
             // Only for connected players and not server
-            if (SlotManager.instance.slotType[unit.owner] != SlotType.Player || SlotManager.instance.playerID[unit.owner] == 0 || SlotManager.instance.playerID[unit.owner] == -1) return;
+            if (SlotManager.Instance.slotType[unit.owner] != SlotType.Player || SlotManager.Instance.playerID[unit.owner] == 0 || SlotManager.Instance.playerID[unit.owner] == -1) return;
 
             UInt16 wayNetID = (ushort)((waypointUnit == null) ? 0 : waypointUnit.netID);
 
-            WaypointSetClientRpc(unit.netID, wayNetID, waypointLocation, RpcTarget.Single((ulong)SlotManager.instance.playerID[unit.owner], RpcTargetUse.Temp));
+            WaypointSetClientRpc(unit.netID, wayNetID, waypointLocation, RpcTarget.Single((ulong)SlotManager.Instance.playerID[unit.owner], RpcTargetUse.Temp));
         }
 
         [Rpc(SendTo.SpecifiedInParams, InvokePermission = RpcInvokePermission.Server)]
         private void WaypointSetClientRpc(UInt16 netID, UInt16 wayNetID, Vector2 position, RpcParams rpcParams)
         {
             // Joining mid-game, we do not accept any data from the server. Only scene data.
-            if (NetworkConnectionHandler.instance.connectionStage == 2) return;
+            if (NetworkConnectionHandler.Instance.connectionStage == 2) return;
 
-            if (SlotManager.instance.unitNetID.TryGetValue(netID, out Unit unit))
+            if (SlotManager.Instance.unitNetID.TryGetValue(netID, out Unit unit))
             {
                 if (wayNetID == 0 && position == Vector2.zero)
                 {
@@ -305,7 +305,7 @@ namespace StrategyCore
                 }
                 else
                 {
-                    if (SlotManager.instance.unitNetID.TryGetValue(wayNetID, out Unit wayUnit))
+                    if (SlotManager.Instance.unitNetID.TryGetValue(wayNetID, out Unit wayUnit))
                     {
                         // Unit
                         unit.SetWaypointDirect(wayUnit, Vector2.zero);

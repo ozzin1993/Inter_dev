@@ -85,8 +85,8 @@ namespace StrategyCore
             lt.lifespan = lifetime;
             lt.currentLifeSpan = lifetime;
 
-            if (GameManager.instance != null) lt.Initialize();
-            else Debug.LogWarning("[MatchManager] Призыв к Оружию: GameManager.instance == null — LifetimeUnit не инициализирован.");
+            if (GameManager.Instance != null) lt.Initialize();
+            else Debug.LogWarning("[MatchManager] Призыв к Оружию: GameManager.Instance == null — LifetimeUnit не инициализирован.");
 
             // [Interflow fix 2026-08-01 summon-lifetime] Серверный таймер-гарант. Наблюдалось (прогон 2026-08-01):
             // призванные жили дольше заданного времени. Первопричину по коду воспроизвести не удалось (штатный
@@ -112,7 +112,7 @@ namespace StrategyCore
         // чтобы суммарный usage не изменился ни при жизни, ни при смерти. Серверо-авторитетно (calledByServer=true).
         void CompensateSummonLimitedCost(Unit u)
         {
-            if (u == null || u.resourceCost == null || GameResources.instance == null) return;
+            if (u == null || u.resourceCost == null || GameResources.Instance == null) return;
 
             ResourceWrapper[] costs = u.resourceCost;
             int owner = u.owner;
@@ -121,17 +121,17 @@ namespace StrategyCore
             {
                 ResourceWrapper rw = costs[i];
                 if (rw == null || rw.type == null || !rw.type.limited) continue;
-                GameResources.instance.ChangeAmount(owner, rw, 1, false, true); // вернуть занятое ассетом при спавне
+                GameResources.Instance.ChangeAmount(owner, rw, 1, false, true); // вернуть занятое ассетом при спавне
             }
 
             u.OnDie += (du, _, _, _) =>
             {
-                if (GameResources.instance == null) return;
+                if (GameResources.Instance == null) return;
                 for (int i = 0; i < costs.Length; i++)
                 {
                     ResourceWrapper rw = costs[i];
                     if (rw == null || rw.type == null || !rw.type.limited) continue;
-                    GameResources.instance.ChangeAmount(owner, rw, 1, true, true); // отменить возврат ассета на смерти
+                    GameResources.Instance.ChangeAmount(owner, rw, 1, true, true); // отменить возврат ассета на смерти
                 }
             };
         }

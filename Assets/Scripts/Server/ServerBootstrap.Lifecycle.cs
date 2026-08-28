@@ -193,11 +193,11 @@ namespace StrategyCore
         private IEnumerator WatchMatchEnd()
         {
             // Ждём фактического старта матча (сцена матча загружена, юниты спавнятся).
-            while (SlotManager.instance == null || SlotManager.instance.gameStarted != GameState.Started)
+            while (SlotManager.Instance == null || SlotManager.Instance.gameStarted != GameState.Started)
                 yield return null;
 
-            if (GameManager.instance == null || GameManager.instance.specificUnitsDead == null ||
-                GameManager.instance.specificUnitsDead.Length == 0)
+            if (GameManager.Instance == null || GameManager.Instance.specificUnitsDead == null ||
+                GameManager.Instance.specificUnitsDead.Length == 0)
             {
                 Debug.LogWarning("[ServerBootstrap] specificUnitsDead не настроен — конец матча по замку не отследить. " +
                                  "Слот освободится по match_ttl (§6.5).");
@@ -206,7 +206,7 @@ namespace StrategyCore
 
             // Собрать netID замков из победных условий.
             List<ushort> castleIds = new List<ushort>();
-            foreach (SpeficicUnitsDead cond in GameManager.instance.specificUnitsDead)
+            foreach (SpeficicUnitsDead cond in GameManager.Instance.specificUnitsDead)
                 if (cond != null && cond.unitIds != null)
                     foreach (ushort id in cond.unitIds) castleIds.Add(id);
 
@@ -218,7 +218,7 @@ namespace StrategyCore
                 foreach (ushort id in castleIds)
                 {
                     if (subscribed.Contains(id)) continue;
-                    if (SlotManager.instance.unitNetID.TryGetValue(id, out Unit castle) && castle != null)
+                    if (SlotManager.Instance.unitNetID.TryGetValue(id, out Unit castle) && castle != null)
                     {
                         castle.OnDie += OnCastleDie;
                         subscribed.Add(id);

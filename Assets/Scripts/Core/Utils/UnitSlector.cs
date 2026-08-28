@@ -43,10 +43,10 @@ namespace StrategyCore
         public static bool IsUnitCompatible(int playerID, Unit targetUnit, UnitSelector unitSelector)
         {
             if ((((unitSelector.isTree && targetUnit.unitType == UnitType.Tree) || (unitSelector.isStaticDestructible && targetUnit.unitType == UnitType.StaticDestructible)) && ((unitSelector.isAir && targetUnit.isAir) || (unitSelector.isGround && targetUnit.isGround) || (unitSelector.isWater && targetUnit.isWater))) // If static destructible, tree skip ownership checks.
-            || (((unitSelector.isOwn && playerID == targetUnit.owner) || (unitSelector.isAlly && playerID != targetUnit.owner && (SlotManager.instance.playerTeam[playerID] == targetUnit.team || SlotManager.instance.playerTeam[(int)Players.NeutralPassive] == targetUnit.team)) || (unitSelector.isEnemy && SlotManager.instance.playerTeam[playerID] != targetUnit.team && SlotManager.instance.playerTeam[(int)Players.NeutralPassive] != targetUnit.team)) // Owned/Ally/Enemy check
+            || (((unitSelector.isOwn && playerID == targetUnit.owner) || (unitSelector.isAlly && playerID != targetUnit.owner && (SlotManager.Instance.playerTeam[playerID] == targetUnit.team || SlotManager.Instance.playerTeam[(int)Players.NeutralPassive] == targetUnit.team)) || (unitSelector.isEnemy && SlotManager.Instance.playerTeam[playerID] != targetUnit.team && SlotManager.Instance.playerTeam[(int)Players.NeutralPassive] != targetUnit.team)) // Owned/Ally/Enemy check
             && ((unitSelector.isUnit && targetUnit.unitType == UnitType.Unit) || (unitSelector.isBuilding && targetUnit.unitType == UnitType.Building) || (unitSelector.isTree && targetUnit.unitType == UnitType.Tree)) // Units/Building/StaticDestructible/Tree check
             && ((unitSelector.isAir && targetUnit.isAir == true) || (unitSelector.isGround && targetUnit.isGround == true) || (unitSelector.isWater && targetUnit.isWater == true)) // Air/Ground/Water type check
-            && (unitSelector.includeInvisible || (!targetUnit.isInvisible || (targetUnit.canBeSeen.Length != 0 && targetUnit.canBeSeen[SlotManager.instance.playerTeam[playerID]]))) // Invisible units
+            && (unitSelector.includeInvisible || (!targetUnit.isInvisible || (targetUnit.canBeSeen.Length != 0 && targetUnit.canBeSeen[SlotManager.Instance.playerTeam[playerID]]))) // Invisible units
             && (unitSelector.includeInvulnerable || !targetUnit.isInvulnerable) // Invulnerable units
             ))
             {

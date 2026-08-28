@@ -11,9 +11,11 @@ using UnityEditor;
 
 namespace StrategyCore
 {
-    public class NetworkConnectionHandler : MonoBehaviour
+    public class NetworkConnectionHandler : MonoBehaviour, IStartupService
     {
-        public static NetworkConnectionHandler instance;
+        public static NetworkConnectionHandler Instance { get; private set; }
+
+        private bool startupDone; // защита от повторного подъёма (стартовик сцены + собственный Awake)
         [HideInInspector] public static bool isClient = false; // Defines if the current machine is client
 
         [Tooltip("Reference to prefab of network handler")]
@@ -27,11 +29,19 @@ namespace StrategyCore
 
         [HideInInspector] public bool exitingPlayerMode;
 
-        void Awake()
+        void Awake() => Startup();
+
+        /// <summary>
+        /// Подъём службы (IStartupService). Идемпотентен: повторный вызов выходит сразу.
+        /// </summary>
+        public void Startup()
         {
-            if (instance == null)
+            if (startupDone) return;
+            startupDone = true;
+
+            if (Instance == null)
             {
-                instance = this;
+                Instance = this;
 #if UNITY_EDITOR
                 EditorApplication.playModeStateChanged += OnPlayModeStateChanged;
 #endif
@@ -65,12 +75,12 @@ namespace StrategyCore
         /// <param name="noServer">Should server also be added.</param>
         public void AddClientsToWaitingList(bool noServer = false)
         {
-            for (int i = 0; i < SlotManager.instance.playerID.Length; i++)
+            for (int i = 0; i < SlotManager.Instance.playerID.Length; i++)
             {
-                if (SlotManager.instance.playerID[i] != -1)
+                if (SlotManager.Instance.playerID[i] != -1)
                 {
-                    if (noServer && SlotManager.instance.playerID[i] == 0) continue;
-                    NetworkConnectionHandler.instance.clientsLoading.Add((ulong)SlotManager.instance.playerID[i]);
+                    if (noServer && SlotManager.Instance.playerID[i] == 0) continue;
+                    NetworkConnectionHandler.Instance.clientsLoading.Add((ulong)SlotManager.Instance.playerID[i]);
                 }
             }
         }
@@ -81,7 +91,7 @@ namespace StrategyCore
         /// <param name="ClientID">Client`s network ID.</param>
         public void ClientsWaitingListRemove(ulong ClientID)
         {
-            NetworkConnectionHandler.instance.clientsLoading.Remove(ClientID);
+            NetworkConnectionHandler.Instance.clientsLoading.Remove(ClientID);
             clientsListUpdated?.Invoke();
         }
 
@@ -93,18 +103,18 @@ namespace StrategyCore
         public void PauseTheGame()
         {
             // [ДИАГ] ВРЕМЕННО. Снять после диагностики.
-            Debug.Log($"[ДИАГ] PauseTheGame вызвана. IsServer={NetworkManager.Singleton.IsServer}, состояниеИгры={SlotManager.instance.gameStarted}");
+            Debug.Log($"[ДИАГ] PauseTheGame вызвана. IsServer={NetworkManager.Singleton.IsServer}, состояниеИгры={SlotManager.Instance.gameStarted}");
             // Pause the game
             Time.timeScale = 0;
-            SlotManager.instance.gameOn = false;
+            SlotManager.Instance.gameOn = false;
             Presentation.MenuUI?.ShowUIDocument();
             Presentation.MenuUI?.ShowMenuLobby(2);
 
             // Pause the game for clients
             if (NetworkManager.Singleton.IsServer)
             {
-                NetworkDataSync.instance.ForceSend();
-                NetworkDataSync.instance.PauseTheGameClientRpc();
+                NetworkDataSync.Instance.ForceSend();
+                NetworkDataSync.Instance.PauseTheGameClientRpc();
             }
         }
 
@@ -117,13 +127,13 @@ namespace StrategyCore
             // Resume the game for clients
             if (NetworkManager.Singleton.IsServer)
             {
-                NetworkDataSync.instance.ResumeTheGameSend(clearSaves);
+                NetworkDataSync.Instance.ResumeTheGameSend(clearSaves);
             }
 
             Time.timeScale = 1;
-            NetworkConnectionHandler.instance.connectionStage = 0;
+            NetworkConnectionHandler.Instance.connectionStage = 0;
             Presentation.MenuUI?.HideUIDocument();
-            SlotManager.instance.SetGameState(GameState.Started);
+            SlotManager.Instance.SetGameState(GameState.Started);
         }
 
         // ============================= CONNECT / DISCONNECT CALLBACKS ==============================================================================
@@ -134,12 +144,12 @@ namespace StrategyCore
         private void ClientConnected(ulong clientId)
         {
             // [ДИАГ] ВРЕМЕННО. Разбор «второе окно висит на CONNECTING». Снять после диагностики.
-            Debug.Log($"[ДИАГ] ClientConnected: clientId={clientId}, свой={clientId == NetworkManager.Singleton.LocalClientId}, IsServer={NetworkManager.Singleton.IsServer}, IsHost={NetworkManager.Singleton.IsHost}, IsClient={NetworkManager.Singleton.IsClient}, состояниеИгры={SlotManager.instance.gameStarted}, MenuUI={Presentation.MenuUI != null}, MenuReady={Presentation.MenuUI?.MenuReady}");
+            Debug.Log($"[ДИАГ] ClientConnected: clientId={clientId}, свой={clientId == NetworkManager.Singleton.LocalClientId}, IsServer={NetworkManager.Singleton.IsServer}, IsHost={NetworkManager.Singleton.IsHost}, IsClient={NetworkManager.Singleton.IsClient}, состояниеИгры={SlotManager.Instance.gameStarted}, MenuUI={Presentation.MenuUI != null}, MenuReady={Presentation.MenuUI?.MenuReady}");
             // Everyone: define if client
             if (!NetworkManager.Singleton.IsHost && NetworkManager.Singleton.IsClient) isClient = true;
 
             // Show lobby
-            if (SlotManager.instance.gameStarted == GameState.Menu)
+            if (SlotManager.Instance.gameStarted == GameState.Menu)
             {
                 // [Interflow fix 2026-06-26] null-guard: на выделенном сервере клиентского меню-UI может не быть (NRE из NGO HandleSessionOwnerEvent).
                 if (Presentation.MenuUI != null)
@@ -147,7 +157,7 @@ namespace StrategyCore
                     if (clientId == NetworkManager.Singleton.LocalClientId) Presentation.MenuUI?.ShowMenuLobby(1);
                     Presentation.MenuUI?.FillPlayerList();
                 }
-                NetworkConnectionHandler.instance.connectionStage = 0; // We are not joining mid-game
+                NetworkConnectionHandler.Instance.connectionStage = 0; // We are not joining mid-game
             }
 
             // Server: 
@@ -156,30 +166,30 @@ namespace StrategyCore
                 // Send player information
                 if (clientId != NetworkManager.Singleton.LocalClientId)
                 {
-                    NetworkDataSync.instance.PlayerListSend(clientId);
+                    NetworkDataSync.Instance.PlayerListSend(clientId);
 
                     // Joining midgame, send scene information
-                    if (SlotManager.instance.gameStarted == GameState.Started)
+                    if (SlotManager.Instance.gameStarted == GameState.Started)
                     {
-                        NetworkDataSync.instance.SendSceneData(clientId, true);
+                        NetworkDataSync.Instance.SendSceneData(clientId, true);
 
                         // Догнать опоздавшего живыми зонами на земле: их спавн он пропустил,
                         // а реестр держит сервер (MatchManager.GroundZones).
-                        if (MatchManager.instance != null) MatchManager.instance.ResendGroundZonesTo(clientId);
+                        if (MatchManager.Instance != null) MatchManager.Instance.ResendGroundZonesTo(clientId);
                     }
                 }
                 // Else: set current player
                 else
                 {
-                    SlotManager.instance.SetCurrentPlayer(SlotManager.instance.GetClientSlot(clientId));
+                    SlotManager.Instance.SetCurrentPlayer(SlotManager.Instance.GetClientSlot(clientId));
                 }
 
                 // Chat msg send
                 // [Interflow fix 2026-06-26] guard −1: при гонке/полном лобби GetClientSlot==-1 → playerName[-1] IndexOutOfRange.
-                int connectedSlot = SlotManager.instance.GetClientSlot(clientId);
+                int connectedSlot = SlotManager.Instance.GetClientSlot(clientId);
                 if (connectedSlot != -1)
                 {
-                    string msg = SlotManager.instance.playerName[connectedSlot] + " connected to the game.";
+                    string msg = SlotManager.Instance.playerName[connectedSlot] + " connected to the game.";
                     // [Interflow 2026-08-01 ADR-005] Серверный чат — через хаб (релей + локальная отрисовка).
                     Presentation.ChatServerMsgAuto(msg);
                 }
@@ -196,12 +206,12 @@ namespace StrategyCore
                 // Local client disconnected
 
                 // CleanUp
-                NetworkConnectionHandler.instance.clientsListUpdated -= NetworkDataSync.instance.ServerStartLoading;
-                NetworkConnectionHandler.instance.clientsListUpdated -= NetworkDataSync.instance.ServerPlayersFinishedLoading;
-                SceneHandler.instance.UnloadScene();
+                NetworkConnectionHandler.Instance.clientsListUpdated -= NetworkDataSync.Instance.ServerStartLoading;
+                NetworkConnectionHandler.Instance.clientsListUpdated -= NetworkDataSync.Instance.ServerPlayersFinishedLoading;
+                SceneHandler.Instance.UnloadScene();
                 isClient = false;
-                SlotManager.instance.SetGameState(GameState.Menu);
-                SlotManager.instance.unitNetID = new Dictionary<UInt16, Unit>();
+                SlotManager.Instance.SetGameState(GameState.Menu);
+                SlotManager.Instance.unitNetID = new Dictionary<UInt16, Unit>();
                 // Menu
                 // [Interflow fix 2026-06-26] null-guard: меню-UI может отсутствовать на сервере.
                 if (Presentation.MenuUI != null)
@@ -209,7 +219,7 @@ namespace StrategyCore
                     Presentation.MenuUI?.ShowUIDocument();
                     Presentation.MenuUI?.ShowMenuLobby(0);
                 }
-                // NetworkManager.Singleton.SceneManager.OnSceneEvent -= SceneHandler.instance.SceneManager_OnSceneEvent;
+                // NetworkManager.Singleton.SceneManager.OnSceneEvent -= SceneHandler.Instance.SceneManager_OnSceneEvent;
             }
             else
             {
@@ -218,29 +228,29 @@ namespace StrategyCore
 
                 // Chat msg send
                 // [Interflow fix 2026-06-26] guard −1: GetClientSlot может вернуть -1 (слот уже снят/гонка) → playerName[-1] IndexOutOfRange.
-                int disconnectedSlot = SlotManager.instance.GetClientSlot(clientId);
+                int disconnectedSlot = SlotManager.Instance.GetClientSlot(clientId);
                 if (disconnectedSlot != -1)
                 {
-                    string msg = SlotManager.instance.playerName[disconnectedSlot] + " disconnected from the game.";
+                    string msg = SlotManager.Instance.playerName[disconnectedSlot] + " disconnected from the game.";
                     // [Interflow 2026-08-01 ADR-005] Серверный чат — через хаб (релей + локальная отрисовка).
                     Presentation.ChatServerMsgAuto(msg);
                 }
 
                 // Server: Someone disconnected
-                SlotManager.instance.RemoveClientID(clientId);
-                if (SlotManager.instance.gameStarted == GameState.Menu)
+                SlotManager.Instance.RemoveClientID(clientId);
+                if (SlotManager.Instance.gameStarted == GameState.Menu)
                 {
                     // Refresh lobby
                     // [Interflow fix 2026-06-26] null-guard: меню-UI может отсутствовать на сервере.
                     if (Presentation.MenuUI != null) Presentation.MenuUI?.FillPlayerList();
                 }
-                else if (SlotManager.instance.gameStarted == GameState.Started)
+                else if (SlotManager.Instance.gameStarted == GameState.Started)
                 {
                     // Remove from the list
-                    NetworkConnectionHandler.instance.ClientsWaitingListRemove(clientId);
+                    NetworkConnectionHandler.Instance.ClientsWaitingListRemove(clientId);
                 }
                 // Send player information to clients
-                NetworkDataSync.instance.PlayerListSend(clientId, true);
+                NetworkDataSync.Instance.PlayerListSend(clientId, true);
             }
         }
 
@@ -250,7 +260,7 @@ namespace StrategyCore
         private void ConnectionApproval(NetworkManager.ConnectionApprovalRequest request, NetworkManager.ConnectionApprovalResponse response)
         {
             // When loading, do not approve connections
-            if (SlotManager.instance.gameStarted == GameState.Loading)
+            if (SlotManager.Instance.gameStarted == GameState.Loading)
             {
                 response.Approved = false;
                 response.Pending = false;
@@ -260,7 +270,7 @@ namespace StrategyCore
             var clientName = System.Text.Encoding.UTF8.GetString(request.Payload);
             // Санация имени: символы-разделители формата сейва ломают разбор сейва и вход мидгейм-клиентов
             clientName = clientName.Replace("\u2561", "_").Replace("~", "_").Replace("^", "_").Trim();
-            int slot = SlotManager.instance.AddClientID(request.ClientNetworkId, clientName);
+            int slot = SlotManager.Instance.AddClientID(request.ClientNetworkId, clientName);
             if (slot == -1)
             {
                 // Not approved
@@ -275,11 +285,11 @@ namespace StrategyCore
                 Debug.Log("Approved: joined " + clientName + ", " + request.ClientNetworkId + " at slot " + slot);
 
                 // If game has started, client is joining midgame. Pause the game. In Connection callback we will send the scene information
-                if (SlotManager.instance.gameStarted == GameState.Started)
+                if (SlotManager.Instance.gameStarted == GameState.Started)
                 {
                     clientsLoading.Add(request.ClientNetworkId);
                     PauseTheGame();
-                    NetworkConnectionHandler.instance.clientsListUpdated += NetworkDataSync.instance.ServerPlayersFinishedLoading;
+                    NetworkConnectionHandler.Instance.clientsListUpdated += NetworkDataSync.Instance.ServerPlayersFinishedLoading;
                 }
             }
             response.Pending = false;
@@ -294,13 +304,13 @@ namespace StrategyCore
         public void StartHost(string name)
         {
             // Game already started, most likely hosting without a lobby.
-            if (SlotManager.instance.gameStarted == GameState.Started)
+            if (SlotManager.Instance.gameStarted == GameState.Started)
             {
-                SlotManager.instance.InitializeSlotData();
+                SlotManager.Instance.InitializeSlotData();
                 NetworkManager.Singleton.StartHost();
                 m_networkHandler = Instantiate(networkHandler);
                 m_networkHandler.GetComponent<NetworkObject>().Spawn();
-                NetworkManager.Singleton.SceneManager.OnSceneEvent += SceneHandler.instance.SceneManager_OnSceneEvent;
+                NetworkManager.Singleton.SceneManager.OnSceneEvent += SceneHandler.Instance.SceneManager_OnSceneEvent;
                 return;
             }
 
@@ -313,7 +323,7 @@ namespace StrategyCore
             Presentation.MenuUI?.ShowMenuLobby(2);
             // Preparation
             if (m_networkHandler) Destroy(m_networkHandler);
-            SlotManager.instance.InitializeSlotData();
+            SlotManager.Instance.InitializeSlotData();
             // Settings for host
             NetworkManager.Singleton.NetworkConfig.ConnectionData = System.Text.Encoding.ASCII.GetBytes(name); // Send host`s name
             NetworkManager.Singleton.StartHost();
@@ -322,7 +332,7 @@ namespace StrategyCore
             m_networkHandler.GetComponent<NetworkObject>().Spawn();
             NetworkManager.Singleton.SceneManager.SetClientSynchronizationMode(LoadSceneMode.Additive);
             NetworkManager.Singleton.SceneManager.ActiveSceneSynchronizationEnabled = true;
-            NetworkManager.Singleton.SceneManager.OnSceneEvent += SceneHandler.instance.SceneManager_OnSceneEvent;
+            NetworkManager.Singleton.SceneManager.OnSceneEvent += SceneHandler.Instance.SceneManager_OnSceneEvent;
         }
 
         /// <summary>
@@ -334,10 +344,10 @@ namespace StrategyCore
         public void StartClient(string name, string address = null, string port = null)
         {
             // Game already started, most likely connecting without a lobby.
-            if (SlotManager.instance.gameStarted == GameState.Started)
+            if (SlotManager.Instance.gameStarted == GameState.Started)
             {
                 NetworkManager.Singleton.StartClient();
-                NetworkManager.Singleton.SceneManager.OnSceneEvent += SceneHandler.instance.SceneManager_OnSceneEvent;
+                NetworkManager.Singleton.SceneManager.OnSceneEvent += SceneHandler.Instance.SceneManager_OnSceneEvent;
                 return;
             }
 
@@ -368,8 +378,8 @@ namespace StrategyCore
             // Set name and start client
             NetworkManager.Singleton.NetworkConfig.ConnectionData = System.Text.Encoding.ASCII.GetBytes(name); // Send client`s name
             NetworkManager.Singleton.StartClient();
-            NetworkManager.Singleton.SceneManager.OnSceneEvent += SceneHandler.instance.SceneManager_OnSceneEvent;
-            NetworkConnectionHandler.instance.connectionStage = 2; // Assume we are joining midgame. Set to false in connected calback if we are in the lobby.
+            NetworkManager.Singleton.SceneManager.OnSceneEvent += SceneHandler.Instance.SceneManager_OnSceneEvent;
+            NetworkConnectionHandler.Instance.connectionStage = 2; // Assume we are joining midgame. Set to false in connected calback if we are in the lobby.
         }
 
         /// <summary>

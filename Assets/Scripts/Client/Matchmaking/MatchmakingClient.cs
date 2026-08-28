@@ -203,7 +203,7 @@ namespace StrategyCore
                         ReportStatus("Ошибка: назначение найдено, но не содержит ip/port.");
                         return true;
                     }
-                    if (NetworkConnectionHandler.instance == null)
+                    if (NetworkConnectionHandler.Instance == null)
                     {
                         ReportStatus("Ошибка: NetworkConnectionHandler не найден в сцене.");
                         return true;
@@ -211,7 +211,7 @@ namespace StrategyCore
                     ReportStatus("Найден");
                     Debug.Log($"[MatchmakingClient] Сервер: {assignment.Ip}:{assignment.Port.Value} — подключаюсь.");
                     // Существующий шов ассета: порт передаётся строкой (NCH парсит в ushort).
-                    NetworkConnectionHandler.instance.StartClient(playerName, assignment.Ip, assignment.Port.Value.ToString());
+                    NetworkConnectionHandler.Instance.StartClient(playerName, assignment.Ip, assignment.Port.Value.ToString());
                     return true;
 
                 case IpPortAssignment.StatusOptions.Failed:

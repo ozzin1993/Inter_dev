@@ -787,8 +787,8 @@ namespace StrategyCore
         // ----------------------------------------------------------------- 9. ПРИЗЫВ --
         void ApplySummon(Unit castingUnit, int castingPlayer, int level)
         {
-            MatchManager mm = MatchManager.instance;
-            if (mm == null) { Debug.LogWarning($"[{name}] Призыв: MatchManager.instance == null — пропуск."); return; }
+            MatchManager mm = MatchManager.Instance;
+            if (mm == null) { Debug.LogWarning($"[{name}] Призыв: MatchManager.Instance == null — пропуск."); return; }
 
             int count = Mathf.RoundToInt(LevelValue(summon.count, level));
             float lifetime = LevelValue(summon.lifetime, level);
@@ -845,15 +845,15 @@ namespace StrategyCore
 
                 // Клиенты узнают о зоне фактом из серверного реестра: позиция уже с учётом разброса,
                 // префаб клиент берёт из этого же ассета по id умения. Реестр сам разошлёт сообщение.
-                if (MatchManager.instance != null) MatchManager.instance.RegisterGroundZone(go, id, level, pos);
+                if (MatchManager.Instance != null) MatchManager.Instance.RegisterGroundZone(go, id, level, pos);
             }
         }
 
         // -------------------------------------------------------- 11. СЕРВЕРНЫЙ СЕРВИС --
         void ApplyDelegate(Unit castingUnit, int castingPlayer, Vector3 origin)
         {
-            MatchManager mm = MatchManager.instance;
-            if (mm == null) { Debug.LogWarning($"[{name}] Серверный сервис: MatchManager.instance == null — пропуск."); return; }
+            MatchManager mm = MatchManager.Instance;
+            if (mm == null) { Debug.LogWarning($"[{name}] Серверный сервис: MatchManager.Instance == null — пропуск."); return; }
 
             switch (delegateService.service)
             {
@@ -890,7 +890,7 @@ namespace StrategyCore
         /// </summary>
         internal static int TeamIndexOfPlayer(int player)
         {
-            MatchManager mm = MatchManager.instance;
+            MatchManager mm = MatchManager.Instance;
             if (mm == null) return -1;
 
             if (mm.Team(0) != null && mm.Team(0).ownerPlayer == player) return 0;

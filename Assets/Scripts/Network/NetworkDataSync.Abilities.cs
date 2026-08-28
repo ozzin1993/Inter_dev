@@ -31,16 +31,16 @@ namespace StrategyCore
         private void AbilityCastStartClientRpc(UInt16 castingUnitID, int abilityID, UInt16 targetID)
         {
             // Joining mid-game, we do not accept any data from the server. Only scene data.
-            if (NetworkConnectionHandler.instance.connectionStage == 2) return;
+            if (NetworkConnectionHandler.Instance.connectionStage == 2) return;
 
-            if (SlotManager.instance.unitNetID.TryGetValue(castingUnitID, out Unit castingUnit))
+            if (SlotManager.Instance.unitNetID.TryGetValue(castingUnitID, out Unit castingUnit))
             {
-                if (SlotManager.instance.unitNetID.TryGetValue(targetID, out Unit targetUnit))
+                if (SlotManager.Instance.unitNetID.TryGetValue(targetID, out Unit targetUnit))
                 {
                     castingUnit.activeAbilityCastTime = 1;
                     castingUnit.activeAbilityUnit = targetUnit;
                     castingUnit.activeAbilityUnit.OnReferenceChange += castingUnit.AbilityUnitReferenceChange;
-                    castingUnit.activeAbility = GameManager.instance.gameAbilities[abilityID];
+                    castingUnit.activeAbility = GameManager.Instance.gameAbilities[abilityID];
 
                     // Презентация: показать область действия с начала замаха. Сам приёмник ничего не рисует.
                     SkillPresentationEvents.RaiseCastStarted(castingUnit, abilityID, targetUnit, targetUnit.transform.position);
@@ -61,13 +61,13 @@ namespace StrategyCore
         private void AbilityCastStartClientRpc(UInt16 castingUnitID, int abilityID, Vector3 abilityLocation)
         {
             // Joining mid-game, we do not accept any data from the server. Only scene data.
-            if (NetworkConnectionHandler.instance.connectionStage == 2) return;
+            if (NetworkConnectionHandler.Instance.connectionStage == 2) return;
 
-            if (SlotManager.instance.unitNetID.TryGetValue(castingUnitID, out Unit castingUnit))
+            if (SlotManager.Instance.unitNetID.TryGetValue(castingUnitID, out Unit castingUnit))
             {
                 castingUnit.activeAbilityCastTime = 1;
                 castingUnit.activeAbilityLocation = abilityLocation;
-                castingUnit.activeAbility = GameManager.instance.gameAbilities[abilityID];
+                castingUnit.activeAbility = GameManager.Instance.gameAbilities[abilityID];
 
                 // Презентация: показать область действия с начала замаха.
                 SkillPresentationEvents.RaiseCastStarted(castingUnit, abilityID, null, abilityLocation);
@@ -94,9 +94,9 @@ namespace StrategyCore
         private void AbilityStopCastClientRpc(UInt16 castingUnitID)
         {
             // Joining mid-game, we do not accept any data from the server. Only scene data.
-            if (NetworkConnectionHandler.instance.connectionStage == 2) return;
+            if (NetworkConnectionHandler.Instance.connectionStage == 2) return;
 
-            if (SlotManager.instance.unitNetID.TryGetValue(castingUnitID, out Unit castingUnit))
+            if (SlotManager.Instance.unitNetID.TryGetValue(castingUnitID, out Unit castingUnit))
             {
                 castingUnit.activeAbilityCastTime = 0;
                 castingUnit.activeAbilityLocation = Vector3.zero;
@@ -130,14 +130,14 @@ namespace StrategyCore
         private void AbilityUseClientRpc(UInt16 castingUnitID, int abilityID, int abilityLevel, int abilityIndex, bool isItem, UInt16 targetID, Vector3 location, bool interrupt, int shadowCasterID, RpcParams rpcParams = default)
         {
             // Joining mid-game, we do not accept any data from the server. Only scene data.
-            if (NetworkConnectionHandler.instance.connectionStage == 2) return;
+            if (NetworkConnectionHandler.Instance.connectionStage == 2) return;
 
-            if (SlotManager.instance.unitNetID.TryGetValue(castingUnitID, out Unit castingUnit))
+            if (SlotManager.Instance.unitNetID.TryGetValue(castingUnitID, out Unit castingUnit))
             {
                 Unit targetUnit = null;
                 if (targetID != 0)
                 {
-                    if (!SlotManager.instance.unitNetID.TryGetValue(targetID, out targetUnit))
+                    if (!SlotManager.Instance.unitNetID.TryGetValue(targetID, out targetUnit))
                     {
                         Debug.LogError("Desync! Unit netID:" + targetID + " should exist on client, but does not! (AbilityUseSend NetworkDataSync)");
                         return;
@@ -145,7 +145,7 @@ namespace StrategyCore
                 }
 
                 castingUnit.activeAbilityCastTime = 0;
-                castingUnit.UseAbilityImmediately(GameManager.instance.gameAbilities[abilityID], abilityLevel, abilityIndex, isItem, targetUnit, location, interrupt, shadowCasterID);
+                castingUnit.UseAbilityImmediately(GameManager.Instance.gameAbilities[abilityID], abilityLevel, abilityIndex, isItem, targetUnit, location, interrupt, shadowCasterID);
             }
             else
             {
@@ -166,9 +166,9 @@ namespace StrategyCore
         private void AbilityStopClientRpc(UInt16 castingUnitID, RpcParams rpcParams = default)
         {
             // Joining mid-game, we do not accept any data from the server. Only scene data.
-            if (NetworkConnectionHandler.instance.connectionStage == 2) return;
+            if (NetworkConnectionHandler.Instance.connectionStage == 2) return;
 
-            if (SlotManager.instance.unitNetID.TryGetValue(castingUnitID, out Unit castingUnit))
+            if (SlotManager.Instance.unitNetID.TryGetValue(castingUnitID, out Unit castingUnit))
             {
                 castingUnit.EndActiveAbility(true, false);
             }
@@ -191,11 +191,11 @@ namespace StrategyCore
         private void LevelUpAbilityClientRpc(UInt16 netID, int abilityID, int abilityIndex)
         {
             // Joining mid-game, we do not accept any data from the server. Only scene data.
-            if (NetworkConnectionHandler.instance.connectionStage == 2) return;
+            if (NetworkConnectionHandler.Instance.connectionStage == 2) return;
 
-            if (SlotManager.instance.unitNetID.TryGetValue(netID, out Unit unit))
+            if (SlotManager.Instance.unitNetID.TryGetValue(netID, out Unit unit))
             {
-                unit.LevelUpAbility(GameManager.instance.gameAbilities[abilityID], abilityIndex);
+                unit.LevelUpAbility(GameManager.Instance.gameAbilities[abilityID], abilityIndex);
 
                 if (Presentation.Selection?.ActiveUnit == unit)
                 {
@@ -231,9 +231,9 @@ namespace StrategyCore
         private void InvisibilitySetClientRpc(UInt16 netID, bool state)
         {
             // Joining mid-game, we do not accept any data from the server. Only scene data.
-            if (NetworkConnectionHandler.instance.connectionStage == 2) return;
+            if (NetworkConnectionHandler.Instance.connectionStage == 2) return;
 
-            if (SlotManager.instance.unitNetID.TryGetValue(netID, out Unit unit))
+            if (SlotManager.Instance.unitNetID.TryGetValue(netID, out Unit unit))
             {
                 unit.SetInvisibility(state);
             }
@@ -257,9 +257,9 @@ namespace StrategyCore
         private void StunSetClientRpc(UInt16 netID, bool state)
         {
             // Joining mid-game, we do not accept any data from the server. Only scene data.
-            if (NetworkConnectionHandler.instance.connectionStage == 2) return;
+            if (NetworkConnectionHandler.Instance.connectionStage == 2) return;
 
-            if (SlotManager.instance.unitNetID.TryGetValue(netID, out Unit unit))
+            if (SlotManager.Instance.unitNetID.TryGetValue(netID, out Unit unit))
             {
                 unit.Stun(state);
             }
@@ -282,9 +282,9 @@ namespace StrategyCore
         private void MuteSetClientRpc(UInt16 netID, bool state)
         {
             // Joining mid-game, we do not accept any data from the server. Only scene data.
-            if (NetworkConnectionHandler.instance.connectionStage == 2) return;
+            if (NetworkConnectionHandler.Instance.connectionStage == 2) return;
 
-            if (SlotManager.instance.unitNetID.TryGetValue(netID, out Unit unit))
+            if (SlotManager.Instance.unitNetID.TryGetValue(netID, out Unit unit))
             {
                 unit.Mute(state);
             }
@@ -307,9 +307,9 @@ namespace StrategyCore
         private void DisarmSetClientRpc(UInt16 netID, bool state)
         {
             // Joining mid-game, we do not accept any data from the server. Only scene data.
-            if (NetworkConnectionHandler.instance.connectionStage == 2) return;
+            if (NetworkConnectionHandler.Instance.connectionStage == 2) return;
 
-            if (SlotManager.instance.unitNetID.TryGetValue(netID, out Unit unit))
+            if (SlotManager.Instance.unitNetID.TryGetValue(netID, out Unit unit))
             {
                 unit.Disarm(state);
             }

@@ -42,8 +42,8 @@ namespace StrategyCore
         private void UnitStatusEffectorClientRpc(UInt16 netID, int effectorId, float duration)
         {
             // Подключение в середине матча: принимаем только данные сцены (штатное правило RPC этого хаба).
-            if (NetworkConnectionHandler.instance.connectionStage == 2) return;
-            if (GameManager.instance == null) return; // кадр выгрузки сцены
+            if (NetworkConnectionHandler.Instance.connectionStage == 2) return;
+            if (GameManager.Instance == null) return; // кадр выгрузки сцены
             if (!TryResolveUnit(netID, "UnitStatusEffectorSend", out Unit unit)) return;
 
             Effector effector = Effector.GetEffectorByID(effectorId);
@@ -68,7 +68,7 @@ namespace StrategyCore
         [Rpc(SendTo.NotServer, InvokePermission = RpcInvokePermission.Server)]
         private void UnitStatusEffectorRemoveClientRpc(UInt16 netID, int effectorId)
         {
-            if (NetworkConnectionHandler.instance.connectionStage == 2) return;
+            if (NetworkConnectionHandler.Instance.connectionStage == 2) return;
             if (!TryResolveUnit(netID, "UnitStatusEffectorRemoveSend", out Unit unit)) return;
 
             SkillVisualStatus.RemoveEffector(unit, effectorId);
@@ -86,7 +86,7 @@ namespace StrategyCore
         [Rpc(SendTo.NotServer, InvokePermission = RpcInvokePermission.Server)]
         private void UnitStatusFlagClientRpc(UInt16 netID, byte flag, bool state)
         {
-            if (NetworkConnectionHandler.instance.connectionStage == 2) return;
+            if (NetworkConnectionHandler.Instance.connectionStage == 2) return;
             if (!TryResolveUnit(netID, "UnitStatusFlagSend", out Unit unit)) return;
 
             SkillVisualStatus.SetFlag(unit, (UnitStatusFlag)flag, state);
@@ -105,14 +105,14 @@ namespace StrategyCore
             // массива: их netID уже снят из реестра, и клиент напечатал бы «Desync!» на каждый номер.
             int alive = 0;
             for (int i = 0; i < netIDs.Length; i++)
-                if (SlotManager.instance.unitNetID.ContainsKey(netIDs[i])) alive++;
+                if (SlotManager.Instance.unitNetID.ContainsKey(netIDs[i])) alive++;
             if (alive == 0) return;
             if (alive != netIDs.Length)
             {
                 UInt16[] filtered = new UInt16[alive];
                 int k = 0;
                 for (int i = 0; i < netIDs.Length; i++)
-                    if (SlotManager.instance.unitNetID.ContainsKey(netIDs[i])) filtered[k++] = netIDs[i];
+                    if (SlotManager.Instance.unitNetID.ContainsKey(netIDs[i])) filtered[k++] = netIDs[i];
                 netIDs = filtered;
             }
 
@@ -122,13 +122,13 @@ namespace StrategyCore
         [Rpc(SendTo.NotServer, InvokePermission = RpcInvokePermission.Server)]
         private void SkillBuffVfxClientRpc(UInt16[] netIDs, int buffAbilityId, int buffAbilityLevel, float buffDuration)
         {
-            if (NetworkConnectionHandler.instance.connectionStage == 2) return;
-            if (GameManager.instance == null) return;
+            if (NetworkConnectionHandler.Instance.connectionStage == 2) return;
+            if (GameManager.Instance == null) return;
 
             // Разбираем описание бафа один раз на всё сообщение, а не на каждую цель.
             VFXReferencer buffVfx = null;
             float auraRadius = 0f;
-            if (GameManager.instance.gameAbilities.TryGetValue(buffAbilityId, out Ability ability)
+            if (GameManager.Instance.gameAbilities.TryGetValue(buffAbilityId, out Ability ability)
                 && ability is CompositeSkill skill && skill.buff != null)
             {
                 buffVfx = skill.buff.buffVFX;
@@ -163,8 +163,8 @@ namespace StrategyCore
         [Rpc(SendTo.NotServer, InvokePermission = RpcInvokePermission.Server)]
         private void SkillFiredClientRpc(UInt16 casterID, int abilityID, int level, UInt16 aimID, Vector3 aimPoint)
         {
-            if (NetworkConnectionHandler.instance != null && NetworkConnectionHandler.instance.connectionStage == 2) return;
-            if (GameManager.instance == null) return; // кадр выгрузки сцены
+            if (NetworkConnectionHandler.Instance != null && NetworkConnectionHandler.Instance.connectionStage == 2) return;
+            if (GameManager.Instance == null) return; // кадр выгрузки сцены
 
             // Ссылки не обязательны: умение могло сработать без кастера или без конкретной цели,
             // а цель — умереть по дороге. Презентацию из-за этого не отменяем, точка приложения известна.
@@ -193,8 +193,8 @@ namespace StrategyCore
         {
             // Подключение в середине матча: принимаем только данные сцены (штатное правило RPC этого хаба).
             // Живые зоны опоздавшему клиенту досылаются отдельно, по завершении подключения.
-            if (NetworkConnectionHandler.instance != null && NetworkConnectionHandler.instance.connectionStage == 2) return;
-            if (GameManager.instance == null) return; // кадр выгрузки сцены
+            if (NetworkConnectionHandler.Instance != null && NetworkConnectionHandler.Instance.connectionStage == 2) return;
+            if (GameManager.Instance == null) return; // кадр выгрузки сцены
 
             SkillPresentationEvents.RaiseZoneSpawned(zoneId, abilityID, level, position);
         }
@@ -209,7 +209,7 @@ namespace StrategyCore
         [Rpc(SendTo.NotServer, InvokePermission = RpcInvokePermission.Server)]
         private void GroundZoneDespawnClientRpc(int zoneId)
         {
-            if (NetworkConnectionHandler.instance != null && NetworkConnectionHandler.instance.connectionStage == 2) return;
+            if (NetworkConnectionHandler.Instance != null && NetworkConnectionHandler.Instance.connectionStage == 2) return;
 
             SkillPresentationEvents.RaiseZoneDespawned(zoneId);
         }
@@ -227,7 +227,7 @@ namespace StrategyCore
         [Rpc(SendTo.SpecifiedInParams, InvokePermission = RpcInvokePermission.Server)]
         private void GroundZoneResendClientRpc(int zoneId, int abilityID, int level, Vector3 position, RpcParams rpcParams = default)
         {
-            if (GameManager.instance == null) return;
+            if (GameManager.Instance == null) return;
 
             SkillPresentationEvents.RaiseZoneSpawned(zoneId, abilityID, level, position);
         }
@@ -247,8 +247,8 @@ namespace StrategyCore
         [Rpc(SendTo.NotServer, InvokePermission = RpcInvokePermission.Server)]
         private void UnitShieldClientRpc(UInt16 netID, float amount)
         {
-            if (NetworkConnectionHandler.instance != null && NetworkConnectionHandler.instance.connectionStage == 2) return;
-            if (GameManager.instance == null) return; // кадр выгрузки сцены
+            if (NetworkConnectionHandler.Instance != null && NetworkConnectionHandler.Instance.connectionStage == 2) return;
+            if (GameManager.Instance == null) return; // кадр выгрузки сцены
             if (!TryResolveUnit(netID, "UnitShieldSend", out Unit unit)) return;
 
             SkillPresentationEvents.RaiseShieldChanged(unit, amount);
@@ -275,7 +275,7 @@ namespace StrategyCore
         static bool StillRegistered(Unit unit)
         {
             return unit != null
-                && SlotManager.instance.unitNetID.TryGetValue(unit.netID, out Unit registered)
+                && SlotManager.Instance.unitNetID.TryGetValue(unit.netID, out Unit registered)
                 && registered == unit;
         }
 
@@ -287,7 +287,7 @@ namespace StrategyCore
 
         static bool TryResolveUnit(UInt16 netID, string source, out Unit unit)
         {
-            if (!SlotManager.instance.unitNetID.TryGetValue(netID, out unit) || unit == null)
+            if (!SlotManager.Instance.unitNetID.TryGetValue(netID, out unit) || unit == null)
             {
                 Debug.LogError("Desync! Unit netID:" + netID + " should exist on client, but does not! (" + source + " NetworkDataSync)");
                 unit = null;

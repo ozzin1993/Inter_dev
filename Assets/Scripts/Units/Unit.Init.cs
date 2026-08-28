@@ -23,20 +23,20 @@ namespace StrategyCore
             // Set Ownership/Team
             if (unitType == UnitType.Item) SetOwnership((int)Players.NeutralPassive);
             else SetOwnership(owner);
-            GameManager.instance.OnTeamChange += TeamChanged;
+            GameManager.Instance.OnTeamChange += TeamChanged;
 
             // Unique custom NetID
-            SlotManager.instance.AssignNetID(this);
+            SlotManager.Instance.AssignNetID(this);
 
             // Subsctibe to winning conditions (specific units should die)
-            GameManager.instance.SubscribeToSpecificWinningConditions(this);
+            GameManager.Instance.SubscribeToSpecificWinningConditions(this);
 
             // Healthbar
             // [Interflow 2026-08-01 server-opt] На дедике бар не создаём вовсе (раньше спавнилась пустышка).
             if (!Utils.Headless && unitType != UnitType.StaticDestructible && unitType != UnitType.Item && unitType != UnitType.Tree)
             {
-                if (team != SlotManager.instance.currentTeam && team != (int)Teams.NeutralPassive) Instantiate(ReferenceManager.instance.healthBarEnemy, this.transform).name = "HealthBar(Clone)";
-                else Instantiate(ReferenceManager.instance.healthBar, this.transform);
+                if (team != SlotManager.Instance.currentTeam && team != (int)Teams.NeutralPassive) Instantiate(ReferenceManager.Instance.healthBarEnemy, this.transform).name = "HealthBar(Clone)";
+                else Instantiate(ReferenceManager.Instance.healthBar, this.transform);
 
                 // [Interflow fix 2026-08-05 unit-status-sync] Шкала статусов (ряд иконок над полоской
                 // здоровья) — та же конвенция, что у бара: только не на дедике и не для статики.
@@ -48,10 +48,10 @@ namespace StrategyCore
             if (!Utils.Headless)
             {
                 var minimapIcon = transform.Find("MiniMapIcon");
-                if (minimapIcon == null) minimapIcon = Instantiate(ReferenceManager.instance.miniMapIcon, this.transform);
+                if (minimapIcon == null) minimapIcon = Instantiate(ReferenceManager.Instance.miniMapIcon, this.transform);
                 // [Interflow fix 2026-08-01 grid-headless] SpriteRenderer может быть вырезан Roles-стрипом — гейт вместо NRE.
                 SpriteRenderer minimapIconSR = minimapIcon.GetComponent<SpriteRenderer>();
-                if (minimapIconSR != null) minimapIconSR.color = SlotManager.instance.playerColors[owner];
+                if (minimapIconSR != null) minimapIconSR.color = SlotManager.Instance.playerColors[owner];
             }
 
             // VFX Holder - for auras and stun efects
@@ -114,7 +114,7 @@ namespace StrategyCore
                         agent = go.AddComponent<NavMeshAgent>();
 
                         // Set agent parameters
-                        if (isWater) agent.agentTypeID = GameManager.instance.agentTypes[1];
+                        if (isWater) agent.agentTypeID = GameManager.Instance.agentTypes[1];
                     }
                     else agent = GetComponent<NavMeshAgent>();
 
@@ -160,21 +160,21 @@ namespace StrategyCore
             }
 
             // FoW Cell assignment
-            if (FogOfWar.instance.TurnOff) FoWVisible = true;
+            if (FogOfWar.Instance.TurnOff) FoWVisible = true;
             else
             {
-                FoWCell = FogOfWar.instance.CellAssignment(this, true);
-                if (SlotManager.instance.currentTeam == team) FoWVisible = true;
+                FoWCell = FogOfWar.Instance.CellAssignment(this, true);
+                if (SlotManager.Instance.currentTeam == team) FoWVisible = true;
 
                 // View Blocker
-                if (viewBlocker || singleCellViewBlocker) FogOfWar.instance.UnitViewBlockCalculate(this);
+                if (viewBlocker || singleCellViewBlocker) FogOfWar.Instance.UnitViewBlockCalculate(this);
             }
 
             // Grid assignment
             Grid.AssignToChunkInitial(this);
 
             // Invisibilty navmesh clone - for static objects
-            if (GameManager.instance.gameIncludesInvisible)
+            if (GameManager.Instance.gameIncludesInvisible)
             {
                 // Clone only for static objects
                 if (unitType != UnitType.Item && unitType != UnitType.Unit && !canMove)
@@ -230,14 +230,14 @@ namespace StrategyCore
 
                 // Add takein takout abilities
                 Array.Resize(ref abilities, abilities.Length + 2);
-                abilities[abilities.Length - 1] = ReferenceManager.instance.takeInTransport;
-                abilities[abilities.Length - 2] = ReferenceManager.instance.takeOutTransport;
+                abilities[abilities.Length - 1] = ReferenceManager.Instance.takeInTransport;
+                abilities[abilities.Length - 2] = ReferenceManager.Instance.takeOutTransport;
             }
 
             // Armor
-            if (armorType == null) armorType = ReferenceManager.instance.standardArmorType;
+            if (armorType == null) armorType = ReferenceManager.Instance.standardArmorType;
             // Attack 
-            if (damageType == null) damageType = ReferenceManager.instance.standardDamageType;
+            if (damageType == null) damageType = ReferenceManager.Instance.standardDamageType;
 
             // Initialize Abilities and Inventory
             InitializeAbilities();
@@ -259,13 +259,13 @@ namespace StrategyCore
             if (!canMove && !canAttack && abilities.Length == 0 && InventorySize == 0 && owner == (int)Players.NeutralPassive) staticObject = true;
 
             // Is it being constructed or not && Subscribe to tick of gameManager
-            GameManager.instance.Tick += HandleEffectors;
+            GameManager.Instance.Tick += HandleEffectors;
             if (constructionUnit == null || (!constructionUnit.isBuilding || constructionUnit.completed)) // Add the following only if this building is not being built
             {
                 if (!staticObject)
                 {
-                    GameManager.instance.Tick += HandleEveryFrameAbilities;
-                    GameManager.instance.Tick += CooldownCalculate;
+                    GameManager.Instance.Tick += HandleEveryFrameAbilities;
+                    GameManager.Instance.Tick += CooldownCalculate;
                 }
             }
             else isBeingBuilt = true;
@@ -273,7 +273,7 @@ namespace StrategyCore
             if (!isBeingBuilt)
             {
                 // Unlock TechTree when this unit is created, if there is something to unlock
-                TechnologyManager.instance.UnlockTech(this);
+                TechnologyManager.Instance.UnlockTech(this);
 
                 // Resource Production when unit is created. For limited resource it increases the limits
                 if (resourceProduced != null)
@@ -282,8 +282,8 @@ namespace StrategyCore
                     {
                         // [Interflow fix 2026-08-01 limited-res-sync] calledByServer: true — учёт ведёт СЕРВЕР и рассылает
                         // клиентам (раньше каждый пир считал сам и расходился на выделенном сервере).
-                        if (resourceProduced[i].type.limited) GameResources.instance.ChangeLimit(owner, resourceProduced[i], false, true);
-                        else GameResources.instance.ChangeAmount(owner, resourceProduced[i], 1, false, true);
+                        if (resourceProduced[i].type.limited) GameResources.Instance.ChangeLimit(owner, resourceProduced[i], false, true);
+                        else GameResources.Instance.ChangeAmount(owner, resourceProduced[i], 1, false, true);
                     }
                 }
             }
@@ -294,12 +294,12 @@ namespace StrategyCore
                 for (int i = 0; i < resourceCost.Length; i++)
                 {
                     // [Interflow fix 2026-08-01 limited-res-sync] calledByServer: true — расход лидерства считает и рассылает сервер.
-                    if (resourceCost[i].type.limited) GameResources.instance.ChangeAmount(owner, resourceCost[i], 1, true, true); // We decrease the resource
+                    if (resourceCost[i].type.limited) GameResources.Instance.ChangeAmount(owner, resourceCost[i], 1, true, true); // We decrease the resource
                 }
             }
 
             // TechTree subscribe to it
-            if (!staticObject) TechnologyManager.instance.OnTechUnlock[owner] += AllAbilityLockLevelsCalculate; // When new tech is unlocked, check if there are any abilities to unlock
+            if (!staticObject) TechnologyManager.Instance.OnTechUnlock[owner] += AllAbilityLockLevelsCalculate; // When new tech is unlocked, check if there are any abilities to unlock
 
             initialized = true;
         }
@@ -336,8 +336,8 @@ namespace StrategyCore
                 if (projectileGO == null)
                 {
                     Debug.LogWarning("Unit " + unitName + " is ranged, but projectile is not set! Set it!");
-                    if (attackType == AttackType.Continuous) projectileGO = ReferenceManager.instance.defaultContinuousVFX.gameObject;
-                    else projectileGO = ReferenceManager.instance.defaultProjectile.gameObject;
+                    if (attackType == AttackType.Continuous) projectileGO = ReferenceManager.Instance.defaultContinuousVFX.gameObject;
+                    else projectileGO = ReferenceManager.Instance.defaultProjectile.gameObject;
                 }
                 // Assign internal variables for projectile/continuousVFX
                 if (attackType == AttackType.Continuous)
@@ -378,7 +378,7 @@ namespace StrategyCore
                 if (!initialized && idleAnimationCount > 1 && !Utils.Headless)
                 {
                     idleRandomTime = UnityEngine.Random.Range(8f, 13f);
-                    GameManager.instance.Tick += RandomIdleAnimation;
+                    GameManager.Instance.Tick += RandomIdleAnimation;
                 }
 
                 // Attack animation

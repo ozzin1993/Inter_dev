@@ -245,7 +245,7 @@ namespace StrategyCore
             if (techTreeBody == null) return;
             techTreeBody.Clear();
 
-            MatchManager mm = MatchManager.instance;
+            MatchManager mm = MatchManager.Instance;
             if (mm == null) return;
             int team = CommandTeamForLocalPlayer();
 
@@ -271,7 +271,7 @@ namespace StrategyCore
         // -1 — ресурс не найден или данные ещё не готовы.
         int TechTreeResourceAmount(int player)
         {
-            GameResources gr = GameResources.instance;
+            GameResources gr = GameResources.Instance;
             if (gr == null || techTreeHeaderResource == null) return -1;
             if (gr.gameResources == null || gr.playerResources == null || player < 0) return -1;
 
@@ -502,7 +502,7 @@ namespace StrategyCore
         /// <summary>Открыть карточку выбора для узла-юнита (tier, option). Ничего не делает, если узел недоступен.</summary>
         public void OpenTechChoiceCard(int tier, int option)
         {
-            MatchManager mm = MatchManager.instance;
+            MatchManager mm = MatchManager.Instance;
             if (mm == null || techTreeRoot == null) return;
             int team = CommandTeamForLocalPlayer();
             if (!mm.IsBigOptionUnlockable(team, tier, option)) return;   // сервер тоже валидирует
@@ -717,15 +717,15 @@ namespace StrategyCore
         // Локально состояние НЕ меняем — панель перерисуется по факту серверной синхронизации (OnTechUnlock).
         void BuyTierLevel(int tier)
         {
-            MatchManager mm = MatchManager.instance;
+            MatchManager mm = MatchManager.Instance;
             if (mm == null) return;
             int team = CommandTeamForLocalPlayer();
             if (!mm.IsTierLevelUnlockable(team, tier)) return;   // сервер валидирует повторно
 
             if (NetworkConnectionHandler.isClient)
             {
-                if (NetworkDataSync.instance != null)
-                    NetworkDataSync.instance.UnlockTechTierServerRpc(team, tier, (int)TechTierStep.Level, 0, 0);
+                if (NetworkDataSync.Instance != null)
+                    NetworkDataSync.Instance.UnlockTechTierServerRpc(team, tier, (int)TechTierStep.Level, 0, 0);
             }
             else
             {
@@ -739,7 +739,7 @@ namespace StrategyCore
         {
             if (techTreeCardTier < 0 || techTreeCardOption < 0 || techTreeCardSpec < 0) return;
 
-            MatchManager mm = MatchManager.instance;
+            MatchManager mm = MatchManager.Instance;
             if (mm == null) return;
             int team = CommandTeamForLocalPlayer();
             int tier = techTreeCardTier, option = techTreeCardOption, spec = techTreeCardSpec;
@@ -748,8 +748,8 @@ namespace StrategyCore
 
             if (NetworkConnectionHandler.isClient)
             {
-                if (NetworkDataSync.instance != null)
-                    NetworkDataSync.instance.UnlockTechBigWithSpecServerRpc(team, tier, option, spec);
+                if (NetworkDataSync.Instance != null)
+                    NetworkDataSync.Instance.UnlockTechBigWithSpecServerRpc(team, tier, option, spec);
             }
             else
             {
@@ -776,7 +776,7 @@ namespace StrategyCore
         {
             if (techTreeCardOverlay == null) return;
 
-            MatchManager mm = MatchManager.instance;
+            MatchManager mm = MatchManager.Instance;
             if (mm != null && mm.IsBigOptionUnlockable(CommandTeamForLocalPlayer(), techTreeCardTier, techTreeCardOption)) return;
             CloseTechChoiceCard();
         }

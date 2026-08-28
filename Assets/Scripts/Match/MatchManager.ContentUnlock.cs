@@ -227,7 +227,7 @@ namespace StrategyCore
         void RetroReplaceTowers(int team)
         {
             if (rebuildablePoints == null) return;
-            int[] pTeam = SlotManager.instance?.playerTeam;
+            int[] pTeam = SlotManager.Instance?.playerTeam;
             if (pTeam == null) return;
 
             foreach (PointTowerConfig cfg in rebuildablePoints)
@@ -282,7 +282,7 @@ namespace StrategyCore
             if (contentTriggersWired) return;
             contentTriggersWired = true;
 
-            TechnologyManager tm = TechnologyManager.instance;
+            TechnologyManager tm = TechnologyManager.Instance;
             for (int team = 0; team < 2; team++)
             {
                 int t = team;
@@ -311,7 +311,7 @@ namespace StrategyCore
         // Отписка при уничтожении менеджера.
         void UnwireContentTriggers()
         {
-            TechnologyManager tm = TechnologyManager.instance;
+            TechnologyManager tm = TechnologyManager.Instance;
             for (int team = 0; team < 2; team++)
             {
                 if (techRecomputeHandlers[team] == null) continue;

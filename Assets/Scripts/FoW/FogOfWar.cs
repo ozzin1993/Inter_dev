@@ -6,7 +6,7 @@ namespace StrategyCore
 {
     public partial class FogOfWar : MonoBehaviour // [Interflow fix 2026-08-01 partial-split] класс разрезан на partial-файлы (задача №11)
     {
-        public static FogOfWar instance;
+        public static FogOfWar Instance { get; private set; }
 
         [Tooltip("Turn off fog of war.")]
         public bool TurnOff;
@@ -16,8 +16,8 @@ namespace StrategyCore
         public float revealTime = 2;
 
         private float visionRangeMultiplier; // We multiply visionRange by this number to ensure we cover all the vision cells according to radius of visionRange
-        int gridSizeX; // How many cells will be on the map depenging on grid size = Grid.instance.width / cellSize
-        int gridSizeY; // Grid.instance.height / cellSize
+        int gridSizeX; // How many cells will be on the map depenging on grid size = Grid.Instance.width / cellSize
+        int gridSizeY; // Grid.Instance.height / cellSize
 
         // Holds information about visible/fogged cells for each team. First index is team, second index is cell state
         int[,,] gridFoW; // 0 Not visible
@@ -51,25 +51,23 @@ namespace StrategyCore
 
         void Awake()
         {
-            if (instance == null) instance = this;
+            if (Instance == null) Instance = this;
 
-            if (SlotManager.instance == null) GameObject.Find("ProjectManager").GetComponent<SlotManager>().InstanceSet();
-            if (GameManager.instance == null) GameManager.instance = GetComponent<GameManager>();
-            if (Grid.instance == null) Grid.instance = GetComponent<Grid>();
+            // SlotManager, GameManager и Grid обязаны быть подняты РАНЬШЕ — порядок задаёт SceneStartup.
 
             // Vision range
-            Utils.maxVisionRange += Mathf.CeilToInt(FogOfWar.instance.cellSize);
+            Utils.maxVisionRange += Mathf.CeilToInt(FogOfWar.Instance.cellSize);
             Initialize();
         }
 
         void Start()
         {
-            GameManager.instance.Tick += TimeUpdate;
+            GameManager.Instance.Tick += TimeUpdate;
         }
 
         private void OnDestroy()
         {
-            GameManager.instance.Tick -= TimeUpdate;
+            GameManager.Instance.Tick -= TimeUpdate;
         }
 
         // After all the manipulations with the textures with must apply them
@@ -148,7 +146,7 @@ namespace StrategyCore
         /// </summary>
         public void Initialize()
         {
-            visionRangeMultiplier = Grid.instance.cellSize / cellSize;
+            visionRangeMultiplier = Grid.Instance.cellSize / cellSize;
 
             // Half Fog Color
             halfFogColor = fogColor;
@@ -156,8 +154,8 @@ namespace StrategyCore
             if (TurnOff) fogColor.a = 0;
 
             // How many cells will be on the map depenging on grid size
-            gridSizeX = (int)(Grid.instance.width / cellSize);
-            gridSizeY = (int)(Grid.instance.height / cellSize);
+            gridSizeX = (int)(Grid.Instance.width / cellSize);
+            gridSizeY = (int)(Grid.Instance.height / cellSize);
 
             // Create cell state holder
             gridFoW = new int[Enum.GetNames(typeof(Teams)).Length, gridSizeX, gridSizeY];
@@ -434,7 +432,7 @@ namespace StrategyCore
             else
             {
                 // For height values we add offset and then floor them to properly calculate the height level
-                cellData[x + y * gridSizeX] = (int)Mathf.Floor((minYPoint + Utils.levelHeightOffset) / Grid.instance.cellSize);
+                cellData[x + y * gridSizeX] = (int)Mathf.Floor((minYPoint + Utils.levelHeightOffset) / Grid.Instance.cellSize);
             }
         }
 

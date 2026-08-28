@@ -168,7 +168,7 @@ namespace StrategyCore
         {
             if (NetworkConnectionHandler.isClient) return;                      // шлёт только сервер
             if (team != 0 && team != 1) return;
-            if (NetworkDataSync.instance != null) NetworkDataSync.instance.HeroAliveClientRpc(team, alive);
+            if (NetworkDataSync.Instance != null) NetworkDataSync.Instance.HeroAliveClientRpc(team, alive);
         }
 
         /// <summary>
@@ -194,7 +194,7 @@ namespace StrategyCore
             int level = lvl != null ? lvl.level : 0;
             if (level == lastBroadcastHeroLevel[team]) return;             // без изменения — не шлём
             lastBroadcastHeroLevel[team] = level;
-            if (NetworkDataSync.instance != null) NetworkDataSync.instance.HeroLevelClientRpc(team, level);
+            if (NetworkDataSync.Instance != null) NetworkDataSync.Instance.HeroLevelClientRpc(team, level);
             try { OnHeroChanged?.Invoke(team, hero); }                     // [UI-сессия] хост-UI: перерисовать умения (.locked при прокачке)
             catch (Exception e) { Debug.LogError($"[MatchManager] OnHeroChanged(hostlevel): {e.Message}"); }
         }

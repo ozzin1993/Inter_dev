@@ -81,8 +81,34 @@ namespace StrategyCore
         /// <param name="dmgType">Damage type.</param>
         public void GetDamageIn(int owner, Unit unitWhoDamages, float time, float damage, DamageType dmgType)
         {
-            GameManager.instance.damageInList.Add((owner, unitWhoDamages, this, damage, dmgType));
-            GameManager.instance.damageInTime.Add(time);
+            GameManager.Instance.damageInList.Add((owner, unitWhoDamages, this, damage, dmgType));
+            GameManager.Instance.damageInTime.Add(time);
+        }
+
+        // ================= ПРИЁМНИК ==============================================================
+        // Приёмник этого юнита — единственная дверь внутрь юнита (схема «пакет и приёмник», §1, §4).
+        // Ссылка кешируется: искать компонент на каждый удар нельзя, это горячий путь
+        // (руководство Unity, programming best practices). Поле живёт ровно столько же, сколько юнит.
+        UnitReceiver receiver;
+
+        /// <summary>
+        /// Приёмник этого юнита: при первом обращении навешивается и привязывается к юниту.
+        /// Идемпотентно — второго приёмника на юните не появится. Префабы юнитов не правятся,
+        /// навешивание кодом — принятый в проекте приём (ControlImmunityPassive.cs:40, BleedOnMove.cs:44).
+        ///
+        /// Публичен с шага 1 схемы «пакет и приёмник» (решение Artsiom 28.08.2026): <c>Knockback</c>
+        /// спрашивает приёмник цели про иммунитет к контролю вместо собственного поиска компонента.
+        /// Зовущая сторона обязана сначала убедиться, что юнит жив: обращение создаёт компонент
+        /// на игровом объекте, и на трупе этого делать нельзя.
+        /// </summary>
+        public UnitReceiver ReceiverEnsure()
+        {
+            if (receiver != null) return receiver;
+
+            if (!TryGetComponent(out receiver)) receiver = gameObject.AddComponent<UnitReceiver>();
+            receiver.Init(this);
+
+            return receiver;
         }
 
         /// <summary>
@@ -113,7 +139,7 @@ namespace StrategyCore
                     if (attackingUnit != null && attackingUnit.team != team && attackingUnit.IsVisible(team))
                     {
                         // If not fow visible temporarily reveal the tile
-                        if (!FogOfWar.instance.IsVisible(attackingUnit.FoWCell, team)) FogOfWar.instance.TemporalReveal(team, attackingUnit.FoWCell);
+                        if (!FogOfWar.Instance.IsVisible(attackingUnit.FoWCell, team)) FogOfWar.Instance.TemporalReveal(team, attackingUnit.FoWCell);
 
                         // Gather all ally units, including own
                         Unit[] allyUnits = Utils.GetUnitsInRadius(new Vector2(transform.position.x, transform.position.z), reactionRange, owner, new UnitSelector(true, true, false, true, false, false, false, true, true, true, false, true));
@@ -171,45 +197,14 @@ namespace StrategyCore
                 }
             }
 
-            // For evasion or damage reduction on chance skills
-            // Lowest acquired damage is selected
+            // Приёмная часть переехала в UnitReceiver — нулевой шаг схемы «пакет и приёмник»
+            // (§11.2, §16.2): воронка остаётся тонкой обёрткой, а порядок обработки урона задан
+            // в приёмнике один раз и действует для ВСЕХ источников, включая непереведённые.
+            // Сигнатура и возвращаемые значения не изменились — ни одно место вызова не трогается.
+            // Провокация выше в приёмник НЕ переносится: это открытый вопрос §11.3 схемы.
+            DamagePacket packet = new DamagePacket(amount, damageType, attackingPlayer, attackingUnit, directAttack);
 
-            // [Interflow fix 2026-07-24 combat-hub] Модификаторы входящего урона, которые знают АТАКУЮЩЕГО и ТИП урона
-            // (промах ослеплённого, уязвимость к типу урона, снижение урона). Штатный колбэк ниже не передаёт
-            // ни атакующего, ни тип. Считаем ДО штатных колбэков, чтобы промах не «съедал» поглощающий щит,
-            // а щит поглощал уже итоговую величину. Логика целиком в нашем InterflowCombat.cs.
-            amount = InterflowCombat.ModifyIncomingDamage(this, attackingUnit, damageType, amount, directAttack);
-
-            float finalDamage = amount;
-            foreach (var c in OnBeforeGetDamageCallbacks)
-            {
-                float damageChanged = c.Callback(this, c.Level, amount, directAttack);
-                if (damageChanged < finalDamage) finalDamage = damageChanged;
-                else if (finalDamage >= amount && damageChanged > finalDamage) finalDamage = damageChanged;
-            }
-            amount = finalDamage;
-
-            // [Interflow fix 2026-07-24 combat-hub] Пробитие брони: атакующий игнорирует долю защиты цели.
-            // Штатной точки для этого нет, а хук жертвы не знает, кто бьёт.
-            float effectiveArmor = InterflowCombat.EffectiveArmor(this, attackingUnit, armor);
-
-            // Final damage amount based on damage and armor type
-            damageDealt = amount * GameManager.instance.damageToArmor[armorType.index * GameManager.instance.DTAWidth + damageType.index] * (1 - ((0.06f * effectiveArmor) / (1 + 0.06f * effectiveArmor)));
-
-            // Checks and Get damage
-            if (damageDealt < 0) damageDealt = 0;
-
-            if (damageDealt > health) damageDealt = health;
-
-            bool died = ChangeHP(-damageDealt);
-            if (died) Die(attackingPlayer, attackingUnit);
-            else if (hasHitAnim && directAttack && FoWVisible) animator.CrossFade("hit", crossFadeTime, 0, 0f); //animator.Play("hit", 0, 0.01f);
-
-            // [Interflow fix 2026-07-24 combat-hub] Реакции на получение урона (контрудар, ответная заморозка).
-            // Только если юнит выжил: посмертные эффекты живут отдельно, в DeathEffects (OnDie).
-            if (!died) InterflowCombat.NotifyDamaged(this, attackingUnit, damageType, damageDealt, directAttack);
-
-            return died;
+            return ReceiverEnsure().Receive(in packet, out damageDealt);
         }
 
         // ============================= DIE ==============================================================================
@@ -233,7 +228,7 @@ namespace StrategyCore
 
             if (!firstAttack) AttackStop();
             if (target != null) target.OnReferenceChange -= TargetReferenceChange;
-            OnDie -= GameManager.instance.OnSpecificUnitDie;
+            OnDie -= GameManager.Instance.OnSpecificUnitDie;
             CommandSoundDestroy();
 
             // End if using an ability
@@ -257,7 +252,7 @@ namespace StrategyCore
             if (!isBeingBuilt)
             {
                 // When this unit dies we should lock the tech that this unit unlocks. If there are other units of this type, tech will not be locked
-                TechnologyManager.instance.LockTeck(this);
+                TechnologyManager.Instance.LockTeck(this);
 
                 // Production and Costs
                 if (resourceProduced != null)
@@ -265,7 +260,7 @@ namespace StrategyCore
                     for (int i = 0; i < resourceProduced.Length; i++)
                     {
                         // [Interflow fix 2026-08-01 limited-res-sync] серверный учёт + рассылка (см. Unit.Init).
-                        if (resourceProduced[i].type.limited) GameResources.instance.ChangeLimit(owner, resourceProduced[i], true, true);
+                        if (resourceProduced[i].type.limited) GameResources.Instance.ChangeLimit(owner, resourceProduced[i], true, true);
                         // For regular resource types we do not take them away
                     }
                 }
@@ -277,7 +272,7 @@ namespace StrategyCore
                 for (int i = 0; i < resourceCost.Length; i++)
                 {
                     // [Interflow fix 2026-08-01 limited-res-sync] возврат лидерства на смерти — тоже серверный (с рассылкой).
-                    if (resourceCost[i].type.limited) GameResources.instance.ChangeAmount(owner, resourceCost[i], 1, false, true); // We decrease the limited resource usage
+                    if (resourceCost[i].type.limited) GameResources.Instance.ChangeAmount(owner, resourceCost[i], 1, false, true); // We decrease the limited resource usage
                                                                                                                    // For regular resource types we do not add them back
                 }
             }
@@ -303,21 +298,21 @@ namespace StrategyCore
             if (gameObject.activeSelf)
             {
                 // Remove from cell info
-                FogOfWar.instance.CellRemove(this);
+                FogOfWar.Instance.CellRemove(this);
                 Grid.RemoveFromChunk(this);
 
                 // Remove from selection
                 Presentation.Selection?.RemoveFromSelection(this);
 
                 // View Blocker
-                if (viewBlocker || singleCellViewBlocker) FogOfWar.instance.UnitViewBlockCalculate(this, true);
+                if (viewBlocker || singleCellViewBlocker) FogOfWar.Instance.UnitViewBlockCalculate(this, true);
 
                 // Unsubscribe from events this unit was subscribed to
                 Unsubscribe();
             }
 
-            GameManager.instance.OnTeamChange -= TeamChanged;
-            GameManager.instance.Tick -= CooldownCalculate;
+            GameManager.Instance.OnTeamChange -= TeamChanged;
+            GameManager.Instance.Tick -= CooldownCalculate;
             if (hpSync) HPSyncFalse();
             if (mpSync) MPSyncFalse();
             if (xpSync) XPSyncFalse();
@@ -326,15 +321,15 @@ namespace StrategyCore
             if (invisibilityReplica != null) Destroy(invisibilityReplica.gameObject);
 
             // Send die trigger to clients
-            if (calledByServer && NetworkManager.Singleton.IsServer) NetworkDataSync.instance.DieTriggerSend(netID, playerThatKills, unitThatKills, rewards, destroy);
+            if (calledByServer && NetworkManager.Singleton.IsServer) NetworkDataSync.Instance.DieTriggerSend(netID, playerThatKills, unitThatKills, rewards, destroy);
             // Remove from net ID collection
-            SlotManager.instance.RemoveNetID(netID, this);
+            SlotManager.Instance.RemoveNetID(netID, this);
 
             // We play out animations, create static object only if unit is to die, not to be destroyed
             if (!destroy)
             {
                 // If only visible to player
-                if (FogOfWar.instance.IsVisible(FoWCell, SlotManager.instance.currentTeam))
+                if (FogOfWar.Instance.IsVisible(FoWCell, SlotManager.Instance.currentTeam))
                 {
                     // Play Sound/Effects/Animation
                     if (deathSound.Length > 0) Presentation.Audio?.PlaySoundClip(deathSound, this.transform, 1);

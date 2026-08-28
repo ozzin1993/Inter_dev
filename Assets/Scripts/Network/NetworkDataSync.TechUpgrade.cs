@@ -14,14 +14,14 @@ namespace StrategyCore
         [Rpc(SendTo.Server)]
         public void UnlockTechTierServerRpc(int teamIndex, int tier, int step, int option, int spec, RpcParams rpcParams = default)
         {
-            if (MatchManager.instance == null) return;
+            if (MatchManager.Instance == null) return;
             if (teamIndex != 0 && teamIndex != 1) return;
 
-            int senderPlayer = SlotManager.instance.GetClientSlot(rpcParams.Receive.SenderClientId);
-            TeamWaveConfig cfg = MatchManager.instance.Team(teamIndex);
+            int senderPlayer = SlotManager.Instance.GetClientSlot(rpcParams.Receive.SenderClientId);
+            TeamWaveConfig cfg = MatchManager.Instance.Team(teamIndex);
             if (cfg == null || senderPlayer != cfg.ownerPlayer) return; // нет прав на эту команду
 
-            MatchManager.instance.TryUnlockTierStep(teamIndex, tier, step, option, spec);
+            MatchManager.Instance.TryUnlockTierStep(teamIndex, tier, step, option, spec);
         }
 
         /// <summary>Клиент → сервер: АТОМАРНАЯ покупка «большой выбор + специализация» СВОЕЙ команды
@@ -29,14 +29,14 @@ namespace StrategyCore
         [Rpc(SendTo.Server)]
         public void UnlockTechBigWithSpecServerRpc(int teamIndex, int tier, int option, int spec, RpcParams rpcParams = default)
         {
-            if (MatchManager.instance == null) return;
+            if (MatchManager.Instance == null) return;
             if (teamIndex != 0 && teamIndex != 1) return;
 
-            int senderPlayer = SlotManager.instance.GetClientSlot(rpcParams.Receive.SenderClientId);
-            TeamWaveConfig cfg = MatchManager.instance.Team(teamIndex);
+            int senderPlayer = SlotManager.Instance.GetClientSlot(rpcParams.Receive.SenderClientId);
+            TeamWaveConfig cfg = MatchManager.Instance.Team(teamIndex);
             if (cfg == null || senderPlayer != cfg.ownerPlayer) return; // нет прав на эту команду
 
-            MatchManager.instance.TryUnlockBigOptionWithSpec(teamIndex, tier, option, spec);
+            MatchManager.Instance.TryUnlockBigOptionWithSpec(teamIndex, tier, option, spec);
         }
 
         /// <summary>Сервер → клиенты: новый уровень главного здания команды (для гейтинга UI).</summary>
@@ -50,8 +50,24 @@ namespace StrategyCore
         [Rpc(SendTo.NotServer, InvokePermission = RpcInvokePermission.Server)]
         private void MainBuildingLevelClientRpc(int teamIndex, int level)
         {
-            if (MatchManager.instance == null) return;
-            MatchManager.instance.ApplyMainBuildingLevel(teamIndex, level);
+            if (MatchManager.Instance == null) return;
+            MatchManager.Instance.ApplyMainBuildingLevel(teamIndex, level);
+        }
+
+        /// <summary>Сервер → клиенты: накопленный опыт главного здания команды (для показа игроку).
+        /// Уровень рассылается отдельно (MainBuildingLevelSend) и здесь не дублируется.</summary>
+        public void TeamExperienceSend(int teamIndex, int experience)
+        {
+            if (!IsSpawned) return; // нет активной сети (локальный тест) — клиентов нет
+            TeamExperienceClientRpc(teamIndex, experience);
+        }
+
+        // Только реальные клиенты (на сервере значение уже актуально — он его и считает).
+        [Rpc(SendTo.NotServer, InvokePermission = RpcInvokePermission.Server)]
+        private void TeamExperienceClientRpc(int teamIndex, int experience)
+        {
+            if (MatchManager.Instance == null) return;
+            MatchManager.Instance.ApplyTeamExperience(teamIndex, experience);
         }
     }
 }

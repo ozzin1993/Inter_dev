@@ -36,14 +36,16 @@ namespace StrategyCore
         // гарантируют рантайм-хендлеры (правило 6).
         void DeathEventsWire()
         {
-            OnUnitSpawned += HandleUnitSpawnedForHub;   // при спавне юнита — подписка на его смерть
-            OnUnitDeathServer += HandleBountyOnDeath;   // B3 — потребитель события
+            OnUnitSpawned += HandleUnitSpawnedForHub;      // при спавне юнита — подписка на его смерть
+            OnUnitDeathServer += HandleBountyOnDeath;      // B3 — потребитель события
+            OnUnitDeathServer += HandleExperienceOnDeath;  // опыт ГЗ за убийство (MatchManager.Experience)
         }
 
         void DeathEventsUnwire()
         {
             OnUnitSpawned -= HandleUnitSpawnedForHub;
             OnUnitDeathServer -= HandleBountyOnDeath;
+            OnUnitDeathServer -= HandleExperienceOnDeath;
         }
 
         // При спавне юнита (сервер): подписать его смерть на центральный хендлер РОВНО один раз.
@@ -66,7 +68,7 @@ namespace StrategyCore
             // поэтому здесь видно ровно то состояние убийцы, с которым сервер отправит смерть клиентам.
             if (diagKillerDesync && killerUnit != null)
             {
-                bool inRegistry = SlotManager.instance.unitNetID.TryGetValue(killerUnit.netID, out Unit registered) && registered == killerUnit;
+                bool inRegistry = SlotManager.Instance.unitNetID.TryGetValue(killerUnit.netID, out Unit registered) && registered == killerUnit;
                 if (killerUnit.dead || !inRegistry)
                 {
                     Debug.LogWarning($"[Диагностика смерти] Кадр {Time.frameCount}: жертва netID:{unit.netID} ({unit.name}) — " +
@@ -91,7 +93,24 @@ namespace StrategyCore
             Resource gold = GoldResource;
             if (gold == null) return;
             // +золото команде киллера: decrease:false = начислить; calledByServer:true = серверо-авторит. + авто-синк.
-            GameResources.instance.ChangeAmount(killerPlayer, new ResourceWrapper(gold, bountyGold), 1, false, true);
+            GameResources.Instance.ChangeAmount(killerPlayer, new ResourceWrapper(gold, bountyGold), 1, false, true);
+        }
+
+        // ---- Опыт главного здания за убийство (потребитель OnUnitDeathServer) --------------------------------
+        // Величина — штатное поле жертвы Unit.xpReward (тем же числом кормится уровень героя): отдельного поля
+        // не заводим (правила 1 и 7). Нейтральные жертвы считаются вражескими — отдельной проверки на нейтрала
+        // здесь НЕТ, её роль выполняет сравнение с командой жертвы. Смерть без добившего (лайфтайм, суицид,
+        // урон среды) опыта не даёт. Гейт isClient — страховка: событие уже серверное.
+        void HandleExperienceOnDeath(Unit victim, int killerPlayer, Unit killerUnit, bool rewards)
+        {
+            if (NetworkConnectionHandler.isClient) return;
+            if (victim == null || killerPlayer < 0) return;   // нет добившего → без опыта
+            int killerTeam = TeamIndexOfOwner(killerPlayer);
+            if (killerTeam < 0) return;                       // добивший вне команд матча (нейтрал/среда)
+            if (killerTeam == victim.team) return;            // свой убит своим → без опыта
+            if (victim.xpReward <= 0) return;                 // жертва не даёт опыта
+
+            AddExperience(killerTeam, victim.xpReward, ExperienceSource.Kill);
         }
     }
 }

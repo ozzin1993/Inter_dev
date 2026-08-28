@@ -14,7 +14,7 @@ namespace StrategyCore
         // Handle the hotkey press on the abilities and inventory
         private void AnyKeyPressed(InputAction.CallbackContext ctx)
         {
-            if (pc.activeUnit.owner != SlotManager.instance.currentPlayer && !SlotManager.instance.debugMode) return;
+            if (pc.activeUnit.owner != SlotManager.Instance.currentPlayer && !SlotManager.Instance.debugMode) return;
             if (pc.activeUnit.isBeingBuilt) return;
             if (chatON) return;
 
@@ -76,9 +76,9 @@ namespace StrategyCore
                 if (msg != "")
                 {
                     msg = msg.Length > msgInput.maxLength ? msg.Substring(0, msgInput.maxLength) : msg;
-                    AddChatMsg(msg, SlotManager.instance.currentPlayer, allyChat);
+                    AddChatMsg(msg, SlotManager.Instance.currentPlayer, allyChat);
                     // Send info to other players
-                    if (NetworkDataSync.instance) NetworkDataSync.instance.MsgSend(msg, allyChat);
+                    if (NetworkDataSync.Instance) NetworkDataSync.Instance.MsgSend(msg, allyChat);
                 }
             }
             else
@@ -146,9 +146,9 @@ namespace StrategyCore
             chatBox.Add(wrapper1);
 
             Label playerName = new Label();
-            if (allyChat) playerName.text = "[TEAM]" + SlotManager.instance.playerName[owner] + ": ";
-            else playerName.text = SlotManager.instance.playerName[owner] + ": ";
-            playerName.style.color = SlotManager.instance.playerColors[owner];
+            if (allyChat) playerName.text = "[TEAM]" + SlotManager.Instance.playerName[owner] + ": ";
+            else playerName.text = SlotManager.Instance.playerName[owner] + ": ";
+            playerName.style.color = SlotManager.Instance.playerColors[owner];
             wrapper1.Add(playerName);
 
             VisualElement wrapper2 = new VisualElement();
@@ -163,7 +163,7 @@ namespace StrategyCore
                 chatBox.RemoveAt(0);
             }
 
-            if (SlotManager.instance.debugMode) Cheats.MsgAdded(msg, owner);
+            if (SlotManager.Instance.debugMode) Cheats.MsgAdded(msg, owner);
         }
 
         public void AddChatServerMsg(string msg)
@@ -189,7 +189,7 @@ namespace StrategyCore
             {
                 chatBox.RemoveAt(0);
             }
-            UIManager.instance.ShowChatBox();
+            UIManager.Instance.ShowChatBox();
 
             // [Interflow fix 2026-08-01 ADR-005] Серверный релей ServerMsgSend перенесён в Presentation.ChatServerMsg (хаб).
         }
@@ -198,7 +198,7 @@ namespace StrategyCore
         {
             if (currentChatTime < chatTime)
             {
-                currentChatTime += GameManager.instance.currentDeltaTime;
+                currentChatTime += GameManager.Instance.currentDeltaTime;
                 if (currentChatTime > chatTime)
                 {
                     chatBox.style.display = DisplayStyle.None;

@@ -45,7 +45,7 @@ namespace StrategyCore
             base.Init();
 
             levels.Clear();
-            if (tickWired && GameManager.instance != null) GameManager.instance.Tick -= OnTick;
+            if (tickWired && GameManager.Instance != null) GameManager.Instance.Tick -= OnTick;
             tickWired = false;
         }
 
@@ -55,9 +55,9 @@ namespace StrategyCore
 
             levels[unit] = level;
 
-            if (!tickWired && GameManager.instance != null)
+            if (!tickWired && GameManager.Instance != null)
             {
-                GameManager.instance.Tick += OnTick;
+                GameManager.Instance.Tick += OnTick;
                 tickWired = true;
             }
         }
@@ -68,9 +68,9 @@ namespace StrategyCore
 
             levels.Remove(unit);
 
-            if (levels.Count == 0 && tickWired && GameManager.instance != null)
+            if (levels.Count == 0 && tickWired && GameManager.Instance != null)
             {
-                GameManager.instance.Tick -= OnTick;
+                GameManager.Instance.Tick -= OnTick;
                 tickWired = false;
             }
         }

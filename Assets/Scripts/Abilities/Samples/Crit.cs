@@ -51,7 +51,7 @@ namespace StrategyCore
                         FloatingText.Spawn(-1, unit.target.transform.position + new Vector3(0, unit.target.unitHeight, 0), "CRT!", Color.red, true);
 
                         // Set the HP sync for this tick
-                        if (NetworkManager.Singleton.IsServer) NetworkDataSync.instance.ForceSync();
+                        if (NetworkManager.Singleton.IsServer) NetworkDataSync.Instance.ForceSync();
                     }
                     else
                     {

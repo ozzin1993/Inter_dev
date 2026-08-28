@@ -19,12 +19,12 @@ namespace StrategyCore
         [Rpc(SendTo.Server)]
         public void TeamCommandServerRpc(int teamIndex, int action, int groupIndex, RpcParams rpcParams = default)
         {
-            if (MatchManager.instance == null) return;
+            if (MatchManager.Instance == null) return;
             if (teamIndex != 0 && teamIndex != 1) return; // MVP: только две команды A/B
 
             // Авторизация: отправитель должен управлять этой командой (как в CastCentralAbilityServerRpc).
-            int senderPlayer = SlotManager.instance.GetClientSlot(rpcParams.Receive.SenderClientId);
-            TeamWaveConfig cfg = MatchManager.instance.Team(teamIndex);
+            int senderPlayer = SlotManager.Instance.GetClientSlot(rpcParams.Receive.SenderClientId);
+            TeamWaveConfig cfg = MatchManager.Instance.Team(teamIndex);
             BottomTableAction a = (BottomTableAction)action;
 
             // [Interflow fix 2026-06-26] Лог источника команды: кто прислал (слот), на какую команду/ряд, владелец команды.
@@ -34,8 +34,26 @@ namespace StrategyCore
 
             if (cfg == null || senderPlayer != cfg.ownerPlayer) return; // нет прав на эту команду
 
-            if (a == BottomTableAction.Attack)       MatchManager.instance.SendAttackCommand(teamIndex, groupIndex);
-            else if (a == BottomTableAction.Defence)  MatchManager.instance.SendDefenceCommand(teamIndex, groupIndex);
+            if (a == BottomTableAction.Attack)       MatchManager.Instance.SendAttackCommand(teamIndex, groupIndex);
+            else if (a == BottomTableAction.Defence)  MatchManager.Instance.SendDefenceCommand(teamIndex, groupIndex);
+        }
+
+        /// <summary>
+        /// Сервер → клиенты: текущий режим ряда команды (для подсветки кнопки на клиенте). До этого обмен был
+        /// односторонним (только клиент → сервер), и подсветка на клиенте ставилась локально по клику — стартовый
+        /// режим, выставленный сервером, клиент не видел. Образец рассылки — MainBuildingLevelSend.
+        /// </summary>
+        public void TeamCommandSend(int teamIndex, int groupIndex, int action)
+        {
+            if (!IsSpawned) return; // нет активной сети (локальный тест) — клиентов нет
+            TeamCommandClientRpc(teamIndex, groupIndex, action);
+        }
+
+        // Только реальные клиенты: у хоста подсветка ставится локально (MatchManager.BroadcastTeamCommand).
+        [Rpc(SendTo.NotServer, InvokePermission = RpcInvokePermission.Server)]
+        private void TeamCommandClientRpc(int teamIndex, int groupIndex, int action)
+        {
+            Presentation.UI?.ShowTeamCommand(teamIndex, groupIndex, (BottomTableAction)action); // [Interflow 2026-08-01 ADR-005]
         }
     }
 }
