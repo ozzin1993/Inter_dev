@@ -701,36 +701,50 @@ namespace StrategyCore
         /// </summary>
         public void ShowTeamCommand(int teamIndex, int groupIndex, BottomTableAction action)
         {
-            if (bottomTableContentRoots == null) return;            // интерфейс ещё не построен
             if (action == BottomTableAction.None) return;           // «режим не выбран» подсветкой не отражаем
             if (teamIndex != CommandTeamForLocalPlayer()) return;   // режим чужой команды не показываем
 
-            for (int t = 0; t < bottomTableContentRoots.Length; t++)
+            // Кнопки Атака/Защита живут в ДВУХ структурах: в старых нижних таблицах (ячейки лежат прямо в корне
+            // таблицы) и в панелях-сетках (корень панели → ряд сетки → ячейка, см. UIManager.SlotPanels.cs).
+            // Мигрированная таблица вообще не строится (IsBottomTableMigrated), и её корень остаётся null —
+            // поэтому обходим обе структуры, а не одну.
+            if (bottomTableContentRoots != null)
+                for (int t = 0; t < bottomTableContentRoots.Length; t++)
+                    HighlightCommandInContainer(bottomTableContentRoots[t], groupIndex, action);
+
+            if (slotPanelRoots != null)
+                for (int p = 0; p < slotPanelRoots.Length; p++)
+                {
+                    VisualElement panel = slotPanelRoots[p];
+                    if (panel == null) continue;
+                    for (int r = 0; r < panel.childCount; r++)          // дети панели — ряды сетки
+                        HighlightCommandInContainer(panel.ElementAt(r), groupIndex, action);
+                }
+        }
+
+        // Подсветить в ОДНОМ контейнере ячеек (нижняя таблица или ряд панели-сетки) кнопку ряда команд
+        // groupIndex с действием action. Порядок ровно как у клика (OnBottomTableClick): подсветка снимается
+        // только с ячеек того же ряда команд и только внутри этого контейнера. Нужной ячейки в контейнере нет —
+        // контейнер не трогаем, иначе ряд погас бы, а подсвечивать было бы нечего.
+        void HighlightCommandInContainer(VisualElement container, int groupIndex, BottomTableAction action)
+        {
+            if (container == null) return;
+
+            VisualElement target = null;
+            for (int i = 0; i < container.childCount; i++)
             {
-                VisualElement table = bottomTableContentRoots[t];
-                if (table == null) continue;
-
-                // Сначала ищем ячейку нужного ряда с нужным действием: снимаем подсветку только если нашли,
-                // иначе ряд погас бы, а подсвечивать было бы нечего.
-                VisualElement target = null;
-                for (int i = 0; i < table.childCount; i++)
-                {
-                    BottomTableButton b = table.ElementAt(i).userData as BottomTableButton;
-                    if (b != null && b.commandGroup == groupIndex && b.action == action) { target = table.ElementAt(i); break; }
-                }
-                if (target == null) continue;
-
-                // Снять подсветку с ячеек ТОГО ЖЕ РЯДА этой таблицы и поставить на нужную — тот же порядок,
-                // что у клика (OnBottomTableClick): ряды независимы, кнопки других рядов не гаснут.
-                for (int i = 0; i < table.childCount; i++)
-                {
-                    VisualElement cell = table.ElementAt(i);
-                    BottomTableButton b = cell.userData as BottomTableButton;
-                    if (b != null && b.commandGroup == groupIndex) cell.RemoveFromClassList("activeAbility");
-                }
-                target.AddToClassList("activeAbility");
-                return;
+                BottomTableButton b = container.ElementAt(i).userData as BottomTableButton;
+                if (b != null && b.commandGroup == groupIndex && b.action == action) { target = container.ElementAt(i); break; }
             }
+            if (target == null) return;
+
+            for (int i = 0; i < container.childCount; i++)
+            {
+                VisualElement cell = container.ElementAt(i);
+                BottomTableButton b = cell.userData as BottomTableButton;
+                if (b != null && b.commandGroup == groupIndex) cell.RemoveFromClassList("activeAbility");
+            }
+            target.AddToClassList("activeAbility");
         }
 
         // --- Скрытие штатного HUD (разовое, вместо пер-кадрового LateUpdate) ---

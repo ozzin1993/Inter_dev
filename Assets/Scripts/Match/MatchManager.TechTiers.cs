@@ -14,7 +14,11 @@ namespace StrategyCore
     // Разблокировка и синк — штатный TechnologyManager.UnlockTech (+ OnTechUnlock перерисовывает UI/контент).
     // Оплата и проверка TechTree — общие утилиты из MatchManager.TechUpgrade
     // (TechUnlockedSafe / ResourcesEnough / PayResources). Уровень ГЗ покупка узлов БОЛЬШЕ НЕ трогает
-    // (целевая модель 2026-08-21) — он набирается опытом, см. MatchManager.Experience.
+    // (целевая модель 2026-08-21) — он набирается опытом (MatchManager.Experience) и сам ОТКРЫВАЕТ тиры.
+    //
+    // Условий доступа к тиру ДВА, оба обязательны (целевая модель 2026-08-21): уровень ГЗ не ниже номера
+    // тира И предыдущий тир завершён. Оба живут в одном предикате TierAccessible — он же единственный
+    // источник истины для панели технологий (правило 5), локальных дублей гейта быть не должно.
     //
     // Эффекты узлов — КОНТЕНТОМ (не здесь): юниты/умения/свопы лежат на самом узле (TechNode.unlock*) и
     // применяются пересчётом по OnTechUnlock (MatchManager.ContentUnlock.RecomputeUnlockedContent);
@@ -75,6 +79,26 @@ namespace StrategyCore
             return NodeUnlocked(ownerPlayer, o.specializationA) || NodeUnlocked(ownerPlayer, o.specializationB);
         }
 
+        /// <summary>
+        /// Требуемый уровень главного здания (ГЗ) для тира. Тир в коде нумеруется с нуля, игроку показывается
+        /// как «ТИР tier+1», поэтому «уровень N открывает тир N» из целевой модели 2026-08-21 в кодовых терминах
+        /// даёт tier + 1. Единственное место, где живёт это «+1»: то же число UI подставляет в подпись причины
+        /// недоступности. Стыковка с пределом роста: последнему тиру (индекс TechTierCount-1) нужен уровень
+        /// TechTierCount — ровно предел из MatchManager.Experience.
+        /// </summary>
+        public int RequiredMainBuildingLevel(int tier) => tier + 1;
+
+        /// <summary>
+        /// Доступен ли тир команде: ОБА условия целевой модели 2026-08-21 сразу — уровень ГЗ не ниже требуемого
+        /// И предыдущий тир завершён (у первого тира предыдущего нет). Единый источник истины и для серверного
+        /// гейта покупки, и для панели технологий (правило 5).
+        /// </summary>
+        public bool TierAccessible(int team, int tier)
+        {
+            if (MainBuildingLevel(team) < RequiredMainBuildingLevel(tier)) return false;
+            return tier == 0 || TierCompleted(team, tier - 1);
+        }
+
         // ----- Ступень 1: улучшение уровня -----
 
         /// <summary>Есть ли у узла уровня тира заданная технология.</summary>
@@ -99,7 +123,7 @@ namespace StrategyCore
             return cfg != null && t != null && NodeUnlocked(cfg.ownerPlayer, t.levelUpgrade);
         }
 
-        /// <summary>Доступен ли уровень тира к покупке (без ресурсов): гейт Т1 (тир 0 или предыдущий завершён), не куплен, есть теха.</summary>
+        /// <summary>Доступен ли уровень тира к покупке (без ресурсов): оба условия доступа тира (TierAccessible), не куплен, есть теха.</summary>
         public bool IsTierLevelUnlockable(int team, int tier)
         {
             if (team != 0 && team != 1) return false;
@@ -107,7 +131,7 @@ namespace StrategyCore
             TechTier t = TierAt(team, tier);
             if (cfg == null || t == null || t.levelUpgrade == null || t.levelUpgrade.technology == null) return false;
             if (NodeUnlocked(cfg.ownerPlayer, t.levelUpgrade)) return false;   // уже куплен
-            if (tier > 0 && !TierCompleted(team, tier - 1)) return false;      // Т1: предыдущий тир завершён
+            if (!TierAccessible(team, tier)) return false;                      // уровень ГЗ + предыдущий тир завершён
             return true;
         }
 

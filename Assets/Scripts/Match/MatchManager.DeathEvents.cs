@@ -107,7 +107,11 @@ namespace StrategyCore
             if (victim == null || killerPlayer < 0) return;   // нет добившего → без опыта
             int killerTeam = TeamIndexOfOwner(killerPlayer);
             if (killerTeam < 0) return;                       // добивший вне команд матча (нейтрал/среда)
-            if (killerTeam == victim.team) return;            // свой убит своим → без опыта
+            // victim.team — команда в пространстве SlotManager.playerTeam, killerTeam — индекс конфига (0=A,1=B):
+            // сравнивать их напрямую нельзя, переводим жертву тем же путём, что в MatchManager.Towers.
+            // Нейтральная жертва в команды матча не переводится (−1) и потому считается вражеской.
+            int victimTeamIndex = TeamIndexOfOwner(FindPlayerByTeam(victim.team));
+            if (killerTeam == victimTeamIndex) return;        // свой убит своим → без опыта
             if (victim.xpReward <= 0) return;                 // жертва не даёт опыта
 
             AddExperience(killerTeam, victim.xpReward, ExperienceSource.Kill);

@@ -172,7 +172,10 @@ namespace StrategyCore
                             // Currently being built
                             float updatePercentage = Time.deltaTime / buildingObj.constructionUnit.constructionTime;
                             buildingObj.constructionUnit.currentConstructionPercentage = Mathf.Clamp(buildingObj.constructionUnit.currentConstructionPercentage + updatePercentage, 0f, 1f);
-                            buildingObj.ChangeHP(updatePercentage * buildingObj.maxHealth);
+                            // [Interflow fix 2026-08-29 heal-through-receiver] Набор здоровья ПОСТРОЙКОЙ —
+                            // не лечение (решение Artsiom 27.08.2026): множитель получаемого лечения
+                            // к нему не применяется. Второе исключение — ремонт, ниже по файлу.
+                            buildingObj.ChangeHP(updatePercentage * buildingObj.maxHealth, countAsHeal: false);
                         }
 
                         // Animation
@@ -336,7 +339,9 @@ namespace StrategyCore
                 {
                     // Repair, not full HP
                     // Increase hp depending on construction time
-                    buildingObj.ChangeHP(buildingObj.maxHealth / buildingObj.constructionUnit.constructionTime * GameManager.Instance.currentDeltaTime);
+                    // [Interflow fix 2026-08-29 heal-through-receiver] РЕМОНТ здания рабочим за ресурсы —
+                    // тоже не лечение (решение Artsiom 30.08.2026): множитель к нему не применяется.
+                    buildingObj.ChangeHP(buildingObj.maxHealth / buildingObj.constructionUnit.constructionTime * GameManager.Instance.currentDeltaTime, countAsHeal: false);
                 }
             }
             else

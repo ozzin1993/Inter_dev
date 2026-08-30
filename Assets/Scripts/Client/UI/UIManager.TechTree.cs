@@ -66,15 +66,23 @@ namespace StrategyCore
         [Tooltip("Подпись статуса тира: тир открыт для покупок.")]
         [SerializeField] string techTreeStatusAvailable = "Доступен";
 
-        [Tooltip("Подпись статуса тира: тир закрыт, пока не завершён предыдущий.")]
+        [Tooltip("Подпись статуса тира: тир закрыт, пока не завершён предыдущий. Причин закрытости две — " +
+                 "вторая (не хватает уровня главного здания) показывается отдельным текстом, поле ниже.")]
         [SerializeField] string techTreeStatusLocked = "Закрыт";
+
+        [Tooltip("Подпись статуса тира вместо «Закрыт», когда тиру не хватает уровня главного здания (ГЗ). " +
+                 "{0} — требуемый уровень. Показывается и тогда, когда не выполнены оба условия сразу " +
+                 "(решение Artsiom 2026-08-29). Пусто — показывается обычная подпись «Закрыт».")]
+        [SerializeField] string techTreeStatusNeedLevelFormat = "Нужен Ур.ГЗ {0}";
 
         [Header("Панель технологий — ступень «улучшение уровня»")]
         [Tooltip("Подпись перед номером уровня в строке улучшения уровня тира (например «Ур.»).")]
         [SerializeField] string techTreeLevelRowCaption = "Ур.";
 
-        [Tooltip("Подпись эффекта улучшения уровня (что даёт покупка). Например «Ур.ГЗ +1».")]
-        [SerializeField] string techTreeLevelRowEffect = "Ур.ГЗ +1";
+        [Tooltip("Подпись эффекта улучшения уровня: что даёт покупка первой ступени тира. Она открывает " +
+                 "доступ к двум большим вариантам тира; уровень главного здания (ГЗ) покупка НЕ поднимает — " +
+                 "уровень набирается опытом (целевая модель 2026-08-21).")]
+        [SerializeField] string techTreeLevelRowEffect = "Открывает пути тира";
 
         [Tooltip("Отметка на уже купленной ступени.")]
         [SerializeField] string techTreeMarkDone = "✓";
@@ -296,7 +304,7 @@ namespace StrategyCore
             column.style.marginRight = techTreeTierGap;
 
             bool completed = mm.TierCompleted(team, tier);
-            bool available = tier == 0 || mm.TierCompleted(team, tier - 1);
+            bool available = mm.TierAccessible(team, tier);   // оба условия — на MatchManager, дубля гейта тут нет (правило 5)
 
             // Решение Artsiom (2026-07-25): ещё не открытые тиры притемняются, чтобы фокус оставался на активном.
             if (!completed && !available) column.AddToClassList("techTierDimmed");
@@ -337,7 +345,7 @@ namespace StrategyCore
 
             Label status = new Label(completed ? techTreeStatusCompleted
                                                : available ? techTreeStatusAvailable
-                                                           : techTreeStatusLocked);
+                                                           : TierLockedStatusText(mm, team, tier));
             status.AddToClassList("techTierStatus");
             status.AddToClassList(completed ? "techTierStatusCompleted"
                                             : available ? "techTierStatusAvailable"
@@ -345,6 +353,29 @@ namespace StrategyCore
             head.Add(status);
 
             return head;
+        }
+
+        // Подпись закрытого тира: причин закрытости две. Не хватает уровня главного здания (ГЗ) — показываем
+        // требуемый уровень, иначе прежний текст «Закрыт». При обеих причинах сразу показывается уровень
+        // (решение Artsiom 2026-08-29). Класс стиля у бейджа в обоих случаях один — techTierStatusLocked.
+        // Требуемый уровень берём у MatchManager (RequiredMainBuildingLevel): «+1» в UI не зашивается (правило 3).
+        string TierLockedStatusText(MatchManager mm, int team, int tier)
+        {
+            int required = mm.RequiredMainBuildingLevel(tier);
+            if (mm.MainBuildingLevel(team) >= required) return techTreeStatusLocked;   // причина — незавершённый предыдущий тир
+            if (string.IsNullOrEmpty(techTreeStatusNeedLevelFormat)) return techTreeStatusLocked;
+
+            try
+            {
+                return string.Format(techTreeStatusNeedLevelFormat, required);
+            }
+            catch (System.FormatException e)
+            {
+                // Формат задаётся в Inspector руками: лишняя фигурная скобка не должна ронять перерисовку панели
+                // (тот же приём, что в TechCardWarningText).
+                Debug.LogWarning($"[UIManager] Некорректный формат подписи «нужен уровень ГЗ» в панели технологий: {e.Message}. Показан текст как есть.");
+                return techTreeStatusNeedLevelFormat;
+            }
         }
 
         // Ступень 1 — улучшение уровня тира: подпись «Ур. N · <эффект>» и отметка состояния.

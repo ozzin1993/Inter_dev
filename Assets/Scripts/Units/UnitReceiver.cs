@@ -27,7 +27,7 @@ namespace StrategyCore
     ///
     /// Настроек у приёмника на этом шаге нет, поэтому нет и сериализуемых полей.
     /// </summary>
-    public class UnitReceiver : MonoBehaviour
+    public partial class UnitReceiver : MonoBehaviour
     {
         /// <summary>
         /// Свой юнит. Кешируется один раз при навешивании (<see cref="Init"/>), а не ищется на каждый

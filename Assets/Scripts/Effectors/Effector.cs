@@ -48,6 +48,21 @@ namespace StrategyCore
         [Tooltip("What unit parameters should change when this effector is applied")]
         public AbilityPassiveEffects passiveEffects;
 
+        // [Interflow fix 2026-08-29 heal-through-receiver] Шаг 3 схемы «пакет и приёмник»: множитель
+        // получаемого лечения. ТОЛЬКО ДАННЫЕ — поведения здесь нет, считает и применяет их приёмник
+        // (Units/UnitReceiver.Heal.cs). Два поля, а не одно: числом 1 нельзя отличить «поставил единицу
+        // руками» от «не трогал», а валидатору это различие нужно (решение Artsiom 30.08.2026).
+        [Header("Получаемое лечение")]
+        [Tooltip("Включает множитель получаемого лечения. Выключено — состояние на лечение носителя не влияет")]
+        public bool healReceivedMultiplierOn = false;
+        [Tooltip("Во сколько раз меняется лечение, которое получает носитель: 0,9 — лечения на 10 % меньше, " +
+                 "1,25 — на четверть больше. Ноль означает «лечение не проходит»; отрицательное значение зажимается в ноль. " +
+                 "Учитывается только при включённой галке выше. " +
+                 "Силой наложения НЕ масштабируется — берётся ровно это число. " +
+                 "Если на юните несколько таких состояний, действует ОДНО: самое сильное ослабление, " +
+                 "а когда ослаблений нет — самое сильное усиление. Множители не перемножаются")]
+        public float healReceivedMultiplier = 1f;
+
         // Technical
         // private Unit thisUnit; // Current holder of the effector
         // [HideInInspector] public Unit unitOwner; // Which player`s effector is this. If damaging one this player will be seen as a killer
@@ -139,66 +154,19 @@ namespace StrategyCore
             // Разбор: Документы/Аудиты/Анализ_Рассинхрон_Состояние_На_Трупе.md.
             if (unit.dead) return;
 
-            // [Interflow fix 2026-08-02 effector-unify]
-            // Раньше здесь правились поля САМОГО ассета (общего для всех носителей): наложение на одного юнита
-            // молча меняло эффектор всем остальным и переживало выход из Play Mode. Теперь фактические
-            // параметры наложения считаются локально и живут в EffectorHolder.
+            // Шаг 2 схемы «пакет и приёмник» (§11.2, §12): воронка собирает пакет и отдаёт его
+            // приёмнику. Вся приёмная часть — расчёт длительности и стакинга, слипание одинаковых
+            // наложений, создание держателя, применение и отправка статуса — переехала в
+            // UnitReceiver.Statuses.cs один в один.
+            // Проверки выше остались здесь по решению Artsiom 28.08.2026: это отсев «есть ли кому
+            // адресовать пакет», и он обязан отработать ДО обращения к приёмнику — дойти до приёмника
+            // значит тронуть игровой объект (TryGetComponent, при первом обращении AddComponent),
+            // а на трупе и на здании этого делать нельзя. Так же устроены шаг 0 (Unit.Combat.cs:127)
+            // и шаг 1 (Unit.State.cs). Сигнатура и значения по умолчанию не изменились — ни одно
+            // из мест вызова не трогается, включая массивные перегрузки ниже.
+            EffectorPacket packet = new EffectorPacket(effector, unitOwner, owner, currentTime, powerMultiplier, durationOverride);
 
-            // Длительность: переопределение умения, иначе значение ассета. У бессрочного смысла не имеет.
-            float duration = (!effector.permanent && durationOverride > 0f) ? durationOverride : effector.duration;
-            // Just a check of duration, it should not be less than GameManager.everyFrameAbilityTickRate * 2
-            if (duration < GameManager.tickRate * 2) duration = GameManager.tickRate * 2;
-            // Make sure invisibility should not stack, will cause a bug
-            bool stacks = effector.stacks && !effector.makeInvisible;
-
-            if (!stacks)
-            {
-                // If similar effector is already added to the unit by the same team, just reset the currentTime
-                for (int i = 0; i < unit.effectors.Count; i++)
-                {
-                    EffectorHolder existing = unit.effectors[i];
-                    if (existing.effector.id != effector.id) continue;
-                    if (SlotManager.Instance.playerTeam[existing.owner] != SlotManager.Instance.playerTeam[owner]) continue;
-
-                    // Слипаются только ПОЛНОСТЬЮ одинаковые наложения. Разная сила или разная длительность —
-                    // разные эффекты: они сосуществуют и суммируются. Так было и до схлопывания ассетов,
-                    // когда «замедление на 40 %» и «замедление на 50 %» были разными эффекторами с разными id.
-                    if (!Mathf.Approximately(existing.powerMultiplier, powerMultiplier)) continue;
-                    if (!Mathf.Approximately(existing.duration, duration)) continue;
-
-                    existing.currentTime = 0;
-                    // [Interflow fix 2026-08-05 unit-status-sync] Продление наложения — сообщить клиентам
-                    // (единый канал статусов; внутри гейт «только сервер» — локальные ауры клиента не шлют).
-                    if ((effector.icon != null || effector.VFX != null) && NetworkDataSync.Instance != null)
-                        NetworkDataSync.Instance.UnitStatusEffectorSend(unit, effector.id, duration);
-                    return;
-                }
-            }
-
-            // Add new effector to the unit
-            EffectorHolder newEH = new EffectorHolder(effector, unitOwner, owner, duration, stacks, powerMultiplier);
-            newEH.currentTime = currentTime;
-            unit.effectors.Add(newEH);
-            if (newEH.effector.VFX != null) unit.AddVFX(newEH.effector.VFX, newEH.effector.aboveHead);
-
-            // Add passive effects
-            if (newEH.effector.passiveEffectsOn) newEH.effector.passiveEffects.AddEffect(unit, powerMultiplier);
-
-            // Make Invisible
-            if (newEH.effector.makeInvisible) unit.SetInvisibility(true);
-
-            // If can be seen when invisible, it is used to not hide the renderers
-            // Should be applied only by the current player`s team
-            if (newEH.effector.revealInvisible) unit.CanBeSeen(true, owner);
-
-            if (!newEH.stacks) unit.OnStatusUpdate?.Invoke();
-
-            // [Interflow fix 2026-08-05 unit-status-sync] Единый канал статусов: отправка «эффектор
-            // появился» из ОДНОЙ точки — покрывает атаки, ауры и скиллы одинаково (решение Artsiom
-            // 2026-08-05). Шлём только то, что клиенту есть чем показать (значок или VFX);
-            // гейт «только сервер» живёт внутри UnitStatusEffectorSend.
-            if ((newEH.effector.icon != null || newEH.effector.VFX != null) && NetworkDataSync.Instance != null)
-                NetworkDataSync.Instance.UnitStatusEffectorSend(unit, newEH.effector.id, duration);
+            unit.ReceiverEnsure().Receive(in packet);
         }
 
         // Add Effector[] by unitOwner

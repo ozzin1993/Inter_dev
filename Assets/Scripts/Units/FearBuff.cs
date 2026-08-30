@@ -23,7 +23,10 @@ namespace StrategyCore
         {
             if (NetworkConnectionHandler.isClient) return;
             if (target == null || target.dead || duration <= 0f) return;
-            if (target.TryGetComponent<ControlImmunity>(out ControlImmunity ci) && ci.Active) return; // иммунитет к контролю
+            // Шаг 2 схемы «пакет и приёмник»: иммунитет спрашивается у приёмника, а не своим поиском
+            // компонента (§3.1 схемы). Отсев мёртвых выше обязан остаться перед этой строкой:
+            // обращение к приёмнику создаёт компонент на игровом объекте, на трупе этого делать нельзя.
+            if (target.ReceiverEnsure().ControlImmune) return; // иммунитет к контролю
 
             FearBuff buff = target.GetComponent<FearBuff>();
             if (buff == null) buff = target.gameObject.AddComponent<FearBuff>();

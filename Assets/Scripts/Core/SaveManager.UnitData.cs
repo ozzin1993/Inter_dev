@@ -1074,7 +1074,18 @@ namespace StrategyCore
                 // --- STUN STATE ---
                 if (unitData["stunTime"] != null)
                 {
-                    u.Stun(unitData["stunTime"].AsFloat);
+                    // [Interflow fix 2026-08-29 save-restores-control] Решение Artsiom 28.08.2026:
+                    // загрузка ВОССТАНАВЛИВАЕТ статус «как было при сохранении», а не накладывает его
+                    // заново, поэтому идёт напрямую исполнителем — мимо воронки и проверок приёмника.
+                    // Иначе иммунный юнит терял сохранённый временный контроль: источники иммунитета
+                    // разблокируются РАНЬШЕ (предметы :711, эффекторы :870), чем восстанавливаются
+                    // статусы, и приёмник отбивал загрузку как новое наложение.
+                    // Обходятся заодно и все прочие проверки: отсев воронки (staticObject у стана
+                    // и немоты, canAttack у обезоруживания, dead у всех трёх) и «уже в статусе»
+                    // (muted / disarmed) — это допустимо только здесь: юнит при загрузке свежесоздан,
+                    // жив и без статусов, таймеры чисты. В боевой код приём НЕ переносить — там
+                    // штатный вход только через воронку.
+                    u.StunApply(unitData["stunTime"].AsFloat);
                 }
 
                 // --- MUTED STATE ---
@@ -1082,8 +1093,10 @@ namespace StrategyCore
                 {
                     float muteTime = unitData["currentMuteTime"].AsFloat;
 
+                    // Постоянная немота закодирована как muted = true при currentMuteTime == 0 — ветка без изменений.
                     if (muteTime == 0) u.muted = true;
-                    else u.Mute(muteTime);
+                    // [Interflow fix 2026-08-29 save-restores-control] Прямой исполнитель — см. блок стана выше.
+                    else u.MuteApply(muteTime);
                 }
 
                 // --- DISARM STATE ---
@@ -1091,8 +1104,10 @@ namespace StrategyCore
                 {
                     float disarmTime = unitData["currentDisarmTime"].AsFloat;
 
+                    // Постоянное обезоруживание закодировано как disarmed = true при currentDisarmTime == 0 — ветка без изменений.
                     if (disarmTime == 0) u.disarmed = true;
-                    else u.Disarm(disarmTime);
+                    // [Interflow fix 2026-08-29 save-restores-control] Прямой исполнитель — см. блок стана выше.
+                    else u.DisarmApply(disarmTime);
                 }
 
                 // --- POLYMORPH STATE ---
