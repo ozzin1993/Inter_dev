@@ -24,8 +24,11 @@ namespace Synty.SidekickCharacters.Database
     public class DatabaseManager
     {
         private static readonly string _DATABASE_PATH = "Assets/Synty/SidekickCharacters/Database/Side_Kick_Data.db";
+#if !UNITY_EDITOR
         // Resources path of the read-only runtime copy of the database; kept in sync from the .db by DatabaseBuildSync.
+        // Only referenced by the player-build branch of GetDbConnection, so declared for player builds only.
         private static readonly string _RUNTIME_DATABASE_RESOURCE_PATH = "Database/Side_Kick_Data";
+#endif
         private readonly string _CURRENT_VERSION = "1.0.2";
 
         private static SQLiteConnection _connection;

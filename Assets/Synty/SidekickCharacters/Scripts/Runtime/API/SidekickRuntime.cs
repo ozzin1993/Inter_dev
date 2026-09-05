@@ -14,6 +14,7 @@ using Synty.SidekickCharacters.Utils;
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
@@ -44,8 +45,12 @@ namespace Synty.SidekickCharacters.API
         private static readonly int _EMISSION_MAP = Shader.PropertyToID("_EmissionMap");
         private static readonly int _OPACITY_MAP = Shader.PropertyToID("_OpacityMap");
 
+        private const string _BASE_MODEL_AVATAR_NAME = "SK_BaseModelAvatar";
+
         private DatabaseManager _dbManager;
         private GameObject _baseModel;
+        private GameObject _resolvedBaseModel;
+        private Avatar _resolvedAvatar;
         private Material _currentMaterial;
         private RuntimeAnimatorController _currentAnimationController;
         private List<Vector2> _currentUVList;
@@ -82,6 +87,33 @@ namespace Synty.SidekickCharacters.API
             get => _baseModel;
             set => _baseModel = value;
         }
+
+        /// <summary>
+        ///     The base model resolved by the most recent CreateCharacter call; falls back to the assigned base model.
+        /// </summary>
+        private GameObject EffectiveBaseModel => _resolvedBaseModel != null ? _resolvedBaseModel : _baseModel;
+
+        /// <summary>
+        ///     The avatar resolved by the most recent CreateCharacter call; falls back to the assigned base model's avatar.
+        /// </summary>
+        private Avatar EffectiveAvatar
+        {
+            get
+            {
+                if (_resolvedAvatar != null)
+                {
+                    return _resolvedAvatar;
+                }
+
+                Animator baseAnimator = _baseModel.GetComponentInChildren<Animator>();
+                return baseAnimator != null ? baseAnimator.avatar : null;
+            }
+        }
+
+        /// <summary>
+        ///     When true, characters are always built on the assigned BaseModel and head-part avatar auto-detection is skipped.
+        /// </summary>
+        public bool ForceAssignedBaseModel { get; set; }
 
         public Material CurrentMaterial
         {
@@ -222,6 +254,8 @@ namespace Synty.SidekickCharacters.API
             _baseModel = model;
             _currentMaterial = material;
             _currentAnimationController = animationController;
+
+            ResetUVData();
         }
 
         public static async Task PopulateToolData(SidekickRuntime runtime)
@@ -265,15 +299,17 @@ namespace Synty.SidekickCharacters.API
         {
             PopulateUVDictionary(toCombine);
 
+            _resolvedBaseModel = ResolveBaseModel(toCombine);
+
             GameObject newSpawn;
 
             if (combineMesh)
             {
-                newSpawn = Combiner.CreateCombinedSkinnedMesh(toCombine, _baseModel, _currentMaterial);
+                newSpawn = Combiner.CreateCombinedSkinnedMesh(toCombine, EffectiveBaseModel, _currentMaterial);
             }
             else
             {
-                newSpawn = Combiner.CreateSeparateSkinnedMeshes(toCombine, _baseModel, _currentMaterial);
+                newSpawn = Combiner.CreateSeparateSkinnedMeshes(toCombine, EffectiveBaseModel, _currentMaterial);
             }
 
             newSpawn.name = modelName;
@@ -287,8 +323,7 @@ namespace Synty.SidekickCharacters.API
             if (newSpawn.GetComponent<Animator>() == null)
             {
                 Animator newModelAnimator = newSpawn.AddComponent<Animator>();
-                Animator baseModelAnimator = _baseModel.GetComponentInChildren<Animator>();
-                newModelAnimator.avatar = baseModelAnimator.avatar;
+                newModelAnimator.avatar = EffectiveAvatar;
                 newModelAnimator.Rebind();
 
                 if (_currentAnimationController != null)
@@ -430,18 +465,25 @@ namespace Synty.SidekickCharacters.API
         /// </summary>
         public void PopulateUVDictionary(List<SkinnedMeshRenderer> usedParts)
         {
-            _currentUVList = new List<Vector2>();
-            _currentUVDictionary = new Dictionary<ColorPartType, List<Vector2>>();
-
-            foreach (ColorPartType type in Enum.GetValues(typeof(ColorPartType)))
-            {
-                _currentUVDictionary.Add(type, new List<Vector2>());
-            }
+            ResetUVData();
 
             foreach (SkinnedMeshRenderer skinnedMesh in usedParts)
             {
-                ColorPartType type = Enum.Parse<ColorPartType>(ExtractPartType(skinnedMesh.name).ToString());
-                List<Vector2> partUVs = _currentUVDictionary[type];
+                if (skinnedMesh == null || skinnedMesh.sharedMesh == null)
+                {
+                    continue;
+                }
+
+                // A combined scene mesh (single renderer named "mesh") carries no part name; its UVs still
+                // contribute to the global list, just not to a per-part bucket.
+                List<Vector2> partUVs = null;
+                if (skinnedMesh.name.Count(c => c == '_') >= 2
+                    && Enum.TryParse(ExtractPartType(skinnedMesh.name).ToString(), out ColorPartType type)
+                    && _currentUVDictionary.ContainsKey(type))
+                {
+                    partUVs = _currentUVDictionary[type];
+                }
+
                 foreach (Vector2 uv in skinnedMesh.sharedMesh.uv)
                 {
                     int scaledU = (int) Math.Floor(uv.x * 16);
@@ -466,13 +508,25 @@ namespace Synty.SidekickCharacters.API
 
                     // For the part specific UV list we may have UVs that are in the global list already, we don't want to exclude these, so check
                     // them separately to the global list
-                    if (!partUVs.Contains(scaledUV))
+                    if (partUVs != null && !partUVs.Contains(scaledUV))
                     {
                         partUVs.Add(scaledUV);
                     }
                 }
+            }
+        }
 
-                _currentUVDictionary[type] = partUVs;
+        /// <summary>
+        ///     Resets the current UV list and UV part dictionary to empty collections, with an entry for every part type.
+        /// </summary>
+        private void ResetUVData()
+        {
+            _currentUVList = new List<Vector2>();
+            _currentUVDictionary = new Dictionary<ColorPartType, List<Vector2>>();
+
+            foreach (ColorPartType type in Enum.GetValues(typeof(ColorPartType)))
+            {
+                _currentUVDictionary.Add(type, new List<Vector2>());
             }
         }
 
@@ -639,13 +693,15 @@ namespace Synty.SidekickCharacters.API
         {
             HashSet<SidekickPartPreset> uniqueList = new HashSet<SidekickPartPreset>();
 
-            _mappedPresetFilterDictionary = new Dictionary<string, List<SidekickPartPreset>>();
-            _mappedBasePresetDictionary = new Dictionary<SidekickSpecies, List<SidekickPartPreset>>();
+            // Built as locals and published to the fields in one step at the end, so a concurrent
+            // rebuild can never interleave with this one and double up entries.
+            Dictionary<string, List<SidekickPartPreset>> mappedPresetFilterDictionary = new Dictionary<string, List<SidekickPartPreset>>();
+            Dictionary<SidekickSpecies, List<SidekickPartPreset>> mappedBasePresetDictionary = new Dictionary<SidekickSpecies, List<SidekickPartPreset>>();
 
             foreach (SidekickPresetFilter filter in SidekickPresetFilter.GetAll(_dbManager))
             {
                 List<SidekickPartPreset> presets = filter.GetAllPresetsForFilter(_dbManager, true, true);
-                _mappedPresetFilterDictionary[filter.Term] = presets;
+                mappedPresetFilterDictionary[filter.Term] = presets;
                 uniqueList.UnionWith(presets);
             }
 
@@ -656,10 +712,10 @@ namespace Synty.SidekickCharacters.API
             {
                 if (preset.HasOnlyBasePartsAndAllAvailable(_dbManager))
                 {
-                    if (_mappedBasePresetDictionary.TryGetValue(preset.Species, out List<SidekickPartPreset> mappedPresets))
+                    if (mappedBasePresetDictionary.TryGetValue(preset.Species, out List<SidekickPartPreset> mappedPresets))
                     {
                         mappedPresets.Add(preset);
-                        _mappedBasePresetDictionary[preset.Species] = mappedPresets;
+                        mappedBasePresetDictionary[preset.Species] = mappedPresets;
                     }
                     else
                     {
@@ -668,10 +724,13 @@ namespace Synty.SidekickCharacters.API
                             preset
                         };
 
-                        _mappedBasePresetDictionary.Add(preset.Species, presets);
+                        mappedBasePresetDictionary.Add(preset.Species, presets);
                     }
                 }
             }
+
+            _mappedPresetFilterDictionary = mappedPresetFilterDictionary;
+            _mappedBasePresetDictionary = mappedBasePresetDictionary;
 
             return Task.CompletedTask;
         }
@@ -681,12 +740,15 @@ namespace Synty.SidekickCharacters.API
         /// </summary>
         public Task LoadPartLibrary()
         {
-            _allPartsLibrary = new Dictionary<CharacterPartType, List<SidekickPart>>();
-            _mappedPartList = new Dictionary<CharacterPartType, List<string>>();
-            _mappedPartDictionary = new Dictionary<CharacterPartType, Dictionary<string, SidekickPart>>();
-            _mappedBasePartDictionary = new Dictionary<SidekickSpecies, Dictionary<CharacterPartType, List<string>>>();
-            _speciesDictionary = new Dictionary<string, SidekickSpecies>();
-            _partCount = 0;
+            // Built as locals and published to the fields in one step at the end, so a concurrent
+            // rebuild can never interleave with this one and double up entries or the part count.
+            Dictionary<CharacterPartType, List<SidekickPart>> allPartsLibrary = new Dictionary<CharacterPartType, List<SidekickPart>>();
+            Dictionary<CharacterPartType, List<string>> mappedPartList = new Dictionary<CharacterPartType, List<string>>();
+            Dictionary<CharacterPartType, Dictionary<string, SidekickPart>> mappedPartDictionary = new Dictionary<CharacterPartType, Dictionary<string, SidekickPart>>();
+            Dictionary<SidekickSpecies, Dictionary<CharacterPartType, List<string>>> mappedBasePartDictionary =
+                new Dictionary<SidekickSpecies, Dictionary<CharacterPartType, List<string>>>();
+            Dictionary<string, SidekickSpecies> speciesDictionary = new Dictionary<string, SidekickSpecies>();
+            int partCount = 0;
 
 #if UNITY_EDITOR
             // Editor-only: verify each part's FBX exists in the project. A player build has no Assets folder on disk and
@@ -703,17 +765,17 @@ namespace Synty.SidekickCharacters.API
 
             foreach (CharacterPartType type in Enum.GetValues(typeof(CharacterPartType)))
             {
-                _allPartsLibrary[type] = new List<SidekickPart>();
-                _mappedPartDictionary[type] = new Dictionary<string, SidekickPart>();
-                _mappedPartList[type] = new List<string>();
+                allPartsLibrary[type] = new List<SidekickPart>();
+                mappedPartDictionary[type] = new Dictionary<string, SidekickPart>();
+                mappedPartList[type] = new List<string>();
             }
 
             SidekickSpecies unrestrictedSpecies = null;
 
             foreach (SidekickSpecies species in SidekickSpecies.GetAll(_dbManager, false))
             {
-                _speciesDictionary[species.Name] = species;
-                _mappedBasePartDictionary[species] = new Dictionary<CharacterPartType, List<string>>();
+                speciesDictionary[species.Name] = species;
+                mappedBasePartDictionary[species] = new Dictionary<CharacterPartType, List<string>>();
 
                 if (species.Name == "Unrestricted")
                 {
@@ -734,44 +796,44 @@ namespace Synty.SidekickCharacters.API
 #endif
                 if (partAvailable)
                 {
-                    _partCount++;
+                    partCount++;
 
                     part.FileExists = true;
 
-                    List<SidekickPart> parts = _allPartsLibrary.TryGetValue(part.Type, out List<SidekickPart> value)
+                    List<SidekickPart> parts = allPartsLibrary.TryGetValue(part.Type, out List<SidekickPart> value)
                         ? value
                         : new List<SidekickPart>();
                     parts.Add(part);
-                    _allPartsLibrary[part.Type] = parts;
+                    allPartsLibrary[part.Type] = parts;
 
-                    Dictionary<string, SidekickPart> partMap = _mappedPartDictionary[part.Type];
+                    Dictionary<string, SidekickPart> partMap = mappedPartDictionary[part.Type];
                     partMap[part.Name] = part;
-                    _mappedPartDictionary[part.Type] = partMap;
+                    mappedPartDictionary[part.Type] = partMap;
 
-                    List<string> currentList = _mappedPartList[part.Type];
+                    List<string> currentList = mappedPartList[part.Type];
                     currentList.Add(part.Name);
-                    _mappedPartList[part.Type] = currentList;
+                    mappedPartList[part.Type] = currentList;
 
                     if (part.Name.Contains("_BASE_"))
                     {
-                        if (!_mappedBasePartDictionary.ContainsKey(part.Species))
+                        if (!mappedBasePartDictionary.ContainsKey(part.Species))
                         {
                             continue;
                         }
 
-                        Dictionary<CharacterPartType, List<string>> basePartMap = _mappedBasePartDictionary[part.Species];
+                        Dictionary<CharacterPartType, List<string>> basePartMap = mappedBasePartDictionary[part.Species];
                         List<string> partList = basePartMap.TryGetValue(part.Type, out List<string> existingList) ? existingList : new List<string>();
                         partList.Add(part.Name);
                         basePartMap[part.Type] = partList;
-                        _mappedBasePartDictionary[part.Species] = basePartMap;
+                        mappedBasePartDictionary[part.Species] = basePartMap;
 
                         if (unrestrictedSpecies != null)
                         {
-                            Dictionary<CharacterPartType, List<string>> unrestrictedBasePartMap = _mappedBasePartDictionary[unrestrictedSpecies];
+                            Dictionary<CharacterPartType, List<string>> unrestrictedBasePartMap = mappedBasePartDictionary[unrestrictedSpecies];
                             List<string> unrestrictedPartList = unrestrictedBasePartMap.TryGetValue(part.Type, out List<string> unrestrictedList) ? unrestrictedList : new List<string>();
                             unrestrictedPartList.Add(part.Name);
                             unrestrictedBasePartMap[part.Type] = unrestrictedPartList;
-                            _mappedBasePartDictionary[unrestrictedSpecies] = unrestrictedBasePartMap;
+                            mappedBasePartDictionary[unrestrictedSpecies] = unrestrictedBasePartMap;
                         }
                     }
 
@@ -787,6 +849,13 @@ namespace Synty.SidekickCharacters.API
             // Persists the FileExists flag computed above; only meaningful in the editor.
             SidekickPart.UpdateAll(_dbManager, allParts);
 #endif
+
+            _allPartsLibrary = allPartsLibrary;
+            _mappedPartList = mappedPartList;
+            _mappedPartDictionary = mappedPartDictionary;
+            _mappedBasePartDictionary = mappedBasePartDictionary;
+            _speciesDictionary = speciesDictionary;
+            _partCount = partCount;
 
             return Task.CompletedTask;
         }
@@ -836,11 +905,94 @@ namespace Synty.SidekickCharacters.API
         }
 
         /// <summary>
+        ///     Finds the head part in the given meshes and returns its source model root.
+        /// </summary>
+        /// <param name="toCombine">The list of part meshes being combined.</param>
+        /// <returns>The root GameObject of the head part's source model, or null if no head part exists.</returns>
+        public GameObject GetHeadPartModel(List<SkinnedMeshRenderer> toCombine)
+        {
+            foreach (SkinnedMeshRenderer mesh in toCombine)
+            {
+                if (mesh == null || mesh.name.Count(c => c == '_') < 2)
+                {
+                    continue;
+                }
+
+                if (ExtractPartType(mesh.name) == CharacterPartType.Head)
+                {
+                    return mesh.transform.root.gameObject;
+                }
+            }
+
+            return null;
+        }
+
+        /// <summary>
+        ///     Gets the avatar associated with the given model asset. Checks for an Animator first ("Create From This Model"
+        ///     imports), then falls back to the import settings ("Copy From Other Avatar" imports add no Animator component;
+        ///     their avatar only exists as the importer's source avatar, which is editor-only data).
+        /// </summary>
+        /// <param name="model">The model asset to get the avatar for.</param>
+        /// <returns>The avatar associated with the model, or null if it has none.</returns>
+        private static Avatar GetModelAvatar(GameObject model)
+        {
+            Animator animator = model.GetComponentInChildren<Animator>();
+            if (animator != null && animator.avatar != null)
+            {
+                return animator.avatar;
+            }
+
+#if UNITY_EDITOR
+            UnityEditor.ModelImporter importer =
+                UnityEditor.AssetImporter.GetAtPath(UnityEditor.AssetDatabase.GetAssetPath(model)) as UnityEditor.ModelImporter;
+            if (importer != null)
+            {
+                return importer.sourceAvatar;
+            }
+#endif
+
+            return null;
+        }
+
+        /// <summary>
+        ///     Resolves which base model to build a character on. If the head part's avatar is not the standard
+        ///     SK_BaseModelAvatar (e.g. Alien variants, which have a unique avatar per variant), the head's source model
+        ///     is used as the rig and avatar donor, unless <see cref="ForceAssignedBaseModel" /> is set.
+        ///     Also stores the resolved avatar for use when the donor model carries no Animator of its own.
+        /// </summary>
+        /// <param name="toCombine">The list of part meshes being combined.</param>
+        /// <returns>The model to use as the rig and avatar donor for the character.</returns>
+        public GameObject ResolveBaseModel(List<SkinnedMeshRenderer> toCombine)
+        {
+            _resolvedAvatar = null;
+
+            if (ForceAssignedBaseModel)
+            {
+                return _baseModel;
+            }
+
+            GameObject headModel = GetHeadPartModel(toCombine);
+            if (headModel == null)
+            {
+                return _baseModel;
+            }
+
+            Avatar headAvatar = GetModelAvatar(headModel);
+            if (headAvatar == null || headAvatar.name == _BASE_MODEL_AVATAR_NAME)
+            {
+                return _baseModel;
+            }
+
+            _resolvedAvatar = headAvatar;
+            return headModel;
+        }
+
+        /// <summary>
         ///     Processes the movement of rig joints based on blend shape changes.
         /// </summary>
         public void ProcessRigMovementOnBlendShapeChange(Dictionary<CharacterPartType, Dictionary<BlendShapeType, SidekickBlendShapeRigMovement>> offsetLibrary)
         {
-            Transform modelRootBone = _baseModel.transform.Find("root");
+            Transform modelRootBone = EffectiveBaseModel.transform.Find("root");
             Hashtable boneNameMap = Combiner.CreateBoneNameMap(modelRootBone.gameObject);
 
             _blendShapeRigMovement = new Dictionary<string, Vector3>();

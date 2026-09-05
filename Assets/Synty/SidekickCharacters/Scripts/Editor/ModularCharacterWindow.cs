@@ -54,6 +54,8 @@ namespace Synty.SidekickCharacters
         private const string _COMBINE_MESHES_STATE = "SK_Combine_meshes";
         private const string _COMBINE_BODY_BLENDS_STATE = "SK_Combine_body_blends";
         private const string _COMBINE_FACIAL_BLENDS_STATE = "SK_Combine_facial_blends";
+        private const string _FORCE_BASE_MODEL_STATE = "SK_Force_base_model";
+        private const string _VERSION_FILE_PATH = "Assets/Synty/SidekickCharacters/Scripts/Editor/version.txt";
         private const string _OUTPUT_MODEL_NAME = "Combined Character";
         private const string _PART_COUNT_BODY = " parts in library";
         private const string _TEXTURE_COLOR_NAME = "ColorMap.png";
@@ -72,6 +74,7 @@ namespace Synty.SidekickCharacters
         private static readonly int _OPACITY_MAP = Shader.PropertyToID("_OpacityMap");
         private static Queue<Action> _callbackQueue = new Queue<Action>();
         private static bool _openWindowOnStart = true;
+        private static string _pendingLoadFilePath;
         private readonly List<SidekickColorRow> _visibleColorRows = new List<SidekickColorRow>();
 
         private List<SidekickColorRow> _allColorRows = new List<SidekickColorRow>();
@@ -102,8 +105,11 @@ namespace Synty.SidekickCharacters
         private ScrollView _colorSelectionView;
         private DropdownField _colorSetsDropdown;
         private bool _combineBodyBlendShapes = true;
+        private Toggle _combineBodyBlendsToggle;
         private bool _combineFacialBlendShapes = true;
+        private Toggle _combineFacialBlendsToggle;
         private bool _combineMeshes = true;
+        private Toggle _combineMeshesToggle;
         private AnimatorController _currentAnimationController;
         private Dictionary<string, SidekickBodyShapePreset> _currentBodyPresetDictionary = new Dictionary<string, SidekickBodyShapePreset>();
         private Dictionary<CharacterPartType, SidekickPart> _currentCharacter = new Dictionary<CharacterPartType, SidekickPart>();
@@ -129,6 +135,7 @@ namespace Synty.SidekickCharacters
         private ToolbarToggle _decalSelectionTab;
         private ScrollView _decalSelectionView;
         private StyleSheet _editorStyle;
+        private bool _forceBaseModel = false;
         private bool _showAllColourProperties = false;
         private float _bodyTypeBlendValue;
         private bool _loadingCharacter = false;
@@ -153,11 +160,13 @@ namespace Synty.SidekickCharacters
         private Dictionary<SidekickPresetFilter, bool> _partPresetFilterToggleMap = new Dictionary<SidekickPresetFilter, bool>();
         private ScrollView _partView;
         private Dictionary<string, string> _presetDefaultValues = new Dictionary<string, string>();
+        private readonly Dictionary<string, PresetRowControls> _presetRowControls = new Dictionary<string, PresetRowControls>();
         private VisualElement _presetPartContainer;
         private ScrollView _presetView;
         private Toggle _previewToggle;
         private bool _processingSpeciesChange = false;
         private bool _requiresWrap = false;
+        private string _lastSelectedWrap;
         private VisualElement _root;
         private bool _showMissingPartsPopup = false;
         private SidekickRuntime _sidekickRuntime;
@@ -168,6 +177,17 @@ namespace Synty.SidekickCharacters
         private PlayModeStateChange _stateChange = PlayModeStateChange.ExitingEditMode;
         private bool _useAutoSaveAndLoad = false;
         private List<SidekickColorSet> _visibleColorSets = new List<SidekickColorSet>();
+
+        // Undo support: the tool state is mirrored into a hidden ScriptableObject so the editor Undo system has
+        // an object to track. Serialized fields survive domain reloads together with the native undo stack.
+        [SerializeField]
+        private SidekickUndoProxy _undoProxy;
+        [SerializeField]
+        private string _lastAppliedSnapshot;
+        [SerializeField]
+        private string _lastAppliedPresetSelections;
+        private bool _isApplyingUndoState;
+        private int _lastRecordedUndoGroup = -1;
 
         // Animation variables
         private Animator _currentAnimator;
@@ -205,6 +225,15 @@ namespace Synty.SidekickCharacters
                 EditorPrefs.SetString(_AUTOSAVE_KEY, serializedCharacter);
             }
 
+            if (_undoProxy != null)
+            {
+                // Remove the tool's entries from the editor undo stack; they would otherwise linger in the
+                // Edit menu referencing a destroyed object.
+                Undo.ClearUndo(_undoProxy);
+                DestroyImmediate(_undoProxy);
+                _undoProxy = null;
+            }
+
             // ensures we release the file lock on the database
             _dbManager.CloseConnection();
         }
@@ -215,12 +244,15 @@ namespace Synty.SidekickCharacters
         {
             EditorApplication.playModeStateChanged += StateChange;
             EditorApplication.update += AnimationUpdate;
+            Undo.undoRedoPerformed -= OnUndoRedoPerformed;
+            Undo.undoRedoPerformed += OnUndoRedoPerformed;
         }
 
         private void OnDisable()
         {
             EditorApplication.update -= AnimationUpdate;
             EditorApplication.update -= DebouncedRegenerationTick;
+            Undo.undoRedoPerformed -= OnUndoRedoPerformed;
         }
 
         /// <inheritdoc cref="Update" />
@@ -230,9 +262,14 @@ namespace Synty.SidekickCharacters
             // so guard against it still being null while _loadingContent defaults to true.
             if (_loadingContent && _loadingImage != null)
             {
+#if UNITY_6000_3_OR_NEWER
+                float angle = _loadingImage.resolvedStyle.rotate.angle.value + 0.5f * Time.deltaTime;
+                _loadingImage.style.rotate = new Rotate(angle);
+#else
                 Vector3 rotation = _loadingImage.transform.rotation.eulerAngles;
                 rotation += new Vector3(0, 0, 0.5f * Time.deltaTime);
                 _loadingImage.transform.rotation = Quaternion.Euler(rotation);
+#endif
             }
 
             while (_callbackQueue.Count > 0)
@@ -461,8 +498,10 @@ namespace Synty.SidekickCharacters
         {
             // The character and tool selections always persist across play sessions, independent of the auto save/load
             // option. A window with no character state (e.g. freshly rebuilt by a recompile) must not overwrite the
-            // snapshot saved when the character was last built.
-            if (_currentCharacter.Count > 0
+            // snapshot saved when the character was last built. Color rows count as state on their own so that colors
+            // detected from a scene character survive a play session even though no parts are selected.
+            if (_currentSpecies != null
+                && (_currentCharacter.Count > 0 || _allColorRows.Count > 0)
                 && (stateChange == PlayModeStateChange.ExitingEditMode || stateChange == PlayModeStateChange.ExitingPlayMode))
             {
                 SerializedCharacter savedCharacter = CreateSerializedCharacter(_OUTPUT_MODEL_NAME);
@@ -530,6 +569,23 @@ namespace Synty.SidekickCharacters
                 }
             };
             bannerLayout.Add(bannerImage);
+
+            if (File.Exists(_VERSION_FILE_PATH))
+            {
+                Label versionLabel = new Label("v" + File.ReadAllText(_VERSION_FILE_PATH).Trim())
+                {
+                    style =
+                    {
+                        position = new StyleEnum<Position>(Position.Absolute),
+                        bottom = 4,
+                        right = 6,
+                        color = Color.white,
+                        fontSize = 10
+                    }
+                };
+                bannerLayout.Add(versionLabel);
+            }
+
             _root.Add(bannerLayout);
 
             _presetView = new ScrollView(ScrollViewMode.Vertical);
@@ -544,7 +600,9 @@ namespace Synty.SidekickCharacters
             {
                 style =
                 {
-                    display = DisplayStyle.None
+                    display = DisplayStyle.None,
+                    paddingLeft = 15,
+                    paddingRight = 15
                 }
             };
 
@@ -552,7 +610,10 @@ namespace Synty.SidekickCharacters
             {
                 style =
                 {
-                    display = DisplayStyle.None
+                    display = DisplayStyle.None,
+                    paddingTop = 5,
+                    paddingLeft = 15,
+                    paddingRight = 15
                 }
             };
 
@@ -723,6 +784,7 @@ namespace Synty.SidekickCharacters
             _currentCharacter = new Dictionary<CharacterPartType, SidekickPart>();
 
             _sidekickRuntime = new SidekickRuntime((GameObject) _baseModelField.value, (Material) _materialField.value, _currentAnimationController, _dbManager);
+            _sidekickRuntime.ForceAssignedBaseModel = _forceBaseModel;
 
             Label loadingLabel = new Label
             {
@@ -834,7 +896,20 @@ namespace Synty.SidekickCharacters
         /// </summary>
         private void ReloadCharacterFromStateChange()
         {
-            if (_stateChange == PlayModeStateChange.EnteredEditMode)
+            string serializedCharacterString = EditorPrefs.GetString(_AUTOSAVE_KEY, null);
+            SerializedCharacter serializedCharacter = null;
+
+            if (!string.IsNullOrEmpty(serializedCharacterString))
+            {
+                Deserializer deserializer = new Deserializer();
+                serializedCharacter = deserializer.Deserialize<SerializedCharacter>(serializedCharacterString);
+            }
+
+            bool snapshotHasParts = serializedCharacter?.Parts != null && serializedCharacter.Parts.Count > 0;
+
+            // Only clear the scene character when a full snapshot is about to rebuild it; with nothing to rebuild
+            // from, destroying it would throw away the user's only copy of the character.
+            if (_stateChange == PlayModeStateChange.EnteredEditMode && snapshotHasParts)
             {
                 GameObject existingModel = GameObject.Find(_OUTPUT_MODEL_NAME);
                 while (existingModel != null)
@@ -844,13 +919,23 @@ namespace Synty.SidekickCharacters
                 }
             }
 
-            string serializedCharacterString = EditorPrefs.GetString(_AUTOSAVE_KEY, null);
-
-            if (!string.IsNullOrEmpty(serializedCharacterString))
+            if (snapshotHasParts)
             {
-                Deserializer deserializer = new Deserializer();
-                SerializedCharacter serializedCharacter = deserializer.Deserialize<SerializedCharacter>(serializedCharacterString);
                 LoadSerializedCharacter(serializedCharacter, _showAllColourProperties);
+            }
+            else
+            {
+                // No parts to rebuild (e.g. only scene detection had run before play was pressed). Keep the scene
+                // character, restore the part and UV data from it, then restore the colors serialized before play.
+                DetectSceneCharacter();
+
+                if (serializedCharacter?.ColorSet != null
+                    && serializedCharacter.ColorRows != null
+                    && serializedCharacter.ColorRows.Count > 0)
+                {
+                    LoadColorSet(serializedCharacter);
+                    UpdateColorTabContent();
+                }
             }
 
             _stateChange = PlayModeStateChange.ExitingEditMode;
@@ -899,12 +984,17 @@ namespace Synty.SidekickCharacters
                     _currentSpecies = _currentSpecies = _allSpecies.FirstOrDefault(species => species.Name == _speciesField.value);
                 }
 
+                bool restoredSavedCharacter = false;
                 if (_useAutoSaveAndLoad)
                 {
                     string serializedCharacterString = EditorPrefs.GetString(_AUTOSAVE_KEY, null);
 
                     if (!string.IsNullOrEmpty(serializedCharacterString))
                     {
+                        // The attempt counts as a restore even if it fails, so scene detection below
+                        // never runs on a half-loaded state.
+                        restoredSavedCharacter = true;
+
                         try
                         {
                             Deserializer deserializer = new Deserializer();
@@ -926,6 +1016,30 @@ namespace Synty.SidekickCharacters
                 }
                 _loadingContent = false;
 
+                bool pendingFileLoad = !string.IsNullOrEmpty(_pendingLoadFilePath);
+                if (pendingFileLoad)
+                {
+                    string pendingLoadPath = _pendingLoadFilePath;
+                    _pendingLoadFilePath = null;
+                    LoadCharacterFromPath(pendingLoadPath);
+                }
+
+                // With no saved/pending character taking priority, pick up a character already in the
+                // scene so the tool reflects its parts and colors. The last two guards keep this
+                // to a fresh session; a mid-session rebuild (e.g. Update Part Library) must not replace
+                // in-memory color/UV state with data re-detected from the tool's own combined preview.
+                if (!restoredSavedCharacter
+                    && !pendingFileLoad
+                    && _stateChange == PlayModeStateChange.ExitingEditMode
+                    && _allColorRows.Count == 0
+                    && (_currentUVList == null || _currentUVList.Count == 0))
+                {
+                    DetectSceneCharacter();
+                }
+
+                // Seed the undo baseline for the fresh-empty-window path; every other startup path has scheduled
+                // a rebuild whose CommitUndoState seeds it (this call no-ops mid-batch).
+                CommitUndoState();
             }
         }
 
@@ -956,6 +1070,7 @@ namespace Synty.SidekickCharacters
             _combineMeshes = EditorPrefs.GetBool(_COMBINE_MESHES_STATE, true);
             _combineBodyBlendShapes = EditorPrefs.GetBool(_COMBINE_BODY_BLENDS_STATE, true);
             _combineFacialBlendShapes = EditorPrefs.GetBool(_COMBINE_FACIAL_BLENDS_STATE, true);
+            _forceBaseModel = EditorPrefs.GetBool(_FORCE_BASE_MODEL_STATE, false);
         }
 
         /// <summary>
@@ -1105,30 +1220,18 @@ namespace Synty.SidekickCharacters
                     _bodyTypeBlendValue = evt.newValue;
                     _sidekickRuntime.BodyTypeBlendValue = evt.newValue;
 
-                    string body = "None";
-                    if (_partSelectionDictionary.TryGetValue(CharacterPartType.Torso, out PartTypeControls bodySelection))
-                    {
-                        body = bodySelection.PartDropdown.value;
-                    }
-
-                    if (_partSelectionDictionary.TryGetValue(CharacterPartType.Wrap, out PartTypeControls wrapSelection))
-                    {
-                        if (body != "None" && _requiresWrap && _bodyTypeBlendValue > 0)
-                        {
-                            wrapSelection.PartDropdown.SetEnabled(true);
-                            wrapSelection.RandomisePartDropdownValue();
-                        }
-                        else
-                        {
-                            wrapSelection.PartDropdown.SetEnabled(false);
-                            wrapSelection.SetPartDropdownValue(null);
-                            _currentCharacter.Remove(CharacterPartType.Wrap);
-                        }
-                    }
+                    bool wrapChanged = SyncWrapToBodyType();
 
                     // During a batch the single debounced rebuild creates/updates the model, so don't build early here.
                     if (_newModel == null && !_applyingPreset)
                     {
+                        RegeneratePreviewCharacter(false, true);
+                        UpdatePartUVData();
+                    }
+                    else if (wrapChanged && !_applyingPreset && _previewToggle.value)
+                    {
+                        // The wrap mesh was added or removed; the in-place blend shape update below cannot do that,
+                        // so rebuild once at the threshold crossing.
                         RegeneratePreviewCharacter(false, true);
                         UpdatePartUVData();
                     }
@@ -1140,6 +1243,10 @@ namespace Synty.SidekickCharacters
                         _sidekickRuntime.UpdateBlendShapes(_newModel);
                         _sidekickRuntime.ProcessRigMovementOnBlendShapeChange(SidekickBlendShapeRigMovement.GetAllForProcessing(_dbManager));
                         _sidekickRuntime.ProcessBoneMovement(_newModel);
+
+                        // Sliders are not undoable themselves, but committing here keeps a later part/color undo
+                        // from silently reverting slider changes made since the last commit.
+                        CommitUndoState();
                     }
                 }
             );
@@ -1184,6 +1291,10 @@ namespace Synty.SidekickCharacters
                         _sidekickRuntime.UpdateBlendShapes(_newModel);
                         _sidekickRuntime.ProcessRigMovementOnBlendShapeChange(SidekickBlendShapeRigMovement.GetAllForProcessing(_dbManager));
                         _sidekickRuntime.ProcessBoneMovement(_newModel);
+
+                        // Sliders are not undoable themselves, but committing here keeps a later part/color undo
+                        // from silently reverting slider changes made since the last commit.
+                        CommitUndoState();
                     }
                 }
             );
@@ -1208,6 +1319,10 @@ namespace Synty.SidekickCharacters
                         _sidekickRuntime.UpdateBlendShapes(_newModel);
                         _sidekickRuntime.ProcessRigMovementOnBlendShapeChange(SidekickBlendShapeRigMovement.GetAllForProcessing(_dbManager));
                         _sidekickRuntime.ProcessBoneMovement(_newModel);
+
+                        // Sliders are not undoable themselves, but committing here keeps a later part/color undo
+                        // from silently reverting slider changes made since the last commit.
+                        CommitUndoState();
                     }
                 }
             );
@@ -1226,6 +1341,7 @@ namespace Synty.SidekickCharacters
                     maxWidth = Length.Percent(65)
                 }
             };
+            ScrollableDropdown.Apply(_colorSetsDropdown);
 
             Label filterPartsLabel = new Label("Filter - Parts")
             {
@@ -1233,6 +1349,7 @@ namespace Synty.SidekickCharacters
             };
             view.Add(filterPartsLabel);
             DropdownField partTypeDropdown = new DropdownField();
+            ScrollableDropdown.Apply(partTypeDropdown);
             string[] colorPartTypes = Enum.GetNames(typeof(ColorPartType));
             // Enum names can't have spaces so we add in the space manually for display.
             for (int i = 0; i < colorPartTypes.Length; i++)
@@ -1569,12 +1686,21 @@ namespace Synty.SidekickCharacters
 
             view.Add(baseAssetLabel);
 
+            VisualElement baseModelRow = new VisualElement
+            {
+                style =
+                {
+                    flexDirection = new StyleEnum<FlexDirection>(FlexDirection.Row),
+                    marginLeft = 15,
+                    marginRight = 15
+                }
+            };
+
             _baseModelField = new ObjectField
             {
                 style =
                 {
-                    marginLeft = 15,
-                    marginRight = 15
+                    flexGrow = 1
                 },
                 tooltip = "The rigged character model used when constructing a character",
                 objectType = typeof(GameObject),
@@ -1585,9 +1711,43 @@ namespace Synty.SidekickCharacters
                 changeEvent =>
                 {
                     // TODO: Check the model has a minimum of 1 SkinnedMeshRenderer as a child.
+                    if (_sidekickRuntime != null && changeEvent.newValue is GameObject newBaseModel)
+                    {
+                        _sidekickRuntime.BaseModel = newBaseModel;
+                    }
+
+                    // passes the basemodel assigned in the UI into the object state, as it was being ignored.
+                    _baseModelField.value = changeEvent.newValue;
+
                 }
             );
-            view.Add(_baseModelField);
+            Toggle forceModelToggle = new Toggle
+            {
+                text = "Force Model",
+                value = _forceBaseModel,
+                style =
+                {
+                    marginLeft = 8
+                },
+                tooltip = "When enabled, characters are always built on the Model assigned above. When disabled, if the selected head part "
+                    + "uses a non-standard avatar (e.g. Alien variants), the head's source model is automatically used as the base rig instead."
+            };
+
+            forceModelToggle.RegisterValueChangedCallback(
+                changeEvent =>
+                {
+                    _forceBaseModel = changeEvent.newValue;
+                    EditorPrefs.SetBool(_FORCE_BASE_MODEL_STATE, _forceBaseModel);
+                    if (_sidekickRuntime != null)
+                    {
+                        _sidekickRuntime.ForceAssignedBaseModel = _forceBaseModel;
+                    }
+                }
+            );
+
+            baseModelRow.Add(_baseModelField);
+            baseModelRow.Add(forceModelToggle);
+            view.Add(baseModelRow);
 
             _baseModelField.value = Resources.Load<GameObject>(_BASE_MESH_NAME);
 
@@ -1650,17 +1810,16 @@ namespace Synty.SidekickCharacters
                 tooltip = "Re-scans the project folders to update the parts list"
             };
 
-            uploadLibraryButton.clickable.clicked += async delegate
+            uploadLibraryButton.clickable.clicked += delegate
             {
-                CreateGUI();
-                await Task.Run(
-                    async () =>
-                    {
-                        await SidekickRuntime.PopulateToolData(_sidekickRuntime);
-                        _callbackQueue.Enqueue(AddAllTabContent);
-                    }
-                );
+                // Ignore clicks while a rebuild is in flight; CreateGUI already repopulates the tool
+                // data and tab content, so a second populate here would race the one it starts.
+                if (_loadingContent)
+                {
+                    return;
+                }
 
+                CreateGUI();
             };
 
             updateLibraryLayout.Add(uploadLibraryButton);
@@ -1681,7 +1840,7 @@ namespace Synty.SidekickCharacters
 
             view.Add(prefabOptions);
 
-            Toggle combineToggle = new Toggle("Combine Character Meshes")
+            _combineMeshesToggle = new Toggle("Combine Character Meshes")
             {
                 value = _combineMeshes,
                 style =
@@ -1692,7 +1851,7 @@ namespace Synty.SidekickCharacters
                 tooltip = "Whether or not to bake all the meshes down to a single mesh in the output model."
             };
 
-            combineToggle.RegisterValueChangedCallback(
+            _combineMeshesToggle.RegisterValueChangedCallback(
                 evt =>
                 {
                     _combineMeshes = evt.newValue;
@@ -1700,9 +1859,9 @@ namespace Synty.SidekickCharacters
                 }
             );
 
-            view.Add(combineToggle);
+            view.Add(_combineMeshesToggle);
 
-            Toggle bodyBlendsToggle = new Toggle("Combine Body Blend Shapes")
+            _combineBodyBlendsToggle = new Toggle("Combine Body Blend Shapes")
             {
                 value = _combineBodyBlendShapes,
                 style =
@@ -1714,7 +1873,7 @@ namespace Synty.SidekickCharacters
                     + "When disabled the current body shape is baked into the mesh and the blend shapes are removed."
             };
 
-            bodyBlendsToggle.RegisterValueChangedCallback(
+            _combineBodyBlendsToggle.RegisterValueChangedCallback(
                 evt =>
                 {
                     _combineBodyBlendShapes = evt.newValue;
@@ -1722,9 +1881,9 @@ namespace Synty.SidekickCharacters
                 }
             );
 
-            view.Add(bodyBlendsToggle);
+            view.Add(_combineBodyBlendsToggle);
 
-            Toggle facialBlendsToggle = new Toggle("Combine Facial Blend Shapes")
+            _combineFacialBlendsToggle = new Toggle("Combine Facial Blend Shapes")
             {
                 value = _combineFacialBlendShapes,
                 style =
@@ -1736,7 +1895,7 @@ namespace Synty.SidekickCharacters
                     + "When disabled the current facial blend shape values are baked into the mesh and the blend shapes are removed."
             };
 
-            facialBlendsToggle.RegisterValueChangedCallback(
+            _combineFacialBlendsToggle.RegisterValueChangedCallback(
                 evt =>
                 {
                     _combineFacialBlendShapes = evt.newValue;
@@ -1744,7 +1903,7 @@ namespace Synty.SidekickCharacters
                 }
             );
 
-            view.Add(facialBlendsToggle);
+            view.Add(_combineFacialBlendsToggle);
 
             Label toolOptions = new Label
             {
@@ -2113,6 +2272,17 @@ namespace Synty.SidekickCharacters
         }
 
         /// <summary>
+        ///     Updates every color row (visible or not) in the color map textures.
+        /// </summary>
+        private void UpdateAllColors()
+        {
+            foreach (SidekickColorRow row in _allColorRows)
+            {
+                UpdateAllColors(row);
+            }
+        }
+
+        /// <summary>
         ///     Updates all the color types for a given color row.
         /// </summary>
         /// <param name="colorRow">The color row to update.</param>
@@ -2428,25 +2598,56 @@ namespace Synty.SidekickCharacters
         /// <summary>
         ///     Populates the color rows from texture files on the disk.
         /// </summary>
-        private void PopulateColorRowsFromTextures()
+        /// <param name="overrideColorMap">
+        ///     Optional color map to sample instead of the current color set's source texture; used when detecting the
+        ///     colors of a character already in the scene. Ignored when unusable (unreadable non-asset, or too small).
+        /// </param>
+        private void PopulateColorRowsFromTextures(Texture2D overrideColorMap = null)
         {
             TextureImporter textureImporter = null;
 
-            Texture2D mainColor = AssetDatabase.LoadAssetAtPath<Texture2D>(_currentColorSet.SourceColorPath);
-            if (mainColor != null)
+            Texture2D mainColor = null;
+
+            if (overrideColorMap != null)
             {
-                mainColor.filterMode = FilterMode.Point;
-                if (!mainColor.isReadable)
+                if (!overrideColorMap.isReadable)
                 {
-                    textureImporter = (TextureImporter) AssetImporter.GetAtPath(_currentColorSet.SourceColorPath);
-                    textureImporter.isReadable = true;
-                    textureImporter.SaveAndReimport();
+                    string overridePath = AssetDatabase.GetAssetPath(overrideColorMap);
+                    if (!string.IsNullOrEmpty(overridePath) && AssetImporter.GetAtPath(overridePath) is TextureImporter overrideImporter)
+                    {
+                        overrideImporter.isReadable = true;
+                        overrideImporter.SaveAndReimport();
+                    }
+                }
+
+                // GetPixel below assumes the 32x32 (2x2 pixels per color cell) layout.
+                if (overrideColorMap.isReadable && overrideColorMap.width >= 32 && overrideColorMap.height >= 32)
+                {
+                    overrideColorMap.filterMode = FilterMode.Point;
+                    mainColor = overrideColorMap;
                 }
             }
-            else
+
+            if (mainColor == null)
             {
-                Material defaultMaterial = (Material) _materialField.value;
-                mainColor = (Texture2D) defaultMaterial.mainTexture;
+                mainColor = AssetDatabase.LoadAssetAtPath<Texture2D>(_currentColorSet.SourceColorPath);
+                if (mainColor != null)
+                {
+                    mainColor.filterMode = FilterMode.Point;
+                    if (!mainColor.isReadable)
+                    {
+                        textureImporter = (TextureImporter) AssetImporter.GetAtPath(_currentColorSet.SourceColorPath);
+                        textureImporter.isReadable = true;
+                        textureImporter.SaveAndReimport();
+                    }
+                }
+                else
+                {
+                    // The Sidekick shader has no main texture, so mainTexture is always null; the color map
+                    // property is the texture the tool paints and holds the current colors of this session.
+                    Material defaultMaterial = (Material) _materialField.value;
+                    mainColor = defaultMaterial != null ? defaultMaterial.GetTexture(_COLOR_MAP) as Texture2D : null;
+                }
             }
 
             Texture2D metallic = AssetDatabase.LoadAssetAtPath<Texture2D>(_currentColorSet.SourceMetallicPath);
@@ -2595,8 +2796,17 @@ namespace Synty.SidekickCharacters
             colorField.RegisterValueChangedCallback(
                 evt =>
                 {
+                    // An undo can rebuild the rows while the color picker is still open; ignore events from a
+                    // field whose row is no longer part of the tool state.
+                    if (_isApplyingUndoState || !_allColorRows.Contains(colorRow))
+                    {
+                        return;
+                    }
+
+                    RecordUndo("Sidekick Color Change");
                     colorRow.NiceColor = evt.newValue;
                     _sidekickRuntime.UpdateColor(ColorType.MainColor, colorRow);
+                    CommitUndoState();
                 }
             );
 
@@ -2738,6 +2948,7 @@ namespace Synty.SidekickCharacters
         private void PopulatePresetUI()
         {
             _presetView.Clear();
+            _presetRowControls.Clear();
 
             Dictionary<string, PopupField<string>> dropdowns = new Dictionary<string, PopupField<string>>();
 
@@ -2757,11 +2968,13 @@ namespace Synty.SidekickCharacters
                 label = "Species",
                 style =
                 {
-                    unityFontStyleAndWeight = new StyleEnum<FontStyle>(FontStyle.Normal)
+                    unityFontStyleAndWeight = new StyleEnum<FontStyle>(FontStyle.Normal),
+                    marginRight = 20
                 },
                 tooltip = "Select the species of your character"
             };
             _speciesPresetField.choices = speciesNames;
+            ScrollableDropdown.Apply(_speciesPresetField);
             _speciesPresetField.RegisterValueChangedCallback(
                 evt =>
                 {
@@ -3114,6 +3327,7 @@ namespace Synty.SidekickCharacters
                     return;
                 }
 
+                RecordUndo("Randomize Character");
                 _applyingPreset = true;
                 foreach (PopupField<string> dropdown in dropdowns.Values)
                 {
@@ -3352,10 +3566,14 @@ namespace Synty.SidekickCharacters
                 value = "None",
                 style =
                 {
-                    minWidth = 180
+                    minWidth = 180,
+                    flexGrow = 1,
+                    flexShrink = 1,
+                    marginRight = 20
                 },
                 tooltip = tooltipText
             };
+            ScrollableDropdown.Apply(partSelection);
 
             partSelection.RegisterValueChangedCallback(
                 evt =>
@@ -3369,6 +3587,7 @@ namespace Synty.SidekickCharacters
                     switch (dropdownType)
                     {
                         case PresetDropdownType.Part:
+                            RecordUndo("Sidekick Part Preset");
                             _applyingPreset = true;
 
                             bool hasErrors = false;
@@ -3410,20 +3629,7 @@ namespace Synty.SidekickCharacters
 
                                         if (partType == CharacterPartType.Wrap)
                                         {
-                                            if (_partSelectionDictionary.TryGetValue(partType, out PartTypeControls wrapSelection))
-                                            {
-                                                if (_requiresWrap && _bodyTypeBlendValue > 0)
-                                                {
-                                                    wrapSelection.PartDropdown.SetEnabled(true);
-                                                    wrapSelection.RandomisePartDropdownValue();
-                                                }
-                                                else
-                                                {
-                                                    wrapSelection.PartDropdown.SetEnabled(false);
-                                                    wrapSelection.SetPartDropdownValue(null);
-                                                    _currentCharacter.Remove(CharacterPartType.Wrap);
-                                                }
-                                            }
+                                            SyncWrapToBodyType();
                                         }
                                         else
                                         {
@@ -3465,34 +3671,18 @@ namespace Synty.SidekickCharacters
                             SchedulePreviewRegeneration();
                             break;
                         case PresetDropdownType.Body:
+                            RecordUndo("Sidekick Body Preset");
                             SidekickBodyShapePreset bodyShapePreset = _currentBodyPresetDictionary[evt.newValue];
                             if (Math.Abs(_bodyTypeSlider.value - bodyShapePreset.BodyType) < 0.001f)
                             {
-                                string body = "None";
-                                if (_partSelectionDictionary.TryGetValue(CharacterPartType.Torso, out PartTypeControls bodySelection))
-                                {
-                                    body = bodySelection.PartDropdown.value;
-                                }
-
-                                if (_partSelectionDictionary.TryGetValue(CharacterPartType.Wrap, out PartTypeControls wrapSelection))
-                                {
-                                    if (body != "None" && _requiresWrap && _bodyTypeBlendValue > 0)
-                                    {
-                                        wrapSelection.PartDropdown.SetEnabled(true);
-                                        wrapSelection.RandomisePartDropdownValue();
-                                    }
-                                    else
-                                    {
-                                        wrapSelection.PartDropdown.SetEnabled(false);
-                                        wrapSelection.SetPartDropdownValue(null);
-                                        _currentCharacter.Remove(CharacterPartType.Wrap);
-                                    }
-                                }
+                                // The slider value is not changing, so its callback will not run; sync the wrap here.
+                                SyncWrapToBodyType();
                             }
 
                             _bodyTypeSlider.value = bodyShapePreset.BodyType;
                             _bodySizeSlider.value = bodyShapePreset.BodySize;
                             _musclesSlider.value = bodyShapePreset.Musculature;
+                            CommitUndoState();
                             break;
                         case PresetDropdownType.Color:
                             if (evt.newValue == "None")
@@ -3500,6 +3690,7 @@ namespace Synty.SidekickCharacters
                                 return;
                             }
 
+                            RecordUndo("Sidekick Color Preset");
                             ResetCurrentColorSet();
 
                             Enum.TryParse(rowLabel, out ColorGroup colorGroup);
@@ -3569,6 +3760,9 @@ namespace Synty.SidekickCharacters
 
                             PopulatePartColorRows();
                             RefreshVisibleColorRows();
+                            // No-ops when reached mid-batch (e.g. from Randomize Character); the batch's single
+                            // rebuild commits instead.
+                            CommitUndoState();
                             break;
                         case PresetDropdownType.Texture:
                             // TODO: Add texture setting functionality once decal system in place
@@ -3637,6 +3831,15 @@ namespace Synty.SidekickCharacters
             previousButton.SetEnabled(partSelection.index > 0);
             nextButton.SetEnabled(partSelection.index < popupValues.Count - 1);
 
+            _presetRowControls[rowLabel] = new PresetRowControls
+            {
+                Dropdown = partSelection,
+                PreviousButton = previousButton,
+                NextButton = nextButton,
+                PopupValues = popupValues,
+                IncludeNoneValue = includeNoneValue
+            };
+
             return partSelection;
         }
 
@@ -3651,6 +3854,10 @@ namespace Synty.SidekickCharacters
             {
                 return;
             }
+
+            // No-ops when reached from loads/undo (their suppression flags are already raised); the deferred
+            // dropdown cascade coalesces into this one undo group.
+            RecordUndo("Sidekick Species Change");
 
             _currentSpecies = _allSpecies.FirstOrDefault(species => species.Name == newSpecies);
             _sidekickRuntime.CurrentSpecies = _currentSpecies;
@@ -3701,6 +3908,7 @@ namespace Synty.SidekickCharacters
                 tooltip = "Select the species of your character"
             };
             _speciesField.choices = speciesNames;
+            ScrollableDropdown.Apply(_speciesField);
             _speciesField.RegisterValueChangedCallback(
                 evt =>
                 {
@@ -3896,6 +4104,16 @@ namespace Synty.SidekickCharacters
 
                 randomiseAllButton.clickable.clicked += delegate
                 {
+                    if (_applyingPreset)
+                    {
+                        return;
+                    }
+
+                    RecordUndo("Randomize " + partGroup);
+
+                    // Batch the whole group into a single rebuild (and a single undo step), the same way the
+                    // Randomize Character button does.
+                    _applyingPreset = true;
                     foreach (CharacterPartType value in partGroup.GetPartTypes())
                     {
                         PartTypeControls dropdown = _partSelectionDictionary[value];
@@ -3912,6 +4130,8 @@ namespace Synty.SidekickCharacters
                             }
                         }
                     }
+
+                    SchedulePreviewRegeneration();
                 };
             }
 
@@ -4029,11 +4249,6 @@ namespace Synty.SidekickCharacters
 
             List<string> popupValues = new List<string>();
 
-            if (type != CharacterPartType.Wrap)
-            {
-                popupValues.Add("None");
-            }
-
             foreach (SidekickPart part in partsList)
             {
                 SidekickPartSpeciesLink link = SidekickPartSpeciesLink.GetForSpeciesAndPart(_dbManager, _currentSpecies, part);
@@ -4041,6 +4256,13 @@ namespace Synty.SidekickCharacters
                 {
                     popupValues.Add(part.Name);
                 }
+            }
+
+            popupValues.Sort(StringComparer.OrdinalIgnoreCase);
+
+            if (type != CharacterPartType.Wrap)
+            {
+                popupValues.Insert(0, "None");
             }
 
             _currentCharacter.TryGetValue(type, out SidekickPart selectedPart);
@@ -4072,8 +4294,15 @@ namespace Synty.SidekickCharacters
 
             PopupField<string> partSelection = new PopupField<string>(popupValues, 0)
             {
-                value = currentSelection
+                value = currentSelection,
+                style =
+                {
+                    flexGrow = 1,
+                    flexShrink = 1,
+                    marginRight = 15
+                }
             };
+            ScrollableDropdown.Apply(partSelection);
 
             PartTypeControls controls = new PartTypeControls
             {
@@ -4189,17 +4418,18 @@ namespace Synty.SidekickCharacters
                 PartTypeControls controls = _partSelectionDictionary[type];
                 HashSet<string> popupItems = new HashSet<string>();
 
-                if (type != CharacterPartType.Wrap)
-                {
-                    popupItems.Add("None");
-                };
-
                 HashSet<string> itemList = baseParts.TryGetValue(type, out List<string> items) ? items.ToHashSet() : new HashSet<string>();
                 popupItems.UnionWith(itemList);
                 itemList = filteredParts.TryGetValue(type, out List<string> filteredItems) ? filteredItems.ToHashSet() : new HashSet<string>();
                 popupItems.UnionWith(itemList);
 
                 List<string> popupValues = popupItems.ToList();
+                popupValues.Sort(StringComparer.OrdinalIgnoreCase);
+
+                if (type != CharacterPartType.Wrap)
+                {
+                    popupValues.Insert(0, "None");
+                }
 
                 _currentCharacter.TryGetValue(type, out SidekickPart selectedPart);
                 string currentSelection = selectedPart?.Name ?? "None";
@@ -4249,6 +4479,8 @@ namespace Synty.SidekickCharacters
         {
             try
             {
+                RecordUndo("Sidekick Part Change");
+
                 if (_currentTab == TabView.Parts
                     && _sidekickRuntime.MappedPartDictionary.ContainsKey(type)
                     && changeEvent.newValue != null
@@ -4265,23 +4497,16 @@ namespace Synty.SidekickCharacters
                         _previousPartSelections[type] = changeEvent.newValue;
                     }
 
+                    if (type == CharacterPartType.Wrap)
+                    {
+                        // Remembered so the same wrap comes back when the body type re-crosses the threshold.
+                        _lastSelectedWrap = changeEvent.newValue;
+                    }
+
                     if (type == CharacterPartType.Torso)
                     {
                         _requiresWrap = selectedPart.UsesWrap;
-                        if (_partSelectionDictionary.TryGetValue(CharacterPartType.Wrap, out PartTypeControls wrapSelection))
-                        {
-                            if (_requiresWrap)
-                            {
-                                wrapSelection.PartDropdown.SetEnabled(true);
-                                wrapSelection.RandomisePartDropdownValue();
-                                ;
-                            }
-                            else
-                            {
-                                wrapSelection.PartDropdown.SetEnabled(false);
-                                wrapSelection.SetPartDropdownValue(null);
-                            }
-                        }
+                        SyncWrapToBodyType();
                     }
                 }
                 else if (changeEvent.newValue == "None")
@@ -4295,12 +4520,7 @@ namespace Synty.SidekickCharacters
 
                     if (type == CharacterPartType.Torso)
                     {
-                        if (_partSelectionDictionary.TryGetValue(CharacterPartType.Wrap, out PartTypeControls wrapSelection))
-                        {
-                            wrapSelection.PartDropdown.SetEnabled(false);
-                            wrapSelection.SetPartDropdownValue(null);
-                            _currentCharacter.Remove(CharacterPartType.Wrap);
-                        }
+                        SyncWrapToBodyType();
                     }
                 }
                 else
@@ -4322,6 +4542,9 @@ namespace Synty.SidekickCharacters
                 }
 
                 partSelection.UpdateControls();
+
+                // Covers the preview-toggle-off path; with the preview on, RegeneratePreviewCharacter commits.
+                CommitUndoState();
             }
             catch (Exception ex)
             {
@@ -4384,7 +4607,7 @@ namespace Synty.SidekickCharacters
                 if (entry.Value != null)
                 {
                     // Only apply wrap when required
-                    if (entry.Key == CharacterPartType.Wrap && (!_requiresWrap || _bodyTypeBlendValue < 0))
+                    if (entry.Key == CharacterPartType.Wrap && (!_requiresWrap || _bodyTypeBlendValue <= 0))
                     {
                         continue;
                     }
@@ -4471,6 +4694,11 @@ namespace Synty.SidekickCharacters
                 Serializer serializer = new Serializer();
                 EditorPrefs.SetString(_AUTOSAVE_KEY, serializer.Serialize(savedCharacter));
             }
+
+            // The universal undo settle point: every immediate part rebuild and every debounced batch rebuild
+            // (presets, loads, undo application) passes through here with its state fully applied. Kept outside
+            // the autosave guard so clearing the last part still commits.
+            CommitUndoState();
         }
 
         /// <summary>
@@ -4517,12 +4745,19 @@ namespace Synty.SidekickCharacters
             UpdatePartUVData();
 
             // Apply colours deferred during the batch (the rebuild itself does not apply colours), so parts,
-            // body shape and colours all appear in this single update.
+            // body shape and colours all appear in this single update. Every row is painted, not just the
+            // visible ones: the colour map is shared across rebuilds, so cells belonging to parts that are not
+            // equipped right now must also hold the loaded/preset colours for when those parts are chosen later.
             if (_reapplyColorsOnRegen)
             {
-                UpdateAllVisibleColors();
                 _reapplyColorsOnRegen = false;
+                UpdateAllColors();
             }
+
+            // The UV data has just been replaced by the rebuilt character's, so re-derive the visible colour rows
+            // and the swatch UI from it. Anything populated during the batch used the previous character's UVs.
+            PopulatePartColorRows();
+            RefreshVisibleColorRows();
         }
 
         /// <summary>
@@ -4569,6 +4804,210 @@ namespace Synty.SidekickCharacters
             if (showSuccessMessage)
             {
                 EditorUtility.DisplayDialog("Save Successful", "Character successfully saved to " + Path.GetFileName(savePath), "OK");
+            }
+        }
+
+        /// <summary>
+        ///     Gets the undo proxy object, creating it if required.
+        /// </summary>
+        /// <returns>The undo proxy for this window.</returns>
+        private SidekickUndoProxy GetOrCreateUndoProxy()
+        {
+            if (_undoProxy == null)
+            {
+                _undoProxy = ScriptableObject.CreateInstance<SidekickUndoProxy>();
+                _undoProxy.hideFlags = HideFlags.HideAndDontSave;
+            }
+
+            return _undoProxy;
+        }
+
+        /// <summary>
+        ///     Records the current (pre-change) tool state onto the editor undo stack. Call at gesture level, BEFORE
+        ///     the state mutation. Batch flows (presets, loads, undo application itself) are suppressed here and
+        ///     record once at their own gesture site instead; repeat calls within one user input event (a color
+        ///     picker drag, the torso to wrap cascade) coalesce into a single undo step.
+        /// </summary>
+        /// <param name="label">The name shown in the Edit menu for this undo step.</param>
+        private void RecordUndo(string label)
+        {
+            if (_loadingContent || _isApplyingUndoState || _applyingPreset || _loadingCharacter || _processingSpeciesChange)
+            {
+                return;
+            }
+
+            SidekickUndoProxy proxy = GetOrCreateUndoProxy();
+            if (string.IsNullOrEmpty(proxy.CharacterSnapshot))
+            {
+                // No baseline committed yet; there is no meaningful state to restore to.
+                return;
+            }
+
+            if (Undo.GetCurrentGroup() == _lastRecordedUndoGroup)
+            {
+                return;
+            }
+
+            Undo.IncrementCurrentGroup();
+            Undo.SetCurrentGroupName(label);
+            Undo.RegisterCompleteObjectUndo(proxy, label);
+            _lastRecordedUndoGroup = Undo.GetCurrentGroup();
+        }
+
+        /// <summary>
+        ///     Writes the current tool state into the undo proxy so the next RecordUndo captures it. Call AFTER the
+        ///     state has settled. No-ops mid-batch; the batch's single rebuild commits instead.
+        /// </summary>
+        private void CommitUndoState()
+        {
+            if (_isApplyingUndoState || _applyingPreset)
+            {
+                return;
+            }
+
+            if (_currentSpecies == null || _currentColorSet == null || _bodyTypeSlider == null)
+            {
+                return;
+            }
+
+            SerializedCharacter state = CreateSerializedCharacter(_OUTPUT_MODEL_NAME);
+            Serializer serializer = new Serializer();
+            string snapshot = serializer.Serialize(state);
+            SidekickUndoProxy proxy = GetOrCreateUndoProxy();
+            proxy.CharacterSnapshot = snapshot;
+            _lastAppliedSnapshot = snapshot;
+
+            string presetSelections = serializer.Serialize(_presetDefaultValues);
+            proxy.PresetSelections = presetSelections;
+            _lastAppliedPresetSelections = presetSelections;
+        }
+
+        /// <summary>
+        ///     Replaces _presetDefaultValues with the selections stored in the given YAML snapshot.
+        /// </summary>
+        /// <param name="presetSelections">The serialized row label -> preset name dictionary from the undo proxy.</param>
+        /// <returns>
+        ///     True if the selections were restored; false (leaving the dictionary untouched) for empty or unreadable
+        ///     data, e.g. undo steps recorded before preset selections were tracked.
+        /// </returns>
+        private bool RestorePresetSelections(string presetSelections)
+        {
+            if (string.IsNullOrEmpty(presetSelections))
+            {
+                return false;
+            }
+
+            try
+            {
+                Deserializer deserializer = new Deserializer();
+                Dictionary<string, string> restored = deserializer.Deserialize<Dictionary<string, string>>(presetSelections);
+                if (restored == null)
+                {
+                    return false;
+                }
+
+                _presetDefaultValues = restored;
+                return true;
+            }
+            catch (Exception ex)
+            {
+                Debug.LogWarning("Sidekick undo: failed to restore preset selections.\n" + ex);
+                return false;
+            }
+        }
+
+        /// <summary>
+        ///     Syncs the preset row dropdowns and their previous/next buttons to the current _presetDefaultValues
+        ///     without rebuilding the preset UI. Only valid while the rows' choice lists are unchanged (species and
+        ///     filters untouched), which holds for the undo/redo paths that call it. Values are set without
+        ///     notifying, mirroring how a full rebuild restores selections.
+        /// </summary>
+        private void SyncPresetRowsFromDefaults()
+        {
+            foreach (KeyValuePair<string, PresetRowControls> entry in _presetRowControls)
+            {
+                string rowLabel = entry.Key;
+                PresetRowControls controls = entry.Value;
+
+                if (!_presetDefaultValues.TryGetValue(rowLabel, out string restoredValue) || controls.PopupValues.Count == 0)
+                {
+                    continue;
+                }
+
+                // Fall back to a value verified present in the current choices; "None" itself may be absent, as
+                // randomizing intentionally strips it from the row's choice list.
+                if (!controls.PopupValues.Contains(restoredValue))
+                {
+                    restoredValue = controls.IncludeNoneValue && controls.PopupValues.Contains("None")
+                        ? "None"
+                        : controls.PopupValues[0];
+                }
+
+                controls.Dropdown.SetValueWithoutNotify(restoredValue);
+                _presetDefaultValues[rowLabel] = restoredValue;
+                controls.PreviousButton.SetEnabled(controls.Dropdown.index > 0);
+                controls.NextButton.SetEnabled(controls.Dropdown.index < controls.PopupValues.Count - 1);
+            }
+        }
+
+        /// <summary>
+        ///     Applies the undo proxy's snapshot to the tool after the editor performs an undo or redo. Editor-wide
+        ///     undo events that did not touch the proxy are ignored via the snapshot comparison.
+        /// </summary>
+        private void OnUndoRedoPerformed()
+        {
+            if (_undoProxy == null || _loadingContent || _dbManager == null)
+            {
+                return;
+            }
+
+            string snapshot = _undoProxy.CharacterSnapshot;
+            string presetSelections = _undoProxy.PresetSelections;
+            bool characterChanged = !string.IsNullOrEmpty(snapshot) && snapshot != _lastAppliedSnapshot;
+            bool presetsChanged = !string.IsNullOrEmpty(presetSelections) && presetSelections != _lastAppliedPresetSelections;
+            if (!characterChanged && !presetsChanged)
+            {
+                return;
+            }
+
+            _isApplyingUndoState = true;
+            try
+            {
+                // Set first so a failed apply cannot re-trigger on the next unrelated undo event.
+                _lastAppliedSnapshot = snapshot;
+                _lastAppliedPresetSelections = presetSelections;
+
+                // Restore the preset dropdown record before loading the character: a species-changed load rebuilds
+                // the preset UI inside ProcessSpeciesChange, and that rebuild must read the restored values.
+                bool presetsRestored = RestorePresetSelections(presetSelections);
+
+                if (characterChanged)
+                {
+                    Deserializer deserializer = new Deserializer();
+                    SerializedCharacter character = deserializer.Deserialize<SerializedCharacter>(snapshot);
+                    int previousSpeciesId = _currentSpecies != null ? _currentSpecies.ID : -1;
+                    LoadSerializedCharacter(character, _showAllColourProperties, true);
+
+                    // A species-unchanged load skips ProcessSpeciesChange's preset UI rebuild, so the rows' choice
+                    // lists are unchanged; just re-sync the dropdown values from the restored selections.
+                    if (presetsRestored && character.Species == previousSpeciesId)
+                    {
+                        SyncPresetRowsFromDefaults();
+                    }
+                }
+                else if (presetsRestored)
+                {
+                    // Preset-only step: same character state, different dropdown selections.
+                    SyncPresetRowsFromDefaults();
+                }
+            }
+            catch (Exception ex)
+            {
+                Debug.LogWarning("Sidekick undo: failed to apply the restored state.\n" + ex);
+            }
+            finally
+            {
+                _isApplyingUndoState = false;
             }
         }
 
@@ -4620,16 +5059,24 @@ namespace Synty.SidekickCharacters
         /// </summary>
         private void LoadCharacter()
         {
-            _loadingCharacter = true;
-            bool showAllColors = _showAllColourProperties;
-            _showAllColourProperties = true;
-
             string filePath = EditorUtility.OpenFilePanel("Load Character", "", "sk");
             if (string.IsNullOrEmpty(filePath))
             {
                 EditorUtility.DisplayDialog("No File Chosen", "No file was chosen to load.", "OK");
                 return;
             }
+
+            LoadCharacterFromPath(filePath);
+        }
+
+        /// <summary>
+        ///     Loads a character (Parts and Colors) into the tool from a .sk file on disk.
+        /// </summary>
+        /// <param name="filePath">The path of the .sk file to load.</param>
+        private void LoadCharacterFromPath(string filePath)
+        {
+            RecordUndo("Load Character");
+            _loadingCharacter = true;
 
             _bodyPartsTab.value = true;
             SwitchToTab(TabView.Parts);
@@ -4640,8 +5087,44 @@ namespace Synty.SidekickCharacters
             Deserializer deserializer = new Deserializer();
             SerializedCharacter savedCharacter = deserializer.Deserialize<SerializedCharacter>(data);
 
-            LoadSerializedCharacter(savedCharacter, showAllColors);
+            ForceCombineOptionsOn();
+            LoadSerializedCharacter(savedCharacter, _showAllColourProperties);
             _loadingCharacter = false;
+        }
+
+        /// <summary>
+        ///     Turns on all the prefab options so a loaded .sk file generates a combined mesh with all blend shapes kept.
+        ///     Only the current session state and toggles are updated; the user's saved preferences in EditorPrefs are untouched.
+        /// </summary>
+        private void ForceCombineOptionsOn()
+        {
+            _combineMeshes = true;
+            _combineBodyBlendShapes = true;
+            _combineFacialBlendShapes = true;
+
+            _combineMeshesToggle?.SetValueWithoutNotify(true);
+            _combineBodyBlendsToggle?.SetValueWithoutNotify(true);
+            _combineFacialBlendsToggle?.SetValueWithoutNotify(true);
+        }
+
+        /// <summary>
+        ///     Opens the tool window (creating it if needed) and loads the given .sk file into it.
+        /// </summary>
+        /// <param name="filePath">The path of the .sk file to load.</param>
+        public static void OpenAndLoadCharacter(string filePath)
+        {
+            ModularCharacterWindow window = GetWindow<ModularCharacterWindow>("Sidekick Character Tool");
+            window.Show();
+
+            if (window._loadingContent)
+            {
+                // The window is still building its UI and populating tool data; the load runs at the end of AddAllTabContent.
+                _pendingLoadFilePath = filePath;
+            }
+            else
+            {
+                _callbackQueue.Enqueue(() => window.LoadCharacterFromPath(filePath));
+            }
         }
 
         /// <summary>
@@ -4649,7 +5132,11 @@ namespace Synty.SidekickCharacters
         /// </summary>
         /// <param name="serializedCharacter">The serialized character to load.</param>
         /// <param name="showAllColors">Whether to show all colors or not.</param>
-        private void LoadSerializedCharacter(SerializedCharacter serializedCharacter, bool showAllColors)
+        /// <param name="suppressMissingPartsDialog">
+        ///     When true, missing parts are logged as a warning instead of shown in a blocking dialog; used by the
+        ///     undo/redo path.
+        /// </param>
+        private void LoadSerializedCharacter(SerializedCharacter serializedCharacter, bool showAllColors, bool suppressMissingPartsDialog = false)
         {
             // Suppress the per-part rebuilds from the dropdown change events (including the ones queued for after this
             // method returns); SchedulePreviewRegeneration below performs a single rebuild once they have all run.
@@ -4674,7 +5161,8 @@ namespace Synty.SidekickCharacters
                 }
                 else
                 {
-                    currentField.SetPartDropdownValue("None");
+                    // The wrap list has no "None" entry; an empty value is what keeps its dropdown disabled.
+                    currentField.SetPartDropdownValue(currentType == CharacterPartType.Wrap ? null : "None");
                 }
 
                 // The dropdown change event only fires when the value actually changes (and only updates the character
@@ -4684,11 +5172,18 @@ namespace Synty.SidekickCharacters
 
             if (hasErrors)
             {
-                EditorUtility.DisplayDialog(
-                    "Assets Missing",
-                    errorMessage,
-                    "OK"
-                );
+                if (suppressMissingPartsDialog)
+                {
+                    Debug.LogWarning(errorMessage);
+                }
+                else
+                {
+                    EditorUtility.DisplayDialog(
+                        "Assets Missing",
+                        errorMessage,
+                        "OK"
+                    );
+                }
             }
 
 
@@ -4698,6 +5193,10 @@ namespace Synty.SidekickCharacters
             {
                 LoadBlendShapes(serializedCharacter);
             }
+
+            // Validate the loaded wrap against the loaded torso and body type (covers the case where the slider value
+            // did not change and so its callback did not run).
+            SyncWrapToBodyType();
 
             _showAllColourProperties = showAllColors;
             UpdateColorTabContent();
@@ -4738,6 +5237,59 @@ namespace Synty.SidekickCharacters
                 _currentCharacter.Remove(type);
                 _partDictionary.Remove(type);
             }
+        }
+
+        /// <summary>
+        ///     Enables and populates the wrap when a wrap-using torso is equipped and the body type is above the threshold,
+        ///     otherwise clears it. The character state is written directly, because the wrap dropdown's change event only
+        ///     reaches the character while the Parts tab is active (the body type slider lives on the Body tab).
+        /// </summary>
+        /// <returns>True when the wrap was added to or removed from the character, i.e. the model needs rebuilding.</returns>
+        private bool SyncWrapToBodyType()
+        {
+            if (!_partSelectionDictionary.TryGetValue(CharacterPartType.Wrap, out PartTypeControls wrapSelection))
+            {
+                return false;
+            }
+
+            bool torsoEquipped = _partSelectionDictionary.TryGetValue(CharacterPartType.Torso, out PartTypeControls torsoSelection)
+                && !string.IsNullOrEmpty(torsoSelection.PartDropdown.value)
+                && torsoSelection.PartDropdown.value != "None";
+            bool wrapRequired = torsoEquipped && _requiresWrap && _bodyTypeBlendValue > 0;
+            bool hadWrap = _currentCharacter.ContainsKey(CharacterPartType.Wrap);
+
+            if (wrapRequired)
+            {
+                wrapSelection.PartDropdown.SetEnabled(true);
+
+                string current = wrapSelection.PartDropdown.value;
+                if (string.IsNullOrEmpty(current) || current == "None" || !wrapSelection.PartDropdown.choices.Contains(current))
+                {
+                    // Bring back the wrap the user last had rather than rolling a new one; randomise only when there is none.
+                    if (!string.IsNullOrEmpty(_lastSelectedWrap) && wrapSelection.PartDropdown.choices.Contains(_lastSelectedWrap))
+                    {
+                        wrapSelection.SetPartDropdownValue(_lastSelectedWrap);
+                    }
+                    else
+                    {
+                        wrapSelection.RandomisePartDropdownValue();
+                    }
+                }
+
+                _lastSelectedWrap = wrapSelection.PartDropdown.value;
+                SyncCurrentCharacterFromDropdown(CharacterPartType.Wrap, wrapSelection);
+            }
+            else
+            {
+                wrapSelection.PartDropdown.SetEnabled(false);
+                wrapSelection.SetPartDropdownValue(null);
+                _currentCharacter.Remove(CharacterPartType.Wrap);
+                _partDictionary.Remove(CharacterPartType.Wrap);
+            }
+
+            wrapSelection.UpdateControls();
+
+            return hadWrap != _currentCharacter.ContainsKey(CharacterPartType.Wrap);
         }
 
         /// <summary>
@@ -4796,14 +5348,74 @@ namespace Synty.SidekickCharacters
             _currentColorSet = savedCharacter.ColorSet.CreateSidekickColorSet(_dbManager);
             _colorSetsDropdown.value = "Custom";
 
-            List<SidekickColorRow> newRows = new List<SidekickColorRow>();
-            foreach (SerializedColorRow row in savedCharacter.ColorRows)
+            if (savedCharacter.ColorRows == null || savedCharacter.ColorRows.Count == 0)
             {
-                newRows.Add(row.CreateSidekickColorRow(_dbManager, _currentColorSet));
+                // A snapshot saved before the Colors tab was ever populated carries no rows. Rebuild them
+                // from the current color map; leaving them empty would make the next tab open fall back to
+                // an in-memory set with no database rows and turn every swatch red.
+                PopulateColorRowsFromTextures();
             }
+            else
+            {
+                List<SidekickColorRow> newRows = new List<SidekickColorRow>();
+                foreach (SerializedColorRow row in savedCharacter.ColorRows)
+                {
+                    SidekickColorRow newRow = row.CreateSidekickColorRow(_dbManager, _currentColorSet);
 
-            _allColorRows = newRows;
-            UpdateColorTabContent();
+                    // A property that no longer exists in the database has nothing to show or paint.
+                    if (newRow.ColorProperty != null && newRows.All(existing => existing.ColorProperty.ID != newRow.ColorProperty.ID))
+                    {
+                        newRows.Add(newRow);
+                    }
+                }
+
+                AddMissingColorRows(newRows);
+                _allColorRows = newRows;
+            }
+        }
+
+        /// <summary>
+        ///     Adds a row for every color property that has none in the given list, so the list covers every property the
+        ///     database knows about. A file saved before a property was added (or by an older version of the tool) would
+        ///     otherwise leave that property without a row, and any part using it could never show or paint its color.
+        /// </summary>
+        /// <param name="rows">The rows to complete.</param>
+        private void AddMissingColorRows(List<SidekickColorRow> rows)
+        {
+            List<SidekickColorRow> currentSetColors = SidekickColorRow.GetAllBySet(_dbManager, _currentColorSet);
+            Material defaultMaterial = _materialField?.value as Material;
+            Texture2D colorMap = defaultMaterial != null ? defaultMaterial.GetTexture(_COLOR_MAP) as Texture2D : null;
+
+            foreach (SidekickColorProperty property in SidekickColorProperty.GetAll(_dbManager))
+            {
+                if (rows.Any(row => row.ColorProperty.ID == property.ID))
+                {
+                    continue;
+                }
+
+                SidekickColorRow existingRow = currentSetColors.FirstOrDefault(row => row.ColorProperty.ID == property.ID);
+                if (existingRow != null)
+                {
+                    rows.Add(existingRow);
+                    continue;
+                }
+
+                Color? currentColor = null;
+                if (colorMap != null && colorMap.isReadable)
+                {
+                    currentColor = colorMap.GetPixel(property.U * 2, property.V * 2);
+                }
+
+                rows.Add(
+                    new SidekickColorRow
+                    {
+                        ID = -1,
+                        ColorSet = _currentColorSet,
+                        ColorProperty = property,
+                        NiceColor = currentColor ?? Color.red
+                    }
+                );
+            }
         }
 
         /// <summary>
@@ -4812,7 +5424,19 @@ namespace Synty.SidekickCharacters
         private void UpdateColorTabContent()
         {
             PopulatePartColorRows();
-            UpdateAllVisibleColors();
+
+            // During a batch operation (e.g. loading a .sk file) defer the colour write to the single
+            // rebuild so colours don't apply to the old model as a separate visible stage before the
+            // parts swap in. DebouncedRegenerationTick reapplies them after the rebuild.
+            if (_applyingPreset)
+            {
+                _reapplyColorsOnRegen = true;
+            }
+            else
+            {
+                UpdateAllVisibleColors();
+            }
+
             RefreshVisibleColorRows();
         }
 
@@ -5249,7 +5873,7 @@ namespace Synty.SidekickCharacters
 
             // Rig / skinning
             importer.animationType = ModelImporterAnimationType.Human;
-            importer.skinWeights = ModelImporterSkinWeights.Standard;
+            importer.skinWeights = ModelImporterSkinWeights.Custom;
             importer.maxBonesPerVertex = 4;
             importer.minBoneWeight = 0.001f;
             importer.optimizeBones = true;
@@ -5322,12 +5946,135 @@ namespace Synty.SidekickCharacters
         }
 
         /// <summary>
+        ///     Reads the parts (UV usage and, where the renderers are named after parts, the dropdown selections) and
+        ///     colors of a combined character already present in the scene, so the tool reflects that character when
+        ///     opened fresh. Any failure leaves the tool in the same state as if no scene character existed.
+        /// </summary>
+        private void DetectSceneCharacter()
+        {
+            if (_newModel == null)
+            {
+                return;
+            }
+
+            try
+            {
+                List<SkinnedMeshRenderer> renderers = _newModel
+                    .GetComponentsInChildren<SkinnedMeshRenderer>(true)
+                    .Where(renderer => renderer.sharedMesh != null)
+                    .ToList();
+
+                if (renderers.Count == 0)
+                {
+                    return;
+                }
+
+                _sidekickRuntime.PopulateUVDictionary(renderers);
+                UpdatePartUVData();
+
+                bool partsDetected = DetectScenePartSelections(renderers);
+
+                Texture2D colorMap = renderers
+                    .Select(renderer => renderer.sharedMaterial)
+                    .Where(material => material != null && material.HasProperty(_COLOR_MAP))
+                    .Select(material => material.GetTexture(_COLOR_MAP) as Texture2D)
+                    .FirstOrDefault(texture => texture != null);
+
+                PopulateColorRowsFromTextures(colorMap);
+
+                if (partsDetected)
+                {
+                    // Rebuild once so the tool state and scene model stay consistent (the same pattern as loading a
+                    // .sk file); this also resets _applyingPreset set by DetectScenePartSelections.
+                    SchedulePreviewRegeneration();
+                }
+            }
+            catch (Exception ex)
+            {
+                // Leave the suppression flag only if a scheduled regeneration is going to clear it.
+                if (!_regenerateQueued)
+                {
+                    _applyingPreset = false;
+                }
+
+                Debug.LogWarning("Unable to read the parts and colors of the existing scene character.\n" + ex);
+            }
+        }
+
+        /// <summary>
+        ///     Sets the part dropdowns (and the current character state) from scene renderers named after parts. A
+        ///     model built with combined meshes has a single unnamed renderer, so no parts can be recovered there.
+        /// </summary>
+        /// <param name="renderers">The renderers of the scene character.</param>
+        /// <returns>True if at least one part selection was applied; otherwise false.</returns>
+        private bool DetectScenePartSelections(List<SkinnedMeshRenderer> renderers)
+        {
+            Dictionary<CharacterPartType, string> detectedParts = new Dictionary<CharacterPartType, string>();
+            foreach (SkinnedMeshRenderer renderer in renderers)
+            {
+                if (renderer.name.Count(c => c == '_') < 2)
+                {
+                    continue;
+                }
+
+                CharacterPartType type = _sidekickRuntime.ExtractPartType(renderer.name);
+                if (!detectedParts.ContainsKey(type))
+                {
+                    detectedParts[type] = renderer.name;
+                }
+            }
+
+            if (detectedParts.Count == 0)
+            {
+                return false;
+            }
+
+            // Suppress the per-part rebuilds from the dropdown change events; the caller schedules a single
+            // regeneration afterwards, which also resets this flag.
+            _applyingPreset = true;
+
+            bool anyPartSet = false;
+            foreach (KeyValuePair<CharacterPartType, string> entry in detectedParts)
+            {
+                if (!_partSelectionDictionary.TryGetValue(entry.Key, out PartTypeControls controls))
+                {
+                    continue;
+                }
+
+                SidekickPart part = SidekickPart.SearchForByName(_dbManager, entry.Value);
+                if (part == null)
+                {
+                    continue;
+                }
+
+                UpdatePartDropdown(controls, part.Name, string.Empty, false);
+                SyncCurrentCharacterFromDropdown(entry.Key, controls);
+                anyPartSet = anyPartSet || _currentCharacter.ContainsKey(entry.Key);
+            }
+
+            if (!anyPartSet)
+            {
+                // Nothing was applied, so no regeneration will run to reset the suppression flag.
+                _applyingPreset = false;
+            }
+
+            return anyPartSet;
+        }
+
+        /// <summary>
         ///     Updates the part UV data.
         /// </summary>
         private void UpdatePartUVData()
         {
-            _currentUVDictionary = _sidekickRuntime.CurrentUVDictionary;
-            _currentUVList = _sidekickRuntime.CurrentUVList;
+            if (_sidekickRuntime.CurrentUVDictionary != null)
+            {
+                _currentUVDictionary = _sidekickRuntime.CurrentUVDictionary;
+            }
+
+            if (_sidekickRuntime.CurrentUVList != null)
+            {
+                _currentUVList = _sidekickRuntime.CurrentUVList;
+            }
         }
 
         /// <summary>
@@ -5352,6 +6099,19 @@ namespace Synty.SidekickCharacters
             Body,
             Color,
             Texture
+        }
+
+        /// <summary>
+        ///     The live controls for one preset row, letting undo/redo re-sync the row's value and button states
+        ///     without rebuilding the preset UI.
+        /// </summary>
+        private class PresetRowControls
+        {
+            public PopupField<string> Dropdown;
+            public Button PreviousButton;
+            public Button NextButton;
+            public List<string> PopupValues;
+            public bool IncludeNoneValue;
         }
 
         /// <summary>

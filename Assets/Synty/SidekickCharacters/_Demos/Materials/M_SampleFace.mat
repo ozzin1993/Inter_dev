@@ -140,7 +140,7 @@ Material:
     m_Ints: []
     m_Floats:
     - _AlphaCutoff: 0.5
-    - _BUILTIN_QueueControl: 0
+    - _BUILTIN_QueueControl: -1
     - _BUILTIN_QueueOffset: 0
     - _BloodAmount: 0.5
     - _BumpScale: 1
