@@ -33,8 +33,6 @@ namespace StrategyCore
             content += delimiter;
             content += SaveTechnology();
             content += delimiter;
-            content += SaveShadowcasters();
-            content += delimiter;
             content += SaveUnitData();
 
             Debug.Log("Save file byte size " + System.Text.Encoding.UTF8.GetBytes(content).Length);
@@ -99,6 +97,21 @@ namespace StrategyCore
             // Wait for 1 frame for game to initialize everything
             yield return null;
 
+            // Блоков стало ЧЕТЫРЕ: блок теневых кастеров снесён вместе с умениями-каналами (блок Б6, 2026-09-04).
+            // Старый пятиблочный файл отвергаем ЯВНО: молча читать его нельзя — блоки съедут на один и
+            // данные юнитов были бы разобраны как теневые кастеры.
+            // Предел разбиения оставлен пятёркой НАМЕРЕННО: только так старый файл даст 5 частей и будет опознан;
+            // с пределом 4 его хвост слился бы в последнюю часть и файл прошёл бы проверку как «четырёхблочный».
+            // Проверка стоит ДО паузы и очистки сцены (по ревью 04.09): отказ не должен оставлять игрока
+            // в стёртой сцене на паузе.
+            string[] parts = content.Split(new string[] { delimiter }, 5, StringSplitOptions.None);
+            if (parts.Length != 4)
+            {
+                Debug.LogError("[SaveManager] Файл сейва не читается: блоков " + parts.Length + " вместо 4. " +
+                               "Файлы, сохранённые до сноса умений-каналов (2026-09-04), несовместимы — загрузка остановлена");
+                yield break;
+            }
+
             // Pause the game
             Time.timeScale = 0f;
             // Clear the scene
@@ -108,18 +121,10 @@ namespace StrategyCore
             yield return null;
             yield return null;
 
-            string[] parts = content.Split(new string[] { delimiter }, 5, StringSplitOptions.None);
-            if (parts.Length < 5)
-            {
-                Debug.LogError("[SaveManager] Файл сейва повреждён: блоков " + parts.Length + " из 5 — загрузка остановлена");
-                yield break;
-            }
-
             // LoadPlayerData(parts[0]); // LOADED IN THE LOBBY
             LoadResources(parts[1]);
             LoadTechnology(parts[2]);
-            LoadUnitData(parts[4]);
-            LoadShadowcasters(parts[3]);
+            LoadUnitData(parts[3]);
 
             FinishedLoadingSaveFile();
         }
@@ -217,14 +222,14 @@ namespace StrategyCore
             }
         }
 
-        // Extract ability levels - only hero levelable and higher than -1 (meaning has been learnt)
+        // Extract ability levels - only hero levelable (уровень −1 снесён блоком Б9: улучшаемое умение всегда ≥ 0)
         public static void RecursiveLevelExtract(Unit unit, Ability[] recursiveAbilities, ref int abilityGlobalIndex, ref string abilityIndex, ref string levels)
         {
             for (int i = 0; i < recursiveAbilities.Length; i++)
             {
                 abilityGlobalIndex++;
 
-                if (recursiveAbilities[i].heroLevelable == true && unit.abilityLevel[abilityGlobalIndex] != -1)
+                if (recursiveAbilities[i].heroLevelable == true)
                 {
                     abilityIndex += "-" + abilityGlobalIndex;
                     levels += "-" + unit.abilityLevel[abilityGlobalIndex];

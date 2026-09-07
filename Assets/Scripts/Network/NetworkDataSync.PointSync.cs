@@ -11,7 +11,8 @@ namespace StrategyCore
     {
         /// <summary>
         /// Сервер → клиенты: новый владелец точки линии. index — позиция точки в Lane.points.
-        /// Поздний вход (mid-game join) НЕ покрыт: рассылается только живой захват.
+        /// Рассылается живой захват. Вошедшему в середине матча владельцы всех точек досылаются отдельно
+        /// (Б11: PointTeamsResendSend, NetworkDataSync.MatchResend.cs) — тем же индексом.
         /// </summary>
         public void PointTeamSend(int index, int team)
         {

@@ -392,7 +392,7 @@ namespace StrategyCore
             if (constructionUnit && constructionUnit.isWorking) return;
 
             // We use currentActionTime to save memory instead of creating a new variable
-            if (FoWVisible && (!NetworkConnectionHandler.isClient || (!activeAbilityInUse && activeAbilityCastTime == 0))) // For clients we should also check the isWorking
+            if (FoWVisible && (!NetworkConnectionHandler.isClient || activeAbilityCastTime == 0)) // For clients we should also check the isWorking
             {
                 if (!stunned && !isMoving && target == null && !isBeingBuilt)
                 {

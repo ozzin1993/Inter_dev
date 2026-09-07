@@ -189,23 +189,11 @@ namespace StrategyCore
                     newUnitData["passiveEffects"] = JsonUtility.ToJson(unit.Value.passiveEffects);
                 }
 
-                // Stun state
-                if (unit.Value.stunned)
-                {
-                    newUnitData["stunTime"] = unit.Value.stunTime;
-                }
-
-                // Muted state
-                if (unit.Value.muted)
-                {
-                    newUnitData["currentMuteTime"] = unit.Value.currentMuteTime;
-                }
-
-                // Disarm state
-                if (unit.Value.disarmed)
-                {
-                    newUnitData["currentDisarmTime"] = unit.Value.currentDisarmTime;
-                }
+                // [Interflow fix 2026-09-03 control-as-effectors] Запись полей контроля (stunTime,
+                // currentMuteTime, currentDisarmTime) СНЕСЕНА: контроль стал состоянием и уезжает
+                // в сейв штатной строкой "effectors" выше — вместе с остатком времени, силой
+                // и владельцем. Отдельных полей у него больше нет. Чтение старого формата
+                // оставлено ниже, в SetUnitData.
 
                 // Polymorph state
                 if (unit.Value.polymorphed)
@@ -309,29 +297,8 @@ namespace StrategyCore
                     }
                 }
 
-                // Every Frame Abilities (Toggle)
-                if (unit.Value.everyFrameAbilities.Count > 0)
-                {
-                    string toggleAbilities = "";
-                    string toggleIndex = "";
-                    string toggleIsItem = "";
-                    for (int i = 0; i < unit.Value.everyFrameAbilities.Count; i++)
-                    {
-                        if (unit.Value.everyFrameAbilities[i].type == AbilityType.Toggle)
-                        {
-                            toggleAbilities += "-" + unit.Value.everyFrameAbilities[i].id;
-                            toggleIndex += "-" + unit.Value.everyFrameAbilityIndex[i];
-                            toggleIsItem += "-" + unit.Value.everyFrameAbilityIsItem[i];
-                        }
-                    }
-
-                    if (toggleAbilities != "")
-                    {
-                        newUnitData["toggleAbilities"] = toggleAbilities;
-                        newUnitData["toggleIndex"] = toggleIndex;
-                        newUnitData["toggleIsItem"] = toggleIsItem;
-                    }
-                }
+                // Секция переключателей (toggleAbilities) снесена блоком Б6 (2026-09-04): включаемых умений
+                // в игре нет. Ауры в сохранение не пишутся и не писались — их восстанавливает Unlock умения.
 
                 // Transport Unit 
                 if (unit.Value.transportUnit && unit.Value.transportUnit.units.Count != 0)
@@ -491,19 +458,8 @@ namespace StrategyCore
                     }
                 }
 
-                // Active ability --------------------------------
-                if (unit.Value.activeAbilityInUse)
-                {
-                    var activeAbility = new JSONObject();
-
-                    newUnitData["abilityID"] = unit.Value.activeAbility.id;
-                    newUnitData["abilityLevel"] = unit.Value.activeAbilityLevel;
-                    if (unit.Value.activeAbilityUnit != null) newUnitData["targetID"] = unit.Value.activeAbilityUnit.netID;
-                    newUnitData["targetLocation"] = unit.Value.activeAbilityLocation;
-                    newUnitData["currentActionTime"] = unit.Value.currentActionTime;
-
-                    newUnitData["activeAbility"].Add(activeAbility);
-                }
+                // Секция «активное умение» (activeAbility) снесена блоком Б6 (2026-09-04): она сохраняла
+                // состояние умения-канала, а каналов больше нет — разовый каст сохранять нечем.
 
                 // Add json
                 unitData[u.ToString()].Add(newUnitData);
@@ -735,23 +691,7 @@ namespace StrategyCore
                     }
                 }
 
-                // --- EVERY FRAME ABILITIES (TOGGLE) ---
-                if (unitData["toggleAbilities"] != null)
-                {
-                    string toggleAbilities = unitData["toggleAbilities"];
-                    string toggleIndex = unitData["toggleIndex"];
-                    string toggleIsItem = unitData["toggleIsItem"];
-
-                    string[] ability = toggleAbilities.Split('-', StringSplitOptions.RemoveEmptyEntries);
-                    string[] index = toggleIndex.Split('-', StringSplitOptions.RemoveEmptyEntries);
-                    string[] isItem = toggleIsItem.Split('-', StringSplitOptions.RemoveEmptyEntries);
-                    // Add Toggle Abilities
-                    for (int i = 0; i < index.Length; i++)
-                    {
-                        Ability toggleAbility = GameManager.Instance.gameAbilities[int.Parse(ability[i])];
-                        u.UseToggleAbility_Internal(toggleAbility, int.Parse(index[i]), bool.Parse(isItem[i]));
-                    }
-                }
+                // Чтение переключателей снесено блоком Б6 (2026-09-04) вместе с самим механизмом.
 
                 // --- TRANSPORT UNIT ---
                 if (unitData["transportUnitID"] != null)
@@ -890,13 +830,17 @@ namespace StrategyCore
                         if (owner[i][0] == '_')
                         {
                             // no owner unit
-                            Effector.EffectorAdd(u, GameManager.Instance.gameEffectors[int.Parse(idCurrentTime[0])], null, int.Parse(owner[i].Substring(1)), float.Parse(idCurrentTime[1], CultureInfo.InvariantCulture), savedPower, savedDuration);
+                            // [Interflow fix 2026-09-03 control-as-effectors] restoring: true — контроль теперь едет ЭТОЙ строкой,
+                            // и загрузка обязана вернуть его «как было», мимо иммунитета: источники иммунитета
+                            // (предметы :699) разблокируются РАНЬШЕ состояний. Для состояний без признаков
+                            // контроля флаг ничего не меняет.
+                            Effector.EffectorAdd(u, GameManager.Instance.gameEffectors[int.Parse(idCurrentTime[0])], null, int.Parse(owner[i].Substring(1)), float.Parse(idCurrentTime[1], CultureInfo.InvariantCulture), savedPower, savedDuration, true);
                         }
                         else
                         {
                             // owner unit
                             Unit ownerUnit = SlotManager.Instance.unitNetID[UInt16.Parse(owner[i])];
-                            Effector.EffectorAdd(u, GameManager.Instance.gameEffectors[int.Parse(idCurrentTime[0])], ownerUnit, ownerUnit.owner, float.Parse(idCurrentTime[1], CultureInfo.InvariantCulture), savedPower, savedDuration);
+                            Effector.EffectorAdd(u, GameManager.Instance.gameEffectors[int.Parse(idCurrentTime[0])], ownerUnit, ownerUnit.owner, float.Parse(idCurrentTime[1], CultureInfo.InvariantCulture), savedPower, savedDuration, true);
                         }
                     }
                 }
@@ -1059,56 +1003,38 @@ namespace StrategyCore
                     }
                 }
 
-                // --- ACTIVE ABILITY ---
-                if (unitData["activeAbility"] != null)
+                // Чтение секции «активное умение» снесено блоком Б6 (2026-09-04) вместе с самой секцией.
+
+                // --- КОНТРОЛЬ ИЗ СТАРОГО СЕЙВА ---
+                // [Interflow fix 2026-09-03 control-as-effectors] Контроль стал состоянием и теперь
+                // приезжает штатной строкой "effectors" (блок выше) — как любое другое состояние.
+                // Записи формата ДО 03.09.2026 несут отдельные поля времени: превращаем их
+                // в наложение служебного состояния, чтобы старое сохранение не теряло контроль молча.
+                // Совместимость на одну версию.
+                //
+                // Ветка «постоянного» контроля (время 0 → флаг навсегда) СНЕСЕНА решением Artsiom
+                // 03.09.2026: «такого не может быть в принципе». Серверного источника у неё и не было —
+                // MuteApply(0) держался один тик, а флаг без времени ставил только клиентский приём.
+                StatusIconCatalog controlCatalog = StatusIconCatalog.Get();
+                if (controlCatalog != null)
                 {
-                    // Set active ability
-                    u.SetActiveAbility(
-                        GameManager.Instance.gameAbilities[unitData["abilityID"]],
-                        unitData["abilityLevel"],
-                        (unitData["targetID"] != null) ? SlotManager.Instance.unitNetID[unitData["targetID"].AsUShort] : null,
-                        unitData["targetLocation"],
-                        unitData["currentActionTime"]);
+                    if (unitData["stunTime"] != null)
+                        LegacyControlRestore(u, controlCatalog.stunEffector, unitData["stunTime"].AsFloat);
+
+                    if (unitData["currentMuteTime"] != null)
+                        LegacyControlRestore(u, controlCatalog.muteEffector, unitData["currentMuteTime"].AsFloat);
+
+                    if (unitData["currentDisarmTime"] != null)
+                        LegacyControlRestore(u, controlCatalog.disarmEffector, unitData["currentDisarmTime"].AsFloat);
                 }
 
-                // --- STUN STATE ---
-                if (unitData["stunTime"] != null)
-                {
-                    // [Interflow fix 2026-08-29 save-restores-control] Решение Artsiom 28.08.2026:
-                    // загрузка ВОССТАНАВЛИВАЕТ статус «как было при сохранении», а не накладывает его
-                    // заново, поэтому идёт напрямую исполнителем — мимо воронки и проверок приёмника.
-                    // Иначе иммунный юнит терял сохранённый временный контроль: источники иммунитета
-                    // разблокируются РАНЬШЕ (предметы :711, эффекторы :870), чем восстанавливаются
-                    // статусы, и приёмник отбивал загрузку как новое наложение.
-                    // Обходятся заодно и все прочие проверки: отсев воронки (staticObject у стана
-                    // и немоты, canAttack у обезоруживания, dead у всех трёх) и «уже в статусе»
-                    // (muted / disarmed) — это допустимо только здесь: юнит при загрузке свежесоздан,
-                    // жив и без статусов, таймеры чисты. В боевой код приём НЕ переносить — там
-                    // штатный вход только через воронку.
-                    u.StunApply(unitData["stunTime"].AsFloat);
-                }
-
-                // --- MUTED STATE ---
-                if (unitData["currentMuteTime"] != null)
-                {
-                    float muteTime = unitData["currentMuteTime"].AsFloat;
-
-                    // Постоянная немота закодирована как muted = true при currentMuteTime == 0 — ветка без изменений.
-                    if (muteTime == 0) u.muted = true;
-                    // [Interflow fix 2026-08-29 save-restores-control] Прямой исполнитель — см. блок стана выше.
-                    else u.MuteApply(muteTime);
-                }
-
-                // --- DISARM STATE ---
-                if (unitData["currentDisarmTime"] != null)
-                {
-                    float disarmTime = unitData["currentDisarmTime"].AsFloat;
-
-                    // Постоянное обезоруживание закодировано как disarmed = true при currentDisarmTime == 0 — ветка без изменений.
-                    if (disarmTime == 0) u.disarmed = true;
-                    // [Interflow fix 2026-08-29 save-restores-control] Прямой исполнитель — см. блок стана выше.
-                    else u.DisarmApply(disarmTime);
-                }
+                // [Interflow fix 2026-09-03 control-as-effectors] ЕДИНСТВЕННАЯ точка, где загрузка применяет
+                // контроль. Наложения состояний выше (и новый формат в блоке эффекторов, и старые поля здесь)
+                // шли с признаком «восстановление» и переходов не запускали — иначе заморозка случилась бы
+                // ДО того, как сейв вернул юниту маршрут, цель и активное умение, и он остался бы
+                // оглушённым с целью в руках. Здесь юнит собран целиком, порядок совпадает с прежним:
+                // контроль восстанавливался последним.
+                u.RecalculateControl();
 
                 // --- POLYMORPH STATE ---
                 if (unitData["currentMainShape"] != null)
@@ -1259,6 +1185,23 @@ namespace StrategyCore
                 if (unitData["animationBlendingIndex"] != null) u.SetAnimationBlendingIndex(unitData["animationBlendingIndex"]);
 
             }
+        }
+
+        /// <summary>
+        /// [Interflow fix 2026-09-03 control-as-effectors] Восстановить контроль из СТАРОГО формата сейва:
+        /// отдельное поле времени → наложение служебного состояния на остаток этого времени.
+        /// <para>restoring: true — загрузка возвращает «как было при сохранении», а не накладывает заново,
+        /// поэтому проходит мимо иммунитета к контролю (решение Artsiom 28.08.2026 «сейв — чинить»):
+        /// источники иммунитета разблокируются раньше состояний и отбили бы законно висевший контроль.</para>
+        /// <para>Владелец — слот самой цели: старый формат источник не записывал, а у состояния владелец
+        /// обязателен (им индексируется SlotManager.playerTeam). Урона служебные состояния не наносят,
+        /// поэтому «кто убийца» здесь ни на что не влияет.</para>
+        /// </summary>
+        static void LegacyControlRestore(Unit unit, Effector controlEffector, float time)
+        {
+            if (unit == null || controlEffector == null || time <= 0f) return;
+
+            Effector.EffectorAdd(unit, controlEffector, null, unit.owner, 0f, 1f, time, true);
         }
     }
 }

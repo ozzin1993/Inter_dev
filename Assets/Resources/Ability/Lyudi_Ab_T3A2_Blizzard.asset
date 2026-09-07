@@ -124,6 +124,9 @@ MonoBehaviour:
     - effector: {fileID: 11400000, guid: bde052a42bda8d301ff8a9f55b1226a6, type: 2}
       power: []
       duration: []
+    - effector: {fileID: 11400000, guid: 812c259efadd8ca4fb6420fae1caa9d0, type: 2}
+      power: []
+      duration: []
     effectors:
     - {fileID: 11400000, guid: bde052a42bda8d301ff8a9f55b1226a6, type: 2}
   heal:
@@ -158,6 +161,7 @@ MonoBehaviour:
     selfBurnPerSecond: []
     incomingDamageMultiplier: []
     controlImmunity: 0
+    resistances: []
     buffVFX: {fileID: 0}
     detonateOnDeath: 0
     detonationRadius: []

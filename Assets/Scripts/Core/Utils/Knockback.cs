@@ -13,8 +13,11 @@ namespace StrategyCore
         const float NavSampleMaxDistance = 2f;
 
         /// <summary>Отбросить target от sourcePos на distance; опц. заморозка stunTime. respectControlImmunity —
-        /// уважать иммунитет к контролю (B12) для отброса (заморозку гейтит приёмник, куда уходит Unit.Stun). Только сервер.</summary>
-        public static void Apply(Unit target, Vector3 sourcePos, float distance, float stunTime, bool respectControlImmunity)
+        /// уважать иммунитет к контролю (B12) для отброса (заморозку гейтит наложение состояния, куда уходит Unit.Stun).
+        /// sourceUnit/sourceOwner — кто отбрасывает: с 2026-09-03 оглушение стало состоянием, а у состояния
+        /// владелец обязателен, поэтому источник протаскивается сюда из вызывающего кода. Только сервер.</summary>
+        public static void Apply(Unit target, Vector3 sourcePos, float distance, float stunTime, bool respectControlImmunity,
+                                 Unit sourceUnit, int sourceOwner)
         {
             if (NetworkConnectionHandler.isClient) return;                 // отброс/стан — только сервер (правило 6)
             if (target == null || target.dead) return;
@@ -38,7 +41,7 @@ namespace StrategyCore
             if (NavMesh.SamplePosition(desired, out NavMeshHit hit, NavSampleMaxDistance, NavMesh.AllAreas))
                 target.agent.Warp(hit.position);                          // валидная точка на меше; иначе — не двигаем (§6)
 
-            if (stunTime > 0f) target.Stun(stunTime);                     // Unit.Stun уходит в тот же приёмник и там спрашивает иммунитет
+            if (stunTime > 0f) target.Stun(stunTime, sourceUnit, sourceOwner);   // иммунитет спросит наложение состояния
         }
 
         /// <summary>

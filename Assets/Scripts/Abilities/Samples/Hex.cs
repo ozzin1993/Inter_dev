@@ -17,18 +17,22 @@ namespace StrategyCore
             // No buildings - to not interfere with UpgradeBuilding
             unit.Idle();
 
-            // Muted and Disarmed can be set directly, but must be manually turned off
-            unit.disarmed = true;
-            unit.muted = true;
-            
-            unit.Polymorph(this, level, InterflowAbility.LevelValueOrZero(hexTime, level), hexUnit);
+            float duration = InterflowAbility.LevelValue(hexTime, level);
+
+            // [Interflow fix 2026-09-03 control-as-effectors] Немота и безоружие — служебные СОСТОЯНИЯ
+            // на срок превращения, а не прямая запись флагов (решение Artsiom 03.09.2026): флаги контроля
+            // выводятся только из списка состояний, прямую запись стёр бы первый же пересчёт.
+            // Снимать их вручную больше не надо — истекают вместе с превращением.
+            unit.Disarm(duration, castingUnit, castingPlayer);
+            unit.Mute(duration, castingUnit, castingPlayer);
+
+            unit.Polymorph(this, level, duration, hexUnit);
         }
 
         public override void Deactivate(Unit castingUnit, int castingPlayer, int level)
         {
-            // Allow to attack and cast
-            castingUnit.disarmed = false;
-            castingUnit.muted = false;
+            // [Interflow fix 2026-09-03 control-as-effectors] Ручное снятие немоты и безоружия убрано:
+            // это служебные состояния, они истекают сами.
 
             // Return back to original shape
             castingUnit.RestoreRenderers();

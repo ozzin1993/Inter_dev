@@ -23,7 +23,7 @@ namespace StrategyCore
         // `Passive` в этот набор НЕ входит (решение Artsiom 2026-08-09) — он меняет статы и держит ассеты.
         static readonly HashSet<string> ServiceTemplates = new HashSet<string>
         {
-            "Active", "Location", "Area", "Toggle", "Aura", "Process", "UnitAbility"
+            "Active", "Location", "Area", "Process", "UnitAbility"   // «Aura» снесён блоком Б7 (2026-09-05)
         };
 
         /// <summary>

@@ -116,18 +116,18 @@ namespace StrategyCore
         // ABILITY USE -------
 
         // Server send cast signal
-        public void AbilityUseSend(Unit castingUnit, Ability ability, int abilityLevel, int abilityIndex, bool isItem, Unit abilityTarget, Vector3 abilityLocation, bool interrupt, int shadowCasterID)
+        public void AbilityUseSend(Unit castingUnit, Ability ability, int abilityLevel, int abilityIndex, bool isItem, Unit abilityTarget, Vector3 abilityLocation, bool interrupt)
         {
             // 0 == null. [Interflow fix 2026-08-23 status-send-gate] Цель, умершая в этом же
             // вызове (локальная ссылка не обнуляется подпиской OnReferenceChange), шлётся как 0 —
             // приёмник штатно кастует без цели; раньше клиент печатал «Desync!» и НЕ выполнял каст.
             UInt16 targetID = StillRegistered(abilityTarget) ? abilityTarget.netID : (UInt16)0;
-            AbilityUseClientRpc(castingUnit.netID, ability.id, abilityLevel, abilityIndex, isItem, targetID, abilityLocation, interrupt, shadowCasterID);
+            AbilityUseClientRpc(castingUnit.netID, ability.id, abilityLevel, abilityIndex, isItem, targetID, abilityLocation, interrupt);
         }
 
         // Client receives command to immediately cast an ability
         [Rpc(SendTo.NotServer, InvokePermission = RpcInvokePermission.Server)]
-        private void AbilityUseClientRpc(UInt16 castingUnitID, int abilityID, int abilityLevel, int abilityIndex, bool isItem, UInt16 targetID, Vector3 location, bool interrupt, int shadowCasterID, RpcParams rpcParams = default)
+        private void AbilityUseClientRpc(UInt16 castingUnitID, int abilityID, int abilityLevel, int abilityIndex, bool isItem, UInt16 targetID, Vector3 location, bool interrupt, RpcParams rpcParams = default)
         {
             // Joining mid-game, we do not accept any data from the server. Only scene data.
             if (NetworkConnectionHandler.Instance.connectionStage == 2) return;
@@ -145,7 +145,7 @@ namespace StrategyCore
                 }
 
                 castingUnit.activeAbilityCastTime = 0;
-                castingUnit.UseAbilityImmediately(GameManager.Instance.gameAbilities[abilityID], abilityLevel, abilityIndex, isItem, targetUnit, location, interrupt, shadowCasterID);
+                castingUnit.UseAbilityImmediately(GameManager.Instance.gameAbilities[abilityID], abilityLevel, abilityIndex, isItem, targetUnit, location, interrupt);
             }
             else
             {
@@ -217,6 +217,33 @@ namespace StrategyCore
             }
         }
 
+        // Сервер: поставить умению юнита КОНКРЕТНЫЙ уровень (не инкремент) — восстановление улучшений героя
+        // после смерти (блок Б9). Клиент строит уровни из префаба и о восстановлении иначе не узнал бы.
+        public void AbilityLevelSetSend(Unit unit, int abilityIndex, int level)
+        {
+            if (!ServerCanSend() || unit == null) return;
+            AbilityLevelSetClientRpc(unit.netID, abilityIndex, level);
+        }
+
+        [Rpc(SendTo.NotServer, InvokePermission = RpcInvokePermission.Server)]
+        private void AbilityLevelSetClientRpc(UInt16 netID, int abilityIndex, int level)
+        {
+            // Joining mid-game, we do not accept any data from the server. Only scene data.
+            if (NetworkConnectionHandler.Instance != null && NetworkConnectionHandler.Instance.connectionStage == 2) return;
+
+            if (!SlotManager.Instance.unitNetID.TryGetValue(netID, out Unit unit) || unit == null)
+            {
+                Debug.LogError("Desync! Unit netID:" + netID + " should exist on client, but does not! (AbilityLevelSetSend NetworkDataSync)");
+                return;
+            }
+
+            if (unit.abilityLevel == null || abilityIndex < 0 || abilityIndex >= unit.abilityLevel.Length) return;
+
+            unit.abilityLevel[abilityIndex] = level;   // зеркало для тултипов, значков и фильтра прокачки; логика — на сервере
+
+            if (Presentation.Selection?.ActiveUnit == unit) Presentation.UI?.RedrawAbilityView();
+        }
+
         // INVISIBILITY SYNC ------------------------------------------
         // Sync invisibility state of the unit
 
@@ -243,80 +270,10 @@ namespace StrategyCore
             }
         }
 
-        // STUN SYNC ------------------------------------------
-        // Sync stun state of the unit
-
-        // Server send info about stun state
-        public void StunSetSend(Unit unit, bool state)
-        {
-            StunSetClientRpc(unit.netID, state);
-        }
-
-        // Client receive info about stun state
-        [Rpc(SendTo.NotServer, InvokePermission = RpcInvokePermission.Server)]
-        private void StunSetClientRpc(UInt16 netID, bool state)
-        {
-            // Joining mid-game, we do not accept any data from the server. Only scene data.
-            if (NetworkConnectionHandler.Instance.connectionStage == 2) return;
-
-            if (SlotManager.Instance.unitNetID.TryGetValue(netID, out Unit unit))
-            {
-                unit.Stun(state);
-            }
-            else
-            {
-                Debug.LogError("Desync! Unit netID:" + netID + " should exist on client, but does not! (StunSetSend NetworkDataSync)");
-            }
-        }
-
-        // MUTE SYNC ------------------------------------------
-
-        // Server send info about state
-        public void MuteSetSend(Unit unit, bool state)
-        {
-            MuteSetClientRpc(unit.netID, state);
-        }
-
-        // Client receive info about state
-        [Rpc(SendTo.NotServer, InvokePermission = RpcInvokePermission.Server)]
-        private void MuteSetClientRpc(UInt16 netID, bool state)
-        {
-            // Joining mid-game, we do not accept any data from the server. Only scene data.
-            if (NetworkConnectionHandler.Instance.connectionStage == 2) return;
-
-            if (SlotManager.Instance.unitNetID.TryGetValue(netID, out Unit unit))
-            {
-                unit.Mute(state);
-            }
-            else
-            {
-                Debug.LogError("Desync! Unit netID:" + netID + " should exist on client, but does not! (MuteSetSend NetworkDataSync)");
-            }
-        }
-
-        // DISARM SYNC ------------------------------------------
-
-        // Server send info about state
-        public void DisarmSetSend(Unit unit, bool state)
-        {
-            DisarmSetClientRpc(unit.netID, state);
-        }
-
-        // Client receive info about state
-        [Rpc(SendTo.NotServer, InvokePermission = RpcInvokePermission.Server)]
-        private void DisarmSetClientRpc(UInt16 netID, bool state)
-        {
-            // Joining mid-game, we do not accept any data from the server. Only scene data.
-            if (NetworkConnectionHandler.Instance.connectionStage == 2) return;
-
-            if (SlotManager.Instance.unitNetID.TryGetValue(netID, out Unit unit))
-            {
-                unit.Disarm(state);
-            }
-            else
-            {
-                Debug.LogError("Desync! Unit netID:" + netID + " should exist on client, but does not! (DisarmSetClientRpc NetworkDataSync)");
-            }
-        }
+        // [Interflow fix 2026-09-03 control-as-effectors] StunSetSend / MuteSetSend / DisarmSetSend
+        // вместе с приёмными ClientRpc СНЕСЕНЫ. Контроль стал состоянием-эффектором, а у служебных
+        // состояний есть значок — значит их уже везёт клиенту ЕДИНЫЙ канал статусов
+        // (NetworkDataSync.UnitStatus). Клиент разворачивает ассет по id и выводит флаги контроля
+        // из его признаков (Units/Unit.Control.cs). Второй канал про то же самое не нужен.
     }
 }

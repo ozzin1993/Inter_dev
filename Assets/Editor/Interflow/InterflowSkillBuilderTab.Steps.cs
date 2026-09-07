@@ -82,7 +82,6 @@ namespace StrategyCore
             int lvl = previewLevel;
             float castTime = InterflowAbility.LevelValue(selected.castTime, lvl);
             float cd = InterflowAbility.LevelValue(selected.cooldown, lvl);
-            float mana = InterflowAbility.LevelValue(selected.manaCost, lvl);
 
             var box = Section("Лента исполнения", new Color(0.19f, 0.20f, 0.24f),
                 "Порядок строк — реальный порядок исполнения блоков (ApplyEffects). " +
@@ -96,8 +95,8 @@ namespace StrategyCore
             strip.Add(Moment($"{castTime} с — срабатывание",
                 selected.impactVFX != null ? selected.impactVFX.name : "визуала нет",
                 "В этот момент исполняются все блоки ниже. Момент задаёт castTime, не анимация."));
-            strip.Add(Moment("после каста", $"откат {cd} с" + (mana > 0 ? $" · мана {mana}" : ""),
-                "Откат и ману списывает ядро."));
+            strip.Add(Moment("после каста", $"откат {cd} с",
+                "Откат ставит ядро. Цены в мане у умения нет (Б5): у авто-умения срабатывание забирает всю ману носителя."));
             box.Add(strip);
 
             if (castTime <= 0f && selected.castVFX != null)
@@ -237,7 +236,8 @@ namespace StrategyCore
             };
 
             var prop = so.FindProperty(b.field);
-            if (prop != null) fold.Add(new PropertyField(prop, ""));
+            // Блок рисуется общим хелпером: массивы по уровням внутри — «базовое + блок» (Б8), остальное — как у Unity.
+            if (prop != null) fold.Add(InterflowEditorUI.MakeField(prop, "", true));
             else fold.Add(new Label($"поле «{b.field}» не найдено") { style = { color = COL_WARN } });
 
             var holder = new VisualElement();
@@ -331,7 +331,7 @@ namespace StrategyCore
 
             box.Add(AimExplanation());
 
-            AddField(box, so, "trigger");
+            // Поле «Когда срабатывает» (trigger) снесено блоком Б7 (2026-09-05): каждое умение — разовый каст.
             AddField(box, so, "buttonCast");
             AddField(box, so, "targetMode");
 
@@ -387,7 +387,6 @@ namespace StrategyCore
             // Правка этих полей меняет СОСТАВ секции — пересобрать панель на следующем кадре.
             RebuildOnChange(box, so, "targetMode");
             RebuildOnChange(box, so, "delivery");
-            RebuildOnChange(box, so, "trigger");
 
             rightPanel.Add(box);
         }
@@ -472,7 +471,7 @@ namespace StrategyCore
                           "Моменты замаха и срабатывания показаны в шапке ленты исполнения выше."
             };
 
-            foreach (var f in new[] { "castTime", "cooldown", "manaCost", "duration",
+            foreach (var f in new[] { "castTime", "cooldown", "duration",
                                       "spawnSocket", "localOffset",
                                       "castVFX", "castVfxLifetime", "impactVFX", "impactVfxLifetime",
                                       "castSound", "impactSound", "soundVolume", "procAnimationState" })
@@ -488,13 +487,14 @@ namespace StrategyCore
                 "Пусто в требованиях — умение открыто сразу, как только попало юниту в abilities[]. " +
                 "Замки считает ядро, руками включать ничего не надо.");
 
-            foreach (var f in new[] { "requiredTech", "requiredLevel", "cost", "manaCostPerSecond" })
+            foreach (var f in new[] { "requiredTech", "cost" })   // requiredLevel снесён блоком Б8
                 AddField(box, so, f);
 
             rightPanel.Add(box);
         }
 
-        /// <summary>Предмет и редкие флаги — свёрнуто: нужны единицам умений, но доступны (правило 7).</summary>
+        /// <summary>Предмет и редкие флаги — свёрнуто: нужны единицам умений, но доступны (правило 7).
+        /// Предметы в игре не используются (блок Б12, целевая модель §13) — поля оставлены, но не развиваются.</summary>
         static void AddMiscFoldout(SerializedObject so)
         {
             var fold = new Foldout
@@ -502,14 +502,15 @@ namespace StrategyCore
                 text = "Прочие поля умения",
                 value = false,
                 style = { marginTop = 6 },
-                tooltip = "Предмет, заряды и редкие флаги. «Канал» — это штатный флаг continuous: умение " +
-                          "держится, пока хватает маны. Переключатель и аура задаются полем «Когда срабатывает» выше."
+                tooltip = "Предмет, заряды и редкие флаги. ПРЕДМЕТЫ И ИНВЕНТАРЬ В ИГРЕ НЕ ИСПОЛЬЗУЮТСЯ (целевая модель §13): " +
+                          "поля работают, но их не развивают и в проверках контента не учитывают — заполнять не нужно. " +
+                          "Переключателей, умений-каналов (Б6) и режима «аура» (Б7) больше нет: каждое умение — разовый каст, " +
+                          "длительность — полем «Длительность»."
             };
 
             foreach (var f in new[] { "maxLevels", "heroLevelable",
                                       "isItem", "useUponPickUp", "dropOnDeath", "charges",
-                                      "showRadiusCircle", "dontTurn",
-                                      "continuous", "interruptible", "requiresCastingUnit" })
+                                      "showRadiusCircle", "dontTurn" })
                 AddField(fold, so, f);
 
             rightPanel.Add(fold);

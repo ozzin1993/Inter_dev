@@ -22,7 +22,8 @@ namespace StrategyCore
                                      float fireDamage, DamageType fireDamageType,
                                      float stunSeconds, bool useDensityTargeting,
                                      UnitSelector targetSelector, UnitSelector splashSelector,
-                                     VFXReferencer meteorVFX, AudioClip impactSound, float impactVolume)
+                                     VFXReferencer meteorVFX, AudioClip impactSound, float impactVolume,
+                                     Ability sourceAbility) // умение-источник для диагностики очереди пакетов (решение Artsiom 05.09.2026); null — без умения
         {
             if (NetworkConnectionHandler.isClient) return; // урон/стан/презентация — только сервер (правило 6)
             if (caster == null) { Debug.LogWarning("[Ярость Небосвода] Нет кастера — дождь пропущен."); return; }
@@ -35,7 +36,7 @@ namespace StrategyCore
 
             StartCoroutine(MeteorStormRoutine(caster, teamIndex, durationSeconds, meteorsPerSecond, impactRadius,
                 physicalDamage, physicalDamageType, fireDamage, fireDamageType, stunSeconds, useDensityTargeting,
-                targetSelector, splashSelector, meteorVFX, impactSound, impactVolume));
+                targetSelector, splashSelector, meteorVFX, impactSound, impactVolume, sourceAbility));
         }
 
         IEnumerator MeteorStormRoutine(Unit caster, int teamIndex,
@@ -44,7 +45,8 @@ namespace StrategyCore
                                        float fireDamage, DamageType fireDamageType,
                                        float stunSeconds, bool useDensityTargeting,
                                        UnitSelector targetSelector, UnitSelector splashSelector,
-                                       VFXReferencer meteorVFX, AudioClip impactSound, float impactVolume)
+                                       VFXReferencer meteorVFX, AudioClip impactSound, float impactVolume,
+                                       Ability sourceAbility) // умение-источник, протаскивается в DropMeteor
         {
             int enemyTeam = OpponentTeam(teamIndex);
             int batches = Mathf.Max(1, Mathf.RoundToInt(durationSeconds)); // «каждую секунду» × длительность
@@ -56,7 +58,7 @@ namespace StrategyCore
                 {
                     if (DropMeteor(caster, enemyTeam, impactRadius, physicalDamage, physicalDamageType,
                                    fireDamage, fireDamageType, stunSeconds, useDensityTargeting,
-                                   targetSelector, splashSelector, meteorVFX, impactSound, impactVolume))
+                                   targetSelector, splashSelector, meteorVFX, impactSound, impactVolume, sourceAbility))
                         total++;
                 }
                 yield return new WaitForSeconds(1f);
@@ -71,7 +73,8 @@ namespace StrategyCore
                         float fireDamage, DamageType fireDamageType,
                         float stunSeconds, bool useDensityTargeting,
                         UnitSelector targetSelector, UnitSelector splashSelector,
-                        VFXReferencer meteorVFX, AudioClip impactSound, float impactVolume)
+                        VFXReferencer meteorVFX, AudioClip impactSound, float impactVolume,
+                        Ability sourceAbility) // умение-источник, уходит в пакет через DealDamage
         {
             List<Unit> alive = new List<Unit>();
             List<Unit> enemies = GetGroupUnits(enemyTeam);
@@ -111,9 +114,9 @@ namespace StrategyCore
                 {
                     Unit u = inZone[i];
                     if (u == null || u.dead) continue;
-                    if (physicalDamageType != null && physicalDamage > 0f) caster.DealDamage(u, physicalDamage, physicalDamageType, false, center);
-                    if (fireDamageType != null && fireDamage > 0f)         caster.DealDamage(u, fireDamage, fireDamageType, false, center);
-                    if (stunSeconds > 0f) u.Stun(stunSeconds);
+                    if (physicalDamageType != null && physicalDamage > 0f) caster.DealDamage(u, physicalDamage, physicalDamageType, false, center, sourceAbility);
+                    if (fireDamageType != null && fireDamage > 0f)         caster.DealDamage(u, fireDamage, fireDamageType, false, center, sourceAbility);
+                    if (stunSeconds > 0f) u.Stun(stunSeconds, caster, caster.owner);
                 }
             }
             return true;

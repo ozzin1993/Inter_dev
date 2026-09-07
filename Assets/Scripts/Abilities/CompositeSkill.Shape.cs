@@ -93,7 +93,7 @@ namespace StrategyCore
         /// Подмена облика через штатный <see cref="Unit.Polymorph"/>: ядро само ведёт таймер и вызовет
         /// <see cref="Deactivate"/> по истечении. Двойной полиморф ядро тоже обрабатывает — снимает предыдущий.
         /// </summary>
-        void ApplyMorph(int level, Unit target)
+        void ApplyMorph(Unit castingUnit, int castingPlayer, int level, Unit target)
         {
             if (morph == null || !morph.enabled || morph.shapeUnit == null) return;
             if (target == null || target.dead) return;
@@ -102,8 +102,16 @@ namespace StrategyCore
             if (time <= 0f) return;
 
             target.Idle();
-            if (morph.disarmWhileMorphed) target.disarmed = true;
-            if (morph.muteWhileMorphed) target.muted = true;
+
+            // [Interflow fix 2026-09-03 control-as-effectors] Контроль облика — служебное СОСТОЯНИЕ на срок
+            // облика, а не прямая запись флага (решение Artsiom 03.09.2026). Прямая запись перестала работать:
+            // флаги контроля выводятся ТОЛЬКО из списка состояний, и любое наложение на этого юнита —
+            // горение, аура замедления — стёрло бы её при пересчёте.
+            // Две принятые смены поведения: (1) иммунитет к контролю теперь отбивает немоту и безоружие облика
+            // (наложение идёт через приёмник); (2) при досрочном снятии облика (двойной полиморф) контроль
+            // доживает свой срок — это и есть модель «до истечения последнего наложения».
+            if (morph.disarmWhileMorphed) target.Disarm(time, castingUnit, castingPlayer);
+            if (morph.muteWhileMorphed) target.Mute(time, castingUnit, castingPlayer);
 
             // Статы меняем ДО смены облика: дальность влияет на настройку снаряда (порядок из Transformation).
             AbilityPassiveEffects effects = PassiveEffectsAt(level);
@@ -121,8 +129,8 @@ namespace StrategyCore
             if (castingUnit == null) return;
             if (morph == null || !morph.enabled) return;
 
-            if (morph.disarmWhileMorphed) castingUnit.disarmed = false;
-            if (morph.muteWhileMorphed) castingUnit.muted = false;
+            // [Interflow fix 2026-09-03 control-as-effectors] Снимать контроль руками больше не нужно:
+            // служебное состояние истекает по своему сроку, равному сроку облика.
 
             AbilityPassiveEffects effects = PassiveEffectsAt(level);
             if (effects != null) effects.RemoveEffect(castingUnit);
@@ -130,14 +138,9 @@ namespace StrategyCore
             castingUnit.RestoreRenderers();
         }
 
-        /// <summary>Запись пассивных эффектов облика по уровню. Нет записи — статы не трогаем.</summary>
+        /// <summary>Запись пассивных эффектов облика по уровню — общая выборка (Б8). Нет записи — статы не трогаем.</summary>
         AbilityPassiveEffects PassiveEffectsAt(int level)
-        {
-            if (morph == null || morph.passiveEffects == null || morph.passiveEffects.Length == 0) return null;
-
-            int i = Mathf.Clamp(level, 0, morph.passiveEffects.Length - 1);
-            return morph.passiveEffects[i];
-        }
+            => morph == null ? null : LevelItem(morph.passiveEffects, level);
 
         // ------------------------------------------------------------ 13. ВЛАДЕЛЕЦ --
         /// <summary>

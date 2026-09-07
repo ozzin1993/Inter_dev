@@ -356,7 +356,6 @@ namespace StrategyCore
         /// <param name="skipSync">Should the server skip the syncing process with the clients.</param>
         public void RemoveItem(int itemIndex, bool noRedraw = false, bool skipSync = false)
         {
-            RemoveEveryFrameIfExists(items[itemIndex], true, 0);
             items[itemIndex].Lock(this, this.owner, 0);
             // slot
             items[itemIndex] = null;
@@ -373,17 +372,7 @@ namespace StrategyCore
                     break;
                 }
             }
-            // everyframe ability
-            for (int i = 0; i < everyFrameAbilityIndex.Count; i++)
-            {
-                if (everyFrameAbilityIndex[i] == itemIndex && everyFrameAbilityIsItem[i] == true)
-                {
-                    everyFrameAbilities.RemoveAt(i);
-                    everyFrameAbilityIndex.RemoveAt(i);
-                    everyFrameAbilityIsItem.RemoveAt(i);
-                    break;
-                }
-            }
+            // Цикл аур предмета (everyFrameAbilities) снесён блоком Б7 (2026-09-05) — снимать нечего.
             // OnInventoryChange?.Invoke(); // Due to how cooldown is calculated currently inventory change should also trigger abilityViewRedraw
             if (!noRedraw) OnRedrawAbilityView?.Invoke();
 
@@ -429,23 +418,6 @@ namespace StrategyCore
                 }
                 if (swapCount == 2) break;
             }
-
-            // everyframe abilities - not needed?
-            // swapCount = 0;
-            // for (int i = 0; i < everyFrameAbilityIndex.Count; i++)
-            // {
-            //     if (everyFrameAbilityIndex[i] == from && everyFrameAbilityIsItem[i] == true)
-            //     {
-            //         swapCount++;
-            //         everyFrameAbilityIndex[i] = to;
-            //     }
-            //     else if (everyFrameAbilityIndex[i] == to && everyFrameAbilityIsItem[i] == true)
-            //     {
-            //         swapCount++;
-            //         everyFrameAbilityIndex[i] = from;
-            //     }
-            //     if (swapCount == 2) break;
-            // }
 
             // OnInventoryChange?.Invoke(); // Due to how cooldown is calculated currently inventory change should also trigger abilityViewRedraw
             OnRedrawAbilityView?.Invoke();

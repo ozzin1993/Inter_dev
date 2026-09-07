@@ -38,9 +38,8 @@ namespace StrategyCore
             if (onlyDirectAttack && !directAttack) return;                                  // §6.1: только прямые (по флагу)
             if (byUnit == null) return;                                                     // некого лечить
             if (unitSelector.AnySelectors() && !UnitSelector.IsUnitCompatible(byOwner, targetUnit, unitSelector)) return;
-            if (healPercent == null || level >= healPercent.Length) return;
-
-            float heal = dmg * healPercent[level];
+            // Доля — общей выборкой по уровням (Б8): раньше уровень выше длины массива молча выключал вампиризм.
+            float heal = dmg * InterflowAbility.LevelValue(healPercent, level);
             if (heal <= 0f) return;
             byUnit.ChangeHP(heal);
         }

@@ -14,7 +14,7 @@ namespace StrategyCore
     public class FactionConfigDto
     {
         public WaveUnitDto[] waveUnits;
-        public int baseWaveIncome;
+        public int[] waveIncomeByLevel;
         public string[] centralAbilities;
         public string heroPrefab;
         public string heroUnlockTech;

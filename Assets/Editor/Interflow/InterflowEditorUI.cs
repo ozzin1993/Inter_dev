@@ -63,8 +63,7 @@ namespace StrategyCore
         // потому что ключи — имена полей класса: в ассете они молча разъехались бы с кодом.
         static readonly Dictionary<string, string> FIELD_LABELS = new Dictionary<string, string>
         {
-            // Срабатывание и цель
-            { "trigger",                  "Когда срабатывает" },
+            // Цель (ось «Когда срабатывает» снесена блоком Б7, 2026-09-05)
             { "targetMode",               "Кого задевает" },
             { "buttonCast",               "Умение по кнопке (замок или герой)" },
             { "targetStrategy",           "Алгоритм выбора одной цели" },
@@ -78,18 +77,18 @@ namespace StrategyCore
             { "includeSelf",              "Включать самого кастера" },
             { "coneAngle",                "Угол конуса, градусы" },
             { "directionMatters",         "Направление кастера важно (доворот к цели)" },
-            { "radius",                   "Радиус по уровням" },
-            { "castRange",                "Дальность каста по уровням" },
+            { "radius",                   "Радиус" },
+            { "castRange",                "Дальность каста" },
             { "unitSelector",             "Кто вообще может быть целью" },
             // Доставка
             { "delivery",                 "Доставка" },
             { "projectilePrefab",         "Префаб снаряда" },
             { "projectileFollowsTarget",  "Снаряд самонаводится" },
             // Шкала каста и презентация
-            { "castTime",                 "Время каста по уровням, с" },
-            { "cooldown",                 "Откат по уровням, с" },
-            { "manaCost",                 "Стоимость маны по уровням" },
-            { "duration",                 "Длительность по уровням, с" },
+            { "castTime",                 "Время каста, с" },
+            { "cooldown",                 "Откат, с" },
+            // «manaCost» снят вместе с полем (Б5, 2026-09-04): цены в мане у умений нет.
+            { "duration",                 "Длительность, с" },
             { "spawnSocket",              "Точка на модели кастера" },
             { "localOffset",              "Смещение от точки, м" },
             { "castVFX",                  "Визуал замаха" },
@@ -107,20 +106,17 @@ namespace StrategyCore
             { "description",              "Описание по уровням" },
             { "icon",                     "Иконка по уровням" },
             { "slotNumber",               "Ячейка в панели (−1 — по порядку)" },
-            { "isItem",                   "Это предмет, а не умение" },
+            { "isItem",                   "Это предмет, а не умение (предметы вне скоупа игры)" },
             { "useUponPickUp",            "Применить сразу при подборе" },
             { "dropOnDeath",              "Выпадает при смерти носителя" },
             { "charges",                  "Заряды (0 — без зарядов)" },
             { "maxLevels",                "Максимум уровней" },
             { "heroLevelable",            "Уровень качается прокачкой юнита" },
             { "dontTurn",                 "Не поворачивать кастера к цели" },
-            { "continuous",               "Длящееся: активно, пока хватает маны и длительности" },
-            { "interruptible",            "Кастера можно прервать" },
-            { "requiresCastingUnit",      "Нужен активно кастующий юнит" },
-            { "manaCostPerSecond",        "Мана в секунду по уровням" },
+            // «continuous», «interruptible», «requiresCastingUnit» и «manaCostPerSecond» сняты вместе с полями
+            // (Б6, 2026-09-04): переключателей и умений-каналов в игре нет.
             { "cost",                     "Цена в ресурсах" },
             { "requiredTech",             "Требуемые технологии по уровням" },
-            { "requiredLevel",            "Требуемый уровень юнита по уровням" },
 
             // Собственные поля производственных типов (вкладка «Производство»), тоже по тултипам ядра.
             { "building",                 "Что строится (по уровням)" },
@@ -131,7 +127,7 @@ namespace StrategyCore
             { "upgradeUnit",              "Во что апгрейдится здание" },
             { "upgradeTime",              "Время апгрейда, с" },
             { "transformUnit",            "Чей вид принимает кастер" },
-            { "transformTime",            "Длительность превращения по уровням" },
+            { "transformTime",            "Длительность превращения, с" },
             { "transformSound",           "Звук превращения" },
             { "transformVFX",             "Визуал превращения" },
             { "passiveEffects",           "Пассивные эффекты на время превращения" },
@@ -144,11 +140,21 @@ namespace StrategyCore
             => fieldName != null && FIELD_LABELS.TryGetValue(fieldName, out var s) ? s : null;
 
         /// <summary>
-        /// PropertyField с явной подписью и необязательным подавлением декораторов ([Header]/[Space]).
+        /// Поле с явной подписью и необязательным подавлением декораторов ([Header]/[Space]).
         /// label = null — подпись по умолчанию (из имени поля).
+        /// У умений (Ability) числовые массивы «по уровням» рисуются НЕ списком Unity, а по правилу блока Б8
+        /// (целевая модель §9, решение Artsiom 2026-09-06): одно поле «базовое» (элемент 0) плюс свёрнутый блок
+        /// «по уровням» (элементы 1..N). Вложенные блоки конструктора и их списки записей раскрываются так же.
         /// </summary>
-        public static PropertyField MakeField(SerializedProperty prop, string label, bool suppressDecorators)
+        public static VisualElement MakeField(SerializedProperty prop, string label, bool suppressDecorators)
         {
+            if (prop.serializedObject.targetObject is Ability)
+            {
+                if (IsLeveledNumberArray(prop)) return MakeLeveledArray(prop.Copy(), label);
+                if (IsStructWithLeveledArrays(prop)) return MakeStructFields(prop.Copy(), label);
+                if (IsStructListWithLeveledArrays(prop)) return MakeStructList(prop.Copy(), label);
+            }
+
             var pf = label == null ? new PropertyField(prop.Copy()) : new PropertyField(prop.Copy(), label);
             if (suppressDecorators)
             {
@@ -161,6 +167,191 @@ namespace StrategyCore
                 pf.RegisterCallback<GeometryChangedEvent>(OnGeo);
             }
             return pf;
+        }
+
+        // ======================== ЗНАЧЕНИЯ ПО УРОВНЯМ: «БАЗОВОЕ + БЛОК» (Б8) ========================
+        // Данные остаются массивами (решение Artsiom 2026-09-06): элемент 0 — базовое значение, остальные — блок по
+        // уровням; выборка в игре — InterflowAbility.LevelValue (нет строки — последняя заполненная). Здесь только вид.
+
+        static readonly Color COL_LEVELS_DIM = new Color(0.62f, 0.62f, 0.62f);
+
+        /// <summary>Числовой массив по уровням: float[] или int[].</summary>
+        static bool IsLeveledNumberArray(SerializedProperty prop)
+            => prop.isArray && prop.propertyType == SerializedPropertyType.Generic
+               && (prop.arrayElementType == "float" || prop.arrayElementType == "int");
+
+        /// <summary>Вложенный блок (не массив), внутри которого есть хотя бы один числовой массив по уровням.</summary>
+        static bool IsStructWithLeveledArrays(SerializedProperty prop)
+            => !prop.isArray && prop.propertyType == SerializedPropertyType.Generic && ContainsLeveledArray(prop);
+
+        /// <summary>Список записей (массив блоков), у элементов которого есть числовые массивы по уровням.</summary>
+        static bool IsStructListWithLeveledArrays(SerializedProperty prop)
+        {
+            if (!prop.isArray || prop.propertyType != SerializedPropertyType.Generic) return false;
+            if (prop.arrayElementType == "float" || prop.arrayElementType == "int" || prop.arrayElementType == "string") return false;
+            if (prop.arrayElementType.StartsWith("PPtr")) return false;   // ссылки на ассеты — обычный список
+            if (prop.arraySize == 0) return false;                        // пустой — нечего раскрывать, обычный список
+            return ContainsLeveledArray(prop.GetArrayElementAtIndex(0));
+        }
+
+        static bool ContainsLeveledArray(SerializedProperty parent)
+        {
+            foreach (var child in Children(parent))
+            {
+                if (IsLeveledNumberArray(child)) return true;
+                if (!child.isArray && child.propertyType == SerializedPropertyType.Generic && ContainsLeveledArray(child)) return true;
+            }
+            return false;
+        }
+
+        // Видимые дети блока (без захода в массивы: у них свои дети «size» и элементы).
+        static IEnumerable<SerializedProperty> Children(SerializedProperty parent)
+        {
+            var end = parent.GetEndProperty();
+            var child = parent.Copy();
+            if (!child.NextVisible(true)) yield break;
+            while (!SerializedProperty.EqualContents(child, end))
+            {
+                yield return child.Copy();
+                if (!child.NextVisible(false)) break;
+            }
+        }
+
+        static string LabelOf(SerializedProperty prop, string label)
+            => label ?? FieldLabel(prop.name) ?? ObjectNames.NicifyVariableName(prop.name);
+
+        /// <summary>
+        /// Числовой массив по уровням: элемент 0 — поле «базовое», элементы 1..N — свёрнутый блок «по уровням»
+        /// с кнопками добавить/убрать уровень. Пустой массив — кнопка «задать базовое».
+        /// </summary>
+        static VisualElement MakeLeveledArray(SerializedProperty prop, string label)
+        {
+            var root = new VisualElement { tooltip = prop.tooltip };
+            string title = LabelOf(prop, label);
+            SerializedObject so = prop.serializedObject;
+            string path = prop.propertyPath;
+
+            void Rebuild()
+            {
+                root.Clear();
+                var arr = so.FindProperty(path);
+                if (arr == null) return;
+
+                if (arr.arraySize == 0)
+                {
+                    var row = new VisualElement { style = { flexDirection = FlexDirection.Row, alignItems = Align.Center } };
+                    row.Add(new Label(title) { style = { minWidth = 150, color = COL_LEVELS_DIM } });
+                    row.Add(new Button(() => { arr.arraySize = 1; so.ApplyModifiedProperties(); Rebuild(); })
+                        { text = "задать базовое", tooltip = "Массив пуст — умение работает как без этого параметра (0). Нажми, чтобы задать базовое значение." });
+                    root.Add(row);
+                    return;
+                }
+
+                // Базовое значение — элемент 0, под подписью самого поля.
+                root.Add(new PropertyField(arr.GetArrayElementAtIndex(0), title) { tooltip = prop.tooltip });
+
+                // Блок по уровням — элементы 1..N. Свёрнут, пока строк нет.
+                int extra = arr.arraySize - 1;
+                var fold = new Foldout
+                {
+                    text = extra > 0 ? $"По уровням: {extra}" : "По уровням: нет",
+                    value = extra > 0,
+                    style = { marginLeft = 12, marginBottom = 2 },
+                    tooltip = "Значения для уровней 2, 3, … У умений и пассивок юнитов: нет строки для нужного уровня — берётся " +
+                              "последняя заполненная, никогда ноль; блок пуст — умение всегда работает на базовом значении. " +
+                              "Процессы (обучение, исследование, стройка) читают строку ровно своего уровня."
+                };
+                for (int i = 1; i < arr.arraySize; i++)
+                    fold.Add(new PropertyField(arr.GetArrayElementAtIndex(i), $"Уровень {i + 1}"));
+
+                var buttons = new VisualElement { style = { flexDirection = FlexDirection.Row, marginTop = 2 } };
+                buttons.Add(new Button(() =>
+                {
+                    int n = arr.arraySize;
+                    arr.arraySize = n + 1;
+                    // Новая строка повторяет предыдущую — правило «последняя заполненная» делает это ожидаемым стартом.
+                    var last = arr.GetArrayElementAtIndex(n - 1);
+                    var added = arr.GetArrayElementAtIndex(n);
+                    if (added.propertyType == SerializedPropertyType.Float) added.floatValue = last.floatValue;
+                    else if (added.propertyType == SerializedPropertyType.Integer) added.intValue = last.intValue;
+                    so.ApplyModifiedProperties();
+                    Rebuild();
+                }) { text = "+ уровень" });
+                if (extra > 0)
+                    buttons.Add(new Button(() => { arr.arraySize = arr.arraySize - 1; so.ApplyModifiedProperties(); Rebuild(); })
+                        { text = "− последний" });
+                fold.Add(buttons);
+                root.Add(fold);
+
+                root.Bind(so);
+            }
+
+            Rebuild();
+            return root;
+        }
+
+        /// <summary>
+        /// Вложенный блок: дети рисуются по тому же правилу (массивы по уровням — «базовое + блок»).
+        /// label пустая — дети кладутся прямо в контейнер (блок конструктора уже сидит в своём фолде); иначе — свой фолд.
+        /// </summary>
+        static VisualElement MakeStructFields(SerializedProperty prop, string label)
+        {
+            VisualElement body;
+            VisualElement result;
+            if (string.IsNullOrEmpty(label))
+            {
+                body = new VisualElement();
+                result = body;
+            }
+            else
+            {
+                var fold = new Foldout { text = LabelOf(prop, label), value = true, tooltip = prop.tooltip };
+                body = fold;
+                result = fold;
+            }
+
+            foreach (var child in Children(prop))
+            {
+                if (IsLeveledNumberArray(child)) body.Add(MakeLeveledArray(child, null));
+                else if (IsStructWithLeveledArrays(child)) body.Add(MakeStructFields(child, LabelOf(child, null)));
+                else if (IsStructListWithLeveledArrays(child)) body.Add(MakeStructList(child, LabelOf(child, null)));
+                else body.Add(new PropertyField(child, LabelOf(child, null)));
+            }
+            return result;
+        }
+
+        /// <summary>
+        /// Список записей (например записи урона): каждая запись — фолд с детьми по тому же правилу,
+        /// внизу кнопки «добавить запись» / «убрать последнюю».
+        /// </summary>
+        static VisualElement MakeStructList(SerializedProperty prop, string label)
+        {
+            var fold = new Foldout { text = LabelOf(prop, label), value = true, tooltip = prop.tooltip };
+            SerializedObject so = prop.serializedObject;
+            string path = prop.propertyPath;
+
+            void Rebuild()
+            {
+                fold.Clear();
+                var arr = so.FindProperty(path);
+                if (arr == null) return;
+
+                for (int i = 0; i < arr.arraySize; i++)
+                    fold.Add(MakeStructFields(arr.GetArrayElementAtIndex(i), $"Запись {i + 1}"));
+
+                var buttons = new VisualElement { style = { flexDirection = FlexDirection.Row, marginTop = 2 } };
+                buttons.Add(new Button(() => { arr.arraySize = arr.arraySize + 1; so.ApplyModifiedProperties(); Rebuild(); })
+                    { text = "+ запись" });
+                if (arr.arraySize > 0)
+                    buttons.Add(new Button(() => { arr.arraySize = arr.arraySize - 1; so.ApplyModifiedProperties(); Rebuild(); })
+                        { text = "− последняя" });
+                fold.Add(buttons);
+
+                fold.Bind(so);
+            }
+
+            Rebuild();
+            return fold;
         }
 
         // Текст [Header] поля targetType по имени сериализованного поля; null — если заголовка нет.

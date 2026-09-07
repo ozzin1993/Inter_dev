@@ -12,27 +12,30 @@ namespace StrategyCore
         [Header("Abilities")]
         [Tooltip("Abilities of this unit, you must define all abilities here. You will not be able to change them during the game.")]
         public Ability[] abilities;
-        [Tooltip("Can be left empty; only for HeroLevelable abilities.\nFor Hero-Levelable abilities, this sets the initial level, but the ability must also meet its requirements (if provided).\nNon-Hero-Levelable abilities start at level 0 and automatically level up when requirements are met.\r\nAn ability level of -1 means the ability is levelable but has not been learned yet.")]
+        [Tooltip("Можно оставить пустым: пустые места — уровень 0.\nДля улучшаемых умений героя (Hero Levelable) задаёт НАЧАЛЬНЫЙ уровень; умение всё равно должно пройти свои требования.\nОстальные умения начинают с нуля и поднимаются сами, когда требования выполнены.\nУровень −1 («умение не выучено») снесён блоком Б9 (2026-09-06): открытое технологией умение сразу работает на базовых значениях.")]
         public int[] abilityLevel;
 
         [HideInInspector] public bool[] abilityLocked; // Defined automatically based on the technologies available for the player
 
-        [HideInInspector] public List<Ability> everyFrameAbilities = new List<Ability>();  // Index of Aura, Toggle abilities that are played every frame
-        [HideInInspector] public List<int> everyFrameAbilityIndex = new List<int>(); // Index of Aura, Toggle abilities that are played every frame
-        [HideInInspector] public List<bool> everyFrameAbilityIsItem = new List<bool>(); // Defines if everyFrameAbility[i] and item
+        // Списки everyFrameAbilities/-Index/-IsItem (цикл аур) СНЕСЕНЫ блоком Б7 (2026-09-05): постоянные ауры —
+        // пассивные умения с радиусом (CompositePassive, блок 8), режима «аура» у умений больше нет (целевая модель §9, §15).
+        // В префабах юнитов старые поля остаются в YAML до пересохранения — Unity их молча отбрасывает.
 
         [HideInInspector] public List<float> cooldownAbility = new List<float>(); // Current cooldown of an ability
         [HideInInspector] public List<int> cooldownAbilityIndex = new List<int>(); // abilityCDIndex[index] = reference to ability[]
         [HideInInspector] public List<bool> cooldownAbilityIsItem = new List<bool>(); // If ability at index is item
 
-        // Active ability technical variables. Active ability is an continous ability that is performed over time, for example draining the HP over period of time.
-        [HideInInspector] public Ability activeAbility; // Continuous ability that is being used by this unit
+        // Active ability technical variables: умение, которое юнит сейчас кастует (подход к цели, время замаха).
+        // «Длящихся» умений (каналов) больше нет — снесены блоком Б6 (2026-09-04).
+        [HideInInspector] public Ability activeAbility; // Ability that is being cast by this unit
         [HideInInspector] public int activeAbilityLevel; // Level of the ability when it was started
-        [HideInInspector] public int activeAbilityIndex; // Index of continuous ability that is being used by this unit
+        [HideInInspector] public int activeAbilityIndex; // Index of the ability that is being cast by this unit
         [HideInInspector] public bool activeAbilityItem; // If current active ability is an item. DO NOT FORGET TO CHANGE THE INDEX IF ITEM MOVES ITS SLOT
         [HideInInspector] public Unit activeAbilityUnit; // If active ability requires unit
         [HideInInspector] public Vector3 activeAbilityLocation; // If active ability requires location
-        [HideInInspector] public bool activeAbilityInUse; // If active ability is being used right now
+        // Флаг «умение исполняется прямо сейчас» (activeAbilityInUse) СНЕСЁН блоком Б6 (2026-09-04):
+        // его включал только канал, а после сноса каналов — единственный оставшийся писатель
+        // SetActiveAbility из загрузки сохранения, который восстанавливал неверный индекс умения.
         [HideInInspector] public float activeAbilityRange; // Range of active ability
         [HideInInspector] public float activeAbilityCastTime; // Cast timme of active ability
         [HideInInspector] public float activeAbilityDuration; // If this active ability has a duration
@@ -89,15 +92,15 @@ namespace StrategyCore
             activeAbilityLevel = currentLevel;
             activeAbilityLocation = location;
             activeAbilityUnit = unit;
-            activeAbilityRange = (currentAbility.castRange.Length > currentLevel && currentAbility.castRange[currentLevel] != 0) ? currentAbility.castRange[currentLevel] : 0;
-            activeAbilityCastTime = (currentAbility.castTime.Length > currentLevel && currentAbility.castTime[currentLevel] != 0) ? currentAbility.castTime[currentLevel] : 0;
-            activeAbilityDuration = (currentAbility.duration.Length > currentLevel && currentAbility.duration[currentLevel] != 0) ? currentAbility.duration[currentLevel] : 0;
+            // Дальность, время каста и длительность — общей выборкой по уровням (Б8): нет строки — последняя заполненная
+            // (раньше уровень выше длины массива давал 0: каст без подхода и без замаха).
+            activeAbilityRange = InterflowAbility.LevelValue(currentAbility.castRange, currentLevel);
+            activeAbilityCastTime = InterflowAbility.LevelValue(currentAbility.castTime, currentLevel);
+            activeAbilityDuration = InterflowAbility.LevelValue(currentAbility.duration, currentLevel);
             activeAbilityDuration += activeAbilityCastTime;
 
-            // If has cast range, cast time or continuous we change the state
-            if (currentAbility.castRange.Length > currentLevel && currentAbility.castRange[currentLevel] != 0 ||
-               (currentAbility.castTime.Length > currentLevel && currentAbility.castTime[currentLevel] != 0 ||
-               (currentAbility.continuous)))
+            // If has cast range or cast time we change the state (умений-каналов больше нет — блок Б6)
+            if (activeAbilityRange != 0 || activeAbilityCastTime != 0)
             {
                 unitState = UnitStates.AbilityCasting;
                 OnCommand += ResetAbilityState;
@@ -124,9 +127,8 @@ namespace StrategyCore
         /// <param name="isItem">Is this an item?</param>
         /// <param name="abilityTarget">Target unit of the ability, can be null.</param>
         /// <param name="abilityLocation">Target location of the ability, can be Vector3.zero.</param>
-        /// <param name="interrupt">Should cast interrupt the unit? When true will call Idle() after cast of non-continuous ability.</param>
-        /// <param name="shadowCasterID">If ability is eligible creates shadowcaster with this ID, used by clients. ID is received from the server.</param>
-        public void UseAbilityImmediately(Ability ability, int abilityLevel, int abilityIndex, bool isItem, Unit abilityTarget, Vector3 abilityLocation, bool interrupt = false, int shadowCasterID = -1)
+        /// <param name="interrupt">Should cast interrupt the unit? When true will call Idle() after cast.</param>
+        public void UseAbilityImmediately(Ability ability, int abilityLevel, int abilityIndex, bool isItem, Unit abilityTarget, Vector3 abilityLocation, bool interrupt = false)
         {
             // Do the last custom check of the ability before using it
             bool customCheck = true;
@@ -135,268 +137,52 @@ namespace StrategyCore
             else customCheck = ability.Check(this, this.owner, abilityLevel);
             if (customCheck == false) return;
 
-            // If server/offline we generate unique shadow caster ID
-            if (!NetworkConnectionHandler.isClient && ability.continuous && !ability.interruptible)
-            {
-                shadowCasterID = ShadowCaster.GetUniqueID();
-            }
-
             // When server activates any ability, we send data to clients
             if (NetworkManager.Singleton.IsServer)
             {
-                NetworkDataSync.Instance.AbilityUseSend(this, ability, abilityLevel, abilityIndex, isItem, abilityTarget, abilityLocation, interrupt, shadowCasterID);
+                NetworkDataSync.Instance.AbilityUseSend(this, ability, abilityLevel, abilityIndex, isItem, abilityTarget, abilityLocation, interrupt);
             }
 
             // if interrupt we make unit visible
             if (interrupt && isInvisible) SetInvisibility(false);
 
-            // Ability initiate
-            if (ability.continuous)
-            {
-                if (ability.interruptible)
-                {
-                    // If continuous we just set the active ability in use, it will be now handled by HandleEveryFrameAbilities()
-                    activeAbilityInUse = true;
-                    activeAbility = ability;
-                    activeAbilityLevel = abilityLevel;
-                    activeAbilityUnit = abilityTarget;
-                    activeAbilityLocation = abilityLocation;
-                    if (!interrupt && activeAbilityUnit)
-                    {
-                        activeAbilityUnit.OnReferenceChange += AbilityUnitReferenceChange; // If interrupt is true - we already subscribed in AbilityUse()
-                    }
+            // Ability initiate. Умения-каналы (continuous) и их теневой кастер снесены блоком Б6 (2026-09-04):
+            // каст всегда разовый — применили и вышли.
+            if (abilityTarget) ability.Use(this, this.owner, abilityLevel, abilityTarget);
+            else if (abilityLocation != Vector3.zero) ability.Use(this, this.owner, abilityLevel, abilityLocation);
+            else ability.Use(this, this.owner, abilityLevel);
 
-                    if (activeAbilityUnit) activeAbility.Activate(this, this.owner, abilityLevel, activeAbilityUnit, ref activeAbilityVFX);
-                    else if (activeAbilityLocation != Vector3.zero) activeAbility.Activate(this, this.owner, abilityLevel, activeAbilityLocation, ref activeAbilityVFX);
-                    else activeAbility.Activate(this, this.owner, abilityLevel, ref activeAbilityVFX);
-
-                    currentActionTime = 0;
-
-                    AnimatorSetBool(AnimationState.Casting, true);
-                }
-                else
-                {
-                    // Uninterruptible, continuous ability
-                    float abilityRange = (ability.castRange.Length > abilityLevel && ability.castRange[abilityLevel] != 0) ? ability.castRange[abilityLevel] : 0;
-                    float abilityDuration = (ability.duration.Length > abilityLevel && ability.duration[abilityLevel] != 0) ? ability.duration[abilityLevel] : 0;
-
-                    // We spawn shadowcaster
-                    ShadowCaster sc = ShadowCaster.Spawn(shadowCasterID, this, this.owner, ability, abilityLevel, abilityTarget, abilityLocation, abilityRange, abilityDuration);
-
-                    // Activate
-                    if (abilityTarget) ability.Activate(this, this.owner, abilityLevel, abilityTarget, ref sc.activeAbilityVFX);
-                    else if (abilityLocation != Vector3.zero) ability.Activate(this, this.owner, abilityLevel, abilityLocation, ref sc.activeAbilityVFX);
-                    else ability.Activate(this, this.owner, abilityLevel, ref sc.activeAbilityVFX);
-
-                    // Reset the states after cast
-                    EndActiveAbility(true, false);
-                    if (!NetworkConnectionHandler.isClient) Idle();
-                }
-            }
-            else
-            {
-                if (ability.type == AbilityType.Toggle) UseToggleAbility_Internal(ability, abilityIndex, isItem);
-                else if (abilityTarget) ability.Use(this, this.owner, abilityLevel, abilityTarget);
-                else if (abilityLocation != Vector3.zero) ability.Use(this, this.owner, abilityLevel, abilityLocation);
-                else ability.Use(this, this.owner, abilityLevel);
-
-                // Reset the states after cast
-                EndActiveAbility(true, false);
-                // if interrupt we Idle() after cast
-                if (interrupt && !NetworkConnectionHandler.isClient) Idle();
-            }
+            // Reset the states after cast
+            EndActiveAbility(true, false);
+            // if interrupt we Idle() after cast
+            if (interrupt && !NetworkConnectionHandler.isClient) Idle();
 
             // Cooldown
-            if (ability.cooldown.Length > abilityLevel && ability.cooldown[abilityLevel] != 0) ChangeAbilityCooldown(ability.cooldown[abilityLevel], abilityIndex, isItem);
+            // Откат — общей выборкой по уровням (Б8): нет строки — последняя заполненная (раньше уровень выше длины гасил откат).
+            float levelCooldown = InterflowAbility.LevelValue(ability.cooldown, abilityLevel);
+            if (levelCooldown != 0) ChangeAbilityCooldown(levelCooldown, abilityIndex, isItem);
             // Subtract costs
             SubtractAbilityItemCost(owner, abilityIndex, isItem);
             // Item charge decrease
             if (isItem) ItemChargesChange(abilityIndex);
         }
 
-        /// <summary>
-        /// For internal usage only. It adds the ability to every frame abilities.
-        /// </summary>
-        /// <param name="toggleAbility">Toggle ability.</param>
-        /// <param name="abilityIndex">Global index of ability in the ability pool of the unit. You can get it by Utils.GetAbilityIndex.</param>
-        /// <param name="isItem">Is this ability an item?</param>
-        public void UseToggleAbility_Internal(Ability toggleAbility, int abilityIndex, bool isItem)
-        {
-            // If toggle active, turn it off
-            int indexOf = IndexOfEveryFrameAbility(abilityIndex, isItem);
-            int level = (isItem) ? 0 : abilityLevel[abilityIndex];
-            if (indexOf != -1)
-            {
-                RemoveEveryFrameIfExists(abilityIndex, isItem, level, indexOf);
-            }
-            else
-            {
-                AddEveryFrameAbility(toggleAbility, abilityIndex, isItem, level);
-            }
-            OnRedrawAbilityView?.Invoke();
-        }
+        // ============================= EVERY FRAME (регенерация) =============================
 
-        // ============================= EVERY FRAME ABILITY =============================
+        // Переключатели снесены блоком Б6 (2026-09-04), ауры — блоком Б7 (2026-09-05): методов регистрации
+        // умений в цикле юнита (AddEveryFrameAbility, RemoveEveryFrameIfExists, IndexOfEveryFrameAbility) больше нет.
+        // Каждый тик у юнита остаётся только регенерация здоровья и маны.
 
         /// <summary>
-        /// Adds everyframe ability - used by auras and toggles.
-        /// </summary>
-        /// <param name="ability">Ability that should be activated and added.</param>
-        /// <param name="abilityIndex">Global index of ability in the ability pool of the unit. You can get it by Utils.GetAbilityIndex.</param>
-        /// <param name="isItem">Is this ability an item?</param>
-        /// <param name="abilityLvl">Level of the ability.</param>
-        public void AddEveryFrameAbility(Ability ability, int abilityIndex, bool isItem, int abilityLvl)
-        {
-            // When ability index is -1, we should find the it ourselves
-            if (abilityIndex == -1 && !isItem)
-            {
-                abilityIndex = Utils.GetAbilityIndex(abilities, ability);
-                if (abilityIndex == -1)
-                {
-                    Debug.LogWarning("Ability " + ability.abilityName[0] + " tries to add to everyFrameAbilities, but is not part of the ability pool of the unit " + unitName);
-                    return;
-                }
-            }
-
-            // Activate and add
-            ability.Activate(this, this.owner, abilityLvl);
-
-            everyFrameAbilities.Add(ability);
-            everyFrameAbilityIndex.Add(abilityIndex);
-            everyFrameAbilityIsItem.Add(isItem);
-        }
-
-        /// <summary>
-        /// Removes everyframe ability, if it has been added.
-        /// </summary>
-        /// <param name="ability">Ability to be removed.</param>
-        /// <param name="isItem">Is this ability an item?</param>
-        /// <param name="abilityLvl">Level of the ability.</param>
-        /// <param name="everyFrameIndex">Index of the ability in everyFrameAbilities list, if not provided it is calculated automatically.</param>
-        public void RemoveEveryFrameIfExists(Ability ability, bool isItem, int abilityLvl, int everyFrameIndex = -1)
-        {
-            int indexOf = (everyFrameIndex == -1) ? IndexOfEveryFrameAbility(ability, isItem) : everyFrameIndex;
-
-            if (indexOf != -1)
-            {
-                everyFrameAbilities[indexOf].Deactivate(this, this.owner, abilityLvl);
-
-                everyFrameAbilities.RemoveAt(indexOf);
-                everyFrameAbilityIndex.RemoveAt(indexOf);
-                everyFrameAbilityIsItem.RemoveAt(indexOf);
-
-                OnRedrawAbilityView?.Invoke();
-            }
-        }
-
-        /// <summary>
-        /// Removes everyframe ability by its index, if it has been added.
-        /// </summary>
-        /// <param name="abilityIndex">>Global index of ability in the ability pool of the unit. You can get it with Utils.GetAbilityIndex.</param>
-        /// <param name="isItem">Is this ability an item?</param>
-        /// <param name="abilityLvl">Level of the ability.</param>
-        /// <param name="everyFrameIndex">Index of the ability in everyFrameAbilities list, if not provided it is calculated automatically.</param>
-        public void RemoveEveryFrameIfExists(int abilityIndex, bool isItem, int abilityLvl, int everyFrameIndex = -1)
-        {
-            int indexOf = (everyFrameIndex == -1) ? IndexOfEveryFrameAbility(abilityIndex, isItem) : everyFrameIndex;
-            if (indexOf != -1)
-            {
-                everyFrameAbilities[indexOf].Deactivate(this, this.owner, abilityLvl);
-
-                everyFrameAbilities.RemoveAt(indexOf);
-                everyFrameAbilityIndex.RemoveAt(indexOf);
-                everyFrameAbilityIsItem.RemoveAt(indexOf);
-
-                OnRedrawAbilityView?.Invoke();
-            }
-        }
-
-        /// <summary>
-        /// Returns index of the ability in everyFrameAbilities list. Returns -1 if not found.
-        /// </summary>
-        /// <param name="ability">Ability to search.</param>
-        /// <param name="isItem">Is it an item?</param>
-        /// <returns></returns>
-        public int IndexOfEveryFrameAbility(Ability ability, bool isItem)
-        {
-            for (int i = 0; i < everyFrameAbilityIndex.Count; i++)
-            {
-                if (everyFrameAbilities[i] == ability && everyFrameAbilityIsItem[i] == isItem)
-                {
-                    return i;
-                }
-            }
-            return -1;
-        }
-
-        /// <summary>
-        /// Returns index of the ability in everyFrameAbilities list. Returns -1 if not found.
-        /// </summary>
-        /// <param name="abilityIndex">Global ability index. You can get it with Utils.GetAbilityIndex.</param>
-        /// <param name="isItem">Is it an item?</param>
-        /// <returns></returns>
-        public int IndexOfEveryFrameAbility(int abilityIndex, bool isItem)
-        {
-            for (int i = 0; i < everyFrameAbilityIndex.Count; i++)
-            {
-                if (everyFrameAbilityIndex[i] == abilityIndex && everyFrameAbilityIsItem[i] == isItem)
-                {
-                    return i;
-                }
-            }
-            return -1;
-        }
-
-        /// <summary>
-        /// Every gameManager.Tick runs the logic for all everyFrame abilities. Also handles health and mana regeneration.
+        /// Every gameManager.Tick: health and mana regeneration.
+        /// Имя осталось от цикла умений «каждый кадр»: переключатели снесены блоком Б6 (2026-09-04),
+        /// ауры — блоком Б7 (2026-09-05); подписка на тик живёт в Unit.Init/Lifecycle и ConstructionUnit.
         /// </summary>
         public void HandleEveryFrameAbilities()
         {
             // MP/HP regeneration
             if (healthRegen != 0) ChangeHP(healthRegen * GameManager.Instance.currentDeltaTime, true);
             if (manaRegen != 0) ChangeMP(manaRegen * GameManager.Instance.currentDeltaTime, true);
-
-            // Auras and Toggle abilities
-            for (int i = everyFrameAbilityIndex.Count - 1; i >= 0; i--)
-            {
-                // No mana and resource check for auras
-                if (everyFrameAbilities[i].type == AbilityType.Aura)
-                {
-                    // Aura is unlocked, call Use()
-                    if (everyFrameAbilityIsItem[i])
-                    {
-                        // Item - always 0 level
-                        everyFrameAbilities[i].Use(this, this.owner, 0);
-                    }
-                    else
-                    {
-                        // Ability
-                        everyFrameAbilities[i].Use(this, this.owner, abilityLevel[everyFrameAbilityIndex[i]]);
-                    }
-                }
-                else if (everyFrameAbilities[i].type == AbilityType.Toggle)
-                {
-                    // Do Mana check and subtract the mana cost
-                    float manaCost = 0;
-
-                    if (everyFrameAbilityIsItem[i] && items[everyFrameAbilityIndex[i]].manaCostPerSecond.Length != 0) manaCost = items[everyFrameAbilityIndex[i]].manaCostPerSecond[0] * GameManager.Instance.currentDeltaTime;
-                    else if (everyFrameAbilities[i].manaCostPerSecond.Length > abilityLevel[everyFrameAbilityIndex[i]]) manaCost = everyFrameAbilities[i].manaCostPerSecond[abilityLevel[everyFrameAbilityIndex[i]]] * GameManager.Instance.currentDeltaTime;
-
-                    if (mana < manaCost)
-                    {
-                        // Ability can not be used
-                        everyFrameAbilities.RemoveAt(i);
-                        everyFrameAbilityIndex.RemoveAt(i);
-                        everyFrameAbilityIsItem.RemoveAt(i);
-                    }
-                    else
-                    {
-                        // Ability can be used, call Use()
-                        if (manaCost != 0) ChangeMP(-manaCost);
-                        everyFrameAbilities[i].Use(this, this.owner, abilityLevel[everyFrameAbilityIndex[i]]);
-                    }
-                }
-            }
         }
 
         // ============================= LEVEL UP =============================
@@ -436,12 +222,44 @@ namespace StrategyCore
         /// <param name="abilityIndex">Global ability index. You can get it with Utils.GetAbilityIndex.</param>
         public void LevelUpAbility(Ability ability, int abilityIndex)
         {
+            // Снимаем умение на СТАРОМ уровне и выдаём на новом (Б9): пассивка держит выданное состояние по уровню,
+            // а её Unlock идемпотентен — без снятия она осталась бы на прежних числах.
+            if (!ability.isItem) ability.Lock(this, this.owner, abilityLevel[abilityIndex]);
+
             abilityLevel[abilityIndex]++; // Increase ability level
             levelingUnit.abilityPoints--; // Decrease ability points
 
             AllAbilityLockLevelsCalculate();
 
-            ability.Unlock(this, this.owner, abilityLevel[abilityIndex]); // Unlock the ability, we just learnt it
+            if (!ability.isItem) ability.Unlock(this, this.owner, abilityLevel[abilityIndex]); // Выдаём на новом уровне
+        }
+
+        /// <summary>
+        /// Сервер: поставить улучшаемому умению героя сохранённый уровень (восстановление после смерти, блок Б9).
+        /// Очки не тратит и пределов не проверяет — уровень уже был оплачен до гибели. Снимает старое состояние и выдаёт новое.
+        /// </summary>
+        /// <param name="abilityIndex">Глобальный индекс умения в пуле юнита.</param>
+        /// <param name="level">Сохранённый уровень умения.</param>
+        public void RestoreAbilityLevel(int abilityIndex, int level)
+        {
+            if (NetworkConnectionHandler.isClient) return;                       // состояние мира — сервер (правило 6)
+            if (abilities == null || abilityIndex < 0 || abilityIndex >= abilityLevel.Length) return;
+            if (level <= abilityLevel[abilityIndex]) return;                     // не ниже текущего: восстановление только вверх
+
+            Ability ability = (abilityIndex < abilities.Length) ? abilities[abilityIndex] : null;
+            if (ability == null || ability.isItem) return;
+
+            ability.Lock(this, this.owner, abilityLevel[abilityIndex]);
+            abilityLevel[abilityIndex] = level;
+
+            AllAbilityLockLevelsCalculate();
+
+            ability.Unlock(this, this.owner, level);
+
+            // Клиент строит уровни умений из префаба и о восстановлении сам не узнал бы: его тултипы, значки и фильтр
+            // прокачки разошлись бы с сервером навсегда (правило 6).
+            if (NetworkManager.Singleton != null && NetworkManager.Singleton.IsServer && NetworkDataSync.Instance != null)
+                NetworkDataSync.Instance.AbilityLevelSetSend(this, abilityIndex, level);
         }
 
         // ============================= COOLDOWN =============================
@@ -598,25 +416,19 @@ namespace StrategyCore
                 // Initially all abilities are locked, then they unlocked if requirements are met
                 for (int i = 0; i < abilityLocked.Length; i++) abilityLocked[i] = true;
 
-                // For each ability that is hero levelable set level to be -1. Which means it is yet to be learnt.
-                int abilityGlobalIndex = -1;
-                RecursiveLevelSet(abilities);
+                // Уровень −1 у улучшаемых умений СНЕСЁН блоком Б9 (2026-09-06, целевая модель §8, решение Artsiom):
+                // умение, открытое технологией, сразу работает на БАЗОВЫХ значениях (уровень 0) и видно в панели;
+                // очко героя только улучшает (0 → 1 → 2). Раньше −1 значило «не выучено»: умение не работало и не показывалось.
+                RecursiveFlagsSet(abilities);
 
-                void RecursiveLevelSet(Ability[] recursiveAbilities)
+                void RecursiveFlagsSet(Ability[] recursiveAbilities)
                 {
                     for (int i = 0; i < recursiveAbilities.Length; i++)
                     {
-                        abilityGlobalIndex++;
-
-                        if (recursiveAbilities[i].heroLevelable == true)
-                        {
-                            abilityLevel[abilityGlobalIndex] = -1; // It is yet to be learnt
-                        }
-
                         if (recursiveAbilities[i].type == AbilityType.Container)
                         {
                             Container container = (Container)recursiveAbilities[i];
-                            RecursiveLevelSet(container.abilities);
+                            RecursiveFlagsSet(container.abilities);
                         }
 
                         // If canProcess and if isShop
@@ -662,20 +474,22 @@ namespace StrategyCore
                 // If ability is heroLevelable set Locks only, if it is also a container set all abilities` level inside of it to be the level of container.
                 if (abilityArray[i].heroLevelable)
                 {
-                    // Lock state of the current ability
-                    if (abilityArray[i].requiredTech.Length > 0 || abilityArray[i].requiredLevel.Length > 0)
+                    // Lock state of the current ability. Открытие по уровню юнита (requiredLevel) снесено блоком Б8:
+                    // замок зависит только от технологии.
+                    if (abilityArray[i].requiredTech.Length > 0)
                     {
-                        // We need to check the next level of ability when learning the ability <<<------------------------------------------------------
-                        // ability locked should refer to the next level of the ability if hero levelable
-                        int lvl = abilityLevel[abilityIndex] + 1;
+                        // Технология проверяется по ТЕКУЩЕМУ уровню умения (Б9): замок означает «умение недоступно»,
+                        // а не «нельзя выучить следующий уровень» — учить больше нечего, очко только улучшает.
+                        int lvl = abilityLevel[abilityIndex];
 
-                        //if (abilityLevel[abilityIndex] != -1 && TechnologyManager.Instance.isUnlocked(abilityArray[i].requiredTech[abilityLevel[abilityIndex]].data, owner) && levelingUnit?.level >= abilityArray[i].requiredLevel[abilityLevel[abilityIndex]])
-                        if ((abilityArray[i].requiredTech.Length <= lvl || TechnologyManager.Instance.isUnlocked(abilityArray[i].requiredTech[lvl].data, owner)) // Technology check
-                            && (levelingUnit == null || abilityArray[i].requiredLevel.Length <= lvl || levelingUnit.level >= abilityArray[i].requiredLevel[lvl])) // Level check
+                        if (abilityArray[i].requiredTech.Length <= lvl || TechnologyManager.Instance.isUnlocked(abilityArray[i].requiredTech[lvl].data, owner)) // Technology check
                         {
-                            // Ability is unlocked
+                            // Ability is unlocked. Выдаём умение ровно в момент открытия (был заперт → открыт): иначе пассивка
+                            // улучшаемого умения не включилась бы вовсе, а повторный вызов на каждое открытие технологии удвоил бы статы.
+                            if (abilityLocked[abilityIndex] && !abilityArray[i].isItem)
+                                abilityArray[i].Unlock(this, this.owner, abilityLevel[abilityIndex]);
+
                             abilityLocked[abilityIndex] = false;
-                            // HeroLevelable should not call Unlock method of the ability - we call it when we learn the ability
 
                             // If it is container, set all abilities level inside of it to the same level as container then check lock state
                             if (abilityArray[i].type == AbilityType.Container)
@@ -689,15 +503,13 @@ namespace StrategyCore
                         }
                         else
                         {
-                            // Ability is locked
-                            abilityLocked[abilityIndex] = true;
+                            // Технологию потеряли — снимаем ровно то, что выдали при открытии (парная выдаче строка выше,
+                            // блок Б9): без этого статы и аура улучшаемого умения остались бы на юните навсегда,
+                            // а повторное открытие выдало бы их второй раз.
+                            if (!abilityLocked[abilityIndex] && !abilityArray[i].isItem)
+                                abilityArray[i].Lock(this, this.owner, abilityLevel[abilityIndex]);
 
-                            // HeroLevelable should call Lock method of the ability only if this ability was learnt previously
-                            // if (abilityLevel[abilityIndex] != -1)
-                            // {
-                            //     RemoveEveryFrameIfExists(abilityIndex, false, abilityLevel[abilityIndex]);
-                            //     if (!abilityArray[i].isItem) abilityArray[i].Lock(this, this.owner, abilityLevel[abilityIndex]);
-                            // }
+                            abilityLocked[abilityIndex] = true;
 
                             // If container lock all abilities inside of it
                             if (abilityArray[i].type == AbilityType.Container)
@@ -709,9 +521,13 @@ namespace StrategyCore
                     }
                     else
                     {
-                        // Ability is unlocked
+                        // Требований нет — умение доступно сразу и работает на базовых значениях (Б9). Выдаём тем же
+                        // переходом «был заперт → открыт», что и ветка с технологией: иначе пассивка улучшаемого умения
+                        // без требуемой технологии не включилась бы вовсе.
+                        if (abilityLocked[abilityIndex] && !abilityArray[i].isItem)
+                            abilityArray[i].Unlock(this, this.owner, abilityLevel[abilityIndex]);
+
                         abilityLocked[abilityIndex] = false;
-                        // HeroLevelable should not call Unlock method of the ability
 
                         // If it is container, set all abilities level inside of it to the same level as container then check lock state
                         if (abilityArray[i].type == AbilityType.Container)
@@ -726,15 +542,15 @@ namespace StrategyCore
                 }
                 else // Not heroLevelable
                 {
-                    if (abilityArray[i].requiredTech.Length > 0 || abilityArray[i].requiredLevel.Length > 0)
+                    if (abilityArray[i].requiredTech.Length > 0)
                     {
-                        // For each requirement level check if requirements are met, if so unlock and levelup
-                        int requirementLength = (abilityArray[i].requiredTech.Length > abilityArray[i].requiredLevel.Length) ? abilityArray[i].requiredTech.Length : abilityArray[i].requiredLevel.Length;
+                        // For each requirement level check if requirements are met, if so unlock and levelup.
+                        // Требование по уровню юнита (requiredLevel) снесено блоком Б8 — длина требований = длина списка технологий.
+                        int requirementLength = abilityArray[i].requiredTech.Length;
 
                         for (int l = abilityLevel[abilityIndex]; l < requirementLength; l++)
                         {
-                            if ((abilityArray[i].requiredTech.Length <= l || TechnologyManager.Instance.isUnlocked(abilityArray[i].requiredTech[l].data, owner)) // Requirement tech check
-                            && (levelingUnit == null || abilityArray[i].requiredLevel.Length <= l || levelingUnit.level >= abilityArray[i].requiredLevel[abilityLevel[abilityIndex]])) // Level requirement check
+                            if (TechnologyManager.Instance.isUnlocked(abilityArray[i].requiredTech[l].data, owner)) // Requirement tech check (l < requiredTech.Length по условию цикла)
                             {
                                 // We call unlock. If the same level as current level we call unlock if it was locked before
                                 if (!abilityArray[i].isItem && !(abilityLocked[abilityIndex] == false && l == abilityLevel[abilityIndex]))
@@ -742,7 +558,6 @@ namespace StrategyCore
                                     // We lock previous level if previous level exists
                                     if (l > 0)
                                     {
-                                        RemoveEveryFrameIfExists(abilityIndex, false, l - 1);
                                         if (!abilityArray[i].isItem) abilityArray[i].Lock(this, this.owner, l - 1);
                                     }
 
@@ -760,7 +575,6 @@ namespace StrategyCore
                                     // We call lock only if previously was unlocked
                                     if (abilityLocked[abilityIndex] == false)
                                     {
-                                        RemoveEveryFrameIfExists(abilityIndex, false, abilityLevel[abilityIndex]);
                                         if (!abilityArray[i].isItem) abilityArray[i].Lock(this, this.owner, abilityLevel[abilityIndex]);
                                     }
 
@@ -829,12 +643,13 @@ namespace StrategyCore
             {
                 int abilityIndex = Utils.GetAbilityIndex(abilities, abilityArray[i]);
 
-                // If ability level is not higher than max level
+                // If ability level is not higher than max level. Ниже нуля не опускаем: уровень −1 снесён блоком Б9,
+                // а maxLevels = 0 (умение без уровней) дал бы именно его.
                 if (abilityArray[i].maxLevels - 1 > level)
                 {
                     abilityLevel[abilityIndex] = level;
                 }
-                else abilityLevel[abilityIndex] = abilityArray[i].maxLevels - 1;
+                else abilityLevel[abilityIndex] = Mathf.Max(0, abilityArray[i].maxLevels - 1);
 
                 if (abilityArray[i].type == AbilityType.Container)
                 {
@@ -867,41 +682,9 @@ namespace StrategyCore
 
         // ============================= ACTIVE ABILITY =============================
 
-        /// <summary>
-        /// Sets the state to actively cast the given ability.
-        /// </summary>
-        /// <param name="ability">Ability currently being active.</param>
-        /// <param name="abilityLevel">Level of the ability.</param>
-        /// <param name="targetUnit">Target unit, can be null.</param>
-        /// <param name="targetLocation">Target location, can be Vector3.zero.</param>
-        /// <param name="actionTime">Current action time. Ability is considered actively being casted while this parameter is less than activeAbilityDuration.</param>
-        public void SetActiveAbility(Ability ability, int abilityLevel, Unit targetUnit, Vector3 targetLocation, float actionTime)
-        {
-            // Set parameters
-            if (!NetworkConnectionHandler.isClient)
-            {
-                unitState = UnitStates.AbilityCasting;
-                OnCommand += ResetAbilityState;
-            }
-            activeAbilityInUse = true;
-            activeAbility = ability;
-            activeAbilityLevel = abilityLevel;
-            activeAbilityUnit = targetUnit;
-            if (activeAbilityUnit != null) activeAbilityUnit.OnReferenceChange += AbilityUnitReferenceChange;
-            activeAbilityLocation = targetLocation;
-            activeAbilityRange = (ability.castRange.Length > abilityLevel && ability.castRange[abilityLevel] != 0) ? ability.castRange[abilityLevel] : 0;
-            activeAbilityCastTime = (ability.castTime.Length > abilityLevel && ability.castTime[abilityLevel] != 0) ? ability.castTime[abilityLevel] : 0;
-            activeAbilityDuration = (ability.duration.Length > abilityLevel && ability.duration[abilityLevel] != 0) ? ability.duration[abilityLevel] : 0;
-            activeAbilityDuration += activeAbilityCastTime;
-            currentActionTime = actionTime;
-
-            AnimatorSetBool(AnimationState.Casting, true);
-
-            // Initiate active ability
-            if (activeAbilityUnit) activeAbility.Activate(this, this.owner, abilityLevel, activeAbilityUnit, ref activeAbilityVFX);
-            else if (activeAbilityLocation != Vector3.zero) activeAbility.Activate(this, this.owner, abilityLevel, activeAbilityLocation, ref activeAbilityVFX);
-            else activeAbility.Activate(this, this.owner, abilityLevel, ref activeAbilityVFX);
-        }
+        // Метод SetActiveAbility (восстановление «активно исполняемого» умения из сохранения) СНЕСЁН
+        // блоком Б6 (2026-09-04): он обслуживал только умения-каналы. Секция сохранения, которая его
+        // звала, снесена там же — восстанавливать больше нечего.
 
         /// <summary>
         /// If active ability requires targetUnit we subscribe to reference changes of the target unit.
@@ -945,19 +728,8 @@ namespace StrategyCore
         /// <param name="calledByServer">Is command called by the server? When false does not sync with the clients, it means it should also be called by the clients locally.</param>
         public void EndActiveAbility(bool reset, bool calledByServer)
         {
-            // End Active ability
-            if (activeAbilityInUse)
-            {
-                // Active ability end
-                if (activeAbilityUnit) activeAbility.Deactivate(this, this.owner, activeAbilityLevel, activeAbilityUnit, ref activeAbilityVFX);
-                else if (activeAbilityLocation != Vector3.zero) activeAbility.Deactivate(this, this.owner, activeAbilityLevel, activeAbilityLocation, ref activeAbilityVFX);
-                else activeAbility.Deactivate(this, this.owner, activeAbilityLevel, ref activeAbilityVFX);
-
-                // Add cooldown
-                if (activeAbility.cooldown.Length > activeAbilityLevel && activeAbility.cooldown[activeAbilityLevel] != 0) ChangeAbilityCooldown(activeAbility.cooldown[activeAbilityLevel], activeAbilityIndex, activeAbilityItem);
-
-                AnimatorSetBool(AnimationState.Casting, false);
-            }
+            // Ветка завершения «активно исполняемого» умения (Deactivate + откат по обрыву) снесена блоком Б6
+            // (2026-09-04) вместе с каналами: разовый каст ставит откат сам, в UseAbilityImmediately.
 
             // Reset the state
             if (reset)
@@ -965,7 +737,6 @@ namespace StrategyCore
                 OnCommand -= ResetAbilityState;
                 if (activeAbilityUnit != null) activeAbilityUnit.OnReferenceChange -= AbilityUnitReferenceChange;
 
-                activeAbilityInUse = false;
                 activeAbility = null;
                 activeAbilityIndex = -1;
                 activeAbilityLevel = 0;
@@ -990,7 +761,8 @@ namespace StrategyCore
         // ============================= UTILS =============================
 
         /// <summary>
-        /// Returns true if requirements(lock, mana cost, resource cost) for the given ability are not met.
+        /// Returns true if requirements (lock, resource cost) for the given ability are not met.
+        /// Цены в мане у умений нет (блок Б5, 2026-09-04): мана — шкала готовности авто-умения, см. AutoAbilityUser.
         /// </summary>
         /// <param name="player">Which player to check for resources.</param>
         /// <param name="abilityIndex">Global index of ability in the ability pool of the unit. You can get it by Utils.GetAbilityIndex.</param>
@@ -1003,13 +775,7 @@ namespace StrategyCore
             {
                 // No lock states for items and no multi-levels
                 // No resource check for items when using them
-
-                // Check if enough mana to use
-                if (items[abilityIndex].manaCost.Length != 0 && items[abilityIndex].manaCost[0] > mana)
-                {
-                    Presentation.NotifyMsg("Not enough mana", owner, true);
-                    return true;
-                }
+                // No mana check: цена в мане снята (Б5)
 
                 // No resource check for items
                 // if (items[abilityIndex].cost.Length != 0)
@@ -1031,21 +797,18 @@ namespace StrategyCore
                 // Check if ability is locked only when it is not herolevelable
                 if (!currentAbility.heroLevelable && abilityLocked[abilityIndex]) return true;
 
-                // Check if enough mana to use
-                if (currentAbility.manaCost.Length > abilityLevel[abilityIndex] && currentAbility.manaCost[abilityLevel[abilityIndex]] > mana)
-                {
-                    Presentation.NotifyMsg("Not enough mana", owner, true);
-                    return true;
-                }
+                // No mana check: цена в мане снята (Б5)
 
-                // Check resources
-                if (currentAbility.cost.Length > abilityLevel[abilityIndex])
+                // Check resources — цена по уровню общей выборкой (Б8): нет строки — последняя заполненная
+                // (раньше уровень выше длины массива делал каст бесплатным).
+                var levelCost = InterflowAbility.LevelItem(currentAbility.cost, abilityLevel[abilityIndex]);
+                if (levelCost != null && levelCost.data != null)
                 {
-                    for (int i = 0; i < currentAbility.cost[abilityLevel[abilityIndex]].data.Length; i++)
+                    for (int i = 0; i < levelCost.data.Length; i++)
                     {
-                        if (!GameResources.Instance.CheckAmount(player, currentAbility.cost[abilityLevel[abilityIndex]].data[i]))
+                        if (!GameResources.Instance.CheckAmount(player, levelCost.data[i]))
                         {
-                            Presentation.NotifyMsg("Not enough " + currentAbility.cost[abilityLevel[abilityIndex]].data[i].type.displayName, owner, true);
+                            Presentation.NotifyMsg("Not enough " + levelCost.data[i].type.displayName, owner, true);
                             return true;
                         }
                     }
@@ -1066,9 +829,7 @@ namespace StrategyCore
             {
                 // No lock states for items and no multi-levels
                 // No resource subtraction for items
-
-                // Subtract mana
-                if (items[abilityIndex].manaCost.Length != 0) ChangeMP(-items[abilityIndex].manaCost[0]);
+                // No mana subtraction: цена в мане снята (Б5)
 
                 // No resource subtraction
                 // if (items[abilityIndex].cost.Length != 0)
@@ -1083,15 +844,20 @@ namespace StrategyCore
             {
                 Ability currentAbility = Utils.GetAbilityByIndex(this, abilityIndex);
 
-                // Subtract mana               
-                if (currentAbility.manaCost.Length > abilityLevel[abilityIndex]) ChangeMP(-currentAbility.manaCost[abilityLevel[abilityIndex]]);
+                // Цены в мане у умения нет (Б5, целевая модель §9). Мана — шкала готовности авто-умения: его
+                // срабатывание забирает ВСЮ ману носителя. Именно здесь, а не в компоненте: это точка, где ядро
+                // списывало цену ПО ФАКТУ срабатывания — прерванный каст ману не тратит (решение Artsiom 2026-09-04).
+                // На клиенте SetMP только локальный (без синка), сервер пришлёт своё значение штатным каналом маны.
+                if (TryGetComponent(out AutoAbilityUser autoUser) && autoUser.IsAutoAbility(currentAbility))
+                    SetMP(0f);
 
-                // Subtract resources
-                if (currentAbility.cost.Length > abilityLevel[abilityIndex])
+                // Subtract resources — та же выборка по уровню, что в проверке (Б8).
+                var levelCost = InterflowAbility.LevelItem(currentAbility.cost, abilityLevel[abilityIndex]);
+                if (levelCost != null && levelCost.data != null)
                 {
-                    for (int i = 0; i < currentAbility.cost[abilityLevel[abilityIndex]].data.Length; i++)
+                    for (int i = 0; i < levelCost.data.Length; i++)
                     {
-                        GameResources.Instance.ChangeAmount(player, currentAbility.cost[abilityLevel[abilityIndex]].data[i], 1, true, true);
+                        GameResources.Instance.ChangeAmount(player, levelCost.data[i], 1, true, true);
                     }
                 }
             }

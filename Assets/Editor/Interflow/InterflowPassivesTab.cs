@@ -34,7 +34,7 @@ namespace StrategyCore
         static readonly Color DIM = new Color(0.65f, 0.65f, 0.65f);
 
         // Условия, при которых пассивка открывается, и её уровни.
-        static readonly string[] CONDITION_FIELDS = { "requiredTech", "requiredLevel", "maxLevels" };
+        static readonly string[] CONDITION_FIELDS = { "requiredTech", "maxLevels" };   // requiredLevel снесён блоком Б8
 
         // Поля подписи: то, что игрок видит в панели.
         static readonly string[] TEXT_FIELDS = { "id", "abilityName", "description", "icon" };

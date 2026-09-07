@@ -57,14 +57,7 @@ namespace StrategyCore
             InterflowDebug.Event("ПРОБИТИЕ БРОНИ снято у " + InterflowDebug.Name(unit));
         }
 
-        /// <summary>Доля пробития для уровня; если массив короче — берётся последний заполненный.</summary>
-        float FractionAt(int level)
-        {
-            if (pierceFraction == null || pierceFraction.Length == 0) return 0f;
-            if (level < 0) level = 0;
-            if (level >= pierceFraction.Length) level = pierceFraction.Length - 1;
-
-            return Mathf.Clamp01(pierceFraction[level]);
-        }
+        /// <summary>Доля пробития для уровня — общая выборка по уровням (Б8): массив короче — последний заполненный.</summary>
+        float FractionAt(int level) => Mathf.Clamp01(InterflowAbility.LevelValue(pierceFraction, level));
     }
 }

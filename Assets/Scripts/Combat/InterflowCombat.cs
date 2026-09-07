@@ -74,23 +74,14 @@ namespace StrategyCore
         }
 
         /// <summary>
-        /// Броня цели с учётом пробития атакующего. Вызывается из <c>Unit.GetDamage</c> ПЕРЕД формулой урона.
-        /// Атакующего нет (урон от эффектора/зоны) → броня не меняется.
+        /// Пробитие брони бьющего, доля 0..1. Шаг 4 схемы «пакет и приёмник» (§13): пробитие ЕДЕТ В ПАКЕТЕ —
+        /// его читает отправитель при сборке пакета (<see cref="DamagePacket.Create"/>), а приёмник считает
+        /// броню по числу из пакета и по бьющему ничего не ищет. Бьющего нет (состояние, зона, отложенный урон) → 0.
         /// </summary>
-        public static float EffectiveArmor(Unit victim, Unit attacker, float armor)
+        public static float ArmorPierceOf(Unit attacker)
         {
-            if (InterflowDebug.VerboseOn && attacker != null && armor > 0f &&
-                armorPierceByAttacker.TryGetValue(attacker, out float dbgPierce) && dbgPierce > 0f)
-            {
-                InterflowDebug.Verbose("ПРОБИТИЕ применено: " + InterflowDebug.Name(attacker) + " бьёт " +
-                                       InterflowDebug.Name(victim) + " — броня " + armor.ToString("0.#") +
-                                       " → " + (armor * (1f - dbgPierce)).ToString("0.#"));
-            }
-
-            if (attacker == null || armorPierceByAttacker.Count == 0) return armor;
-            if (!armorPierceByAttacker.TryGetValue(attacker, out float pierce)) return armor;
-
-            return armor * (1f - Mathf.Clamp01(pierce));
+            if (attacker == null || armorPierceByAttacker.Count == 0) return 0f;
+            return armorPierceByAttacker.TryGetValue(attacker, out float pierce) ? Mathf.Clamp01(pierce) : 0f;
         }
 
         // ============================= ПРОМАХ (ОСЛЕПЛЕНИЕ) ==
@@ -98,7 +89,11 @@ namespace StrategyCore
         /// <summary>Шанс промаха по атакующему юниту (0..1). Ослеплённый бьёт мимо.</summary>
         static readonly Dictionary<Unit, float> missChanceByAttacker = new Dictionary<Unit, float>();
 
-        /// <summary>Задать шанс промаха атакующему. Несколько источников — берётся наибольший.</summary>
+        /// <summary>
+        /// Задать шанс промаха атакующему. С шага 4 (решение Artsiom Р3, 03.09.2026) писатель ОДИН —
+        /// <c>Unit.RecalculateControl</c>, который уже сложил шансы всех висящих ослеплений (сумма, не наибольшее)
+        /// и перед записью зовёт <see cref="MissChanceClear"/>; здесь значение просто кладётся.
+        /// </summary>
         public static void MissChanceSet(Unit attacker, float chance)
         {
             if (attacker == null) return;
@@ -106,9 +101,18 @@ namespace StrategyCore
             chance = Mathf.Clamp01(chance);
             if (chance <= 0f) { missChanceByAttacker.Remove(attacker); return; }
 
-            missChanceByAttacker.TryGetValue(attacker, out float current);
-            missChanceByAttacker[attacker] = Mathf.Max(current, chance);
+            missChanceByAttacker[attacker] = chance;
             WatchDeath(attacker);
+        }
+
+        /// <summary>
+        /// Шанс промаха бьющего, 0..1. Шаг 4 (§13 схемы): промах ЕДЕТ В ПАКЕТЕ — читает отправитель при сборке
+        /// (<see cref="DamagePacket.Create"/>), приёмник складывает его с шансами ухода жертвы в один бросок (Р3).
+        /// </summary>
+        public static float MissChanceOf(Unit attacker)
+        {
+            if (attacker == null || missChanceByAttacker.Count == 0) return 0f;
+            return missChanceByAttacker.TryGetValue(attacker, out float miss) ? miss : 0f;
         }
 
         /// <summary>Снять шанс промаха.</summary>
@@ -160,12 +164,9 @@ namespace StrategyCore
             /// <summary>Полный угол сектора «спереди» в градусах (90 — по 45 в каждую сторону от взгляда).</summary>
             public float frontAngle = 90f;
 
-            /// <summary>
-            /// Уведомление «носитель ушёл от удара»: (жертва, бьющий — может быть null, если удар не от юнита).
-            /// Зовётся только на сервере, в момент сработавшего ухода. Потребитель — связка
-            /// «отразил → ударил в ответ» конструктора пассивок (CompositePassive, counterOnlyOnEvade).
-            /// </summary>
-            public Action<Unit, Unit> onEvaded;
+            // [Interflow fix 2026-09-04 damage-full-packet] Уведомление onEvaded «по правилу» СНЕСЕНО (решение
+            // Artsiom Р4, 03.09.2026): при одном общем броске приёмник не знает, чей вклад сработал. Вместо него —
+            // событие приёмника «удар не достиг цели» (HitMissedListenerAdd / NotifyHitMissed ниже).
         }
 
         /// <summary>
@@ -218,23 +219,48 @@ namespace StrategyCore
         }
 
         /// <summary>
-        /// Изменение входящего урона правилами жертвы. Вызывается из <c>Unit.GetDamage</c>
-        /// ПОСЛЕ штатных колбэков и ДО формулы брони. Знает тип урона — в отличие от штатного хука.
+        /// Суммарный шанс «удар не достиг цели» со стороны ЖЕРТВЫ: сумма <see cref="IncomingRule.evadeChance"/>
+        /// всех её правил, прошедших свои условия («только прямые», «только тип», «только спереди»).
+        /// Шаг 4 (решение Artsiom Р3, 03.09.2026): приёмник складывает это число с шансом промаха бьющего
+        /// из пакета, зажимает до единицы и делает ОДИН бросок. Бросков здесь нет — только сумма.
+        /// Условие «только тип» при пакете с несколькими записями считается выполненным, если тип
+        /// совпадает ХОТЬ С ОДНОЙ записью (техническое решение сессии; в контенте таких правил нет).
+        /// </summary>
+        public static float HitAvoidChance(Unit victim, in DamagePacket packet)
+        {
+            if (victim == null || incomingByVictim.Count == 0) return 0f;
+            if (!incomingByVictim.TryGetValue(victim, out var list)) return 0f;
+
+            float sum = 0f;
+            for (int i = 0; i < list.Count; i++)
+            {
+                IncomingRule r = list[i];
+                if (r == null || r.evadeChance <= 0f) continue;
+                if (r.onlyDirectAttack && !packet.directAttack) continue;
+                if (r.onlyType != null && !PacketHasType(in packet, r.onlyType)) continue;
+                if (r.onlyFromFront && !IsHitFromFront(victim, packet.attackingUnit, r.frontAngle)) continue;
+
+                sum += r.evadeChance;
+            }
+
+            return sum;
+        }
+
+        static bool PacketHasType(in DamagePacket packet, DamageType type)
+        {
+            for (int i = 0; i < packet.RecordCount; i++)
+                if (packet.Record(i).damageType == type) return true;
+            return false;
+        }
+
+        /// <summary>
+        /// Изменение входящего урона правилами жертвы: множитель и вычет числом. Вызывается приёмником
+        /// (<c>UnitReceiver.Receive</c>) для каждой записи пакета ДО штатных колбэков и ДО формулы брони.
+        /// Бросков промаха и ухода здесь с шага 4 НЕТ — они сведены в один бросок приёмника
+        /// (<see cref="HitAvoidChance"/>, решение Р3).
         /// </summary>
         public static float ModifyIncomingDamage(Unit victim, Unit attacker, DamageType damageType, float amount, bool directAttack)
         {
-            // Промах ослеплённого атакующего. Бросок делает ТОЛЬКО сервер (как штатный Evasion),
-            // иначе клиент и сервер разойдутся в числах.
-            if (directAttack && attacker != null && missChanceByAttacker.Count > 0 && !NetworkConnectionHandler.isClient)
-            {
-                if (missChanceByAttacker.TryGetValue(attacker, out float miss) && UnityEngine.Random.value < miss)
-                {
-                    InterflowDebug.Verbose("ПРОМАХ (ослепление): " + InterflowDebug.Name(attacker) + " мимо " +
-                                           InterflowDebug.Name(victim) + " — шанс промаха " + (miss * 100f).ToString("0") + "%");
-                    return 0f;
-                }
-            }
-
             if (victim == null || incomingByVictim.Count == 0) return amount;
             if (!incomingByVictim.TryGetValue(victim, out var list)) return amount;
 
@@ -246,20 +272,7 @@ namespace StrategyCore
                 if (r.onlyType != null && r.onlyType != damageType) continue;
                 if (r.onlyFromFront && !IsHitFromFront(victim, attacker, r.frontAngle)) continue;
 
-                // Порядок фиксирован: уход от удара → множитель → вычет числом → нижняя граница.
-                // Ушёл — считать дальше нечего, урона нет вовсе.
-                if (r.evadeChance > 0f && !NetworkConnectionHandler.isClient &&
-                    UnityEngine.Random.value < r.evadeChance)
-                {
-                    InterflowDebug.Verbose("УХОД ОТ УДАРА: " + InterflowDebug.Name(victim) + " увернулся (шанс " +
-                                           (r.evadeChance * 100f).ToString("0") + "%)");
-                    // Связка «отразил → ударил»: сообщаем владельцу правила о сработавшем уходе.
-                    // Зовём последним действием перед выходом: обработчик может нанести урон бьющему,
-                    // и его цепочка реакций не должна пересекаться с нашим перебором правил.
-                    r.onEvaded?.Invoke(victim, attacker);
-                    return 0f;
-                }
-
+                // Порядок фиксирован: множитель → вычет числом → нижняя граница.
                 float beforeRule = amount;   // для лога изменения
                 amount *= r.multiplier;
 
@@ -316,8 +329,60 @@ namespace StrategyCore
             if (list.Count == 0) damagedListeners.Remove(victim);
         }
 
+        // ============================= СОБЫТИЕ «УДАР НЕ ДОСТИГ ЦЕЛИ» ==
+        // [Interflow fix 2026-09-04 damage-full-packet] Решение Artsiom Р4 (03.09.2026): при одном общем броске
+        // промаха и ухода приёмник не разбирает, чей вклад сработал, поэтому уведомление «по правилу» снесено,
+        // а вместо него — одно событие приёмника на жертву. Приходит и тогда, когда мимо ушёл сам бьющий из-за
+        // ослепления. Потребитель — связка «удар не достиг — ударил в ответ» конструктора пассивок.
+
+        /// <summary>Слушатель: (жертва, бьющий — может быть null, если удар не от юнита).</summary>
+        public delegate void HitMissedHandler(Unit victim, Unit attacker);
+
+        static readonly Dictionary<Unit, List<HitMissedHandler>> hitMissedListeners = new Dictionary<Unit, List<HitMissedHandler>>();
+
+        /// <summary>Подписать реакцию на «удар не достиг этого юнита».</summary>
+        public static void HitMissedListenerAdd(Unit victim, HitMissedHandler handler)
+        {
+            if (victim == null || handler == null) return;
+
+            if (!hitMissedListeners.TryGetValue(victim, out var list))
+            {
+                list = new List<HitMissedHandler>();
+                hitMissedListeners[victim] = list;
+            }
+
+            list.Add(handler);
+            WatchDeath(victim);
+        }
+
+        /// <summary>Отписать реакцию.</summary>
+        public static void HitMissedListenerRemove(Unit victim, HitMissedHandler handler)
+        {
+            if (victim == null || handler == null) return;
+            if (!hitMissedListeners.TryGetValue(victim, out var list)) return;
+
+            list.Remove(handler);
+            if (list.Count == 0) hitMissedListeners.Remove(victim);
+        }
+
+        /// <summary>Уведомление «удар не достиг цели». Зовёт приёмник после проигранного броска, только сервер.</summary>
+        public static void NotifyHitMissed(Unit victim, Unit attacker)
+        {
+            if (NetworkConnectionHandler.isClient || victim == null) return;
+            if (hitMissedListeners.Count == 0) return;
+            if (!hitMissedListeners.TryGetValue(victim, out var list)) return;
+
+            // Копия списка: обработчик может отписать себя или соседа прямо во время вызова.
+            HitMissedHandler[] snapshot = list.ToArray();
+            for (int i = 0; i < snapshot.Length; i++)
+            {
+                HitMissedHandler h = snapshot[i];
+                if (h != null) h(victim, attacker);
+            }
+        }
+
         /// <summary>
-        /// Уведомление о фактически полученном уроне. Вызывается из <c>Unit.GetDamage</c> ПОСЛЕ снятия ХП.
+        /// Уведомление о фактически полученном уроне. Вызывается приёмником (<c>UnitReceiver.Receive</c>) ПОСЛЕ снятия ХП.
         /// Только сервер (реакции наносят урон и накладывают эффекты — правило 6).
         /// </summary>
         // Жертвы, у которых поглощающий щит съел часть урона на текущем ударе.
@@ -330,6 +395,16 @@ namespace StrategyCore
         public static void MarkAbsorbed(Unit victim)
         {
             if (victim != null) absorbedThisHit.Add(victim);
+        }
+
+        /// <summary>
+        /// Поглотил ли щит часть урона в ТЕКУЩЕМ ударе по этой жертве. Чтение БЕЗ гашения: флаг гасит
+        /// <see cref="NotifyDamaged"/>, и до её вызова признак жив. Нужен приёмнику, чтобы поднять факт
+        /// презентации «щит поглотил» (§15 схемы, решение Artsiom Р1 от 07.09.2026).
+        /// </summary>
+        public static bool AbsorbedThisHit(Unit victim)
+        {
+            return victim != null && absorbedThisHit.Contains(victim);
         }
 
         /// <param name="damageDealt">сколько ХП реально снято (0, если щит всё поглотил)</param>
@@ -388,6 +463,8 @@ namespace StrategyCore
             missChanceByAttacker.Remove(unit);
             incomingByVictim.Remove(unit);
             damagedListeners.Remove(unit);
+            hitMissedListeners.Remove(unit);
+            absorbedThisHit.Remove(unit);   // иначе ссылка на уничтоженный объект доживёт до ResetAll
 
             if (watched.Remove(unit)) unit.OnDie -= ForgetOnDie;
         }
@@ -427,6 +504,7 @@ namespace StrategyCore
             missChanceByAttacker.Clear();
             incomingByVictim.Clear();
             damagedListeners.Clear();
+            hitMissedListeners.Clear();
             absorbedThisHit.Clear();
         }
     }

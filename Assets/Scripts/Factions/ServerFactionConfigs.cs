@@ -151,7 +151,7 @@ namespace StrategyCore
                 for (int i = 0; i < d.waveUnits.Length; i++)
                     c.waveUnits[i] = new WaveUnitEntry { unit = Res<Unit>(d.waveUnits[i].unit), role = (WaveUnitRole)d.waveUnits[i].role, count = d.waveUnits[i].count };
             }
-            c.baseWaveIncome = d.baseWaveIncome;
+            c.waveIncomeByLevel = d.waveIncomeByLevel ?? new int[0];
 
             c.centralAbilities = new System.Collections.Generic.List<Ability>();
             if (d.centralAbilities != null)

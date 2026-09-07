@@ -82,20 +82,71 @@ namespace StrategyCore
         public static void RaiseShieldChanged(Unit unit, float amount)
             => ShieldChanged?.Invoke(unit, amount);
 
+        // ============================== РАЗОВЫЙ ФАКТ БОЯ ==============================
+        // ОДНО событие на все шесть случаев §15 схемы (решения Artsiom Р1–Р7 от 07.09.2026): удар не достиг
+        // цели, щит поглотил, неуязвим, состояние отбито иммунитетом, состояние отбито сопротивлением,
+        // нанесён урон. Приёмник поднимает только ФАКТ и ПРИЧИНУ: про надписи, слова и цвета боевой код
+        // не знает ничего (решение Р6), их выбирает клиентский презентер по настройкам.
+        // Путь тот же, что у щита: подъём на сервере локально + своё сообщение сети клиентам.
+
+        /// <summary>
+        /// По юниту произошло разовое событие боя: (юнит, причина, число).
+        /// Число осмысленно только у <see cref="BattleFactReason.DamageDealt"/> — это фактически снятое
+        /// здоровье; у остальных причин 0.
+        /// </summary>
+        public static event Action<Unit, BattleFactReason, float> BattleFact;
+
+        /// <summary>Поднять разовый факт боя. Зовётся сервером (локально) и приёмником сообщения (у клиента).</summary>
+        public static void RaiseBattleFact(Unit unit, BattleFactReason reason, float value)
+            => BattleFact?.Invoke(unit, reason, value);
+
         // ============================== ЗОНЫ НА ЗЕМЛЕ ==============================
 
-        /// <summary>Зона на земле появилась: (id зоны, id умения-источника, уровень, позиция).</summary>
-        public static event Action<int, int, int, Vector3> ZoneSpawned;
+        /// <summary>
+        /// Зона на земле появилась: (id зоны, id умения-источника, уровень, позиция, носитель).
+        /// Носитель не null — «аура на время» (блок Б7): копию зоны презентер вешает на юнит, и она идёт за ним.
+        /// </summary>
+        public static event Action<int, int, int, Vector3, Unit> ZoneSpawned;
 
         /// <summary>Зона на земле закончила жизнь: (id зоны).</summary>
         public static event Action<int> ZoneDespawned;
 
         /// <summary>Поднять факт «зона появилась». Зовётся приёмником RPC (NetworkDataSync.UnitStatus).</summary>
-        public static void RaiseZoneSpawned(int zoneId, int abilityID, int level, Vector3 position)
-            => ZoneSpawned?.Invoke(zoneId, abilityID, level, position);
+        public static void RaiseZoneSpawned(int zoneId, int abilityID, int level, Vector3 position, Unit carrier)
+            => ZoneSpawned?.Invoke(zoneId, abilityID, level, position, carrier);
 
         /// <summary>Поднять факт «зона исчезла». Зовётся приёмником RPC (NetworkDataSync.UnitStatus).</summary>
         public static void RaiseZoneDespawned(int zoneId)
             => ZoneDespawned?.Invoke(zoneId);
+    }
+
+    /// <summary>
+    /// Причина разового факта боя по юниту — шесть случаев набора Р1 (решение Artsiom 07.09.2026).
+    /// Объявлено здесь, а не отдельным файлом: вне события <see cref="SkillPresentationEvents.BattleFact"/>
+    /// перечисление смысла не имеет (правило 5 — меньше точек входа).
+    ///
+    /// ВАЖНО: нумерация СПЛОШНАЯ от нуля, и по сети причина едет числом (см. отправку факта боя в
+    /// <c>NetworkDataSync.UnitStatus.cs</c>). Порядок значений менять нельзя — только дописывать в конец,
+    /// иначе сервер и клиент разойдутся в толковании номера.
+    /// </summary>
+    public enum BattleFactReason
+    {
+        /// <summary>Удар не достиг цели. Одна причина на промах бьющего и уход жертвы (решение Р4).</summary>
+        HitMissed = 0,
+
+        /// <summary>Поглощающий щит принял на себя часть или весь урон этого удара.</summary>
+        ShieldAbsorbed = 1,
+
+        /// <summary>Жертва неуязвима — урон отбит целиком.</summary>
+        Invulnerable = 2,
+
+        /// <summary>Наложение состояния отбито иммунитетом к контролю.</summary>
+        StatusImmune = 3,
+
+        /// <summary>Наложение состояния отбито сопротивлением 100 % и выше.</summary>
+        StatusResisted = 4,
+
+        /// <summary>По юниту прошёл урон. Величина — в числе факта.</summary>
+        DamageDealt = 5
     }
 }

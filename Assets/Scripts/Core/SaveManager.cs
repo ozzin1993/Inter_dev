@@ -204,42 +204,9 @@ namespace StrategyCore
             Presentation.UI?.RefreshResourceTab();
         }
 
-        // SHADOWCASTERS ----------------------------------------------------------------------------------------------------------------------------------------------------
-
-        public static string SaveShadowcasters()
-        {
-            ShadowCasterSyncData[] shadowCasterData = new ShadowCasterSyncData[GameManager.Instance.shadowCasters.Count];
-
-            for (int i = 0; i < GameManager.Instance.shadowCasters.Count; i++)
-            {
-                shadowCasterData[i] = new ShadowCasterSyncData(
-                                                            (GameManager.Instance.shadowCasters[i].thisUnit == null) ? (UInt16)0 : GameManager.Instance.shadowCasters[i].thisUnit.netID, // Owner 0 == null,
-                                                            GameManager.Instance.shadowCasters[i].castingPlayer,
-                                                            GameManager.Instance.shadowCasters[i].id,
-                                                            GameManager.Instance.shadowCasters[i].activeAbility.id,
-                                                            GameManager.Instance.shadowCasters[i].activeAbilityLevel,
-                                                            (GameManager.Instance.shadowCasters[i].activeAbilityUnit == null) ? (UInt16)0 : GameManager.Instance.shadowCasters[i].activeAbilityUnit.netID, // Target 0 == null
-                                                            GameManager.Instance.shadowCasters[i].activeAbilityLocation,
-                                                            GameManager.Instance.shadowCasters[i].activeAbilityRange,
-                                                            GameManager.Instance.shadowCasters[i].activeAbilityDuration - GameManager.Instance.shadowCasters[i].currentTime
-                                                            );
-            }
-
-            return JsonHelper.ToJson(shadowCasterData);
-        }
-
-        public static void LoadShadowcasters(string shadowCasters)
-        {
-            ShadowCasterSyncData[] shadowCasterData = JsonHelper.FromJson<ShadowCasterSyncData>(shadowCasters);
-
-            if (shadowCasterData != null)
-            {
-                for (int i = 0; i < shadowCasterData.Length; i++)
-                {
-                    ShadowCaster.Spawn(shadowCasterData[i]);
-                }
-            }
-        }
+        // Секции теневых кастеров (SaveShadowcasters/LoadShadowcasters) снесены блоком Б6 (2026-09-04)
+        // вместе с самим механизмом умений-каналов. Формат файла сейва стал четырёхблочным —
+        // см. SaveManager.Files.cs (старые пятиблочные файлы отвергаются явной ошибкой).
 
         // UNIT DATA ----------------------------------------------------------------------------------------------------------------------------------------------------
 

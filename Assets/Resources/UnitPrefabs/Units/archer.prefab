@@ -83,9 +83,6 @@ MonoBehaviour:
   - {fileID: 11400000, guid: 8656ec3722c0e31d19388b4b0b2f9a58, type: 2}
   abilityLevel: 0000000000000000
   abilityLocked: 
-  everyFrameAbilities: []
-  everyFrameAbilityIndex: 
-  everyFrameAbilityIsItem: 
   cooldownAbility: []
   cooldownAbilityIndex: 
   cooldownAbilityIsItem: 
@@ -95,7 +92,6 @@ MonoBehaviour:
   activeAbilityItem: 0
   activeAbilityUnit: {fileID: 0}
   activeAbilityLocation: {x: 0, y: 0, z: 0}
-  activeAbilityInUse: 0
   activeAbilityRange: 0
   activeAbilityCastTime: 0
   activeAbilityDuration: 0
@@ -160,7 +156,7 @@ MonoBehaviour:
     value: 2
   - type: {fileID: 11400000, guid: dfacb690ca8bd7f41b614f3280cdaf0c, type: 2}
     value: 5
-  xpReward: 0
+  xpReward: 10
   resourceReward: []
   dieVFX: {fileID: 0}
   attackUnitSelector:
@@ -260,11 +256,8 @@ MonoBehaviour:
   currentActionTime: 0
   disabled: 0
   stunned: 0
-  stunTime: 0
   muted: 0
-  currentMuteTime: 0
   disarmed: 0
-  currentDisarmTime: 0
   polymorphed: 0
   polymorphTime: 0
   polymorphTotalTime: 0

@@ -63,6 +63,16 @@ namespace StrategyCore
         [Tooltip("За какую долю исходной цены можно продать предмет. 0 = 0%, 1 = 100%")]
         public float sellPriceReduction = 1;
 
+        // [Interflow fix 2026-09-04 damage-full-packet] Очередь пакетов урона (схема «пакет и приёмник» §6,
+        // решение Artsiom Р5, 03.09.2026): пакет, порождённый реакцией во время обработки другого пакета,
+        // ждёт своей очереди; глубина цепочки ограничена. Единственная настройка очереди — здесь (правило 3).
+        [Header("Бой — очередь пакетов урона")]
+        [Tooltip("Предельная глубина цепочки ответных ударов: 1 — ответ на исходный удар проходит, ответ на ответ отбрасывается; " +
+                 "2 — проходит и ответ на ответ, и так далее. Пакет глубже предела отбрасывается с предупреждением в консоль " +
+                 "(решение Artsiom Р5а, 03.09.2026): цепочка длиннее нескольких звеньев почти наверняка означает ошибку настройки умений. " +
+                 "Умолчание 4 поставлено сессией — число не подтверждено Artsiom")]
+        public int damageQueueMaxDepth = 4;
+
         // Technical
         private bool onlyOnce = false;
         [HideInInspector] public bool gameStartCall = false; // If we are not coming from lobby, we want to call GameStart() once
@@ -87,9 +97,7 @@ namespace StrategyCore
         // Example: playerUnits[playerID][UnitTypeID] is 5, means there are 5 units of this type that belong to specified player.
         //public static Dictionary<int, int>[] playerUnits = new Dictionary<int, int>[14];
 
-        // Stores all shadowcasters - to send information about them to clients
-        [HideInInspector] public List<ShadowCaster> shadowCasters = new List<ShadowCaster>();
-        [HideInInspector] public List<int> shadowCasterIDs = new List<int>();
+        // Списки теневых кастеров снесены блоком Б6 (2026-09-04) вместе с умениями-каналами.
 
         // Defines percentage relation of damage to armor types. Defined in start method below.
         // Example: damageToArmor[armor.index * DTAWidth + damage.index] is 1, meaning Standard damage type deals 100% of damage to standard armor type.
@@ -97,7 +105,7 @@ namespace StrategyCore
         [HideInInspector] public int DTAWidth;
 
         // Damage in Time
-        [HideInInspector] public List<(int, Unit, Unit, float, DamageType)> damageInList = new List<(int, Unit, Unit, float, DamageType)>(); // Player that damages, Unit that damages, Unit damaged, Damage amount, Damage type
+        [HideInInspector] public List<(int, Unit, Unit, float, DamageType, Ability)> damageInList = new List<(int, Unit, Unit, float, DamageType, Ability)>(); // Player that damages, Unit that damages, Unit damaged, Damage amount, Damage type, умение-источник (диагностика очереди пакетов, решение Artsiom 05.09.2026; null — без умения)
         [HideInInspector] public List<float> damageInTime = new List<float>(); // Time in which damage should occur
 
         // Called whenever NavMesh is updated
@@ -691,7 +699,9 @@ namespace StrategyCore
                 damageInTime[i] -= Time.deltaTime;
                 if (damageInTime[i] < 0)
                 {
-                    damageInList[i].Item3.GetDamage(damageInList[i].Item4, damageInList[i].Item5, damageInList[i].Item1, damageInList[i].Item2, false, out _);
+                    // Отложенный урон — не прямая атака: пакет одной записи (шаг 4 схемы «пакет и приёмник»).
+                    DamagePacket packet = DamagePacket.Create(damageInList[i].Item4, damageInList[i].Item5, damageInList[i].Item1, damageInList[i].Item2, false, damageInList[i].Item6);
+                    damageInList[i].Item3.GetDamage(in packet, out _);
                     damageInList.RemoveAt(i);
                     damageInTime.RemoveAt(i);
                 }

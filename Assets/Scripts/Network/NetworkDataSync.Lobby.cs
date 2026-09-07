@@ -151,7 +151,38 @@ namespace StrategyCore
         [Rpc(SendTo.Server)]
         public void ClientFinishedLoadingSaveServerRpc(RpcParams rpcParams = default)
         {
+            // [Б11] Единственный момент, когда про клиента, вошедшего в СЕРЕДИНЕ матча, точно известно, что слепок
+            // сцены у него применён: сцена построена, юниты заспавнены, MatchManager и интерфейс живы. Досылки того,
+            // чего в слепке нет, идут ровно здесь — раньше (в ClientConnected) они приходили в пустую сцену и молча
+            // терялись. Порядок: сначала догнать состоянием, потом снять с ожидания — снятие последнего из списка
+            // тут же зовёт ResumeTheGame (ServerPlayersFinishedLoading) и снимает паузу.
+            ResendMidGameState(rpcParams.Receive.SenderClientId);
+
             NetworkConnectionHandler.Instance.ClientsWaitingListRemove(rpcParams.Receive.SenderClientId);
+        }
+
+        /// <summary>
+        /// [Б11] Догнать одного клиента тем, чего нет в слепке сцены: живые зоны на земле и состояние матча
+        /// (уровень и опыт главного здания, пометки состава волны, владельцы точек, режимы рядов).
+        /// Только для входа в СЕРЕДИНЕ матча: при начальной загрузке сейва из лобби (connectionStage == 1)
+        /// сервер сам ещё поднимает матч, и состояние у всех сходится штатным стартом.
+        /// </summary>
+        void ResendMidGameState(ulong clientID)
+        {
+            // Хост зовёт этот же RPC на себе, когда САМ грузит сейв. Адресная досылка вернулась бы ему обратно,
+            // и ApplyMarks затёр бы серверные пометки клиентскими (без резерва золота) — сервер себе не досылает.
+            if (NetworkManager.Singleton != null && clientID == NetworkManager.Singleton.LocalClientId) return;
+
+            if (SlotManager.Instance == null || SlotManager.Instance.gameStarted != GameState.Started) return;
+            if (NetworkConnectionHandler.Instance == null) return;
+            if (NetworkConnectionHandler.Instance.connectionStage == 1) return;   // начальная загрузка сейва из лобби
+            // Досылаем только тому, кого сервер и правда ждёт: RPC приходит от клиента, и уже вошедший может
+            // позвать его повторно — тогда сервер собирал бы и слал полный набор состояния впустую.
+            if (!NetworkConnectionHandler.Instance.clientsLoading.Contains(clientID)) return;
+            if (MatchManager.Instance == null) return;
+
+            MatchManager.Instance.ResendGroundZonesTo(clientID);
+            MatchManager.Instance.ResendMatchStateTo(clientID);
         }
 
         public void ServerPlayersFinishedLoading()
@@ -159,6 +190,11 @@ namespace StrategyCore
             // If everyone finished loading the game, start the game
             if (NetworkConnectionHandler.Instance.clientsLoading.Count == 0)
             {
+                // [Б11] Пустой список загружающихся ещё не значит «все на месте»: игрок мог оборваться, пока
+                // грузился другой. Пока за кого-то не заняли слот, матч остаётся на паузе (решение Artsiom
+                // 2026-09-07). Отписку от события НЕ снимаем — она нужна для следующего догрузившегося.
+                if (NetworkConnectionHandler.Instance.missingPlayers > 0) return;
+
                 NetworkConnectionHandler.Instance.clientsListUpdated -= NetworkDataSync.Instance.ServerPlayersFinishedLoading;
 
                 // Means we were loading the save file, initialize the units and start the game

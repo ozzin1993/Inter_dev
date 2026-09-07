@@ -252,16 +252,17 @@ namespace StrategyCore
         [HideInInspector] public float currentActionTime; // Used ability duration and cast time, idle random animation
         [HideInInspector] public bool disabled; // If this unit is disabled
         // Stunned
+        // [Interflow fix 2026-09-03 control-as-effectors] Поля времени (stunTime, currentMuteTime,
+        // currentDisarmTime) СНЕСЕНЫ: контроль стал состоянием-эффектором, и время отсчитывает
+        // жизненный цикл наложения (Units/Unit.Control.cs). Флаги ниже — производные от списка
+        // состояний, их выставляет только RecalculateControl. Руками не присваивать.
         [HideInInspector] public bool stunned; // When unit gets stunned it can`t do anything till stun wears off
-        [HideInInspector] public float stunTime; // Used by stun
         Transform stunnedVFX; // Stunned VFX reference
         // Muted
         [HideInInspector] public bool muted; // When unit is muted, it can not cast any abilities
-        [HideInInspector] public float currentMuteTime;
         Transform mutedVFX; // Muted VFX reference
         // Disarmed - can attack used as bool to know if disarmed
         [HideInInspector] public bool disarmed; // If this unit is currently disarmed
-        [HideInInspector] public float currentDisarmTime;
         Transform disarmedVFX; // Disarmed VFX reference
         // Polymorph
         [HideInInspector] public bool polymorphed; // If this unit is currently polymorphed.

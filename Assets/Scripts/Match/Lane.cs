@@ -92,6 +92,21 @@ namespace StrategyCore
             points[index].SetTeam(team);
         }
 
+        /// <summary>Сколько точек в линии. Нужно досылке состояния матча вернувшемуся игроку (Б11).</summary>
+        public int PointCount => points != null ? points.Length : 0;
+
+        /// <summary>
+        /// Владелец точки по индексу — обратное чтение к SetPointTeam. Нужно досылке состояния матча
+        /// вернувшемуся игроку (Б11): захваты, случившиеся пока он был отключён, живой рассылкой уже не придут.
+        /// Индекс вне массива или пустая точка — нейтрал (значение PointOfInterest.InitialTeam.Neutral).
+        /// </summary>
+        public int PointTeam(int index)
+        {
+            if (points == null || index < 0 || index >= points.Length || points[index] == null)
+                return (int)PointOfInterest.InitialTeam.Neutral;
+            return points[index].CurrentTeam;
+        }
+
         // ======================== ДИАГНОСТИКА ========================
 
         /// <summary>Отладка: список состояний всех точек для проверки таргетинга.</summary>

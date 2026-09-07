@@ -172,9 +172,9 @@ namespace StrategyCore
         public void Unsubscribe()
         {
             // State updaters
-            GameManager.Instance.Tick -= StunUpdate;
-            GameManager.Instance.Tick -= DisarmUpdate;
-            GameManager.Instance.Tick -= MuteUpdate;
+            // [Interflow fix 2026-09-03 control-as-effectors] Отписки от StunUpdate/DisarmUpdate/MuteUpdate
+            // сняты вместе с самими таймерами: контроль стал состоянием, время ему отсчитывает
+            // жизненный цикл наложения (HandleEffectors ниже), своей подписки на тик у него нет.
             GameManager.Instance.Tick -= PolymorphUpdate;
 
             // Command sound

@@ -24,6 +24,16 @@ namespace StrategyCore
 
         // List of clients still loading the game. Used to track if all players loaded the game.
         public List<ulong> clientsLoading = new List<ulong>();
+
+        /// <summary>
+        /// [Б11] Сколько игроков сейчас ОТСУТСТВУЕТ в идущем матче: оборвались и слот за них ещё никто не занял.
+        /// Пока счётчик больше нуля, матч не снимается с паузы (решение Artsiom 2026-09-07 «матч встаёт на паузу»).
+        /// Отдельный счётчик, а не clientsLoading: у вернувшегося игрока НОВЫЙ clientId, ждать старый бессмысленно,
+        /// а список загружающихся пустеет, как только догрузился ЛЮБОЙ клиент, — и снимал бы паузу за отсутствующего.
+        /// Считаются слоты, а не личности: чей слот займёт пришедший, решает SlotManager.AddClientID (первый пустой).
+        /// Только сервер.
+        /// </summary>
+        public int missingPlayers;
         public Action clientsListUpdated; // Called when clients list is updated
         public int connectionStage; // Which connection sync stage are we on; 0 - standard, 1 - sending the save data, 2 - joining midgame
 
@@ -75,6 +85,10 @@ namespace StrategyCore
         /// <param name="noServer">Should server also be added.</param>
         public void AddClientsToWaitingList(bool noServer = false)
         {
+            // [Б11] Матч только поднимается — отсутствующих нет. Сброс здесь, а не при выходе из матча:
+            // это единственная точка, через которую проходит КАЖДЫЙ старт (и обычный, и из сейва).
+            NetworkConnectionHandler.Instance.missingPlayers = 0;
+
             for (int i = 0; i < SlotManager.Instance.playerID.Length; i++)
             {
                 if (SlotManager.Instance.playerID[i] != -1)
@@ -173,9 +187,10 @@ namespace StrategyCore
                     {
                         NetworkDataSync.Instance.SendSceneData(clientId, true);
 
-                        // Догнать опоздавшего живыми зонами на земле: их спавн он пропустил,
-                        // а реестр держит сервер (MatchManager.GroundZones).
-                        if (MatchManager.Instance != null) MatchManager.Instance.ResendGroundZonesTo(clientId);
+                        // Досылки того, чего в слепке нет (живые зоны на земле + состояние матча), ждут конца
+                        // загрузки: см. NetworkDataSync.ClientFinishedLoadingSaveServerRpc. Отсюда они уходили бы
+                        // в клиента, у которого сцена ещё не построена, и молча терялись — слепок едет кусочками
+                        // по кадрам, а применяется корутиной SaveManager.LoadSave_Internal уже после.
                     }
                 }
                 // Else: set current player
@@ -246,8 +261,20 @@ namespace StrategyCore
                 }
                 else if (SlotManager.Instance.gameStarted == GameState.Started)
                 {
+                    // [Б11, решение Artsiom 2026-09-07] Матч встаёт на паузу, пока игрок отключён: его команда
+                    // иначе продолжает получать волны и терять точки без хозяина.
+                    // Счётчик поднимается ДО снятия с ожидания: ClientsWaitingListRemove ниже может опустошить
+                    // clientsLoading (оборвался тот, кого ждали) и тут же дёрнуть ServerPlayersFinishedLoading —
+                    // а тот снимает паузу, только если отсутствующих не осталось.
+                    if (NetworkManager.Singleton.IsServer) NetworkConnectionHandler.Instance.missingPlayers++;
+
                     // Remove from the list
                     NetworkConnectionHandler.Instance.ClientsWaitingListRemove(clientId);
+
+                    // Пауза ставится и здесь: если матч шёл обычным ходом, снимать её было нечему, и цепочка выше
+                    // не сработала. Снимется штатно, когда слот займут и новый клиент догрузит слепок
+                    // (ConnectionApproval → clientsLoading → ServerPlayersFinishedLoading → ResumeTheGame).
+                    if (NetworkManager.Singleton.IsServer) PauseTheGame();
                 }
                 // Send player information to clients
                 NetworkDataSync.Instance.PlayerListSend(clientId, true);
@@ -287,6 +314,10 @@ namespace StrategyCore
                 // If game has started, client is joining midgame. Pause the game. In Connection callback we will send the scene information
                 if (SlotManager.Instance.gameStarted == GameState.Started)
                 {
+                    // [Б11] Слот снова занят — одним отсутствующим меньше. Ниже нуля не уходим: подключиться
+                    // в середине матча можно и без предшествующего обрыва (свободный слот с самого начала).
+                    if (missingPlayers > 0) missingPlayers--;
+
                     clientsLoading.Add(request.ClientNetworkId);
                     PauseTheGame();
                     NetworkConnectionHandler.Instance.clientsListUpdated += NetworkDataSync.Instance.ServerPlayersFinishedLoading;

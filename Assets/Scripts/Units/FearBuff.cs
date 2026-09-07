@@ -2,9 +2,13 @@ using UnityEngine;
 
 namespace StrategyCore
 {
-    // Кирпич B11 — «Страх»: цель на время бежит прочь от источника и не действует (muted+disarmed). Пер-цель баф
-    // (образец FlameCloakBuff). Уважает ControlImmunity (решение Artsiom). Не стакается (продлевает остаток). Снимает
-    // ТОЛЬКО свой вклад в muted/disarmed (в ассете нет рефкаунта — §10). Только сервер (правило 6). Ассет не трогаем (правило 1).
+    // Кирпич B11 — «Страх»: цель на время бежит прочь от источника и не действует (немота + безоружие).
+    // Пер-цель баф (образец FlameCloakBuff). Уважает ControlImmunity (решение Artsiom). Не стакается
+    // (продлевает остаток). Только сервер (правило 6).
+    // [Interflow fix 2026-09-03 control-as-effectors] Немота и безоружие — служебные СОСТОЯНИЯ на срок страха,
+    // а не прямая запись флагов (решение Artsiom 03.09.2026). Вместе с прямой записью ушла и вся машинерия
+    // «сними только свой вклад» (weSetMuted / weSetDisarmed / RemoveOwnStatus, ограничение §10 без рефкаунта):
+    // у состояний свой срок жизни, они не затирают чужой контроль и не затираются чужим.
     // Одиночная цель / радиус — забота потребителя (дефолт §6.4 — одиночная); этот баф применяется к ОДНОЙ цели.
     public class FearBuff : MonoBehaviour
     {
@@ -14,8 +18,6 @@ namespace StrategyCore
         private bool muteAndDisarm;
         private float remaining;
         private bool subscribed;
-        private bool weSetMuted;
-        private bool weSetDisarmed;
 
         /// <summary>Напугать цель: бегство прочь от sourcePos на duration; опц. muted+disarmed. Только сервер.
         /// ControlImmunity.Active → страх НЕ применяется (per-unit).</summary>
@@ -43,9 +45,11 @@ namespace StrategyCore
 
             if (muteAndDisarm)
             {
-                // Ставим статус, только если он НЕ стоял — чтобы снять потом лишь СВОЙ вклад (нет рефкаунта, §10).
-                if (!unit.muted) { unit.muted = true; weSetMuted = true; }
-                if (!unit.disarmed) { unit.disarmed = true; weSetDisarmed = true; }
+                // Срок контроля равен сроку страха. Источника-юнита у страха нет (Apply знает только точку,
+                // от которой бежать) — владельцем идёт слот самой цели, как у прочих безымянных источников.
+                // Иммунитет уже спрошен в Apply, повторная проверка в приёмнике его же и подтвердит.
+                unit.Mute(duration, null, unit.owner);
+                unit.Disarm(duration, null, unit.owner);
             }
 
             if (!subscribed && GameManager.Instance != null)
@@ -81,24 +85,13 @@ namespace StrategyCore
         {
             if (subscribed && GameManager.Instance != null) GameManager.Instance.Tick -= OnTick;
             subscribed = false;
-            RemoveOwnStatus();
             Destroy(this);
-        }
-
-        // Снять ТОЛЬКО свой вклад в статусы (если ставили мы). Ограничение §10: без рефкаунта возможно затирание,
-        // если тот же статус выставил другой источник ПОСЛЕ нас — приемлемо для MVP (одиночная цель).
-        private void RemoveOwnStatus()
-        {
-            if (unit == null) return;
-            if (weSetMuted) { unit.muted = false; weSetMuted = false; }
-            if (weSetDisarmed) { unit.disarmed = false; weSetDisarmed = false; }
         }
 
         private void OnDestroy()
         {
             if (subscribed && GameManager.Instance != null) GameManager.Instance.Tick -= OnTick;
             subscribed = false;
-            RemoveOwnStatus();
         }
     }
 }

@@ -8,7 +8,8 @@ namespace StrategyCore
     /// Все параметры читает из блока «длящийся баф» того скилла, который его повесил.
     ///
     /// Что умеет: аура урона вокруг носителя, лечение во времени, самосожжение,
-    /// множитель входящего урона, иммунитет к контролю и детонацию при смерти носителя.
+    /// множитель входящего урона, иммунитет к контролю, сопротивления и слабости к категориям
+    /// состояний (с 2026-09-03) и детонацию при смерти носителя.
     ///
     /// ТОЛЬКО ГЕЙМПЛЕЙ, БЕЗ ВИЗУАЛА. Компонент существует исключительно на сервере (решение Artsiom
     /// 2026-08-01 о строгом разделении). VFX бафа показывает <see cref="SkillVisualStatus"/>: сервер шлёт
@@ -32,6 +33,7 @@ namespace StrategyCore
         bool exploded;             // детонация одноразова
         bool damageCallbackAdded;
         bool immunityAdded;
+        bool resistancesAdded;     // вклады сопротивлений выданы носителю (ключ — этот компонент)
         bool cleanedUp;            // компонент уже снят; Destroy отложен до конца кадра
 
         /// <summary>
@@ -96,6 +98,26 @@ namespace StrategyCore
                 immunityAdded = true;
             }
 
+            // [Interflow fix 2026-09-03 status-resistances] Сопротивления и слабости на время бафа — вклады
+            // в носитель UnitResistances под ключом ЭТОГО компонента (один компонент = один скилл-источник
+            // на юните, поэтому ключ однозначен и не задевает вклады пассивок и других бафов). Строки бафа
+            // не зависят от уровня, поэтому при продлении перевыдавать нечего — флаг, как у иммунитета.
+            if (!resistancesAdded && cfg.resistances != null && cfg.resistances.Length > 0)
+            {
+                UnitResistances holder = unit.GetComponent<UnitResistances>();
+                if (holder == null) holder = unit.gameObject.AddComponent<UnitResistances>();
+
+                for (int i = 0; i < cfg.resistances.Length; i++)
+                {
+                    ResistanceEntry entry = cfg.resistances[i];
+                    if (entry == null) continue;
+
+                    holder.Add(this, entry.category, entry.value);   // категорию «Нет» носитель отбрасывает сам
+                }
+
+                resistancesAdded = true;
+            }
+
             // Детонация при гибели носителя — штатное событие Unit.OnDie.
             if (!dieHooked && cfg.detonateOnDeath)
             {
@@ -141,7 +163,7 @@ namespace StrategyCore
                 if (targets != null)
                     for (int i = 0; i < targets.Length; i++)
                         if (targets[i] != null && !targets[i].dead)
-                            unit.DealDamage(targets[i], dps * dt, cfg.auraDamageType, false, Vector3.zero);
+                            unit.DealDamage(targets[i], dps * dt, cfg.auraDamageType, false, Vector3.zero, source);
             }
 
             // Лечение во времени: числом и/или процентами от максимума.
@@ -181,7 +203,7 @@ namespace StrategyCore
                     // allyDamage = 0 → группа своих в хелпере пропускается, взрыв бьёт только по detonationSelector.
                     SkvernaExplosion.Detonate(dealer, new Vector2(p.x, p.z), radius,
                                               damage, cfg.detonationDamageType, cfg.detonationSelector,
-                                              0f, null, default(UnitSelector), unit);
+                                              0f, null, default(UnitSelector), unit, source);
                 }
             }
 
@@ -214,11 +236,18 @@ namespace StrategyCore
                     if (ci != null) ci.Remove();
                 }
 
+                if (resistancesAdded)
+                {
+                    UnitResistances holder = unit.GetComponent<UnitResistances>();
+                    if (holder != null) holder.Remove(this);   // ровно выданное этим бафом, разом
+                }
+
                 if (dieHooked) unit.OnDie -= HandleDie;
             }
 
             damageCallbackAdded = false;
             immunityAdded = false;
+            resistancesAdded = false;
             dieHooked = false;
         }
 

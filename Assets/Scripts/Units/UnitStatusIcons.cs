@@ -11,10 +11,9 @@ namespace StrategyCore
     /// Источники (порядок ряда — решение Artsiom 2026-08-05: «порядок наложения»):
     ///  1) локальные эффекторы юнита (хост/оффлайн; порядок списка = порядок наложения);
     ///  2) присланное сервером по единому каналу статусов (SkillVisualStatus, клиент);
-    ///  3) статусы ядра (стан/немота/безоружие/полиморф — поля юнита, реплицируются ядром);
-    ///  4) флаги наших состояний (слепота).
-    /// У статусов ядра и флагов на клиенте нет времени наложения, поэтому они идут
-    /// фиксированным хвостом после эффекторов.
+    ///  3) полиморф — единственный оставшийся статус-поле юнита; идёт фиксированным хвостом.
+    /// Контроль (стан/немота/безоружие/слепота) с 2026-09-03 приходит источниками 1 и 2 как
+    /// обычное состояние — отдельной ветки у него больше нет.
     /// Дедуп по ключу закрывает §8.7 отчёта приёмки (двойной значок «аура + блок эффекторов»).
     /// </summary>
     public static class UnitStatusIcons
@@ -25,12 +24,10 @@ namespace StrategyCore
             public Texture2D icon;
         }
 
-        // Ключи статусов ядра и флагов. Глубже BuffKey скиллов (-abilityId-1), чтобы не пересечься.
-        public const int KeyStun = -100000;
-        public const int KeyMuted = -100001;
-        public const int KeyDisarmed = -100002;
+        // Ключ статуса-поля юнита. Глубже BuffKey скиллов (-abilityId-1), чтобы не пересечься.
+        // [Interflow fix 2026-09-03 control-as-effectors] KeyStun/KeyMuted/KeyDisarmed/KeyBlind сняты
+        // вместе со своими ветками — контроль теперь обычное состояние со своим id.
         public const int KeyPolymorph = -100003;
-        public const int KeyBlind = -100010;
 
         static readonly HashSet<int> seen = new HashSet<int>();
 
@@ -60,47 +57,31 @@ namespace StrategyCore
                         buffer.Add(new Entry { key = id, icon = icon });
             }
 
-            // 3) Статусы ядра — поля юнита (ядро реплицирует их штатно: Stun/Mute/DisarmSetSend).
+            // 3) Полиморф — единственный оставшийся статус-поле юнита.
+            //    [Interflow fix 2026-09-03 control-as-effectors] Ветки оглушения, немоты, безоружия
+            //    и слепоты СНЕСЕНЫ: контроль стал состоянием-эффектором и приходит источниками 1 и 2
+            //    со СВОИМ значком. Оставить их значило бы рисовать два одинаковых значка на юните —
+            //    ключи у эффектора (id ≥ 0) и у статуса ядра разные, дедуп бы их не свёл.
+            //    Спрайты контроля в справочнике остались: из них сделаны значки служебных состояний.
             //    Полиморф ядром НЕ реплицируется — иконка видна только хосту (облик юнита меняется у всех).
             StatusIconCatalog cat = StatusIconCatalog.Get();
-            if (cat != null)
-            {
-                if (unit.stunned && cat.stunIcon != null) buffer.Add(new Entry { key = KeyStun, icon = cat.stunIcon });
-                if (unit.muted && cat.mutedIcon != null) buffer.Add(new Entry { key = KeyMuted, icon = cat.mutedIcon });
-                if (unit.disarmed && cat.disarmedIcon != null) buffer.Add(new Entry { key = KeyDisarmed, icon = cat.disarmedIcon });
-                if (unit.polymorphed && cat.polymorphedIcon != null) buffer.Add(new Entry { key = KeyPolymorph, icon = cat.polymorphedIcon });
-
-                // 4) Слепота: хост читает серверное состояние напрямую, клиент — присланный флаг.
-                bool blind = NetworkConnectionHandler.isClient
-                    ? (svs != null && svs.HasFlag(UnitStatusFlag.Blind))
-                    : InterflowCombat.IsBlinded(unit);
-                if (blind && cat.blindIcon != null) buffer.Add(new Entry { key = KeyBlind, icon = cat.blindIcon });
-            }
+            if (cat != null && unit.polymorphed && cat.polymorphedIcon != null)
+                buffer.Add(new Entry { key = KeyPolymorph, icon = cat.polymorphedIcon });
 
             return buffer.Count;
         }
 
         /// <summary>
-        /// Дешёвый слепок состава статусов ЯДРА и флагов (5 бит) — для опроса шкалой раз в тик:
-        /// эти статусы меняются без вызова OnStatusUpdate, события у них нет.
+        /// Дешёвый слепок состава статусов-ПОЛЕЙ юнита — для опроса шкалой раз в тик: они меняются
+        /// без вызова OnStatusUpdate, события у них нет.
+        /// [Interflow fix 2026-09-03 control-as-effectors] От пяти бит остался один: контроль стал
+        /// состоянием, а наложение и снятие состояния OnStatusUpdate дёргают штатно.
         /// </summary>
         public static int CoreStatusHash(Unit unit)
         {
             if (unit == null || unit.dead) return 0;
 
-            int h = 0;
-            if (unit.stunned) h |= 1;
-            if (unit.muted) h |= 2;
-            if (unit.disarmed) h |= 4;
-            if (unit.polymorphed) h |= 8;
-
-            SkillVisualStatus svs;
-            bool blind = NetworkConnectionHandler.isClient
-                ? ((svs = unit.GetComponent<SkillVisualStatus>()) != null && svs.HasFlag(UnitStatusFlag.Blind))
-                : InterflowCombat.IsBlinded(unit);
-            if (blind) h |= 16;
-
-            return h;
+            return unit.polymorphed ? 8 : 0;
         }
     }
 }

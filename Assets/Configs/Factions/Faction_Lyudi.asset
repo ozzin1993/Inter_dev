@@ -12,8 +12,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6eab1036be064544e8420029828dc5cd, type: 3}
   m_Name: Faction_Lyudi
   m_EditorClassIdentifier: Assembly-CSharp::StrategyCore.FactionConfig
-  waveUnits: []
-  baseWaveIncome: 50
+  waveUnits:
+  - unit: {fileID: 0}
+    role: 0
+    count: 0
+  waveIncomeByLevel: 32000000320000003200000032000000320000003200000032000000
   centralAbilities:
   - {fileID: 11400000, guid: 6c78edcc27864d878c975e036280609b, type: 2}
   heroPrefab: {fileID: 0}

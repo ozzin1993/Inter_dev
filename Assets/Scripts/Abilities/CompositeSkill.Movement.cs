@@ -84,11 +84,12 @@ namespace StrategyCore
             if (knockback == null || !knockback.enabled) return;
             if (castingUnit == null || target == null) return;
 
-            float distance = LevelValueOrZero(knockback.distance, level);
-            float stun = LevelValueOrZero(knockback.stunSeconds, level);
+            float distance = LevelValue(knockback.distance, level);
+            float stun = LevelValue(knockback.stunSeconds, level);
             if (distance <= 0f && stun <= 0f) return;
 
-            Knockback.Apply(target, castingUnit.transform.position, distance, stun, knockback.respectControlImmunity);
+            Knockback.Apply(target, castingUnit.transform.position, distance, stun, knockback.respectControlImmunity,
+                            castingUnit, castingUnit.owner);
         }
 
         /// <summary>

@@ -25,10 +25,11 @@ namespace StrategyCore
 
         public override void Use(Unit castingUnit, int castingPlayer, int level, Vector3 position)
         {
-            // Защита от контент-ошибки: тип урона для уровня не заполнен — умение не применяется (блок «баги и корректность»)
-            if (damageType == null || level < 0 || level >= damageType.Length || damageType[level] == null)
+            // Тип урона — общей выборкой по уровням (Б8): нет строки — последняя заполненная. Пустой массив — умение не применяется.
+            DamageType levelDamageType = InterflowAbility.LevelItem(damageType, level);
+            if (levelDamageType == null)
             {
-                Debug.LogWarning($"[DragonsBreath] {name}: тип урона для уровня {level} не заполнен — пропуск");
+                Debug.LogWarning($"[DragonsBreath] {name}: тип урона не заполнен — пропуск");
                 return;
             }
             Vector3 dir = (position - castingUnit.transform.position).normalized;
@@ -39,16 +40,16 @@ namespace StrategyCore
                 // Instantiate VFX
                 ParticleSystem temp = Instantiate(vfx, castingUnit.transform.position, Quaternion.LookRotation(dir));
                 var main = temp.main;
-                main.startSpeed = InterflowAbility.LevelValueOrZero(range, level);
+                main.startSpeed = InterflowAbility.LevelValue(range, level);
             }
 
             // Angle (35f) for correct visuals should match the angle of the VFX
-            Unit[] enemies = Utils.GetUnitsInCone(new Vector2(castingUnit.transform.position.x, castingUnit.transform.position.z), new Vector2(dir.x, dir.z), 35f, InterflowAbility.LevelValueOrZero(range, level), castingUnit.owner, unitSelector);
+            Unit[] enemies = Utils.GetUnitsInCone(new Vector2(castingUnit.transform.position.x, castingUnit.transform.position.z), new Vector2(dir.x, dir.z), 35f, InterflowAbility.LevelValue(range, level), castingUnit.owner, unitSelector);
 
             for (int i = 0; i < enemies.Length; i++)
             {
                 // We deal damage in 0.1s
-                if (castingUnit) enemies[i].GetDamageIn(castingUnit.owner, castingUnit, 0.1f, InterflowAbility.LevelValueOrZero(damage, level), damageType[level]);
+                if (castingUnit) enemies[i].GetDamageIn(castingUnit.owner, castingUnit, 0.1f, InterflowAbility.LevelValue(damage, level), levelDamageType, this);
                 //castingUnit.DealDamage(enemies[i], damage[level], damageType[level], false, Vector3.zero);
             }
         }

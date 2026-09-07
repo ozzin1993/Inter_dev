@@ -40,7 +40,7 @@ namespace StrategyCore
             if (!NetworkConnectionHandler.isClient)
             {
                 // Only server should apply chance ability
-                if (Random.value < InterflowAbility.LevelValueOrZero(critChance, level))
+                if (Random.value < InterflowAbility.LevelValue(critChance, level))
                 {
                     // Check if target is eligible
                     if (!UnitSelector.IsUnitCompatible(unit.owner, unit.target, unitSelector)) return dmg;
@@ -61,7 +61,7 @@ namespace StrategyCore
                     }
 
                     // Apply critical hit multiplier
-                    return dmg * InterflowAbility.LevelValueOrZero(critMultiplier, level);
+                    return dmg * InterflowAbility.LevelValue(critMultiplier, level);
                 }
             }
 

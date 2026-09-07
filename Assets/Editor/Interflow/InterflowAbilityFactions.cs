@@ -147,7 +147,9 @@ namespace StrategyCore
             if (prop != null)
             {
                 var pf = InterflowEditorUI.MakeField(prop, InterflowEditorUI.FieldLabel("editorFactions"), true);
-                pf.RegisterValueChangeCallback(_ => onChanged?.Invoke());
+                // MakeField с блока Б8 возвращает VisualElement (массивы по уровням рисуются иначе); список фракций —
+                // обычный PropertyField, подписка на изменения остаётся на нём.
+                if (pf is PropertyField propertyField) propertyField.RegisterValueChangeCallback(_ => onChanged?.Invoke());
                 box.Add(pf);
             }
 

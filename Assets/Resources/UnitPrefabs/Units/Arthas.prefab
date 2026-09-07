@@ -49,22 +49,16 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   abilities:
-  - {fileID: 11400000, guid: 7e8ac0057fe2ea34983af20c4bbfd50f, type: 2}
   - {fileID: 11400000, guid: 89cf4c89e89eaa04aa0760b9fa99caf0, type: 2}
   - {fileID: 11400000, guid: b4313e5fa5f364c4e822af87c02e8b74, type: 2}
   - {fileID: 11400000, guid: b94ce295f425e4141aae88805461d5aa, type: 2}
-  - {fileID: 11400000, guid: f3269fb67b237c148be41a47eb682619, type: 2}
   - {fileID: 11400000, guid: c7325fdafc02a07499711feef16e9939, type: 2}
   - {fileID: 11400000, guid: bdf892467984a874a8e50900105520d6, type: 2}
-  - {fileID: 11400000, guid: 57601904db1b65d43826adbc9ef4ed70, type: 2}
   - {fileID: 11400000, guid: 4a0f084af0c3efe469fe2b4731c7256d, type: 2}
   - {fileID: 11400000, guid: 989b753b2a4860a418afbadc804e083e, type: 2}
   - {fileID: 11400000, guid: 6858c488b37494546869c83c63f119f6, type: 2}
   abilityLevel: 
   abilityLocked: 
-  everyFrameAbilities: []
-  everyFrameAbilityIndex: 
-  everyFrameAbilityIsItem: 
   cooldownAbility: []
   cooldownAbilityIndex: 
   cooldownAbilityIsItem: 
@@ -74,12 +68,10 @@ MonoBehaviour:
   activeAbilityItem: 0
   activeAbilityUnit: {fileID: 0}
   activeAbilityLocation: {x: 0, y: 0, z: 0}
-  activeAbilityInUse: 0
   activeAbilityRange: 0
   activeAbilityCastTime: 0
   activeAbilityDuration: 0
   activeAbilityVFX: {fileID: 0}
-  canCast: 0
   unitCategory: 0
   targetPriority: 
   respondsToAttackCommand: 1
@@ -140,7 +132,7 @@ MonoBehaviour:
   resourceCost:
   - type: {fileID: 11400000, guid: 58abf54e25713bf4b81112fb3597dcbc, type: 2}
     value: 5
-  xpReward: 0
+  xpReward: 10
   resourceReward: []
   dieVFX: {fileID: 0}
   attackUnitSelector:
@@ -239,11 +231,8 @@ MonoBehaviour:
   currentActionTime: 0
   disabled: 0
   stunned: 0
-  stunTime: 0
   muted: 0
-  currentMuteTime: 0
   disarmed: 0
-  currentDisarmTime: 0
   polymorphed: 0
   polymorphTime: 0
   polymorphTotalTime: 0

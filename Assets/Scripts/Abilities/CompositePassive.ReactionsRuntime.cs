@@ -27,6 +27,7 @@ namespace StrategyCore
 
             public InterflowCombat.IncomingRule incomingRule;      // снижение и уход от удара
             public InterflowCombat.DamagedHandler damagedHandler;  // ответный удар
+            public InterflowCombat.HitMissedHandler hitMissedHandler; // ответ при «удар не достиг цели» [Interflow fix 2026-09-04 damage-full-packet]
             public Action<Unit, int, Unit, bool> dieHandler;       // гибель носителя
             public Action hpHandler;                               // порог здоровья
 
@@ -64,7 +65,7 @@ namespace StrategyCore
             WireKill(unit, st);
             WireHpBelow(unit, st);
 
-            if (st.incomingRule == null && st.damagedHandler == null &&
+            if (st.incomingRule == null && st.damagedHandler == null && st.hitMissedHandler == null &&
                 st.dieHandler == null && st.hpHandler == null && !IsKillEnabled()) return;
 
             reactionCarriers[unit] = st;
@@ -79,6 +80,7 @@ namespace StrategyCore
 
             if (st.incomingRule != null) InterflowCombat.IncomingRuleRemove(unit, st.incomingRule);
             if (st.damagedHandler != null) InterflowCombat.DamagedListenerRemove(unit, st.damagedHandler);
+            if (st.hitMissedHandler != null) InterflowCombat.HitMissedListenerRemove(unit, st.hitMissedHandler);
             if (st.dieHandler != null) unit.OnDie -= st.dieHandler;
             if (st.hpHandler != null) unit.OnHPChange -= st.hpHandler;
 
@@ -108,9 +110,9 @@ namespace StrategyCore
         {
             if (onDamaged == null || !onDamaged.enabled) return;
 
-            float evade = LevelValueOrZero(onDamaged.evadeChance, level);
+            float evade = LevelValue(onDamaged.evadeChance, level);
             float mult = LevelValue(onDamaged.incomingMultiplier, level, 1f);
-            float flat = LevelValueOrZero(onDamaged.flatBlock, level);
+            float flat = LevelValue(onDamaged.flatBlock, level);
 
             if (mult <= 0f) mult = 1f;                       // пусто или ноль в поле множителя — «не менять»
             if (evade <= 0f && flat <= 0f && Mathf.Approximately(mult, 1f)) return;
@@ -128,12 +130,16 @@ namespace StrategyCore
                 frontAngle = onDamaged.frontAngle
             };
 
-            // Связка «отразил → ударил в ответ»: ответ вешаем прямо на сработавший уход.
+            // Связка «удар не достиг цели → ударил в ответ»: подписываем на событие приёмника «удар не достиг цели»
+            // (решение Artsiom Р4, 03.09.2026 — уведомления «по правилу» больше нет). [Interflow fix 2026-09-04 damage-full-packet]
             // Обычный ответ (WireCounter) в этом режиме не подписывается — иначе был бы двойной удар.
             if (onDamaged.counterEnabled && onDamaged.counterOnlyOnEvade)
             {
                 int lvl = level;
-                rule.onEvaded = (v, a) => CounterstrikeOnEvade(v, a, lvl);
+                InterflowCombat.HitMissedHandler h = (v, a) => CounterstrikeOnEvade(v, a, lvl);
+
+                st.hitMissedHandler = h;
+                InterflowCombat.HitMissedListenerAdd(unit, h);
             }
 
             st.incomingRule = InterflowCombat.IncomingRuleAdd(unit, rule);
@@ -168,11 +174,11 @@ namespace StrategyCore
             // отвечали бы друг другу рекурсивно. Ноль тоже защищает — запись живёт до тика.
             if (st.counterCooldownLeft > 0f) return;
 
-            float radiusValue = LevelValueOrZero(onDamaged.counterRadius, level);
+            float radiusValue = LevelValue(onDamaged.counterRadius, level);
             if (radiusValue <= 0f) return;
 
-            float damage = LevelValueOrZero(onDamaged.counterFlatDamage, level)
-                         + victim.attackDamage * LevelValueOrZero(onDamaged.counterPercentOfAttack, level);
+            float damage = LevelValue(onDamaged.counterFlatDamage, level)
+                         + victim.attackDamage * LevelValue(onDamaged.counterPercentOfAttack, level);
 
             bool hasEffectors = onDamaged.counterEffectors != null && onDamaged.counterEffectors.Length > 0;
             if (damage <= 0f && !hasEffectors) return;
@@ -192,7 +198,11 @@ namespace StrategyCore
                 if (targets[i] == null || targets[i].dead) continue;
 
                 // Не прямая атака: чужой ответный удар на наш ответ не срабатывает.
-                if (damage > 0f) targets[i].GetDamage(damage, dt, victim.owner, victim, false, out float _);
+                if (damage > 0f)
+                {
+                    DamagePacket packet = DamagePacket.Create(damage, dt, victim.owner, victim, false, this);   // [Interflow fix 2026-09-04 damage-full-packet] пакет одной записи
+                    targets[i].GetDamage(in packet, out float _);
+                }
                 if (hasEffectors) Effector.EffectorAdd(victim, targets[i], onDamaged.counterEffectors);
 
                 hit++;
@@ -208,9 +218,12 @@ namespace StrategyCore
         }
 
         /// <summary>
-        /// Ответный удар при СРАБОТАВШЕМ уходе от удара (режим «отразил → ударил»). Бьёт по самому
-        /// бьющему, если тот известен, жив и в радиусе ответа; по кругу не бьёт. Откат общий с обычным
-        /// ответом (counterCooldownLeft) — тик откатов уже покрывает этот режим (NeedsReactionTick).
+        /// Ответный удар в режиме «удар не достиг цели → ударил в ответ». Живёт на событии приёмника
+        /// «удар не достиг цели» (InterflowCombat.HitMissedListenerAdd): срабатывает и когда носитель увернулся,
+        /// и когда бьющий промахнулся из-за ослепления — приёмник делает один общий бросок и не различает, чей
+        /// вклад сработал (решение Artsiom Р4, 03.09.2026). Бьёт по самому бьющему, если тот известен, жив
+        /// и в радиусе ответа; по кругу не бьёт. Откат общий с обычным ответом (counterCooldownLeft) — тик
+        /// откатов уже покрывает этот режим (NeedsReactionTick).
         /// </summary>
         void CounterstrikeOnEvade(Unit victim, Unit attacker, int level)
         {
@@ -221,7 +234,7 @@ namespace StrategyCore
             if (!reactionCarriers.TryGetValue(victim, out ReactionState st)) return;
             if (st.counterCooldownLeft > 0f) return;
 
-            float radiusValue = LevelValueOrZero(onDamaged.counterRadius, level);
+            float radiusValue = LevelValue(onDamaged.counterRadius, level);
             if (radiusValue <= 0f) return;
 
             // Бьющий дальше радиуса ответа (например дальний стрелок) — встречного удара нет.
@@ -229,8 +242,8 @@ namespace StrategyCore
             delta.y = 0f;
             if (delta.sqrMagnitude > radiusValue * radiusValue) return;
 
-            float damage = LevelValueOrZero(onDamaged.counterFlatDamage, level)
-                         + victim.attackDamage * LevelValueOrZero(onDamaged.counterPercentOfAttack, level);
+            float damage = LevelValue(onDamaged.counterFlatDamage, level)
+                         + victim.attackDamage * LevelValue(onDamaged.counterPercentOfAttack, level);
 
             bool hasEffectors = onDamaged.counterEffectors != null && onDamaged.counterEffectors.Length > 0;
             if (damage <= 0f && !hasEffectors) return;
@@ -241,7 +254,11 @@ namespace StrategyCore
             st.counterCooldownLeft = Mathf.Max(onDamaged.counterCooldown, 0.01f);
 
             // Не прямая атака: чужой ответный удар на наш ответ не срабатывает.
-            if (damage > 0f) attacker.GetDamage(damage, dt, victim.owner, victim, false, out float _);
+            if (damage > 0f)
+            {
+                DamagePacket packet = DamagePacket.Create(damage, dt, victim.owner, victim, false, this);   // [Interflow fix 2026-09-04 damage-full-packet] пакет одной записи
+                attacker.GetDamage(in packet, out float _);
+            }
             if (hasEffectors) Effector.EffectorAdd(victim, attacker, onDamaged.counterEffectors);
 
             InterflowDebug.Verbose("ВСТРЕЧНЫЙ УДАР ПРИ УХОДЕ: " + InterflowDebug.Name(victim) + " ответил " +
@@ -274,11 +291,11 @@ namespace StrategyCore
             Vector3 deathPos = unit.transform.position;
             Vector2 center = new Vector2(deathPos.x, deathPos.z);
             int owner = unit.owner;
-            float radiusValue = LevelValueOrZero(onDeath.radius, level);
+            float radiusValue = LevelValue(onDeath.radius, level);
 
-            float enemyDamage = LevelValueOrZero(onDeath.enemyDamage, level);
-            float healFlat = LevelValueOrZero(onDeath.allyHealFlat, level);
-            float healPercent = LevelValueOrZero(onDeath.allyHealPercentOfMaxHp, level);
+            float enemyDamage = LevelValue(onDeath.enemyDamage, level);
+            float healFlat = LevelValue(onDeath.allyHealFlat, level);
+            float healPercent = LevelValue(onDeath.allyHealPercentOfMaxHp, level);
 
             // 1) Урон врагам. Носитель мёртв, поэтому бьём от его владельца, а не от него самого:
             //    так урон засчитывается команде и не тянет за собой цепочку реакций мертвеца.
@@ -294,7 +311,8 @@ namespace StrategyCore
                     for (int i = 0; i < enemies.Length; i++)
                         if (enemies[i] != null && !enemies[i].dead)
                         {
-                            enemies[i].GetDamage(enemyDamage, onDeath.enemyDamageType, owner, null, false, out float _);
+                            DamagePacket packet = DamagePacket.Create(enemyDamage, onDeath.enemyDamageType, owner, null, false, this);   // [Interflow fix 2026-09-04 damage-full-packet] пакет одной записи
+                            enemies[i].GetDamage(in packet, out float _);
                             hitCount++;
                         }
 
@@ -337,7 +355,7 @@ namespace StrategyCore
             {
                 GameObject zoneGo = UnityEngine.Object.Instantiate(onDeath.zonePrefab, deathPos, Quaternion.identity);
                 GroundDamageZone zone = zoneGo.GetComponent<GroundDamageZone>();
-                if (zone != null) zone.SetOwner(owner);
+                if (zone != null) { zone.SetOwner(owner); zone.SetSource(this); }
                 else Debug.LogWarning("[Реакция «погиб»] В заготовке пятна нет компонента GroundDamageZone — пятно не работает.");
             }
 
@@ -410,13 +428,13 @@ namespace StrategyCore
             int level = st.level;
 
             // Лечение добившему.
-            float flat = LevelValueOrZero(onKill.killerHealFlat, level);
-            float percent = LevelValueOrZero(onKill.killerHealPercentOfMaxHp, level);
+            float flat = LevelValue(onKill.killerHealFlat, level);
+            float percent = LevelValue(onKill.killerHealPercentOfMaxHp, level);
             if (flat > 0f || percent > 0f) HealUnit(killerUnit, flat, percent);
 
             // Клич союзникам вокруг.
             bool hasEffectors = onKill.cryEffectors != null && onKill.cryEffectors.Length > 0;
-            float radiusValue = LevelValueOrZero(onKill.cryRadius, level);
+            float radiusValue = LevelValue(onKill.cryRadius, level);
 
             if (hasEffectors && radiusValue > 0f)
             {
@@ -471,7 +489,7 @@ namespace StrategyCore
                 Effector.EffectorAdd(unit, unit, onHpBelow.selfEffectors);
 
             bool hasAllyEffectors = onHpBelow.allyEffectors != null && onHpBelow.allyEffectors.Length > 0;
-            float radiusValue = LevelValueOrZero(onHpBelow.allyRadius, level);
+            float radiusValue = LevelValue(onHpBelow.allyRadius, level);
 
             if (hasAllyEffectors && radiusValue > 0f)
             {

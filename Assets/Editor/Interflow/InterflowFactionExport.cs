@@ -132,7 +132,7 @@ namespace StrategyCore
                 waveUnits = c.waveUnits != null
                     ? c.waveUnits.Select(w => new WaveUnitDto { unit = P(w != null ? w.unit : null), role = (int)(w != null ? w.role : 0), count = w != null ? w.count : 0 }).ToArray()
                     : new WaveUnitDto[0],
-                baseWaveIncome = c.baseWaveIncome,
+                waveIncomeByLevel = c.waveIncomeByLevel,
                 centralAbilities = c.centralAbilities != null ? c.centralAbilities.Select(P).ToArray() : new string[0],
                 heroPrefab = P(c.heroPrefab),
                 heroUnlockTech = P(c.heroUnlockTech),

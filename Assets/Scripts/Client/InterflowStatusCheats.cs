@@ -51,10 +51,13 @@ namespace StrategyCore
             Unit unit = Target();
             if (unit == null) return;
 
-            unit.Stun(StatusSeconds);
-            unit.Mute(StatusSeconds);
-            unit.Disarm(StatusSeconds);
-            BlindDebuff.Apply(unit, 1f, StatusSeconds);
+            // [Interflow fix 2026-09-03 control-as-effectors] Источника у чит-команды нет — она вешает
+            // статусы на выбранного юнита «из воздуха». Владельцем идёт слот самой цели: у состояния
+            // владелец обязателен, а урона служебные состояния не наносят.
+            unit.Stun(StatusSeconds, null, unit.owner);
+            unit.Mute(StatusSeconds, null, unit.owner);
+            unit.Disarm(StatusSeconds, null, unit.owner);
+            unit.Blind(1f, StatusSeconds, null, unit.owner);
             AddEffector(unit, BurnEffectorId, 0.02f);   // слабое горение: значок есть, юнит не сгорает
             AddEffector(unit, SlowEffectorId, 1f);
 
@@ -80,11 +83,9 @@ namespace StrategyCore
             Unit unit = Target();
             if (unit == null) return;
 
-            unit.Stun(false);
-            unit.Mute(false);
-            unit.Disarm(false);
-            foreach (var blind in unit.GetComponents<BlindDebuff>()) Object.Destroy(blind);
-
+            // [Interflow fix 2026-09-03 control-as-effectors] Отдельного снятия контроля больше нет:
+            // контроль — это состояние, и его снимает тот же диспел, что и все прочие. Цикл ниже
+            // проходит по всем наложениям, а Effector.EffectorRemove пересобирает контроль сам.
             int removed = 0;
             for (int i = unit.effectors.Count - 1; i >= 0; i--) { Effector.EffectorRemove(unit, unit.effectors[i]); removed++; }
 

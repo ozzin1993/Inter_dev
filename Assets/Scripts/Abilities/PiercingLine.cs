@@ -91,7 +91,8 @@ namespace StrategyCore
                 float offset = Mathf.Abs(p.x * dir.y - p.y * dir.x); // расстояние до линии
                 if (offset > halfWidth) continue;
 
-                u.GetDamage(bonusDamage, damageType, byOwner, byUnit, false, out float _);
+                DamagePacket packet = DamagePacket.Create(bonusDamage, damageType, byOwner, byUnit, false, this);   // [Interflow fix 2026-09-04 damage-full-packet] пакет одной записи
+                u.GetDamage(in packet, out float _);
                 if (applyAttackEffectors && effectors != null && effectors.Length > 0) Effector.EffectorAdd(byUnit, u, effectors);
 
                 hit++;

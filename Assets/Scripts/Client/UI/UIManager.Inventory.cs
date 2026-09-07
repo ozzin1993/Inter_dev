@@ -89,18 +89,8 @@ namespace StrategyCore
                     descriptorUsageCost.Clear();
                     descriptorResourceCost.Clear();
                     descriptorCostBox.style.display = DisplayStyle.None;
-                    if (pc.activeUnit.items[index].manaCost.Length > 0 && pc.activeUnit.items[index].manaCost[0] != 0)
-                    {
-                        // Mana
-                        CostElementCreate(pc.activeUnit.items[index].manaCost[0], true, false);
-                        descriptorCostBox.style.display = DisplayStyle.Flex;
-                    }
-                    if (pc.activeUnit.items[index].manaCostPerSecond.Length > 0 && pc.activeUnit.items[index].manaCostPerSecond[0] != 0)
-                    {
-                        // Mana per second
-                        CostElementCreate(pc.activeUnit.items[index].manaCostPerSecond[0], true, false, null, true);
-                        descriptorCostBox.style.display = DisplayStyle.Flex;
-                    }
+                    // Цены в мане у предметов нет (Б5, 2026-09-04) — строка «мана» в тултипе снята.
+                    // Цена в мане за секунду снята блоком Б6 (2026-09-04).
 
                     if (pc.activeUnit.items[index].cooldown.Length > 0 && pc.activeUnit.items[index].cooldown[0] != 0)
                     {
@@ -135,8 +125,6 @@ namespace StrategyCore
                         descriptorBottomText.text += "\nDURATION: " + pc.activeUnit.items[index].duration[0];
                     }
                     descriptorBottomText.text += "\nTYPE: " + pc.activeUnit.items[index].type;
-
-                    if (pc.activeUnit.items[index].continuous) descriptorBottomText.text += " / CONTINUOUS";
 
                     descriptor.style.display = DisplayStyle.Flex;
                 }

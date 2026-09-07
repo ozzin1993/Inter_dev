@@ -14,7 +14,7 @@ namespace StrategyCore
         public override void Use(Unit castingUnit, int castingPlayer, int level, Vector3 position)
         {
             // Get all units inside casted area
-            foreach (var unit in Utils.GetUnitsInRadius(new Vector2(position.x, position.z), radius[level], castingPlayer, unitSelector))
+            foreach (var unit in Utils.GetUnitsInRadius(new Vector2(position.x, position.z), InterflowAbility.LevelValue(radius, level), castingPlayer, unitSelector))
             {
                 Debug.Log(unit.unitName + " was affected by this ability");
                 // Do something to these units, damage for example

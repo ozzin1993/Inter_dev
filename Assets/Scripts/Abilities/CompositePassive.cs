@@ -15,7 +15,7 @@ namespace StrategyCore
     /// этот файл только зовёт её три метода жизненного цикла.
     ///
     /// Как это работает: пассивка не кастуется. Ядро само считает замки по `requiredTech`
-    /// и `requiredLevel`, зовёт <see cref="Unlock"/> при открытии и <see cref="Lock"/> при закрытии.
+    /// (открытие по уровню юнита снесено Б8), зовёт <see cref="Unlock"/> при открытии и <see cref="Lock"/> при закрытии.
     /// Каждый блок — галка плюс поля; под каждым штатный механизм движка, ничего нового не изобретается
     /// (правило 2). Наследование от <see cref="CompositeSkill"/> НЕ используется намеренно: у пассивки
     /// нет каста, времени каста, маны и выбора цели игроком.
@@ -38,8 +38,8 @@ namespace StrategyCore
         [Header("Блок 2 — иммунитет к контролю")]
         public PassiveControlImmunityBlock controlImmunity = new PassiveControlImmunityBlock();
 
-        [Header("Блок 3 — иммунитет к замедлениям")]
-        public PassiveSlowImmunityBlock slowImmunity = new PassiveSlowImmunityBlock();
+        [Header("Блок 3 — сопротивления и слабости")]
+        public PassiveResistancesBlock resistances = new PassiveResistancesBlock();
 
         [Header("Блок 4 — постоянная невидимость")]
         public PassiveInvisibilityBlock invisibility = new PassiveInvisibilityBlock();
@@ -69,7 +69,7 @@ namespace StrategyCore
 
             public bool stats;
             public bool controlImmunity;
-            public bool slowImmunity;
+            public bool resistances;
             public bool invisibility;
 
             public float armorPierceFraction;          // 0 — не выдавали
@@ -115,7 +115,7 @@ namespace StrategyCore
 
             ApplyStats(unit, c);
             ApplyControlImmunity(unit, c);
-            ApplySlowImmunity(unit, c);
+            ApplyResistances(unit, c);
             ApplyInvisibility(unit, c);
             ApplyArmorPierce(unit, c, level);
             ApplySplash(unit, c);
@@ -124,7 +124,7 @@ namespace StrategyCore
             WireReactions(unit, level);
             WireOnHit(unit, level);
 
-            if (c.slowImmunity || c.aura) WireTick();
+            if (c.aura) WireTick();
 
             InterflowDebug.Event("ПАССИВКА «" + PassiveDisplayName() + "» включена у " + InterflowDebug.Name(unit));
         }
@@ -138,12 +138,13 @@ namespace StrategyCore
 
             RemoveStats(unit, c);
             RemoveControlImmunity(unit, c);
+            RemoveResistances(unit, c);
             RemoveInvisibility(unit, c);
             RemoveArmorPierce(unit, c);
             RemoveSplash(unit, c);
             RemoveAttackEffectors(unit, c);
-            // Иммунитет к замедлениям и аура своего состояния на юните не оставляют:
-            // они живут тиком, и достаточно убрать носителя из списка.
+            // Аура своего состояния на юните не оставляет:
+            // она живёт тиком, и достаточно убрать носителя из списка.
 
             UnwireReactions(unit);
             UnwireOnHit(unit, level);
@@ -183,7 +184,7 @@ namespace StrategyCore
         bool AnyoneNeedsTick()
         {
             foreach (Carrier c in carriers.Values)
-                if (c.slowImmunity || c.aura) return true;
+                if (c.aura) return true;
 
             return false;
         }
@@ -205,7 +206,7 @@ namespace StrategyCore
         }
 
         /// <summary>
-        /// Штатный тик 0.1 с. Только сервер: снятие эффекторов и урон ауры меняют состояние мира
+        /// Штатный тик 0.1 с. Только сервер: урон и состояния ауры меняют состояние мира
         /// (правило 6). Клиент увидит результат штатной синхронизацией.
         /// </summary>
         void OnTick()
@@ -222,7 +223,6 @@ namespace StrategyCore
                 if (u == null || u.dead) { carriers.Remove(u); continue; }
                 if (!carriers.TryGetValue(u, out Carrier c)) continue;
 
-                if (c.slowImmunity) TickSlowImmunity(u);
                 if (c.aura) TickAura(u, c);
             }
 

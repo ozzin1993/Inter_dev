@@ -39,19 +39,20 @@ namespace StrategyCore
         // This function is called when the ability is clicked
         public override void Use(Unit castingUnit, int castingPlayer, int level)
         {
-            // Защита от контент-ошибки: пассивные эффекты для уровня не заполнены — трансформация не начинается (блок «баги и корректность»)
-            if (passiveEffects == null || level < 0 || level >= passiveEffects.Length || passiveEffects[level] == null)
+            // Статы облика — общей выборкой по уровням (Б8): нет строки — последняя заполненная. Пустой массив — превращения нет.
+            AbilityPassiveEffects effects = InterflowAbility.LevelItem(passiveEffects, level);
+            if (effects == null)
             {
-                Debug.LogWarning($"[Transformation] {name}: пассивные эффекты для уровня {level} не заполнены — пропуск");
+                Debug.LogWarning($"[Transformation] {name}: пассивные эффекты не заполнены — пропуск");
                 return;
             }
             // We should not transform when the unit is already transformed
             if (castingUnit.polymorphed) return;
 
             // Add effects - since we are changing the range, it is important to add effects first for projectile to be set up correctly.
-            passiveEffects[level].AddEffect(castingUnit);
+            effects.AddEffect(castingUnit);
             // Change shape
-            castingUnit.Polymorph(this, level, InterflowAbility.LevelValueOrZero(transformTime, level), transformUnit);
+            castingUnit.Polymorph(this, level, InterflowAbility.LevelValue(transformTime, level), transformUnit);
 
             // Reselect to display the timer
             if (Presentation.Selection?.ActiveUnit == castingUnit) Presentation.UI?.Resubscribe();
@@ -64,9 +65,9 @@ namespace StrategyCore
         public override void Deactivate(Unit castingUnit, int castingPlayer, int level)
         {
             // Remove effects
-            // Защита: даже при незаполненном уровне облик юнита обязан восстановиться (не выходим из метода)
-            if (passiveEffects != null && level >= 0 && level < passiveEffects.Length && passiveEffects[level] != null)
-                passiveEffects[level].RemoveEffect(castingUnit);
+            // Та же выборка, что в Use (Б8): снимается ровно то, что выдано. Даже при пустом массиве облик обязан восстановиться.
+            AbilityPassiveEffects effects = InterflowAbility.LevelItem(passiveEffects, level);
+            if (effects != null) effects.RemoveEffect(castingUnit);
             // Return back to original shape
             castingUnit.RestoreRenderers();
         }

@@ -14,7 +14,7 @@ namespace StrategyCore
     /// воронки несёт ссылку, и «один в один» означает ссылку. Переход на ключи вместо ссылок —
     /// отдельный будущий шаг (§7 схемы).
     ///
-    /// Почему struct: образцы — <see cref="DamagePacket"/> и <see cref="ControlPacket"/>. Наложение
+    /// Почему struct: образец — <see cref="DamagePacket"/>. Наложение
     /// рождается не только на каст, но и с каждой автоатаки (<c>Unit.Combat.cs:30</c>), в аурах,
     /// зонах и реакциях — то есть в горячем пути боя. Значимый тип не даёт выделения в куче
     /// на каждый удар (руководство Unity, programming best practices).
@@ -44,10 +44,17 @@ namespace StrategyCore
         /// У бессрочных эффекторов игнорируется.</summary>
         public float durationOverride;
 
+        /// <summary>Восстановление сохранённого состояния, а не новое наложение. При true приёмник
+        /// НЕ спрашивает иммунитет к контролю: загрузка возвращает «как было при сохранении»
+        /// (решение Artsiom 28.08.2026 «сейв — чинить»), а источники иммунитета разблокируются
+        /// раньше состояний и отбили бы законно висевший контроль. По умолчанию false —
+        /// боевой код этим путём не ходит.</summary>
+        public bool restoring;
+
         /// <summary>Собрать пакет из одной записи наложения. Порядок полей — как у параметров
         /// <c>Effector.EffectorAdd</c> после цели.</summary>
         public EffectorPacket(Effector effector, Unit unitOwner, int owner, float currentTime,
-                              float powerMultiplier, float durationOverride)
+                              float powerMultiplier, float durationOverride, bool restoring = false)
         {
             this.effector = effector;
             this.unitOwner = unitOwner;
@@ -55,6 +62,7 @@ namespace StrategyCore
             this.currentTime = currentTime;
             this.powerMultiplier = powerMultiplier;
             this.durationOverride = durationOverride;
+            this.restoring = restoring;
         }
     }
 }

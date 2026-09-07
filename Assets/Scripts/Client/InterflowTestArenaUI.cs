@@ -314,7 +314,7 @@ namespace StrategyCore
                 bool locked = u.abilityLocked[i];
                 int level = (u.abilityLevel != null && i < u.abilityLevel.Length) ? u.abilityLevel[i] : 0;
                 float cooldown = u.GetAbilityCooldown(i, false);
-                bool isAuto = auto != null && IsAutoAbility(auto, ability);
+                bool isAuto = auto != null && auto.IsAutoAbility(ability);
 
                 GUILayout.BeginHorizontal();
                 GUILayout.Label($"{(locked ? "замок" : "  •  ")} {ability.name}{(isAuto ? " (авто)" : "")}", GUILayout.Width(300));
@@ -325,14 +325,6 @@ namespace StrategyCore
                 GUILayout.EndHorizontal();
             }
             GUILayout.EndScrollView();
-        }
-
-        static bool IsAutoAbility(AutoAbilityUser auto, Ability ability)
-        {
-            CompositeSkill[] list = auto.AutoAbilities;
-            if (list == null) return false;
-            for (int i = 0; i < list.Length; i++) if (list[i] == ability) return true;
-            return false;
         }
 
         // ======================== ВКЛАДКА «ПОЛЕ» ========================

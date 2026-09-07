@@ -143,6 +143,10 @@ PrefabInstance:
       value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 8223006705333342850, guid: 5fbe308944ebd6447b811169a2266370, type: 3}
+      propertyPath: xpReward
+      value: 10
+      objectReference: {fileID: 0}
+    - target: {fileID: 8223006705333342850, guid: 5fbe308944ebd6447b811169a2266370, type: 3}
       propertyPath: unitTypeID
       value: 38466
       objectReference: {fileID: 0}

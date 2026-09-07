@@ -13,9 +13,12 @@ namespace StrategyCore
         [Tooltip("Passive Effects for each level")]
         public AbilityPassiveEffects[] passiveEffects;
 
+        // Статы по уровню — общей выборкой (Б8): массив короче уровня — последняя заполненная строка, и в Unlock, и в Lock,
+        // поэтому снимается ровно то, что выдано.
         public override void Unlock(Unit unit, int castingPlayer, int level)
         {
-            passiveEffects[level].AddEffect(unit);
+            AbilityPassiveEffects effects = InterflowAbility.LevelItem(passiveEffects, level);
+            if (effects != null) effects.AddEffect(unit);
 
             // Лог включения — только у пассивок, открываемых технологией (специализации юнитов).
             // Безтеховые ядро разблокирует заново на каждое открытие любой технологии — был бы спам.
@@ -25,7 +28,8 @@ namespace StrategyCore
 
         public override void Lock(Unit unit, int castingPlayer, int level)
         {
-            passiveEffects[level].RemoveEffect(unit);
+            AbilityPassiveEffects effects = InterflowAbility.LevelItem(passiveEffects, level);
+            if (effects != null) effects.RemoveEffect(unit);
 
             if (HasTechGate(level))
                 InterflowDebug.Event("ПАССИВКА «" + PassiveLogName() + "» снята у " + InterflowDebug.Name(unit));

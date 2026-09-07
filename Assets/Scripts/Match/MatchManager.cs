@@ -53,7 +53,7 @@ namespace StrategyCore
         [Tooltip("Объект-кастер центральных умений команды: отдельный НЕВИДИМЫЙ и НЕВЫБИРАЕМЫЙ юнит сцены " +
                  "(развязан от замка — замок можно менять/апгрейдить). Владелец = ownerPlayer. Способности — из " +
                  "FactionConfig расы (centralAbilities); MatchManager пропишет их в abilities[] на старте (AssignCasterAbilities). " +
-                 "Мана по уровню ГЗ — MatchManager.MainBuildingStats. SCEditor не нужен.")]
+                 "Мана кастеру не нужна: цены в мане у умений нет (Б5), умения ГЗ работают по откату. SCEditor не нужен.")]
         public Unit abilityCaster;
 
         [HideInInspector] public List<Ability> centralAbilities = new List<Ability>();
@@ -74,13 +74,12 @@ namespace StrategyCore
 
         // ── Волна 2.0 (runtime; резолв из FactionConfig в ApplyFaction) ──
         [HideInInspector] public WaveUnitEntry[] waveUnits;            // единый список юнитов волны (роль + count); резолв из FactionConfig
-        [HideInInspector] public int baseWaveIncome;                   // стартовый базовый доход волны (из FactionConfig)
+        [HideInInspector] public int[] waveIncomeByLevel;              // доход волны по уровню ГЗ (индекс = уровень, вкл. 0); резолв из FactionConfig
 
         // Пометки состава и окна (сервер, runtime — не сериализуются). autoSummon: типы на автопризыв (каждую волну);
         // oneShot: unitTypeID → зарезервированное золото (цена×count) разового призыва на ближайшую волну.
         [NonSerialized] public HashSet<int> autoSummon = new HashSet<int>();
         [NonSerialized] public Dictionary<int, int> oneShot = new Dictionary<int, int>();
-        [NonSerialized] public int baseIncome;                         // текущий базовый доход (стартует из baseWaveIncome)
         [NonSerialized] public bool compositionLocked;                 // окно лока t−5..t0 — пометки отклоняются
         [NonSerialized] public bool waveSkipped;                       // вердикт t−5: волна пропускается целиком
         [NonSerialized] public int heroWavesToSkip;                    // сколько волн герой ещё пропускает (перерождение)
@@ -280,8 +279,6 @@ namespace StrategyCore
             StartCoroutine(AttackStanceExperienceLoop());
             // «Часы» опыта: раз в секунду досылают клиентам изменившееся значение (см. MatchManager.Experience.cs).
             StartCoroutine(ExperienceSyncLoop());
-            // Пассивный доход золота (серверо-авторитетно; см. MatchManager.PassiveIncome.cs).
-            StartCoroutine(PassiveIncomeLoop());
             // Генерация душ Нежити по уровню ГЗ (серверо-авторитетно; см. MatchManager.Souls.cs). Для не-Нежити тик пустой.
             StartCoroutine(SoulsGenerationLoop());
             // Рост территории Скверны Нежити (серверо-авторитетно; см. MatchManager.SkvernaTerritory.cs). Для не-Нежити тик пустой.

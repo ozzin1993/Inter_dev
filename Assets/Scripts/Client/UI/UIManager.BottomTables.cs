@@ -490,8 +490,8 @@ namespace StrategyCore
         //
         // Слоты умений Героя (нижний ряд): показываем ТОЛЬКО когда герой призван/жив (реш. Artsiom 1б).
         // Набор — способности живого героя (хост) или префаба расы (клиент/фоллбэк). Только Active (D3).
-        // Недоступные по уровню — .locked (реш. Artsiom 2а): точно на хосте (знает уровень); у клиента
-        // уровень героя не синкается → показываем активными, недоступный каст отклонит сервер (UseAbilityItem).
+        // Замок по уровню героя снесён блоком Б8 (открытие только технологией): кнопки не запираются;
+        // недоступный каст отклонит сервер (UseAbilityItem). Замок по технологии — панель героя Б9.
         List<BottomTableButton> BuildHeroAbilitySlots(int team, int count)
         {
             List<BottomTableButton> res = new List<BottomTableButton>();
@@ -515,7 +515,9 @@ namespace StrategyCore
                     {
                         icon = tex,
                         onClick = () => CastHeroAbilityCell(team, captured.id),
-                        locked = !HeroAbilityUnlocked(team, ab),
+                        // Замок по уровню героя снесён блоком Б8 (открытие только технологией); замок по технологии
+                        // и предложение улучшений — панель героя Б9.
+                        locked = false,
                     });
                 }
                 else
@@ -537,24 +539,8 @@ namespace StrategyCore
             return cfg != null && cfg.heroPrefab != null ? cfg.heroPrefab.abilities : null; // фоллбэк: префаб расы
         }
 
-        // Доступно ли умение героя по уровню. Хост знает уровень героя; клиент — нет (не синкается) → считаем доступным.
-        bool HeroAbilityUnlocked(int team, Ability ab)
-        {
-            if (ab == null || ab.requiredLevel == null || ab.requiredLevel.Length == 0) return true;
-            MatchManager mm = MatchManager.Instance;
-            int heroLevel;
-            if (NetworkConnectionHandler.isClient)
-            {
-                heroLevel = mm != null ? mm.HeroLevelClient(team) : 0;          // клиент: синхронное зеркало уровня
-            }
-            else
-            {
-                Unit hero = mm != null ? mm.HeroUnit(team) : null;
-                LevelingUnit lvl = hero != null ? hero.GetComponent<LevelingUnit>() : null;
-                heroLevel = lvl != null ? lvl.level : 0;
-            }
-            return heroLevel >= ab.requiredLevel[0];                            // приближение: порог 1-го уровня умения
-        }
+        // HeroAbilityUnlocked (замок умения героя по requiredLevel) снесён блоком Б8 (2026-09-06): открытие только
+        // технологией. Зеркало уровня героя у клиента (MatchManager.HeroLevelClient) осталось — его ждёт панель героя Б9.
 
         // Каст умения героя из таблицы: серверо-авторитетно (хост — напрямую, клиент — через RPC по Ability.id).
         void CastHeroAbilityCell(int team, int abilityId)

@@ -55,10 +55,9 @@ namespace StrategyCore
             cfg.soulsPerMinuteByMbLevel  = CloneArray(faction.soulsPerMinuteByMbLevel); // генерация душ/мин по уровню ГЗ
             cfg.soulsPerTier             = CloneArray(faction.soulsPerTier); // души за убийство по тиру
 
-            // Волна 2.0: единый список юнитов волны + доход + сброс runtime-пометок.
+            // Волна 2.0: единый список юнитов волны + таблица дохода + сброс runtime-пометок.
             cfg.waveUnits                = CloneWaveUnits(faction.waveUnits);           // единый список (глубокий клон — ассет не мутируем)
-            cfg.baseWaveIncome           = faction.baseWaveIncome;
-            cfg.baseIncome               = faction.baseWaveIncome;                      // текущий доход стартует из базового
+            cfg.waveIncomeByLevel        = CloneArray(faction.waveIncomeByLevel);       // доход волны по уровню ГЗ (индекс = уровень, вкл. 0)
             cfg.autoSummon               = new HashSet<int>();
             cfg.oneShot                  = new Dictionary<int, int>();
             cfg.compositionLocked        = false;

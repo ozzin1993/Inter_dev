@@ -384,6 +384,7 @@ namespace StrategyCore
                     continue;
                 }
 
+                bool anyAuto = false;
                 for (int i = 0; i < entries.arraySize; i++)
                 {
                     var ability = entries.GetArrayElementAtIndex(i).objectReferenceValue as Ability;
@@ -396,6 +397,23 @@ namespace StrategyCore
                         issues.Add(new InterflowIssue(InterflowIssueSeverity.Error,
                             $"У юнита «{unit.name}» авто-умение «{ability.name}» НЕ добавлена в список Abilities юнита — авто-каст не сработает.",
                             "Гайд 03 часть 3 (двойная запись обязательна)", unit));
+                    else
+                        anyAuto = true;
+                }
+
+                // 6. Мана — шкала готовности авто-умения (блок Б5, целевая модель §9): умение готово, когда мана
+                //    носителя заполнена целиком, срабатывание забирает всю. Без максимума маны или без её
+                //    восстановления умение не сработает никогда — ошибка контента (AutoAbilityUser.TryCastEntry).
+                if (anyAuto)
+                {
+                    if (unit.maxMana <= 0f)
+                        issues.Add(new InterflowIssue(InterflowIssueSeverity.Error,
+                            $"У юнита «{unit.name}» есть авто-умение, но максимум маны (maxMana) = 0 — мана никогда не заполнится, авто-каст не сработает.",
+                            "AutoAbilityUser (готовность = мана заполнена целиком); целевая модель §9", unit));
+                    if (unit.manaRegen <= 0f)
+                        issues.Add(new InterflowIssue(InterflowIssueSeverity.Error,
+                            $"У юнита «{unit.name}» есть авто-умение, но восстановление маны (manaRegen) = 0 — после первого срабатывания мана не вернётся, авто-каст замолчит.",
+                            "AutoAbilityUser (срабатывание забирает всю ману); целевая модель §9", unit));
                 }
             }
         }
@@ -580,6 +598,14 @@ namespace StrategyCore
                         issues.Add(new InterflowIssue(InterflowIssueSeverity.Error,
                             $"Умение «{n}»: на префабе зоны «{skill.groundZone.zonePrefab.name}» нет компонента GroundDamageZone — зона не будет действовать.",
                             "План §5.2", skill));
+
+                    // 4а. Аура на время (блок Б7): зона идёт за кастером — ставится одна, в его позиции;
+                    // количество, разброс и смещение при этом не применяются, о чём честно предупреждаем (правило 9).
+                    if (skill.groundZone.followCaster
+                        && (skill.groundZone.zoneCount > 1 || skill.groundZone.forwardOffset != 0f))
+                        issues.Add(new InterflowIssue(InterflowIssueSeverity.Warning,
+                            $"Умение «{n}»: зона идёт за кастером, а заданы количество зон больше одной или смещение вперёд — они не применяются.",
+                            "SkillGroundZoneBlock.followCaster (тултип)", skill));
                 }
 
                 // --- 5. Баф с нулевой длительностью ---
@@ -701,12 +727,7 @@ namespace StrategyCore
                         $"Умение «{n}»: блок «{empty}» включён, но все его значения нулевые/пустые — он ничего не делает.",
                         "План §5.2", skill));
 
-                // --- 10а. Разовые блоки в режиме, который зовёт их каждый тик ---
-                foreach (string misuse in EveryTickMisuse(skill))
-                    issues.Add(new InterflowIssue(InterflowIssueSeverity.Error,
-                        $"Умение «{n}»: режим срабатывания повторяет блоки каждый тик, а блок «{misuse}» разовый — " +
-                        "он будет исполняться по десять раз в секунду.",
-                        "CompositeSkill.IsEveryTick", skill));
+                // 10а (разовые блоки в режиме «аура») снято блоком Б7 (2026-09-05): режима «аура» у умений нет.
 
                 // --- 10б. Щит без срока: ядро считает 0 как «без таймера», то есть щит бессрочный ---
                 if (skill.shield != null && skill.shield.enabled
@@ -915,22 +936,6 @@ namespace StrategyCore
                 yield return "вторичные цели";
         }
 
-        /// <summary>
-        /// Правила режимов срабатывания (переключатель и аура зовут блоки каждый тик).
-        /// Разовые по смыслу блоки в таком режиме — почти всегда ошибка настройки контента.
-        /// </summary>
-        static IEnumerable<string> EveryTickMisuse(CompositeSkill s)
-        {
-            if (s == null || !s.IsEveryTick) yield break;
-
-            if (s.summon != null && s.summon.enabled) yield return "призыв";
-            if (s.groundZone != null && s.groundZone.enabled) yield return "зона на земле";
-            if (s.delegateService != null && s.delegateService.enabled) yield return "серверный сервис";
-            if (s.ownership != null && s.ownership.enabled) yield return "смена владельца";
-            if (s.casterMove != null && s.casterMove.enabled) yield return "перемещение кастера";
-            if (s.pull != null && s.pull.enabled) yield return "рывок цели";
-        }
-
         // ======================== БЛОК «ФРАКЦИИ» (шаг 3) ========================
 
         static void ValidateFactions(List<InterflowIssue> issues, List<FactionConfig> factions)
@@ -1010,10 +1015,10 @@ namespace StrategyCore
                 }
 
 
-                // 6. Герой несёт LevelingUnit (иначе уровни/умения героя по уровню не работают). maxLevel ≥ порога — в блоке «Матч/сцена».
+                // 6. Герой несёт LevelingUnit (иначе уровни и улучшения умений героя не работают). maxLevel ≥ порога — в блоке «Матч/сцена».
                 if (f.heroPrefab != null && f.heroPrefab.GetComponent<LevelingUnit>() == null)
                     issues.Add(new InterflowIssue(InterflowIssueSeverity.Warning,
-                        $"У героя фракции «{f.name}» нет компонента LevelingUnit — опыт/уровни и умения по уровню работать не будут.",
+                        $"У героя фракции «{f.name}» нет компонента LevelingUnit — опыт, уровни и улучшения умений героя работать не будут.",
                         "Гайд 06; FactionConfig.heroPrefab (тултип: уровни через LevelingUnit)", f.heroPrefab));
             }
         }

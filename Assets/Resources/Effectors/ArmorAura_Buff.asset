@@ -50,3 +50,11 @@ MonoBehaviour:
     xpRewardPercentageChange: 0
     attributeChanges: []
     attributePercentageChange: []
+  healReceivedMultiplierOn: 0
+  healReceivedMultiplier: 1
+  stuns: 0
+  mutes: 0
+  disarms: 0
+  blinds: 0
+  blindMissChance: 0
+  category: 0

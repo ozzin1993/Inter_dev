@@ -14,14 +14,13 @@ namespace StrategyCore
     ///  - ЭФФЕКТОРЫ (значок и VFX): отправка из ядра Effector.EffectorAdd/Update/Remove —
     ///    одинаково покрывает атаки, ауры и скиллы; сообщение «снят» чинит §8.6 отчёта приёмки
     ///    (диспел и permanent-эффекторы раньше висели у клиента до конца матча);
-    ///  - ФЛАГИ наших состояний без эффектора (слепота BlindDebuff);
     ///  - VFX длящегося БАФА скилла (перенос из бывшего партиала SkillPresentation, который
     ///    этим файлом ЗАМЕНЁН: эффекторные значки скиллов теперь едут общим путём из ядра);
     ///  - ФАКТЫ ПРЕЗЕНТАЦИИ УМЕНИЙ (2026-08-06): срабатывание умения и жизнь зон. Эти сообщения ничего не рисуют
     ///    сами — они поднимают событие в SkillPresentationEvents, а рисует клиентский презентер.
     ///    Сетевой слой про визуал не знает (событийная инверсия, решение Artsiom 2026-08-06).
-    /// Статусы ядра (стан/немота/безоружие) канала не требуют: ядро уже реплицирует их штатно
-    /// (StunSetSend / MuteSetSend / DisarmSetSend), клиентские поля юнита актуальны.
+    /// Статусы контроля (стан/немота/безоружие/слепота) с 2026-09-03 идут ЭТИМ ЖЕ каналом: они
+    /// стали служебными состояниями со значком, и отдельные рассылки контроля снесены.
     ///
     /// Новый partial-файл: сам NetworkDataSync.cs не правится.
     /// </summary>
@@ -74,23 +73,9 @@ namespace StrategyCore
             SkillVisualStatus.RemoveEffector(unit, effectorId);
         }
 
-        // ============================== ФЛАГИ НАШИХ СОСТОЯНИЙ ==============================
-
-        /// <summary>Сервер: включить/выключить у юнита флаг состояния без эффектора (например, слепоту).</summary>
-        public void UnitStatusFlagSend(Unit unit, UnitStatusFlag flag, bool state)
-        {
-            if (!CanSendAbout(unit)) return;
-            UnitStatusFlagClientRpc(unit.netID, (byte)flag, state);
-        }
-
-        [Rpc(SendTo.NotServer, InvokePermission = RpcInvokePermission.Server)]
-        private void UnitStatusFlagClientRpc(UInt16 netID, byte flag, bool state)
-        {
-            if (NetworkConnectionHandler.Instance.connectionStage == 2) return;
-            if (!TryResolveUnit(netID, "UnitStatusFlagSend", out Unit unit)) return;
-
-            SkillVisualStatus.SetFlag(unit, (UnitStatusFlag)flag, state);
-        }
+        // [Interflow fix 2026-09-03 control-as-effectors] UnitStatusFlagSend и enum UnitStatusFlag
+        // СНЕСЕНЫ. Единственным флагом была слепота, а она стала обычным состоянием со значком
+        // и едет клиенту сообщением про эффектор, как все остальные.
 
         // ============================== VFX БАФА СКИЛЛА ==============================
         // Значка у бафа нет (значок даёт эффектор-статус), поэтому это отдельное сообщение канала.
@@ -180,23 +165,29 @@ namespace StrategyCore
         // ============================== ЗОНЫ НА ЗЕМЛЕ ==============================
         // Сервер шлёт только ФАКТ жизни зоны; чем её рисовать — знает клиентский презентер
         // (префаб лежит в ассете умения). Реестр и время жизни зоны — на сервере (MatchManager.GroundZones).
+        // [Interflow 2026-09-05, блок Б7] Носитель зоны («аура на время») едет сетевым id (конвенция «0 — нет
+        // ссылки»): клиент вешает копию зоны на юнит, движение дальше не синхронизируется — она едет с ним сама.
 
         /// <summary>Сервер: на земле появилась зона умения. Позиция ФАКТИЧЕСКАЯ — разброс рандомится сервером.</summary>
-        public void GroundZoneSpawnSend(int zoneId, int abilityID, int level, Vector3 position)
+        public void GroundZoneSpawnSend(int zoneId, int abilityID, int level, Vector3 position, Unit carrier)
         {
             if (!ServerCanSend()) return;
-            GroundZoneSpawnClientRpc(zoneId, abilityID, level, position);
+            UInt16 carrierID = StillRegistered(carrier) ? carrier.netID : (UInt16)0;
+            GroundZoneSpawnClientRpc(zoneId, abilityID, level, position, carrierID);
         }
 
         [Rpc(SendTo.NotServer, InvokePermission = RpcInvokePermission.Server)]
-        private void GroundZoneSpawnClientRpc(int zoneId, int abilityID, int level, Vector3 position)
+        private void GroundZoneSpawnClientRpc(int zoneId, int abilityID, int level, Vector3 position, UInt16 carrierID)
         {
             // Подключение в середине матча: принимаем только данные сцены (штатное правило RPC этого хаба).
             // Живые зоны опоздавшему клиенту досылаются отдельно, по завершении подключения.
             if (NetworkConnectionHandler.Instance != null && NetworkConnectionHandler.Instance.connectionStage == 2) return;
             if (GameManager.Instance == null) return; // кадр выгрузки сцены
 
-            SkillPresentationEvents.RaiseZoneSpawned(zoneId, abilityID, level, position);
+            Unit carrier = null;
+            if (carrierID != 0) TryResolveUnit(carrierID, "GroundZoneSpawnSend", out carrier);
+
+            SkillPresentationEvents.RaiseZoneSpawned(zoneId, abilityID, level, position, carrier);
         }
 
         /// <summary>Сервер: зона на земле закончила жизнь (истекла или снята).</summary>
@@ -218,18 +209,22 @@ namespace StrategyCore
         /// Сервер: догнать ОДНОГО клиента живыми зонами. Обычные сообщения он отбросил, пока грузил сцену
         /// (`connectionStage == 2`), поэтому у досыла гейта стадии НЕТ — это и есть данные сцены.
         /// </summary>
-        public void GroundZoneResendSend(ulong clientID, int zoneId, int abilityID, int level, Vector3 position)
+        public void GroundZoneResendSend(ulong clientID, int zoneId, int abilityID, int level, Vector3 position, Unit carrier)
         {
             if (!ServerCanSend()) return;
-            GroundZoneResendClientRpc(zoneId, abilityID, level, position, RpcTarget.Single(clientID, RpcTargetUse.Temp));
+            UInt16 carrierID = StillRegistered(carrier) ? carrier.netID : (UInt16)0;
+            GroundZoneResendClientRpc(zoneId, abilityID, level, position, carrierID, RpcTarget.Single(clientID, RpcTargetUse.Temp));
         }
 
         [Rpc(SendTo.SpecifiedInParams, InvokePermission = RpcInvokePermission.Server)]
-        private void GroundZoneResendClientRpc(int zoneId, int abilityID, int level, Vector3 position, RpcParams rpcParams = default)
+        private void GroundZoneResendClientRpc(int zoneId, int abilityID, int level, Vector3 position, UInt16 carrierID, RpcParams rpcParams = default)
         {
             if (GameManager.Instance == null) return;
 
-            SkillPresentationEvents.RaiseZoneSpawned(zoneId, abilityID, level, position);
+            Unit carrier = null;
+            if (carrierID != 0) TryResolveUnit(carrierID, "GroundZoneResendSend", out carrier);
+
+            SkillPresentationEvents.RaiseZoneSpawned(zoneId, abilityID, level, position, carrier);
         }
 
         // ============================== ПОГЛОЩАЮЩИЙ ЩИТ ==============================
@@ -252,6 +247,38 @@ namespace StrategyCore
             if (!TryResolveUnit(netID, "UnitShieldSend", out Unit unit)) return;
 
             SkillPresentationEvents.RaiseShieldChanged(unit, amount);
+        }
+
+        // ============================== РАЗОВЫЙ ФАКТ БОЯ ==============================
+        // Шесть разовых фактов §15 схемы (решения Artsiom Р1–Р7 от 07.09.2026) едут ОДНИМ сообщением:
+        // номер причины и число. Сообщение ничего не рисует само — оно поднимает факт в
+        // SkillPresentationEvents, а рисует клиентский презентер (событийная инверсия, решение Р6).
+        // Причина едет ЧИСЛОМ (нумерация BattleFactReason сплошная от нуля), поэтому порядок значений
+        // перечисления менять нельзя — иначе сервер и клиент разойдутся в толковании номера.
+
+        /// <summary>
+        /// Сервер: по юниту произошло разовое событие боя (защита сработала или прошёл урон).
+        /// Шлёт клиентам И поднимает факт локально: сообщение идёт SendTo.NotServer и до хоста
+        /// не доходит, а хосту показывать надпись надо так же (образец — щит, AbsorbShield.NotifyShieldBar).
+        /// </summary>
+        /// <param name="value">Число факта. Осмысленно только у BattleFactReason.DamageDealt
+        /// (фактически снятое здоровье); у остальных причин 0.</param>
+        public void UnitBattleFactSend(Unit unit, BattleFactReason reason, float value)
+        {
+            if (!CanSendAbout(unit)) return;
+
+            UnitBattleFactClientRpc(unit.netID, (byte)reason, value);
+            SkillPresentationEvents.RaiseBattleFact(unit, reason, value);
+        }
+
+        [Rpc(SendTo.NotServer, InvokePermission = RpcInvokePermission.Server)]
+        private void UnitBattleFactClientRpc(UInt16 netID, byte reason, float value)
+        {
+            if (NetworkConnectionHandler.Instance != null && NetworkConnectionHandler.Instance.connectionStage == 2) return;
+            if (GameManager.Instance == null) return; // кадр выгрузки сцены
+            if (!TryResolveUnit(netID, "UnitBattleFactSend", out Unit unit)) return;
+
+            SkillPresentationEvents.RaiseBattleFact(unit, (BattleFactReason)reason, value);
         }
 
         // ============================== ОБЩЕЕ ==============================
@@ -297,10 +324,4 @@ namespace StrategyCore
         }
     }
 
-    /// <summary>Флаги наших состояний юнита, идущие единым каналом статусов (не эффекторы и не статусы ядра).</summary>
-    public enum UnitStatusFlag : byte
-    {
-        /// <summary>Слепота: носитель промахивается атаками (BlindDebuff + InterflowCombat).</summary>
-        Blind = 0,
-    }
 }

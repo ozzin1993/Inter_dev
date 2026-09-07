@@ -19,7 +19,7 @@ MonoBehaviour:
   - unit: {fileID: 1165191979987236916, guid: b983934140286d94f9d91579258b5d7c, type: 3}
     role: 0
     count: 0
-  baseWaveIncome: 0
+  waveIncomeByLevel: 
   centralAbilities:
   - {fileID: 11400000, guid: bdf892467984a874a8e50900105520d6, type: 2}
   - {fileID: 11400000, guid: cd52d4d6dbb0159499b71362b041352d, type: 2}

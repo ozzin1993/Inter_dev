@@ -100,6 +100,27 @@ namespace StrategyCore
             return sum;
         }
 
+        // ======================== ДОХОД ВОЛНЫ (по уровню ГЗ) ========================
+
+        /// <summary>
+        /// Базовый доход золота команды СЕЙЧАС: значение из таблицы фракции по текущему уровню ГЗ.
+        /// Единственный источник дохода (целевая модель 2026-08-21). Читателей два, оба серверные:
+        /// начисление в момент призыва волны (MatchManager.Waves) и предел суммы автопризыва (TrySetAuto).
+        /// Состояние не хранится — значение вычисляется по требованию, поэтому рост уровня ГЗ поднимает
+        /// и доход, и предел сам собой — без подписки на смену уровня.
+        /// ИНДЕКСАЦИЯ: индекс = уровень ГЗ, элемент 0 = уровень 0 — в ОТЛИЧИЕ от таблицы душ
+        /// (SoulsRatePerMinute: там элемент 0 = уровень 1). Уровень выше последней записи клампится на неё.
+        /// Пустая или незаданная таблица — 0 (у Орков доход 0, как и было).
+        /// </summary>
+        public int CurrentWaveIncome(int team)
+        {
+            TeamWaveConfig cfg = Team(team);
+            int[] arr = cfg != null ? cfg.waveIncomeByLevel : null;
+            if (arr == null || arr.Length == 0) return 0;
+            int idx = Mathf.Clamp(MainBuildingLevel(team), 0, arr.Length - 1);
+            return arr[idx];
+        }
+
         // ======================== ПОМЕТКИ (сервер, идемпотентно) ========================
 
         /// <summary>
@@ -116,7 +137,7 @@ namespace StrategyCore
             if (cfg.autoSummon.Contains(unitTypeID) || cfg.oneShot.ContainsKey(unitTypeID)) return false; // «одна пометка на тип»
 
             int addGold = EffectiveResourceCost(team, u, goldResource) * WaveCountOf(cfg, u);
-            if (AutoResourceSum(team, goldResource) + addGold > cfg.baseIncome)
+            if (AutoResourceSum(team, goldResource) + addGold > CurrentWaveIncome(team))
             {
                 return false;
             }

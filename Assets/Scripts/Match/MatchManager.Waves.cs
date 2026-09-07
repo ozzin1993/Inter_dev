@@ -135,11 +135,16 @@ namespace StrategyCore
                 yield break;
             }
 
-            // 3) Начислить базовый доход золота (в момент призыва волны).
-            if (goldResource != null && cfg.baseIncome > 0)
-                GameResources.Instance.ChangeAmount(cfg.ownerPlayer, new ResourceWrapper(goldResource, cfg.baseIncome), 1, false, true);
+            // 3) Начислить базовый доход золота (в момент призыва волны) — единственный источник дохода:
+            //    значение таблицы фракции по текущему уровню ГЗ (CurrentWaveIncome, MatchManager.WaveEconomy).
+            int waveIncome = CurrentWaveIncome(teamIndex);
+            if (goldResource != null && waveIncome > 0)
+                GameResources.Instance.ChangeAmount(cfg.ownerPlayer, new ResourceWrapper(goldResource, waveIncome), 1, false, true);
 
-            // 4) Списать автопризыв (Σ цена×count ≤ baseIncome — гарантировано пометками; списание ПОСЛЕ начисления → нехватка невозможна).
+            // 4) Списать автопризыв. Списание идёт ПОСЛЕ начисления, а сумма пометок проверялась против дохода
+            //    в момент пометки (TrySetAuto) — нехватка исключена, ПОКА таблица дохода неубывающая:
+            //    доход к моменту волны не может стать меньше, чем был при пометке (уровень ГЗ только растёт).
+            //    Убывающая таблица эту гарантию ломает — требование зафиксировано в тултипе waveIncomeByLevel.
             int autoGold = AutoResourceSum(teamIndex, goldResource);
             if (goldResource != null && autoGold > 0)
                 GameResources.Instance.ChangeAmount(cfg.ownerPlayer, new ResourceWrapper(goldResource, autoGold), 1, true, true);

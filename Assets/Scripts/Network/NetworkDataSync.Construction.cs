@@ -10,54 +10,7 @@ namespace StrategyCore
     public partial class NetworkDataSync
     {
 
-        // SHADOWCASTER SYNC ------------------------------------------
-
-        // Only for syncing manually spawned shadowcasters
-        [Rpc(SendTo.NotServer, InvokePermission = RpcInvokePermission.Server)]
-        private void ShadowCasterSpawnClientRpc(int shadowCasterID, UInt16 castingUnitID, int abilityID, int abilityLevel, UInt16 targetID, Vector3 targetPosition, float range, float duration)
-        {
-            // Joining mid-game, we do not accept any data from the server. Only scene data.
-            if (NetworkConnectionHandler.Instance.connectionStage == 2) return;
-
-            if (SlotManager.Instance.unitNetID.TryGetValue(castingUnitID, out Unit castingUnit))
-            {
-                Unit targetUnit = null;
-                if (targetID != 0)
-                {
-                    if (!SlotManager.Instance.unitNetID.TryGetValue(targetID, out targetUnit))
-                    {
-                        Debug.LogError("Desync! Unit netID:" + targetID + " should exist on client, but does not! (ShadowCasterSpawn NetworkDataSync)");
-                        return;
-                    }
-                }
-
-                ShadowCaster sc = ShadowCaster.Spawn(shadowCasterID, castingUnit, castingUnit.owner, GameManager.Instance.gameAbilities[abilityID], abilityLevel, targetUnit, targetPosition, range, duration);
-
-                // Activate
-                if (targetUnit) GameManager.Instance.gameAbilities[abilityID].Activate(castingUnit, castingUnit.owner, abilityLevel, targetUnit, ref sc.activeAbilityVFX);
-                else if (targetPosition != Vector3.zero) GameManager.Instance.gameAbilities[abilityID].Activate(castingUnit, castingUnit.owner, abilityLevel, targetPosition, ref sc.activeAbilityVFX);
-                else GameManager.Instance.gameAbilities[abilityID].Activate(castingUnit, castingUnit.owner, abilityLevel, ref sc.activeAbilityVFX);
-            }
-            else
-            {
-                Debug.LogError("Desync! Unit netID:" + castingUnitID + " should exist on client, but does not! (ShadowCasterSpawn NetworkDataSync)");
-            }
-        }
-
-        // Client receive removal trigger
-        [Rpc(SendTo.NotServer, InvokePermission = RpcInvokePermission.Server)]
-        public void ShadowCasterRemoveClientRpc(int shadowcasterID)
-        {
-            // Joining mid-game, we do not accept any data from the server. Only scene data.
-            if (NetworkConnectionHandler.Instance.connectionStage == 2) return;
-
-            // Remove from shadowcaster tracker
-            int index = GameManager.Instance.shadowCasterIDs.IndexOf(shadowcasterID);
-            if (index != -1)
-            {
-                GameManager.Instance.shadowCasters[index].Remove();
-            }
-        }
+        // Синхронизация теневых кастеров (два RPC) снесена блоком Б6 (2026-09-04) вместе с умениями-каналами.
 
         // ANIMATION BLENDING SYNC ------------------------------------------
 

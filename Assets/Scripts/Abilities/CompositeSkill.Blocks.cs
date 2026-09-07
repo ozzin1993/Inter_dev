@@ -190,6 +190,16 @@ namespace StrategyCore
         [Tooltip("Дать носителю иммунитет к контролю (оглушение и т.п.) на время бафа.")]
         public bool controlImmunity;
 
+        // [Interflow fix 2026-09-03 status-resistances] Второй вход выдачи сопротивлений (решение Artsiom
+        // 03.09.2026 «оба входа»): те же строки, что в блоке 3 конструктора пассивок. ТОЛЬКО ДАННЫЕ —
+        // выдаёт и снимает SkillBuff (вклады живут ровно столько, сколько баф).
+        [Tooltip("Сопротивления и слабости носителя к категориям состояний на время бафа: строки «категория — доля». " +
+                 "0,3 — сопротивление 30 %, −0,5 — слабость 50 %, 1 и больше — состояния категории не действуют вовсе. " +
+                 "Контроль (оглушение, немота, безоружие, слепота) режется по времени, замедления и периодический урон — по силе. " +
+                 "Из всех источников на юните действует одно значение: сильнейшая слабость, иначе сильнейшее сопротивление. " +
+                 "Пусто — блок сопротивлений не ставится.")]
+        public ResistanceEntry[] resistances;
+
         [Header("Визуал")]
         [Tooltip("VFX бафа на носителе. Вешается один раз, при продлении не дублируется. Пусто — без визуала.")]
         public VFXReferencer buffVFX;
@@ -329,12 +339,17 @@ namespace StrategyCore
         public float summonSoundVolume = 1f;
     }
 
-    /// <summary>10. Зона-ловушка на земле (колья, огненный ковёр, шипы).</summary>
+    /// <summary>10. Зона-ловушка на земле (колья, огненный ковёр, шипы); с галкой «идёт за кастером» — аура на время.</summary>
     [Serializable]
     public class SkillGroundZoneBlock
     {
         [Tooltip("Включить блок: умение выставляет зону на землю.")]
         public bool enabled;
+
+        [Tooltip("Зона идёт за кастером — это «аура на время»: живёт срок зоны (задан на префабе), каждый тик стоит " +
+                 "в позиции кастера, задевает и тех, кто вошёл позже, и гаснет вместе с кастером. " +
+                 "Ставится ровно ОДНА зона в позиции кастера: количество, разброс и смещение вперёд не применяются.")]
+        public bool followCaster;
 
         [Tooltip("Префаб зоны. Обязан нести компонент GroundDamageZone — радиус, урон и состояния настраиваются на самом префабе.")]
         public GameObject zonePrefab;
@@ -479,14 +494,14 @@ namespace StrategyCore
                     ApplyDrain(castingUnit, level, t);
                     if (t.dead) continue; // высасывание добило — дальше по нему не работаем
 
-                    ApplyStatus(level, t, skipProjectileCarried);
+                    ApplyStatus(castingUnit, castingPlayer, level, t, skipProjectileCarried);
                     ApplyEffectors(castingPlayer, level, t); // эффекторы снарядом не переносятся — вешаем сами
                     ApplyHeal(level, t);
                     ApplyMana(level, t);
                     ApplyBuff(castingUnit, level, t);
                     ApplyShield(castingPlayer, level, t);
-                    ApplyBlind(level, t);
-                    ApplyMorph(level, t);
+                    ApplyBlind(castingUnit, castingPlayer, level, t);
+                    ApplyMorph(castingUnit, castingPlayer, level, t);
                     ApplyOwnership(castingUnit, t);          // после всех эффектов: меняет сторону цели
                     ApplySecondary(castingPlayer, level, t, baseDamageToTarget); // своя выборка вокруг этой цели
                     ApplyKnockback(castingUnit, level, t);   // последним: сдвигает цель, всё позиционное уже сработало
@@ -516,14 +531,24 @@ namespace StrategyCore
         float ApplyDamage(Unit castingUnit, int castingPlayer, int level, Unit target, Vector3 origin)
         {
             if (damage == null || !damage.enabled || damage.entries == null) return 0f;
+            if (target.dead) return 0f;
 
+            // [Interflow fix 2026-09-04 damage-full-packet] Шаг 4 схемы «пакет и приёмник»: ВСЕ записи блока —
+            // одним пакетом на цель. Приёмник разбирает записи по порядку и останавливается, если цель погибла
+            // (остаток пакета не применяется, §4 схемы) — прежний выход «target.dead → return» внутри цикла
+            // переехал туда. Фильтр «кому достаётся запись» остаётся у отправителя (§3 схемы: цели выбирает
+            // отправитель). Буфер записей переиспользуется между кастами — выделение только на массив
+            // остатка внутри пакета, и только когда записей больше одной.
+            if (damageRecordBuffer == null || damageRecordBuffer.Length < damage.entries.Length)
+                damageRecordBuffer = new DamageRecord[damage.entries.Length];
+
+            int count = 0;
             float dealt = 0f;
 
             for (int e = 0; e < damage.entries.Length; e++)
             {
                 SkillDamageEntry entry = damage.entries[e];
                 if (entry == null || entry.damageType == null) continue;
-                if (target.dead) return dealt;
 
                 float amount = LevelValue(entry.amount, level);
                 if (amount <= 0f) continue;
@@ -532,16 +557,26 @@ namespace StrategyCore
                 // у которого подменены только флаги свой/союзник/враг.
                 if (!UnitSelector.IsUnitCompatible(castingPlayer, target, RelationSelector(entry.targets))) continue;
 
-                if (castingUnit != null)
-                    castingUnit.DealDamage(target, amount, entry.damageType, false, origin); // false: способность, не прямая атака
-                else
-                    target.GetDamage(amount, entry.damageType, castingPlayer, null, false, out float _);
-
+                damageRecordBuffer[count++] = new DamageRecord(amount, entry.damageType);
                 dealt += amount;
             }
 
+            if (count == 0) return 0f;
+
+            // false: способность, не прямая атака — состояния автоатаки кастера НЕ вешаются (решение Р7),
+            // провокации и промаха бьющего нет.
+            DamagePacket packet = DamagePacket.Create(damageRecordBuffer, count, castingPlayer, castingUnit, false, this);
+
+            if (castingUnit != null)
+                castingUnit.DealDamage(target, in packet, origin);   // колбэки «после удара» и OnDamageDeal кастера
+            else
+                target.GetDamage(in packet, out float _);
+
             return dealt;
         }
+
+        /// <summary>Буфер записей блока «Урон» — переиспользуется между кастами, чтобы не выделять на каждый.</summary>
+        DamageRecord[] damageRecordBuffer;
 
         /// <summary>
         /// Селектор ТОЛЬКО для проверки отношения «свой/союзник/враг». Типовые флаги
@@ -559,7 +594,7 @@ namespace StrategyCore
         }
 
         // -------------------------------------------------------------- 3. КОНТРОЛЬ --
-        void ApplyStatus(int level, Unit target, bool stunCarriedByProjectile)
+        void ApplyStatus(Unit castingUnit, int castingPlayer, int level, Unit target, bool stunCarriedByProjectile)
         {
             if (status == null || !status.enabled) return;
 
@@ -567,14 +602,14 @@ namespace StrategyCore
             if (!stunCarriedByProjectile)
             {
                 float stun = LevelValue(status.stunSeconds, level);
-                if (stun > 0f) target.Stun(stun);
+                if (stun > 0f) target.Stun(stun, castingUnit, castingPlayer);
             }
 
             float disarm = LevelValue(status.disarmSeconds, level);
-            if (disarm > 0f) target.Disarm(disarm);
+            if (disarm > 0f) target.Disarm(disarm, castingUnit, castingPlayer);
 
             float mute = LevelValue(status.muteSeconds, level);
-            if (mute > 0f) target.Mute(mute);
+            if (mute > 0f) target.Mute(mute, castingUnit, castingPlayer);
         }
 
         // ------------------------------------------------------------- 4. ЭФФЕКТОРЫ --
@@ -693,7 +728,7 @@ namespace StrategyCore
                     if (onDepletedEffectors != null && onDepletedEffectors.Length > 0)
                         Effector.EffectorAdd(castingPlayer, carrier, onDepletedEffectors);
                     if (blindChance > 0f && blindDuration > 0f)
-                        BlindDebuff.Apply(carrier, blindChance, blindDuration);
+                        carrier.Blind(blindChance, blindDuration, null, castingPlayer);
                     return;
                 }
 
@@ -708,7 +743,7 @@ namespace StrategyCore
                     if (onDepletedEffectors != null && onDepletedEffectors.Length > 0)
                         Effector.EffectorAdd(castingPlayer, u, onDepletedEffectors);
                     if (blindChance > 0f && blindDuration > 0f)
-                        BlindDebuff.Apply(u, blindChance, blindDuration);
+                        u.Blind(blindChance, blindDuration, null, castingPlayer);
                 }
             };
 
@@ -768,20 +803,22 @@ namespace StrategyCore
                 if (u == null || u.dead) continue;
                 if (shield.retaliationOnlyMelee && !u.melee) continue;
 
-                if (shield.retaliationStunSeconds > 0f) u.Stun(shield.retaliationStunSeconds);
+                if (shield.retaliationStunSeconds > 0f) u.Stun(shield.retaliationStunSeconds, carrier, castingPlayer);
                 if (shield.retaliationEffectors != null && shield.retaliationEffectors.Length > 0)
                     Effector.EffectorAdd(castingPlayer, u, shield.retaliationEffectors);
             }
         }
 
         // ------------------------------------------------------------- 8. ОСЛЕПЛЕНИЕ --
-        void ApplyBlind(int level, Unit target)
+        void ApplyBlind(Unit castingUnit, int castingPlayer, int level, Unit target)
         {
             if (blind == null || !blind.enabled) return;
 
             float chance = LevelValue(blind.chance, level);
             float duration = LevelValue(blind.duration, level);
-            if (chance > 0f && duration > 0f) BlindDebuff.Apply(target, chance, duration);
+            // [Interflow fix 2026-09-03 control-as-effectors] Слепота стала состоянием: воронка Unit.Blind
+            // вместо снесённого компонента BlindDebuff. Поля блока (шанс, длительность) не изменились.
+            if (chance > 0f && duration > 0f) target.Blind(chance, duration, castingUnit, castingPlayer);
         }
 
         // ----------------------------------------------------------------- 9. ПРИЗЫВ --
@@ -824,6 +861,20 @@ namespace StrategyCore
                 return;
             }
 
+            // Аура на время (блок Б7, 2026-09-05): одна зона в позиции кастера, дальше она идёт за ним сама
+            // (GroundDamageZone.SetCarrier). Точка прицела, разброс и смещение здесь не участвуют.
+            if (groundZone.followCaster)
+            {
+                if (castingUnit == null)
+                {
+                    Debug.LogWarning($"[{name}] Зона идёт за кастером, но кастера нет — каст пропущен.");
+                    return;
+                }
+
+                SpawnGroundZone(castingUnit.transform.position, castingUnit, castingPlayer, level);
+                return;
+            }
+
             Vector3 center = origin;
             if (castingUnit != null && groundZone.forwardOffset != 0f)
                 center += castingUnit.transform.forward * groundZone.forwardOffset;
@@ -837,16 +888,28 @@ namespace StrategyCore
                     pos += new Vector3(offset.x, 0f, offset.y);
                 }
 
-                GameObject go = Instantiate(groundZone.zonePrefab, pos, Quaternion.identity);
-
-                GroundDamageZone zone = go.GetComponent<GroundDamageZone>();
-                if (zone != null) zone.SetOwner(castingPlayer);
-                else Debug.LogWarning($"[{name}] На префабе зоны нет компонента GroundDamageZone — зона не будет действовать.");
-
-                // Клиенты узнают о зоне фактом из серверного реестра: позиция уже с учётом разброса,
-                // префаб клиент берёт из этого же ассета по id умения. Реестр сам разошлёт сообщение.
-                if (MatchManager.Instance != null) MatchManager.Instance.RegisterGroundZone(go, id, level, pos);
+                SpawnGroundZone(pos, null, castingPlayer, level);
             }
+        }
+
+        /// <summary>Одна зона: префаб, владелец, носитель (null — зона стоит в точке), запись в серверный реестр.</summary>
+        void SpawnGroundZone(Vector3 pos, Unit carrier, int castingPlayer, int level)
+        {
+            GameObject go = Instantiate(groundZone.zonePrefab, pos, Quaternion.identity);
+
+            GroundDamageZone zone = go.GetComponent<GroundDamageZone>();
+            if (zone != null)
+            {
+                zone.SetOwner(castingPlayer);
+                zone.SetSource(this);
+                if (carrier != null) zone.SetCarrier(carrier);
+            }
+            else Debug.LogWarning($"[{name}] На префабе зоны нет компонента GroundDamageZone — зона не будет действовать.");
+
+            // Клиенты узнают о зоне фактом из серверного реестра: позиция уже с учётом разброса,
+            // префаб клиент берёт из этого же ассета по id умения. Реестр сам разошлёт сообщение;
+            // носителя он же передаст клиенту, и тот повесит копию зоны на юнит.
+            if (MatchManager.Instance != null) MatchManager.Instance.RegisterGroundZone(go, id, level, pos, carrier);
         }
 
         // -------------------------------------------------------- 11. СЕРВЕРНЫЙ СЕРВИС --
@@ -865,7 +928,7 @@ namespace StrategyCore
                         delegateService.meteorFireDamage, delegateService.meteorFireDamageType,
                         delegateService.meteorStunSeconds, delegateService.meteorUseDensityTargeting,
                         delegateService.meteorTargetSelector, delegateService.meteorSplashSelector,
-                        delegateService.meteorVFX, delegateService.meteorImpactSound, delegateService.meteorImpactVolume);
+                        delegateService.meteorVFX, delegateService.meteorImpactSound, delegateService.meteorImpactVolume, this);
                     break;
 
                 case SkillServerService.ResurrectFromGraves:

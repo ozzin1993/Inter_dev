@@ -64,6 +64,7 @@ namespace StrategyCore
         [HideInInspector] public float damage; // Damage of the projectile
         [HideInInspector] public DamageType damageType; // Damage type of the projectile
         [HideInInspector] public Effector[] attackEffectors; // Effector that will be applied to target unit
+        [HideInInspector] public Ability sourceAbility; // умение-источник для диагностики очереди пакетов (решение Artsiom 05.09.2026); null — снаряд автоатаки
         // [Interflow fix 2026-08-01 projectile-callbacks] Инициализация списка. Поле заполняется ТОЛЬКО в ветке
         // !manualParameterSet, а все перегрузки Spawn (путь способностей) передают manualParameterSet = true —
         // значит у снаряда способности список оставался null. В Damage() ветка «кастер погиб» делает по нему
@@ -260,14 +261,18 @@ namespace StrategyCore
         public void Damage(Unit targetUnit, float amount, DamageType damageType)
         {
             // Stun
-            if (stunTime != 0) targetUnit.Stun(stunTime);
+            // [Interflow fix 2026-09-03 control-as-effectors] Источник оглушения — стрелок. Он мог
+            // погибнуть в полёте (ownerUnit == null) — слот игрока-владельца снаряда остаётся верным.
+            if (stunTime != 0) targetUnit.Stun(stunTime, ownerUnit, owner);
 
             // Unit who sent projectile has died, deal damage with projectile and define what happens when projectile kills
             if (ownerUnit == null)
             {
-                // Deal damage
-                targetUnit.GetDamage(amount, damageType, owner, null, directAttack, out float _);
-                if (attackEffectors != null) Effector.EffectorAdd(owner, targetUnit, attackEffectors);
+                // [Interflow fix 2026-09-04 damage-full-packet] Пакет одной записи; состояния атаки едут в пакете
+                // и вешаются приёмником только при прямой атаке, живому, после урона (решение Artsiom Р7).
+                // Бьющего нет — пробитие и промах в пакете нулевые, состояния вешаются от слота игрока.
+                DamagePacket packet = DamagePacket.Create(amount, damageType, owner, null, directAttack, sourceAbility, attackEffectors);
+                targetUnit.GetDamage(in packet, out float _);
 
                 // After damage callbacks
                 foreach (var c in OnAfterDamageDealCallbacks)
@@ -277,8 +282,8 @@ namespace StrategyCore
             }
             else
             {
-                if (followTarget) ownerUnit.DealDamage(targetUnit, amount, damageType, directAttack, target.transform.position);
-                else ownerUnit.DealDamage(targetUnit, amount, damageType, directAttack, targetPosition);
+                if (followTarget) ownerUnit.DealDamage(targetUnit, amount, damageType, directAttack, target.transform.position, sourceAbility);
+                else ownerUnit.DealDamage(targetUnit, amount, damageType, directAttack, targetPosition, sourceAbility);
             }
         }
 
@@ -337,7 +342,7 @@ namespace StrategyCore
         /// <param name="followTarget">Should the projectile follow the target. When off it must have Splash on!</param>
         /// <param name="FoWVisibilityCheck">Should the projectile not be visible in FoW.</param>
         /// <returns>Spawned projectile.</returns>
-        public static Projectile Spawn(int owner, Unit whoSent, Projectile prefab, Vector3 position, Quaternion rotation, Unit target, bool directAttack, float damage, DamageType dmgType, bool followTarget = true, bool FoWVisibilityCheck = true)
+        public static Projectile Spawn(int owner, Unit whoSent, Projectile prefab, Vector3 position, Quaternion rotation, Unit target, bool directAttack, float damage, DamageType dmgType, bool followTarget = true, bool FoWVisibilityCheck = true, Ability sourceAbility = null)
         {
             Projectile p = InternalSpawn(whoSent, owner, prefab, position, rotation, target, Vector3.zero, new UnitSelector(), new UnitSelector(), damage, directAttack, true, FoWVisibilityCheck);
 
@@ -363,6 +368,7 @@ namespace StrategyCore
             }
 
             p.damageType = dmgType;
+            p.sourceAbility = sourceAbility;
 
             return p;
         }
@@ -382,10 +388,11 @@ namespace StrategyCore
         /// <param name="followTarget">Should the projectile follow the target. When off it must have Splash on!</param>
         /// <param name="FoWVisibilityCheck">Should the projectile not be visible in FoW.</param>
         /// <returns>Spawned projectile.</returns>
-        public static Projectile Spawn(int owner, Unit whoSent, Projectile prefab, Vector3 position, Quaternion rotation, Vector3 targetPosition, bool directAttack, float damage, DamageType dmgType, bool FoWVisibilityCheck = true)
+        public static Projectile Spawn(int owner, Unit whoSent, Projectile prefab, Vector3 position, Quaternion rotation, Vector3 targetPosition, bool directAttack, float damage, DamageType dmgType, bool FoWVisibilityCheck = true, Ability sourceAbility = null)
         {
             Projectile p = InternalSpawn(whoSent, owner, prefab, position, rotation, null, targetPosition, new UnitSelector(), new UnitSelector(), damage, directAttack, true, FoWVisibilityCheck);
             p.damageType = dmgType;
+            p.sourceAbility = sourceAbility;
 
             return p;
         }

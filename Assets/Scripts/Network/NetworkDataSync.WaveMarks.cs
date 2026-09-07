@@ -39,7 +39,8 @@ namespace StrategyCore
 
         /// <summary>
         /// Сервер → клиенты: актуальные пометки команды (авто-типы + разовые-типы). Вызывается из MatchManager
-        /// после каждого изменения. Поздний вход (mid-game join) НЕ покрыт — как и PointSync.
+        /// после каждого изменения. Вошедшему в середине матча пометки досылаются отдельно
+        /// (Б11: WaveMarksResendSend, NetworkDataSync.MatchResend.cs).
         /// </summary>
         public void WaveMarksSend(int teamIndex, int[] autoIds, int[] oneShotIds)
         {

@@ -26,13 +26,17 @@ namespace StrategyCore
 
         /// <summary>Списать pct текущего ХП с цели. asDamage=true — через броню/тип (DealDamage, уважает isInvulnerable);
         /// иначе флэт ChangeHP (инвула не защищает). Только сервер. Возвращает списанную/запрошенную величину.</summary>
-        public static float ApplyToTarget(Unit target, int byOwner, Unit byUnit, float pct, bool asDamage, DamageType type)
+        public static float ApplyToTarget(Unit target, int byOwner, Unit byUnit, float pct, bool asDamage, DamageType type,
+                                          Ability sourceAbility) // умение-источник для диагностики очереди пакетов (решение Artsiom 05.09.2026); null — без умения
         {
             if (NetworkConnectionHandler.isClient) return 0f;   // списание — только сервер (правило 6)
             if (target == null || target.dead || pct <= 0f) return 0f;
             float cost = pct * target.health;
             if (asDamage)
-                target.GetDamage(cost, type, byOwner, byUnit, false, out _); // через броню/тип (не directAttack)
+            {
+                DamagePacket packet = DamagePacket.Create(cost, type, byOwner, byUnit, false, sourceAbility);   // [Interflow fix 2026-09-04 damage-full-packet] пакет одной записи
+                target.GetDamage(in packet, out _); // через броню/тип (не directAttack)
+            }
             else
                 target.ChangeHP(-cost);                         // флэт
             return cost;

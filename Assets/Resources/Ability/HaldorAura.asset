@@ -9,9 +9,9 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 1800547c4a9891143a565a89785e916d, type: 3}
+  m_Script: {fileID: 11500000, guid: 7e4e62b425a51ad40a0252b2c65f29c4, type: 3}
   m_Name: HaldorAura
-  m_EditorClassIdentifier: Assembly-CSharp::StrategyCore.EffectorAura
+  m_EditorClassIdentifier: Assembly-CSharp::StrategyCore.CompositePassive
   id: 66154
   abilityName:
   - "\u041E\u0431\u0438\u0442\u0435\u043B\u044C \u0414\u043E\u043B\u0433\u0430"
@@ -52,10 +52,17 @@ MonoBehaviour:
   requiresCastingUnit: 1
   duration: []
   requiredTech: []
-  requiredLevel: 01000000
   manaCost: []
   manaCostPerSecond: []
   cost: []
-  effectors:
-  - {fileID: 11400000, guid: b8868fd704c3946468be83bff1a99f49, type: 2}
-  auraVFX: {fileID: 0}
+  aura:
+    enabled: 1
+    condition: 0
+    damagePerSecond: 0
+    damageType: {fileID: 0}
+    effectors:
+    - {fileID: 11400000, guid: b8868fd704c3946468be83bff1a99f49, type: 2}
+    onlyMeleeUnits: 0
+    movementEpsilon: 0.02
+    missingHpFrom: 0.25
+    includeSelf: 1

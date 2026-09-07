@@ -5,8 +5,8 @@ namespace StrategyCore
 {
     /// <summary>
     /// ВИЗУАЛЬНЫЕ статусы юнита, присланные единым каналом синка статусов (2026-08-05:
-    /// NetworkDataSync.UnitStatus — эффекторы от ЛЮБОГО источника, флаги вроде слепоты, VFX бафов
-    /// скиллов): значок в панели состояний/шкале и VFX.
+    /// NetworkDataSync.UnitStatus — эффекторы от ЛЮБОГО источника, включая служебные состояния
+    /// контроля, и VFX бафов скиллов): значок в панели состояний/шкале и VFX.
     /// Ровно презентация и ничего больше — ни урона, ни модификаторов статов, ни таймеров геймплея.
     ///
     /// Зачем отдельный носитель. В движке `Effector` — это геймплейный объект, который живёт в локальной
@@ -33,13 +33,16 @@ namespace StrategyCore
         {
             public int key;                 // ≥ 0 — id эффектора; < 0 — VFX бафа скилла (см. BuffKey)
             public Effector iconSource;     // источник значка; null — запись только с VFX
+            // [Interflow fix 2026-09-03 control-as-effectors] Присланный ассет — ВСЕГДА, даже когда значка
+            // он не даёт (стакающий или без иконки) и даже когда запись живёт ради одного VFX. Из него
+            // клиент выводит флаги контроля, а условие показа значка (`!stacks && icon != null`) с наличием
+            // признаков контроля никак не связано. null — запись про VFX бафа скилла, ассета у неё нет.
+            public Effector source;
             public VFXReferencer vfxInstance;
             public float remaining;         // бесконечность — висит, пока юнит жив
         }
 
         readonly List<Entry> entries = new List<Entry>();
-        // Флаги наших состояний без эффектора (слепота и т.п.) — приходят тем же каналом.
-        readonly HashSet<UnitStatusFlag> flags = new HashSet<UnitStatusFlag>();
         Unit unit;
         bool subscribed;
 
@@ -83,7 +86,7 @@ namespace StrategyCore
 
             // unitCentre = false: ровно так же вешает VFX эффектора само ядро (`Effector.EffectorAdd`
             // зовёт `AddVFX(VFX, aboveHead)`), иначе у клиента и хоста визуал был бы на разной высоте.
-            Get(target).Add(effector.id, iconSource, effector.VFX, duration, 0f, effector.aboveHead, false);
+            Get(target).Add(effector.id, iconSource, effector, effector.VFX, duration, 0f, effector.aboveHead, false);
         }
 
         /// <summary>Показать VFX длящегося бафа. Значка у него нет — значок даёт отдельный эффектор-статус.</summary>
@@ -95,7 +98,7 @@ namespace StrategyCore
             // unitCentre = true ВСЕГДА: все четыре старых буфа звали `AddVFX(vfx, false, true)`,
             // то есть визуал стоял на середине юнита, а не у ног. Привязывать это к наличию ауры нельзя:
             // у «Благословения Небес» и «Железного приговора» ауры нет, а визуал был по центру.
-            Get(target).Add(BuffKey(abilityId), null, vfx, duration, auraRadius, false, true);
+            Get(target).Add(BuffKey(abilityId), null, null, vfx, duration, auraRadius, false, true);
         }
 
         static SkillVisualStatus Get(Unit target)
@@ -105,7 +108,7 @@ namespace StrategyCore
             return holder;
         }
 
-        void Add(int key, Effector iconSource, VFXReferencer vfx, float duration, float auraRadius, bool aboveHead, bool unitCentre)
+        void Add(int key, Effector iconSource, Effector source, VFXReferencer vfx, float duration, float auraRadius, bool aboveHead, bool unitCentre)
         {
             if (unit == null) unit = GetComponent<Unit>();
             if (unit == null) return;
@@ -118,6 +121,7 @@ namespace StrategyCore
 
                 // Перекаст мог прийти с ДРУГОГО уровня скилла: размер ауры и источник значка берём свежие,
                 // иначе сервер считал бы ауру по новому радиусу, а кольцо у клиента оставалось от первого каста.
+                if (source != null) entry.source = source;
                 if (iconSource != null && entry.iconSource != iconSource)
                 {
                     entry.iconSource = iconSource;
@@ -127,7 +131,7 @@ namespace StrategyCore
                 return;
             }
 
-            entry = new Entry { key = key, iconSource = iconSource, remaining = duration };
+            entry = new Entry { key = key, iconSource = iconSource, source = source, remaining = duration };
 
             if (vfx != null)
             {
@@ -146,6 +150,11 @@ namespace StrategyCore
             }
 
             if (iconSource != null) unit.OnStatusUpdate?.Invoke(); // панель состояний перерисуется
+
+            // [Interflow fix 2026-09-03 control-as-effectors] Набор присланных состояний изменился —
+            // клиент выводит из него флаги контроля (замирание анимаций). Состояние по-прежнему
+            // живёт на сервере: здесь только отражение (правило 6).
+            unit.RecalculateControl();
         }
 
         Entry Find(int key)
@@ -176,28 +185,16 @@ namespace StrategyCore
             holder.entries.Remove(entry);
 
             if (hadIcon && holder.unit != null) holder.unit.OnStatusUpdate?.Invoke();
+
+            // [Interflow fix 2026-09-03 control-as-effectors] Состояние ушло — пересобрать флаги контроля.
+            if (holder.unit != null) holder.unit.RecalculateControl();
+
             if (holder.entries.Count == 0) holder.Cleanup();
         }
 
-        /// <summary>Сервер сообщил: флаг состояния без эффектора (слепота и т.п.) включён/выключен.</summary>
-        public static void SetFlag(Unit target, UnitStatusFlag flag, bool state)
-        {
-            if (Utils.Headless || target == null || target.dead) return;
-
-            if (state)
-            {
-                SkillVisualStatus holder = Get(target);
-                if (holder.flags.Add(flag) && holder.unit != null) holder.unit.OnStatusUpdate?.Invoke();
-            }
-            else
-            {
-                SkillVisualStatus holder = target.GetComponent<SkillVisualStatus>();
-                if (holder != null && holder.flags.Remove(flag) && holder.unit != null) holder.unit.OnStatusUpdate?.Invoke();
-            }
-        }
-
-        /// <summary>Активен ли присланный сервером флаг (чтение для перечислителя значков).</summary>
-        public bool HasFlag(UnitStatusFlag flag) => flags.Contains(flag);
+        // [Interflow fix 2026-09-03 control-as-effectors] SetFlag / HasFlag и набор флагов СНЕСЕНЫ:
+        // единственным флагом была слепота, а она стала обычным состоянием со значком и приезжает
+        // сюда сообщением про эффектор, как все остальные.
 
         /// <summary>Растянуть визуал под радиус ауры. Ноль — ауры нет, визуал остаётся авторского размера.</summary>
         void ApplyAuraScale(Entry e, float auraRadius)
@@ -232,6 +229,11 @@ namespace StrategyCore
             }
 
             if (iconRemoved && unit != null) unit.OnStatusUpdate?.Invoke();
+
+            // [Interflow fix 2026-09-03 control-as-effectors] Записи могли истечь по местному таймеру
+            // (страховка на случай потери сообщения «снят») — пересобрать флаги контроля.
+            if (unit != null) unit.RecalculateControl();
+
             if (entries.Count == 0) Cleanup();
         }
 
@@ -246,6 +248,23 @@ namespace StrategyCore
                 for (int i = 0; i < entries.Count; i++) if (entries[i].iconSource != null) count++;
                 return count;
             }
+        }
+
+        /// <summary>Сколько присланных сервером записей сейчас держит компонент (значки и VFX вместе).
+        /// Нужен клиентскому пересчёту контроля — он перебирает ассеты этих записей.</summary>
+        public int EntryCount => entries.Count;
+
+        /// <summary>
+        /// Ассет состояния по порядковому номеру записи. false — записи нет либо это VFX без ассета
+        /// (у такой записи признаков контроля взять негде). Читает клиентский пересчёт контроля
+        /// (<c>Unit.RecalculateControl</c>): состояние живёт на сервере, клиенту приезжает id ассета.
+        /// </summary>
+        public bool TryGetEffector(int index, out Effector effector)
+        {
+            if (index < 0 || index >= entries.Count) { effector = null; return false; }
+
+            effector = entries[index].source;
+            return effector != null;
         }
 
         /// <summary>Значок по порядковому номеру: id эффектора и картинка. false — такого значка нет.</summary>

@@ -5,12 +5,12 @@ namespace StrategyCore.Tests
     /// <summary>
     /// Выборка значения по уровню — общая для ВСЕХ способностей Interflow (InterflowAbility).
     /// Тихое расхождение здесь двигает баланс всего контента и в игре не видно: живые ассеты
-    /// сегодня имеют maxLevels = 1, поэтому прогон матча эту логику не задевает вовсе.
+    /// сегодня имеют не больше одной строки, поэтому прогон матча эту логику не задевает вовсе.
     ///
-    /// Две семантики сознательно разные и обе обязаны сохраниться:
-    ///   LevelValue        — КЛАМП к последнему элементу (EffectorArea, Counterattack и др.);
-    ///   LevelValueOrZero  — «короткий массив → 0» (FlameCloakActive и семейство).
-    /// Значения ниже сняты с живого кода, а не придуманы.
+    /// ОДНО правило (блок Б8, целевая модель §9, решение Artsiom 2026-09-06): элемент 0 — базовое значение,
+    /// остальные — блок по уровням; нет строки для нужного уровня — берётся ПОСЛЕДНЯЯ заполненная, никогда ноль.
+    /// Вторая семантика «короткий массив → 0» (LevelValueOrZero) снесена — тесты на неё удалены вместе с ней.
+    /// Массивы объектов (тип урона, эффектор, статы) выбираются тем же правилом через LevelItem.
     /// </summary>
     public class LevelValueTests
     {
@@ -20,7 +20,7 @@ namespace StrategyCore.Tests
         static readonly float[] Two = { 7f, 8f };
         static readonly float[] Three = { 7f, 8f, 9f };
 
-        // ------------------------------------------------------- LevelValue (кламп) --
+        // ------------------------------------------------------- LevelValue (числа) --
 
         [Test]
         public void LevelValue_МассивNull_ВозвращаетFallback()
@@ -49,66 +49,80 @@ namespace StrategyCore.Tests
         }
 
         [Test]
-        public void LevelValue_УровеньВышеДлины_КлампитКПоследнему()
+        public void LevelValue_НетСтрокиДляУровня_БерётПоследнююЗаполненную_АНеНоль()
         {
+            // Правило Б8: базовое 7, блок по уровням — 8; герой на уровне выше длины остаётся на 8, а не падает в 0.
             Assert.AreEqual(8f, InterflowAbility.LevelValue(Two, 2, Fallback));
             Assert.AreEqual(8f, InterflowAbility.LevelValue(Two, 99, Fallback));
             Assert.AreEqual(7f, InterflowAbility.LevelValue(One, 3, Fallback));
+            Assert.AreNotEqual(0f, InterflowAbility.LevelValue(Two, 99));
         }
 
         [Test]
-        public void LevelValue_ОтрицательныйУровень_БерётПервый()
+        public void LevelValue_БлокПоУровнямПуст_ВсегдаБазовое()
         {
+            // Одна строка — умение работает на базовом значении при любом уровне носителя.
+            for (int level = 0; level < 10; level++)
+                Assert.AreEqual(7f, InterflowAbility.LevelValue(One, level, Fallback), "уровень " + level);
+        }
+
+        [Test]
+        public void LevelValue_ОтрицательныйУровень_БерётБазовое()
+        {
+            // Уровень −1 (неулучшенное умение героя до Б9) обязан давать базовое значение, а не падать.
             Assert.AreEqual(7f, InterflowAbility.LevelValue(Three, -1, Fallback));
             Assert.AreEqual(7f, InterflowAbility.LevelValue(Three, -99, Fallback));
         }
 
-        // ------------------------------------ LevelValueOrZero («короткий массив → 0») --
+        // -------------------------------------------------------- LevelItem (объекты) --
+
+        class Marker { public readonly string name; public Marker(string n) { name = n; } }
+
+        static readonly Marker A = new Marker("A");
+        static readonly Marker B = new Marker("B");
+        static readonly Marker[] OneItem = { A };
+        static readonly Marker[] TwoItems = { A, B };
 
         [Test]
-        public void LevelValueOrZero_МассивNullИлиПустой_Ноль()
+        public void LevelItem_МассивNullИлиПустой_Null()
         {
-            Assert.AreEqual(0f, InterflowAbility.LevelValueOrZero(null, 0));
-            Assert.AreEqual(0f, InterflowAbility.LevelValueOrZero(new float[0], 0));
+            Assert.IsNull(InterflowAbility.LevelItem<Marker>(null, 0));
+            Assert.IsNull(InterflowAbility.LevelItem(new Marker[0], 0));
         }
 
         [Test]
-        public void LevelValueOrZero_ВДиапазоне_БерётСвойЭлемент()
+        public void LevelItem_ВДиапазоне_БерётСвойЭлемент()
         {
-            Assert.AreEqual(7f, InterflowAbility.LevelValueOrZero(Three, 0));
-            Assert.AreEqual(8f, InterflowAbility.LevelValueOrZero(Three, 1));
-            Assert.AreEqual(9f, InterflowAbility.LevelValueOrZero(Three, 2));
+            Assert.AreSame(A, InterflowAbility.LevelItem(TwoItems, 0));
+            Assert.AreSame(B, InterflowAbility.LevelItem(TwoItems, 1));
         }
 
         [Test]
-        public void LevelValueOrZero_УровеньВышеДлины_Ноль_АНеПоследний()
+        public void LevelItem_НетСтрокиДляУровня_БерётПоследнюю()
         {
-            // Ключевое отличие от LevelValue: НЕ кламп. Именно на это опирались
-            // FlameCloakActive / HeavensBlessingActive / IronVerdictActive / SacrificialPyreActive.
-            Assert.AreEqual(0f, InterflowAbility.LevelValueOrZero(Two, 2));
-            Assert.AreEqual(0f, InterflowAbility.LevelValueOrZero(One, 1));
+            // Тип урона «Дыхания дракона» на первом уровне героя раньше выходил за границы — теперь берётся последний.
+            Assert.AreSame(B, InterflowAbility.LevelItem(TwoItems, 2));
+            Assert.AreSame(A, InterflowAbility.LevelItem(OneItem, 5));
         }
 
         [Test]
-        public void LevelValueOrZero_ОтрицательныйУровень_Ноль()
+        public void LevelItem_ОтрицательныйУровень_БерётБазовое()
         {
-            Assert.AreEqual(0f, InterflowAbility.LevelValueOrZero(Three, -1));
+            Assert.AreSame(A, InterflowAbility.LevelItem(TwoItems, -1));
         }
 
-        // ---------------------------------------------------------------- Расхождение --
+        // ---------------------------------------------------------- Одно правило --
 
         [Test]
-        public void ДвеСемантикиРасходятсяРовноЗаПределамиМассива()
+        public void ЧислаИОбъектыВыбираютсяОднимПравилом()
         {
-            // Внутри массива обе функции обязаны давать одно и то же...
-            for (int level = 0; level < Three.Length; level++)
-                Assert.AreEqual(InterflowAbility.LevelValue(Three, level),
-                                InterflowAbility.LevelValueOrZero(Three, level),
-                                "уровень " + level + ": внутри массива семантики обязаны совпадать");
-
-            // ...и разойтись сразу за его границей: кламп против нуля.
-            Assert.AreEqual(9f, InterflowAbility.LevelValue(Three, 3));
-            Assert.AreEqual(0f, InterflowAbility.LevelValueOrZero(Three, 3));
+            // Для любого уровня индекс, по которому берётся число, совпадает с индексом объекта той же длины массива.
+            for (int level = -2; level < 6; level++)
+            {
+                float number = InterflowAbility.LevelValue(Two, level);
+                Marker item = InterflowAbility.LevelItem(TwoItems, level);
+                Assert.AreEqual(number == 7f ? A : B, item, "уровень " + level);
+            }
         }
     }
 }

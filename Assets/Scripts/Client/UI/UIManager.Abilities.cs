@@ -132,14 +132,8 @@ namespace StrategyCore
                         }
                     }
                 }
-                else
-                {
-                    // If ability level is -1, it means it is levelable ability that was not learnt, skip it
-                    if (pc.activeUnit.abilityLevel[abilityIndex] == -1)
-                    {
-                        continue;
-                    }
-                }
+                // Пропуск невыученных умений (уровень −1) снят блоком Б9: улучшаемое умение открыто технологией
+                // и видно сразу, на базовых значениях.
 
                 // If slot number is higher than current slotSize, increase slot size.
                 if (abilities[i].slotNumber >= totalSlotSize)
@@ -267,11 +261,7 @@ namespace StrategyCore
                         }
                     }
 
-                    // If toggle is active, add indicator
-                    if (abilities[slotToAbilityIndex[i]].type == AbilityType.Toggle && pc.activeUnit.IndexOfEveryFrameAbility(slotToGlobalAbilityIndex[i], false) != -1)
-                    {
-                        element.AddToClassList("activeAbility");
-                    }
+                    // Индикатор «переключатель включён» снят блоком Б6 (2026-09-04): переключаемых умений нет.
 
                     // If ability has cooldown, show it
                     if (!isLeveling)
@@ -319,12 +309,7 @@ namespace StrategyCore
 
                     if (element != null)
                     {
-                        // If toggle is active, add indicator
-                        Ability itemAbility = (Ability)pc.activeUnit.items[i];
-                        if (itemAbility.type == AbilityType.Toggle && pc.activeUnit.IndexOfEveryFrameAbility(itemAbility, true) != -1)
-                        {
-                            element.AddToClassList("activeAbility");
-                        }
+                        // Индикатор «переключатель включён» снят блоком Б6 (2026-09-04).
 
                         // If ability has cooldown, show it
                         int abilityCooldownIndex = pc.activeUnit.GetAbilityCooldownIndex(i, true);
@@ -478,7 +463,7 @@ namespace StrategyCore
                     else if (clickedAbility.type == AbilityType.Area)
                     {
                         int lvl = (isItem) ? 0 : pc.activeUnit.abilityLevel[abilityIndex];
-                        pc.ChangeMode(PCMode.Area, clickedAbility.radius[lvl], abilityIndex, isItem, clickedAbility);
+                        pc.ChangeMode(PCMode.Area, InterflowAbility.LevelValue(clickedAbility.radius, lvl), abilityIndex, isItem, clickedAbility);   // Б8: выборка по уровню
                         ShowCancelButton();
                     }
 
@@ -519,15 +504,11 @@ namespace StrategyCore
                     else if (clickedAbility.type == AbilityType.Construction)
                     {
                         int lvl = (isItem) ? 0 : pc.activeUnit.abilityLevel[abilityIndex];
-                        pc.ChangeMode(PCMode.Placement, clickedAbility.radius[lvl], abilityIndex, isItem, clickedAbility);
+                        pc.ChangeMode(PCMode.Placement, InterflowAbility.LevelValue(clickedAbility.radius, lvl), abilityIndex, isItem, clickedAbility);   // Б8: выборка по уровню
                         ShowCancelButton();
                     }
 
-                    // Toggle
-                    else if (clickedAbility.type == AbilityType.Toggle)
-                    {
-                        pc.activeUnit.UseAbilityItem(abilityIndex, isItem, null, Vector3.zero, true);
-                    }
+                    // Ветка переключателя снята блоком Б6 (2026-09-04) — такого типа умений больше нет.
 
                     // Active
                     else if (clickedAbility.type == AbilityType.Active)
@@ -561,7 +542,10 @@ namespace StrategyCore
                 }
                 else
                 {
-                    cooldownElements[i].style.scale = new StyleScale(new Vector2(1, pc.activeUnit.cooldownAbility[abilityIndex] / pc.activeUnit.abilities[pc.activeUnit.cooldownAbilityIndex[abilityIndex]].cooldown[pc.activeUnit.abilityLevel[pc.activeUnit.cooldownAbilityIndex[abilityIndex]]]));
+                    // Полный откат — общей выборкой по уровням (Б8): прямой индекс падал бы у героя выше числа строк отката.
+                    int cdIndex = pc.activeUnit.cooldownAbilityIndex[abilityIndex];
+                    float fullCooldown = InterflowAbility.LevelValue(pc.activeUnit.abilities[cdIndex].cooldown, pc.activeUnit.abilityLevel[cdIndex]);
+                    cooldownElements[i].style.scale = new StyleScale(new Vector2(1, fullCooldown != 0 ? pc.activeUnit.cooldownAbility[abilityIndex] / fullCooldown : 0));
                 }
                 cooldownTimers[i].text = pc.activeUnit.cooldownAbility[abilityIndex].ToString("F2");
             }
@@ -598,13 +582,12 @@ namespace StrategyCore
                 if (hoveredAbility != null)
                 {
                     // Name set
-                    if (pc.activeUnit.abilityLevel[abilityIndex] == -1) descriptorName.text = hoveredAbility.abilityName[0];
-                    else if (hoveredAbility.abilityName.Length > pc.activeUnit.abilityLevel[abilityIndex]) descriptorName.text = hoveredAbility.abilityName[pc.activeUnit.abilityLevel[abilityIndex]];
+                    if (hoveredAbility.abilityName.Length > pc.activeUnit.abilityLevel[abilityIndex]) descriptorName.text = hoveredAbility.abilityName[pc.activeUnit.abilityLevel[abilityIndex]];
                     else descriptorName.text = hoveredAbility.abilityName[hoveredAbility.abilityName.Length - 1];
 
                     // Hotkey
                     int elemIndex = abilityScrollView.IndexOf(hoveredElement);
-                    if (elemIndex != -1 && hoveredAbility.type != AbilityType.Aura && hoveredAbility.type != AbilityType.Passive)
+                    if (elemIndex != -1 && hoveredAbility.type != AbilityType.Passive)
                     {
                         descriptorHotkey.style.display = DisplayStyle.Flex;
 
@@ -660,11 +643,7 @@ namespace StrategyCore
                         descriptorLockNames.Clear();
 
                         // Display tech that is required for this ability
-                        // Level requirements
-                        if (hoveredAbility.requiredLevel.Length > abilityLevel)
-                        {
-                            LockNameCreate("Level " + hoveredAbility.requiredLevel[abilityLevel], "Gain more XP to increase your level.");
-                        }
+                        // (замок «нужен уровень юнита» снесён блоком Б8: умения открываются только технологией)
                         // Tech requirements
                         if (hoveredAbility.requiredTech.Length > abilityLevel)
                         {
@@ -688,18 +667,8 @@ namespace StrategyCore
                     descriptorResourceCost.Clear();
                     descriptorCostBox.style.display = DisplayStyle.None;
 
-                    if (hoveredAbility.manaCost.Length > abilityLevel && hoveredAbility.manaCost[abilityLevel] != 0)
-                    {
-                        // Mana
-                        CostElementCreate(hoveredAbility.manaCost[abilityLevel], true, false);
-                        descriptorCostBox.style.display = DisplayStyle.Flex;
-                    }
-                    if (hoveredAbility.manaCostPerSecond.Length > abilityLevel && hoveredAbility.manaCostPerSecond[abilityLevel] != 0)
-                    {
-                        // Mana cost per second
-                        CostElementCreate(hoveredAbility.manaCostPerSecond[abilityLevel], true, false, null, true);
-                        descriptorCostBox.style.display = DisplayStyle.Flex;
-                    }
+                    // Цены в мане у умений нет (Б5, 2026-09-04) — строка «мана» в тултипе снята.
+                    // Цена в мане за секунду снята блоком Б6 (2026-09-04) вместе с переключателями и каналами.
 
                     if (hoveredAbility.cooldown.Length > abilityLevel && hoveredAbility.cooldown[abilityLevel] != 0)
                     {
@@ -719,23 +688,22 @@ namespace StrategyCore
                     }
 
                     // Description
-                    if (pc.activeUnit.abilityLevel[abilityIndex] == -1) descriptorDescription.text = hoveredAbility.description[0];
-                    else if (hoveredAbility.description.Length > pc.activeUnit.abilityLevel[abilityIndex]) descriptorDescription.text = hoveredAbility.description[pc.activeUnit.abilityLevel[abilityIndex]];
+                    if (hoveredAbility.description.Length > pc.activeUnit.abilityLevel[abilityIndex]) descriptorDescription.text = hoveredAbility.description[pc.activeUnit.abilityLevel[abilityIndex]];
                     else descriptorDescription.text = hoveredAbility.description[hoveredAbility.abilityName.Length - 1];
 
                     // Bottom Descriptor
                     descriptorBottomText.style.display = DisplayStyle.Flex;
                     descriptorBottomText.text = "";
-                    if (hoveredAbility.castTime.Length > abilityLevel && hoveredAbility.type != AbilityType.Aura && hoveredAbility.type != AbilityType.Passive)
+                    if (hoveredAbility.castTime.Length > abilityLevel && hoveredAbility.type != AbilityType.Passive)
                     {
                         descriptorBottomText.text += "CAST TIME: " + hoveredAbility.castTime[abilityLevel] + "s";
                     }
-                    if (hoveredAbility.castRange.Length > abilityLevel && hoveredAbility.type != AbilityType.Aura && hoveredAbility.type != AbilityType.Passive)
+                    if (hoveredAbility.castRange.Length > abilityLevel && hoveredAbility.type != AbilityType.Passive)
                     {
                         if (descriptorBottomText.text != "") descriptorBottomText.text += "\n";
                         descriptorBottomText.text += "CAST RANGE: " + hoveredAbility.castRange[abilityLevel];
                     }
-                    if (hoveredAbility.duration.Length > abilityLevel && hoveredAbility.type != AbilityType.Aura && hoveredAbility.type != AbilityType.Passive)
+                    if (hoveredAbility.duration.Length > abilityLevel && hoveredAbility.type != AbilityType.Passive)
                     {
                         if (descriptorBottomText.text != "") descriptorBottomText.text += "\n";
                         descriptorBottomText.text += "DURATION: " + hoveredAbility.duration[abilityLevel];
@@ -747,8 +715,6 @@ namespace StrategyCore
                     }
                     if (descriptorBottomText.text != "") descriptorBottomText.text += "\n";
                     descriptorBottomText.text += "TYPE: " + hoveredAbility.type;
-
-                    if (hoveredAbility.continuous) descriptorBottomText.text += " / CONTINUOUS";
 
                     descriptor.style.display = DisplayStyle.Flex;
                 }

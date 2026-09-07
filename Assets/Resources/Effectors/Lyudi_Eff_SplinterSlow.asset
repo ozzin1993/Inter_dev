@@ -11,11 +11,11 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: fae4d907023251b4c80d78fe85c1ad3e, type: 3}
   m_Name: Lyudi_Eff_SplinterSlow
-  m_EditorClassIdentifier:
+  m_EditorClassIdentifier: 
   id: 200504
-  displayName: "Осколки: −30% скорости"
+  displayName: "\u041E\u0441\u043A\u043E\u043B\u043A\u0438: \u221230% \u0441\u043A\u043E\u0440\u043E\u0441\u0442\u0438"
   icon: {fileID: 0}
-  description: ""
+  description: 
   VFX: {fileID: 0}
   aboveHead: 0
   permanent: 0
@@ -50,3 +50,11 @@ MonoBehaviour:
     xpRewardPercentageChange: 0
     attributeChanges: []
     attributePercentageChange: []
+  healReceivedMultiplierOn: 0
+  healReceivedMultiplier: 1
+  stuns: 0
+  mutes: 0
+  disarms: 0
+  blinds: 0
+  blindMissChance: 0
+  category: 5

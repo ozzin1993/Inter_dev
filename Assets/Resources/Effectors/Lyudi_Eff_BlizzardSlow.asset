@@ -14,8 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   id: 200503
   displayName: "\u041B\u0435\u0434\u044F\u043D\u043E\u0439 \u0428\u043A\u0432\u0430\u043B:
-    \u221240% \u0441\u043A\u043E\u0440\u043E\u0441\u0442\u0438 \u0430\u0442\u0430\u043A\u0438
-    \u0438 \u043F\u0435\u0440\u0435\u0434\u0432\u0438\u0436\u0435\u043D\u0438\u044F"
+    \u221240% \u0441\u043A\u043E\u0440\u043E\u0441\u0442\u0438 \u043F\u0435\u0440\u0435\u0434\u0432\u0438\u0436\u0435\u043D\u0438\u044F"
   icon: {fileID: 0}
   description: 
   VFX: {fileID: 8847030502823628414, guid: 659b97f6e24449a438ddbe8ce7d0ee1b, type: 3}
@@ -32,7 +31,7 @@ MonoBehaviour:
     damageChange: 0
     damagePercentageChange: 0
     attackSpeedChange: 0
-    attackSpeedPercentageChange: -0.4
+    attackSpeedPercentageChange: 0
     attackRangeChange: 0
     attackRangePercentageChange: 0
     armorChange: 0
@@ -52,3 +51,11 @@ MonoBehaviour:
     xpRewardPercentageChange: 0
     attributeChanges: []
     attributePercentageChange: []
+  healReceivedMultiplierOn: 0
+  healReceivedMultiplier: 1
+  stuns: 0
+  mutes: 0
+  disarms: 0
+  blinds: 0
+  blindMissChance: 0
+  category: 5

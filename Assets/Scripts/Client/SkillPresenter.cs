@@ -53,6 +53,7 @@ namespace StrategyCore
             SkillPresentationEvents.ZoneSpawned += HandleZoneSpawned;
             SkillPresentationEvents.ZoneDespawned += HandleZoneDespawned;
             SkillPresentationEvents.ShieldChanged += HandleShieldChanged;
+            SkillPresentationEvents.BattleFact += HandleBattleFact;
             SceneManager.sceneLoaded += HandleSceneLoaded;
         }
 
@@ -66,11 +67,75 @@ namespace StrategyCore
             SkillPresentationEvents.ZoneSpawned -= HandleZoneSpawned;
             SkillPresentationEvents.ZoneDespawned -= HandleZoneDespawned;
             SkillPresentationEvents.ShieldChanged -= HandleShieldChanged;
+            SkillPresentationEvents.BattleFact -= HandleBattleFact;
             SceneManager.sceneLoaded -= HandleSceneLoaded;
         }
 
         /// <summary>Поглощающий щит юнита изменился — серый сегмент на полоске здоровья рисует ShieldBarDisplay.</summary>
         static void HandleShieldChanged(Unit unit, float amount) => ShieldBarDisplay.LocalShow(unit, amount);
+
+        // ============================== РАЗОВЫЕ НАДПИСИ В БОЮ ==============================
+        // §15 схемы, решения Artsiom Р1–Р7 от 07.09.2026. Сервер прислал ФАКТ и ПРИЧИНУ, слова и цвета
+        // берём здесь — боевой код про них не знает (решение Р6). Форма — готовый всплывающий текст (Р2),
+        // видно всем, кто видит юнита (Р3): отсев делают собственные гейты текста (headless, кадр, туман).
+
+        /// <summary>
+        /// По юниту произошло разовое событие боя — пишем надпись над ним.
+        /// <c>sync: false</c> ОБЯЗАТЕЛЕН: факт уже разослан сервером своим сообщением, а при <c>sync: true</c>
+        /// сервер ретранслировал бы текст второй раз (<c>Core/FloatingText.cs</c>), и клиент увидел бы две надписи.
+        /// </summary>
+        void HandleBattleFact(Unit unit, BattleFactReason reason, float value)
+        {
+            if (unit == null) return;
+
+            string text = FactText(reason, value);
+            if (string.IsNullOrEmpty(text)) return;
+
+            Vector3 above = unit.transform.position + new Vector3(0f, unit.unitHeight, 0f);
+            FloatingText.Spawn(-1, above, text, FactColor(reason), false);
+        }
+
+        /// <summary>
+        /// Строка надписи по причине. Ассета настроек может не быть — тогда Settings отдаёт экземпляр
+        /// со значениями по умолчанию, и надписи всё равно показываются (§5.5 промта).
+        /// Число урона выводится ЧИСЛОМ без слов, по формату из настроек.
+        /// </summary>
+        string FactText(BattleFactReason reason, float value)
+        {
+            SkillPresentationSettings s = Settings;
+
+            switch (reason)
+            {
+                case BattleFactReason.HitMissed: return s.hitMissedText;
+                case BattleFactReason.ShieldAbsorbed: return s.shieldAbsorbedText;
+                case BattleFactReason.Invulnerable: return s.invulnerableText;
+                case BattleFactReason.StatusImmune: return s.statusImmuneText;
+                case BattleFactReason.StatusResisted: return s.statusResistedText;
+                case BattleFactReason.DamageDealt: return value.ToString(s.damageNumberFormat);
+            }
+
+            // Номер причины, которого у этого пира нет: сервер новее клиента. Молчать нельзя (правило 9) —
+            // так же кричит канал статусов, когда у клиента нет присланного состояния.
+            Debug.LogError("Desync! Неизвестная причина факта боя: " + (int)reason +
+                           " (HandleBattleFact SkillPresenter)");
+            return null;
+        }
+
+        /// <summary>Цвет надписи по причине. Неизвестная причина сюда не доходит — строка уже отсеяна.</summary>
+        Color FactColor(BattleFactReason reason)
+        {
+            SkillPresentationSettings s = Settings;
+
+            switch (reason)
+            {
+                case BattleFactReason.HitMissed: return s.hitMissedColor;
+                case BattleFactReason.ShieldAbsorbed: return s.shieldAbsorbedColor;
+                case BattleFactReason.Invulnerable: return s.invulnerableColor;
+                case BattleFactReason.StatusImmune: return s.statusImmuneColor;
+                case BattleFactReason.StatusResisted: return s.statusResistedColor;
+                default: return s.damageDealtColor;
+            }
+        }
 
         // Сам презентер переживает смену сцены, а визуалы — нет: они уничтожаются вместе со сценой.
         // Без обнуления реестра там копились бы мёртвые ссылки, а id зон нового матча совпадали бы со старыми.
@@ -158,14 +223,23 @@ namespace StrategyCore
 
         /// <param name="level">Уровень умения. Для зоны сейчас не используется (префаб от уровня не зависит),
         /// но едет в событии вместе с остальными фактами — как у прочих сообщений канала.</param>
-        void HandleZoneSpawned(int zoneId, int abilityID, int level, Vector3 position)
+        /// <param name="carrier">Носитель зоны («аура на время», блок Б7). Не null — копия ставится в КЛИЕНТСКУЮ позицию
+        /// носителя и вешается на его transform, дальше едет с ним сама; мировой масштаб сохраняется (SetParent с
+        /// worldPositionStays). Серверная `position` для неё не годится: клиентская позиция юнита отстаёт на интерполяцию,
+        /// и разница осела бы постоянным смещением копии на весь срок зоны (замечание ревью Б7).
+        /// Погиб носитель — сервер гасит зону обычным деспавном; исчез его объект раньше — копия ушла вместе с ним.</param>
+        void HandleZoneSpawned(int zoneId, int abilityID, int level, Vector3 position, Unit carrier)
         {
             if (zoneVisuals.ContainsKey(zoneId)) return;   // повтор (в т.ч. досыл при подключении) — не дублируем
 
             GameObject prefab = ResolveZonePrefab(abilityID);
             if (prefab == null) return;
 
-            zoneVisuals[zoneId] = Instantiate(prefab, position, Quaternion.identity);
+            Vector3 at = carrier != null ? carrier.transform.position : position;
+            GameObject visual = Instantiate(prefab, at, Quaternion.identity);
+            if (carrier != null) visual.transform.SetParent(carrier.transform, true);
+
+            zoneVisuals[zoneId] = visual;
         }
 
         void HandleZoneDespawned(int zoneId)

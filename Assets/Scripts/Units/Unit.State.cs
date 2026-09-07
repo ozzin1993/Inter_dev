@@ -172,12 +172,12 @@ namespace StrategyCore
                     }
                 }
 
-                // Check distance - we check the distance only before playCast or for activeAbilityInUse
+                // Check distance - we check the distance only before playCast
                 if (activeAbilityRange != 0)
                 {
                     bool distanceGood = true;
                     // When playcast is activated we should check the distance 1.5x
-                    if (playCast && !activeAbilityInUse)
+                    if (playCast)
                     {
                         if ((activeAbilityUnit && (Vector2.Distance(new Vector2(transform.position.x, transform.position.z), new Vector2(activeAbilityUnit.transform.position.x, activeAbilityUnit.transform.position.z)) > activeAbilityRange * Utils.activeDistanceMultiplier))
                         || (activeAbilityLocation != Vector3.zero && (Vector2.Distance(new Vector2(transform.position.x, transform.position.z), new Vector2(activeAbilityLocation.x, activeAbilityLocation.z)) > activeAbilityRange * Utils.activeDistanceMultiplier)))
@@ -196,8 +196,8 @@ namespace StrategyCore
 
                     if (!distanceGood)
                     {
-                        // We were actively using an ability, end it
-                        if (activeAbilityInUse || !canMove) { Idle(); return; }
+                        // Двигаться некуда — прекращаем каст
+                        if (!canMove) { Idle(); return; }
 
                         // Goal is too far
                         // Reset cast time and Follow unit or go to location
@@ -279,35 +279,13 @@ namespace StrategyCore
                 currentActionTime += Time.deltaTime;
 
                 // Check cast time
-                if (!activeAbilityInUse && activeAbilityCastTime != 0 && currentActionTime < activeAbilityCastTime)
+                if (activeAbilityCastTime != 0 && currentActionTime < activeAbilityCastTime)
                 {
                     return;
                 }
 
-                // Time to use ability
-                if (activeAbilityInUse)
-                {
-                    // Check the mana costs
-                    float manaCost = 0;
-                    if (activeAbility.manaCostPerSecond.Length > activeAbilityLevel) manaCost = activeAbility.manaCostPerSecond[activeAbilityLevel] * Time.deltaTime;
-
-                    if (muted || mana < manaCost || (activeAbilityDuration != 0 && currentActionTime > activeAbilityDuration))
-                    {
-                        // Ability can not be used
-                        Idle();
-                        return;
-                    }
-                    else
-                    {
-                        // Ability can be used, Using actively
-                        if (manaCost != 0) ChangeMP(-manaCost);
-
-                        if (activeAbilityUnit) activeAbility.Use(this, this.owner, activeAbilityLevel, activeAbilityUnit, ref activeAbilityVFX);
-                        else if (activeAbilityLocation != Vector3.zero) activeAbility.Use(this, this.owner, activeAbilityLevel, activeAbilityLocation, ref activeAbilityVFX);
-                        else activeAbility.Use(this, this.owner, activeAbilityLevel, ref activeAbilityVFX);
-                    }
-                }
-                else
+                // Time to use ability. Ветка «длящегося» умения (канала) снесена блоком Б6 (2026-09-04)
+                // вместе с флагом activeAbilityInUse — умений-каналов в игре нет.
                 {
                     // Check the cost
                     if ((activeAbilityItem && items[activeAbilityIndex] == null) || CheckAbilityItemRequirements(owner, activeAbilityIndex, activeAbilityItem, activeAbility)) { Idle(); return; }
@@ -781,30 +759,9 @@ namespace StrategyCore
         {
             if (NetworkConnectionHandler.isClient)
             {
-                // Actively using ability
-                if (activeAbilityInUse)
-                {
-                    // Check the mana costs
-                    float manaCost = 0;
-                    if (activeAbility.manaCostPerSecond.Length > activeAbilityLevel) manaCost = activeAbility.manaCostPerSecond[activeAbilityLevel] * Time.deltaTime;
-
-                    // Ability can be used, Using actively
-                    if (manaCost != 0) ChangeMP(-manaCost);
-
-                    if (activeAbilityUnit)
-                    {
-                        activeAbility.Use(this, this.owner, activeAbilityLevel, activeAbilityUnit, ref activeAbilityVFX);
-                        LookAt(activeAbilityUnit.transform.position);
-                    }
-                    else if (activeAbilityLocation != Vector3.zero)
-                    {
-                        activeAbility.Use(this, this.owner, activeAbilityLevel, activeAbilityLocation, ref activeAbilityVFX);
-                        LookAt(activeAbilityLocation);
-                    }
-                    else activeAbility.Use(this, this.owner, activeAbilityLevel, ref activeAbilityVFX);
-                }
+                // Клиентская ветка «длящегося» умения (канала) снесена блоком Б6 (2026-09-04).
                 // Rotation update
-                else if (activeAbilityCastTime != 0) // We use cast time as indicator that cast is currently being performed
+                if (activeAbilityCastTime != 0) // We use cast time as indicator that cast is currently being performed
                 {
                     if (activeAbility.dontTurn)
                     {
@@ -1612,340 +1569,103 @@ namespace StrategyCore
             OnCharacteristicsChange?.Invoke();
         }
 
+        // ============================ КОНТРОЛЬ ============================================
+        // [Interflow fix 2026-09-03 control-as-effectors] Контроль стал состоянием-эффектором
+        // (решение Artsiom 30.08.2026). Здесь остались ТОЛЬКО воронки: отсев «есть ли кому
+        // адресовать» и наложение служебного состояния из справочника StatusIconCatalog.
+        //
+        // Что отсюда ушло:
+        //  - таймеры StunUpdate/MuteUpdate/DisarmUpdate — время теперь отсчитывает жизненный цикл
+        //    наложения, поэтому диспел снимает и контроль;
+        //  - исполнители StunApply/MuteApply/DisarmApply — их тела стали входом и выходом
+        //    состояния в Units/Unit.Control.cs;
+        //  - клиентские Stun(bool)/Mute(bool)/Disarm(bool) — их тела стали клиентскими переходами
+        //    там же, а звать их теперь некому: рассылки контроля снесены, клиенту служебное
+        //    состояние едет единым каналом статусов как любой другой эффектор;
+        //  - проверки «уже в немоте» / «уже обезоружен» — по решению Artsiom 30.08.2026 немота
+        //    и безоружие ПРОДЛЕВАЮТСЯ, как оглушение (прежнее непродление признано дефектом).
+        //
+        // Источник (юнит и слот) протаскивается через воронку — решение Artsiom 03.09.2026,
+        // оно отменяет §2 промта «22 места не трогаются». Причина техническая: у состояния
+        // владелец обязателен (SlotManager.playerTeam индексируется им при слипании, истечении
+        // и диспеле), а безопасной константы «ничей» в этом массиве нет.
+
         /// <summary>
-        /// Stuns the unit for a specified amount of time.
+        /// Оглушить юнита: заморозить на заданное время. Несколько наложений держат оглушение
+        /// до истечения последнего; иммунитет к контролю отбивает наложение в приёмнике.
         /// </summary>
-        /// <param name="time">Stun time.</param>
-        public void Stun(float time)
+        /// <param name="time">Длительность оглушения, секунды.</param>
+        /// <param name="sourceUnit">Юнит-источник. null допустим: зона, чит, загрузка сохранения.</param>
+        /// <param name="sourceOwner">Слот игрока-источника. Обязан быть валидным слотом.</param>
+        public void Stun(float time, Unit sourceUnit, int sourceOwner)
         {
             if (staticObject) return;
 
             // [Interflow fix 2026-08-23 no-status-on-dead] Решение Artsiom: на мёртвых статусы
-            // не вешаются (близнец запрета эффекторов в EffectorAdd). Урон в этом же вызове мог убить
-            // цель (рывок, метеор, снаряд): статус по трупу слал клиентам снятый netID («Desync!»)
-            // и заново подписывал труп на Tick до истечения статуса.
+            // не вешаются. Урон в этом же вызове мог убить цель (рывок, метеор, снаряд).
             if (dead) return;
 
-            // Шаг 1 схемы «пакет и приёмник» (§11.2, §16.1): воронка собирает пакет и отдаёт его
-            // приёмнику. Решение (иммунитет и состояние) — там, исполнение — ниже, в *Apply.
-            // Проверки выше остались здесь по решению Artsiom 28.08.2026: это отсев «есть ли кому
-            // адресовать пакет», и он обязан отработать ДО обращения к приёмнику — дойти до приёмника
-            // значит тронуть игровой объект (TryGetComponent, при первом обращении AddComponent).
-            // Так же устроен шаг 0: dead проверяется в обёртке GetDamage (Unit.Combat.cs:127).
-            // Сигнатура не изменилась — ни одно из мест вызова не трогается.
-            ControlPacket packet = new ControlPacket(ControlType.Stun, time);
-
-            ReceiverEnsure().Receive(in packet);
+            StatusIconCatalog catalog = StatusIconCatalog.Get();
+            ControlEffectorApply(catalog != null ? catalog.stunEffector : null, "оглушения",
+                                 time, sourceUnit, sourceOwner, 1f);
         }
 
         /// <summary>
-        /// Исполнитель оглушения: замораживает юнита и рассылает статус клиентам.
-        /// Тело перенесено из <see cref="Stun(float)"/> без изменений — уехали только проверки
-        /// (отсев в воронку, иммунитет к контролю в приёмник).
-        /// ВНИМАНИЕ: штатный вход — воронка <see cref="Stun(float)"/>. Прямой вызов обходит отсев
-        /// и иммунитет к контролю; метод публичен только потому, что его зовёт приёмник
-        /// <see cref="UnitReceiver"/> — а он отдельный класс и приватные члены Unit не видит.
+        /// Наложить немоту: юнит не может применять умения. Несколько наложений держат немоту
+        /// до истечения последнего (продление — смена поведения, принятая 30.08.2026).
         /// </summary>
-        /// <param name="time">Время оглушения.</param>
-        public void StunApply(float time)
-        {
-            if (stunTime == 0)
-            {
-                // [Interflow fix 2026-08-05 unit-status-sync] Одиночная станная анимация над головой
-                // ОТКЛЮЧЕНА (решение Artsiom 2026-08-05): стан теперь показывает шкала статусов
-                // над полоской здоровья (UnitStatusIconsBar). Снятие stunnedVFX ниже оставлено —
-                // оно безопасно чистит null и прикроет старые экземпляры при откате этой правки.
-
-                // Freeze the unit;
-                if (activeAbilityInUse) Idle();
-                else
-                {
-                    if (!firstAttack) AttackStop();
-                    MakeAgent(false);
-                    EndActiveAbility(false, true);
-                }
-
-                stunned = true;
-                stunTime = time;
-                GameManager.Instance.Tick += StunUpdate;
-            }
-            else if (time > stunTime)
-            {
-                // Already stunned, and new stun time is more than stunTime left
-                stunTime = time;
-            }
-
-            if (NetworkManager.Singleton.IsServer) NetworkDataSync.Instance.StunSetSend(this, true);
-        }
-
-        /// <summary>
-        /// Shows stun VFX. Called on the clients.
-        /// </summary>
-        /// <param name="state">Is unit currently stunned.</param>
-        public void Stun(bool state)
-        {
-            if (state)
-            {
-                stunned = true;
-                // [Interflow fix 2026-08-05 unit-status-sync] Одиночная станная анимация клиента
-                // ОТКЛЮЧЕНА (решение Artsiom 2026-08-05) — стан показывает шкала статусов.
-
-                // Turn off move animation
-                if (m_walkAnimationPlaying)
-                {
-                    m_walkAnimationPlaying = false;
-                    AnimatorSetBool(AnimationState.Walk, false);
-                }
-
-                // Construction animation
-                if (constructionUnit && !constructionUnit.isBuilding && constructionUnit.isWorking)
-                {
-                    AnimatorSetBool(AnimationState.Building, false);
-                }
-            }
-            else if (!state)
-            {
-                stunned = false;
-                stunTime = 0;
-                if (stunnedVFX != null) Destroy(stunnedVFX.gameObject);
-
-                // Construction animation
-                if (constructionUnit && !constructionUnit.isBuilding && constructionUnit.isWorking)
-                {
-                    AnimatorSetBool(AnimationState.Building, true);
-                }
-            }
-        }
-
-        /// <summary>
-        /// Updates the stun timer every GameManager.Tick.
-        /// </summary>
-        private void StunUpdate()
-        {
-            stunTime -= GameManager.Instance.currentDeltaTime;
-
-            if (stunTime <= 0f)
-            {
-                stunned = false;
-                stunTime = 0;
-                GameManager.Instance.Tick -= StunUpdate;
-
-                // Ability cast
-                if (unitState == UnitStates.AbilityCasting)
-                {
-                    currentActionTime = 0;
-                    sendToClients = false;
-                    playCast = false;
-                }
-
-                // Construction animation
-                if (constructionUnit && !constructionUnit.isBuilding && constructionUnit.isWorking)
-                {
-                    AnimatorSetBool(AnimationState.Building, true);
-                }
-
-                if (stunnedVFX != null) Destroy(stunnedVFX.gameObject);
-                if (NetworkManager.Singleton.IsServer) NetworkDataSync.Instance.StunSetSend(this, false);
-            }
-        }
-
-        /// <summary>
-        /// Mutes the unit for a specified amount of time.
-        /// </summary>
-        /// <param name="time">Mute time.</param>
-        public void Mute(float time)
+        /// <param name="time">Длительность немоты, секунды.</param>
+        /// <param name="sourceUnit">Юнит-источник. null допустим.</param>
+        /// <param name="sourceOwner">Слот игрока-источника.</param>
+        public void Mute(float time, Unit sourceUnit, int sourceOwner)
         {
             if (staticObject) return;
-            // [Interflow fix 2026-08-23 no-status-on-dead] Решение Artsiom: на мёртвых статусы
-            // не вешаются (близнец запрета эффекторов в EffectorAdd). Урон в этом же вызове мог убить
-            // цель (рывок, метеор, снаряд): статус по трупу слал клиентам снятый netID («Desync!»)
-            // и заново подписывал труп на Tick до истечения статуса.
             if (dead) return;
 
-            // Шаг 1 схемы «пакет и приёмник» (§11.2, §16.1): воронка собирает пакет и отдаёт его
-            // приёмнику. Решение (иммунитет и состояние) — там, исполнение — ниже, в *Apply.
-            // Проверки выше остались здесь по решению Artsiom 28.08.2026: это отсев «есть ли кому
-            // адресовать пакет», и он обязан отработать ДО обращения к приёмнику — дойти до приёмника
-            // значит тронуть игровой объект (TryGetComponent, при первом обращении AddComponent).
-            // Так же устроен шаг 0: dead проверяется в обёртке GetDamage (Unit.Combat.cs:127).
-            // Сигнатура не изменилась — ни одно из мест вызова не трогается.
-            ControlPacket packet = new ControlPacket(ControlType.Mute, time);
-
-            ReceiverEnsure().Receive(in packet);
+            StatusIconCatalog catalog = StatusIconCatalog.Get();
+            ControlEffectorApply(catalog != null ? catalog.muteEffector : null, "немоты",
+                                 time, sourceUnit, sourceOwner, 1f);
         }
 
         /// <summary>
-        /// Исполнитель немоты: запрещает юниту применять умения и рассылает статус клиентам.
-        /// Тело перенесено из <see cref="Mute(float)"/> без изменений — уехали только проверки
-        /// (отсев в воронку, «уже в немоте» и иммунитет в приёмник).
-        /// ВНИМАНИЕ: штатный вход — воронка <see cref="Mute(float)"/>. Прямой вызов обходит отсев
-        /// и иммунитет к контролю; метод публичен только потому, что его зовёт приёмник
-        /// <see cref="UnitReceiver"/> — а он отдельный класс и приватные члены Unit не видит.
+        /// Обезоружить юнита: он не может атаковать. Несколько наложений держат безоружие
+        /// до истечения последнего (продление — смена поведения, принятая 30.08.2026).
         /// </summary>
-        /// <param name="time">Время немоты.</param>
-        public void MuteApply(float time)
-        {
-            if (currentMuteTime == 0)
-            {
-                // [Interflow fix 2026-08-05 unit-status-sync] Одиночная анимация немоты над головой
-                // ОТКЛЮЧЕНА (решение Artsiom: «отключи все анимации, оставь только иконки») —
-                // статус показывает шкала над полоской здоровья. Снятие mutedVFX ниже оставлено (чистит null безопасно).
-
-                // Mute the unit
-                if (activeAbilityInUse) Idle();
-                else EndActiveAbility(false, true);
-
-                muted = true;
-                currentMuteTime = time;
-                GameManager.Instance.Tick += MuteUpdate;
-            }
-            else if (time > currentMuteTime)
-            {
-                // Already muted, and new mute time is larger than current one
-                currentMuteTime = time;
-            }
-
-            if (NetworkManager.Singleton.IsServer) NetworkDataSync.Instance.MuteSetSend(this, true);
-        }
-
-        /// <summary>
-        /// Shows mute VFX. Called on the clients
-        /// </summary>
-        /// <param name="state">Is unit currently muted.</param>
-        public void Mute(bool state)
-        {
-            if (state)
-            {
-                muted = true;
-                // [Interflow fix 2026-08-05 unit-status-sync] Клиентская анимация немоты ОТКЛЮЧЕНА — статус показывает шкала.
-            }
-            else if (!state)
-            {
-                muted = false;
-                currentMuteTime = 0;
-                if (mutedVFX != null) Destroy(mutedVFX.gameObject);
-            }
-        }
-
-        /// <summary>
-        /// Updates the mute timer every GameManager.Tick.
-        /// </summary>
-        private void MuteUpdate()
-        {
-            currentMuteTime -= GameManager.Instance.currentDeltaTime;
-
-            if (currentMuteTime <= 0f)
-            {
-                muted = false;
-                currentMuteTime = 0;
-                GameManager.Instance.Tick -= MuteUpdate;
-
-                // Ability cast
-                if (unitState == UnitStates.AbilityCasting)
-                {
-                    currentActionTime = 0;
-                    sendToClients = false;
-                    playCast = false;
-                }
-
-                if (mutedVFX != null) Destroy(mutedVFX.gameObject);
-                if (NetworkManager.Singleton.IsServer) NetworkDataSync.Instance.MuteSetSend(this, false);
-            }
-        }
-
-        /// <summary>
-        /// Disarms the unit for a specified amount of time.
-        /// </summary>
-        /// <param name="time">Is unit currently disarmed.</param>
-        public void Disarm(float time)
+        /// <param name="time">Длительность обезоруживания, секунды.</param>
+        /// <param name="sourceUnit">Юнит-источник. null допустим.</param>
+        /// <param name="sourceOwner">Слот игрока-источника.</param>
+        public void Disarm(float time, Unit sourceUnit, int sourceOwner)
         {
             if (!canAttack) return;
-            // [Interflow fix 2026-08-23 no-status-on-dead] Решение Artsiom: на мёртвых статусы
-            // не вешаются (близнец запрета эффекторов в EffectorAdd). Урон в этом же вызове мог убить
-            // цель (рывок, метеор, снаряд): статус по трупу слал клиентам снятый netID («Desync!»)
-            // и заново подписывал труп на Tick до истечения статуса.
             if (dead) return;
 
-            // Шаг 1 схемы «пакет и приёмник» (§11.2, §16.1): воронка собирает пакет и отдаёт его
-            // приёмнику. Решение (иммунитет и состояние) — там, исполнение — ниже, в *Apply.
-            // Проверки выше остались здесь по решению Artsiom 28.08.2026: это отсев «есть ли кому
-            // адресовать пакет», и он обязан отработать ДО обращения к приёмнику — дойти до приёмника
-            // значит тронуть игровой объект (TryGetComponent, при первом обращении AddComponent).
-            // Так же устроен шаг 0: dead проверяется в обёртке GetDamage (Unit.Combat.cs:127).
-            // Сигнатура не изменилась — ни одно из мест вызова не трогается.
-            ControlPacket packet = new ControlPacket(ControlType.Disarm, time);
-
-            ReceiverEnsure().Receive(in packet);
+            StatusIconCatalog catalog = StatusIconCatalog.Get();
+            ControlEffectorApply(catalog != null ? catalog.disarmEffector : null, "обезоруживания",
+                                 time, sourceUnit, sourceOwner, 1f);
         }
 
         /// <summary>
-        /// Исполнитель обезоруживания: останавливает атаку и рассылает статус клиентам.
-        /// Тело перенесено из <see cref="Disarm(float)"/> без изменений — уехали только проверки
-        /// (отсев в воронку, «уже обезоружен» и иммунитет в приёмник).
-        /// ВНИМАНИЕ: штатный вход — воронка <see cref="Disarm(float)"/>. Прямой вызов обходит отсев
-        /// и иммунитет к контролю; метод публичен только потому, что его зовёт приёмник
-        /// <see cref="UnitReceiver"/> — а он отдельный класс и приватные члены Unit не видит.
+        /// Ослепить юнита: он с шансом промахивается прямыми атаками. Действующий шанс — НАИБОЛЬШИЙ
+        /// из висящих ослеплений (не сумма), как и до перестройки. Иммунитет к контролю слепоту
+        /// НЕ отбивает — он не отбивал её и раньше.
         /// </summary>
-        /// <param name="time">Время обезоруживания.</param>
-        public void DisarmApply(float time)
+        /// <param name="chance">Шанс промаха 0..1 (0,5 — половина атак мимо). Едет силой наложения:
+        /// у служебного состояния «Слепота» собственный шанс равен 1.</param>
+        /// <param name="time">Длительность ослепления, секунды.</param>
+        /// <param name="sourceUnit">Юнит-источник. null допустим.</param>
+        /// <param name="sourceOwner">Слот игрока-источника.</param>
+        public void Blind(float chance, float time, Unit sourceUnit, int sourceOwner)
         {
-            if (currentDisarmTime == 0)
-            {
-                // [Interflow fix 2026-08-05 unit-status-sync] Одиночная анимация безоружия над головой
-                // ОТКЛЮЧЕНА (решение Artsiom) — статус показывает шкала над полоской здоровья.
+            // Отсев дословно тот же, что был у снесённого BlindDebuff.Apply, включая серверный гейт:
+            // бросок промаха делает только сервер, и наложение тоже было серверным (правило 6).
+            if (NetworkConnectionHandler.isClient) return;
+            if (dead || chance <= 0f || time <= 0f) return;
 
-                // Stop attack
-                if (!firstAttack) AttackStop();
-
-                disarmed = true;
-                currentDisarmTime = time;
-                GameManager.Instance.Tick += DisarmUpdate;
-            }
-            else if (time > currentDisarmTime)
-            {
-                // Already disarmed, and new disarm time is larger than current one
-                currentDisarmTime = time;
-            }
-
-            if (NetworkManager.Singleton.IsServer) NetworkDataSync.Instance.DisarmSetSend(this, true);
+            StatusIconCatalog catalog = StatusIconCatalog.Get();
+            ControlEffectorApply(catalog != null ? catalog.blindEffector : null, "слепоты",
+                                 time, sourceUnit, sourceOwner, chance);
         }
 
-        /// <summary>
-        /// Shows disarm VFX. Called on the clients
-        /// </summary>
-        /// <param name="state"></param>
-        public void Disarm(bool state)
-        {
-            if (state)
-            {
-                disarmed = true;
-                // [Interflow fix 2026-08-05 unit-status-sync] Клиентская анимация безоружия ОТКЛЮЧЕНА — статус показывает шкала.
-            }
-            else if (!state)
-            {
-                disarmed = false;
-                currentDisarmTime = 0;
-                if (disarmedVFX != null) Destroy(disarmedVFX.gameObject);
-            }
-        }
-
-        /// <summary>
-        /// Updates the disarm timer every GameManager.Tick.
-        /// </summary>
-        private void DisarmUpdate()
-        {
-            currentDisarmTime -= GameManager.Instance.currentDeltaTime;
-
-            if (currentDisarmTime <= 0f)
-            {
-                disarmed = false;
-                currentDisarmTime = 0;
-                GameManager.Instance.Tick -= DisarmUpdate;
-
-                if (disarmedVFX != null) Destroy(disarmedVFX.gameObject);
-                if (NetworkManager.Singleton.IsServer) NetworkDataSync.Instance.DisarmSetSend(this, false);
-            }
-        }
 
         /// <summary>
         /// Polymorphs the unit into another unit for a specified amount of time.

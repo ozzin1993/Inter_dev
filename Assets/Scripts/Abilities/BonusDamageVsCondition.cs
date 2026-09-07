@@ -60,7 +60,8 @@ namespace StrategyCore
             if (mult <= 1f) return;
 
             float extra = dmg * (mult - 1f);
-            targetUnit.GetDamage(extra, damageType, byOwner, byUnit, false, out float _);
+            DamagePacket packet = DamagePacket.Create(extra, damageType, byOwner, byUnit, false, this);   // [Interflow fix 2026-09-04 damage-full-packet] пакет одной записи
+            targetUnit.GetDamage(in packet, out float _);
 
             RequestForceSync();
         }

@@ -172,7 +172,11 @@ namespace StrategyCore
             if (extra > 0f)
             {
                 DamageType dt = onHit.extraDamageType != null ? onHit.extraDamageType : damageType;
-                if (dt != null) target.GetDamage(extra, dt, byOwner, byUnit, false, out float _);
+                if (dt != null)
+                {
+                    DamagePacket packet = DamagePacket.Create(extra, dt, byOwner, byUnit, false, this);   // [Interflow fix 2026-09-04 damage-full-packet] пакет одной записи
+                    target.GetDamage(in packet, out float _);
+                }
                 else Debug.LogWarning("[Реакция «попал по цели»] Добавочный урон задан, но тип урона неизвестен — урон не нанесён.");
             }
 
@@ -200,12 +204,12 @@ namespace StrategyCore
             // 5) Оглушение. Штатный Unit.Stun сам уважает иммунитет к контролю.
             //    Бьём ЦЕЛЬ. Класс Basher оглушал targetUnit.target — цель цели; это его дефект,
             //    здесь он намеренно не воспроизводится.
-            if (alive && onHit.stunSeconds > 0f) target.Stun(onHit.stunSeconds);
+            if (alive && onHit.stunSeconds > 0f) target.Stun(onHit.stunSeconds, byUnit, byOwner);
 
             // 6) Отброс от носителя.
             if (alive && onHit.knockbackDistance > 0f)
                 Knockback.Apply(target, byUnit.transform.position, onHit.knockbackDistance,
-                                onHit.knockbackStunSeconds, onHit.knockbackRespectControlImmunity);
+                                onHit.knockbackStunSeconds, onHit.knockbackRespectControlImmunity, byUnit, byOwner);
 
             // 7) Коридор по линии удара.
             if (onHit.lineWidth > 0f)
@@ -224,7 +228,7 @@ namespace StrategyCore
             {
                 DamageType bleedType = onHit.bleedDamageType != null ? onHit.bleedDamageType : damageType;
                 if (bleedType != null)
-                    BleedOnMove.Apply(target, byUnit, byOwner, bleedType, onHit.bleedDamagePerMeter, onHit.bleedDuration);
+                    BleedOnMove.Apply(target, byUnit, byOwner, bleedType, onHit.bleedDamagePerMeter, onHit.bleedDuration, this);
             }
 
             RequestForceSync();
@@ -271,7 +275,10 @@ namespace StrategyCore
                 if (offset > halfWidth) continue;
 
                 if (lineDamage > 0f && damageType != null)
-                    u.GetDamage(lineDamage, damageType, byOwner, byUnit, false, out float _);
+                {
+                    DamagePacket packet = DamagePacket.Create(lineDamage, damageType, byOwner, byUnit, false, this);   // [Interflow fix 2026-09-04 damage-full-packet] пакет одной записи
+                    u.GetDamage(in packet, out float _);
+                }
 
                 if (onHit.lineApplyAttackEffectors && attackEffectors != null && attackEffectors.Length > 0)
                     Effector.EffectorAdd(byUnit, u, attackEffectors);

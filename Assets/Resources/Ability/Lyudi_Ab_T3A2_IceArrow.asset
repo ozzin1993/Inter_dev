@@ -126,7 +126,8 @@ MonoBehaviour:
     effectors: []
   heal:
     enabled: 0
-    flat: []
+    flat:
+    - 120
     percentOfMaxHp: []
   mana:
     enabled: 0

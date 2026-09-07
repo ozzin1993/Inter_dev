@@ -31,7 +31,7 @@ namespace StrategyCore
         static readonly Color DIM = new Color(0.65f, 0.65f, 0.65f);
 
         // Поля, которые для производственного умения относятся к цене и требованиям.
-        static readonly string[] PRICE_FIELDS = { "cost", "requiredTech", "requiredLevel", "castTime", "cooldown" };
+        static readonly string[] PRICE_FIELDS = { "cost", "requiredTech", "castTime", "cooldown" };   // requiredLevel снесён блоком Б8
 
         // Поля подписи: то, что игрок видит в панели.
         static readonly string[] TEXT_FIELDS = { "id", "abilityName", "description", "icon", "slotNumber" };

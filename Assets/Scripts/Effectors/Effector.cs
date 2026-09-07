@@ -5,6 +5,26 @@ namespace StrategyCore
     // Effectors are temporary effects that modify a unit�s parameters, either buffing or nerfing them. They can be applied through attacks or abilities and are commonly used in auras.
     // Effectors appear in the unit�s Status UI and last for a specified duration.
 
+    /// <summary>
+    /// Категория состояния — адрес, по которому носителя находят сопротивления и слабости
+    /// (решения Artsiom 29.08–03.09.2026, каталог утверждён по чтению 18 ассетов и умений).
+    /// Категории контроля: сопротивление режет ВРЕМЯ наложения; числовые: сопротивление режет СИЛУ.
+    /// Тег ставится ЯВНО у каждого ассета, из признаков контроля не выводится; одно состояние — одна категория.
+    /// Добавить категорию дёшево (новое значение в конец), переименовать использованную — дорого
+    /// (значение сериализовано в ассетах числом).
+    /// </summary>
+    public enum EffectorCategory
+    {
+        [InspectorName("Нет")]                  None,
+        [InspectorName("Оглушение")]            Stun,
+        [InspectorName("Немота")]               Mute,
+        [InspectorName("Безоружие")]            Disarm,
+        [InspectorName("Слепота")]              Blind,
+        [InspectorName("Замедление движения")]  MoveSlow,
+        [InspectorName("Замедление атаки")]     AttackSlow,
+        [InspectorName("Периодический урон")]   DamageOverTime
+    }
+
     public class Effector : ScriptableObject
     {
         [EffectorID]
@@ -63,6 +83,46 @@ namespace StrategyCore
                  "а когда ослаблений нет — самое сильное усиление. Множители не перемножаются")]
         public float healReceivedMultiplier = 1f;
 
+        // [Interflow fix 2026-09-03 control-as-effectors] Контроль стал СОСТОЯНИЕМ (решение Artsiom
+        // 30.08.2026): «юнит оглушён» = «на нём висит хоть один эффектор с признаком оглушения».
+        // Собственных таймеров у контроля больше нет — время отсчитывает жизненный цикл этого
+        // наложения, поэтому диспел состояния снимает и контроль, а несколько наложений держат
+        // контроль до истечения последнего.
+        // ТОЛЬКО ДАННЫЕ — поведения здесь нет: факты собирает и переходы применяет
+        // Units/Unit.Control.cs (правило: ассет говорит ЧТО, а не КАК).
+        [Header("Контроль")]
+        [Tooltip("Оглушает носителя: он замирает и ничего не делает, пока держится это состояние")]
+        public bool stuns = false;
+
+        [Tooltip("Накладывает немоту: носитель не может применять умения, пока держится это состояние")]
+        public bool mutes = false;
+
+        [Tooltip("Обезоруживает носителя: он не может атаковать, пока держится это состояние")]
+        public bool disarms = false;
+
+        [Tooltip("Ослепляет носителя: он с шансом промахивается прямыми атаками, пока держится это состояние")]
+        public bool blinds = false;
+
+        [Range(0f, 1f)]
+        [Tooltip("Шанс промаха при ослеплении: 0 — никогда, 1 — всегда мимо. Действующий шанс — это число, " +
+                 "умноженное на силу наложения. Учитывается только при включённом признаке «Ослепляет». " +
+                 "Если ослеплений на носителе несколько, действует НАИБОЛЬШИЙ из шансов — они не складываются")]
+        public float blindMissChance = 0f;
+
+        // [Interflow fix 2026-09-03 status-resistances] Сопротивления и слабости к категориям состояний
+        // (решения Artsiom 29.08–03.09.2026). ТОЛЬКО ДАННЫЕ — сам ассет ничего не считает: вклады держит
+        // компонент Units/UnitResistances.cs, применяет приёмник Units/UnitReceiver.Statuses.cs
+        // при наложении (правило: ассет говорит ЧТО, а не КАК).
+        [Header("Категория состояния")]
+        [Tooltip("К какой категории относится состояние — по ней его находят сопротивления и слабости носителя. " +
+                 "Одно состояние — одна категория: ассет с эффектами двух категорий делится на два ассета. " +
+                 "«Нет» — сопротивления это состояние не задевают. " +
+                 "Категории контроля (оглушение, немота, безоружие, слепота): сопротивление режет ВРЕМЯ наложения; " +
+                 "числовые (замедления, периодический урон): сопротивление режет СИЛУ. " +
+                 "Сопротивление 100 % и больше — состояние не накладывается вовсе. " +
+                 "Тег ставится явно, из признаков контроля не выводится")]
+        public EffectorCategory category = EffectorCategory.None;
+
         // Technical
         // private Unit thisUnit; // Current holder of the effector
         // [HideInInspector] public Unit unitOwner; // Which player`s effector is this. If damaging one this player will be seen as a killer
@@ -81,7 +141,9 @@ namespace StrategyCore
             if (EH.effector.damageAmount != 0)
             {
                 // [Interflow fix 2026-08-02 effector-unify] Урон в секунду масштабируется множителем силы наложения.
-                unitHolder.GetDamage(EH.effector.damageAmount * EH.powerMultiplier * GameManager.Instance.currentDeltaTime, EH.effector.damageType, EH.owner, EH.unitOwner, false, out float _);
+                // Умение-источник: null — урон в секунду идёт от состояния, а не от умения (решение Artsiom 05.09.2026).
+                DamagePacket packet = DamagePacket.Create(EH.effector.damageAmount * EH.powerMultiplier * GameManager.Instance.currentDeltaTime, EH.effector.damageType, EH.owner, EH.unitOwner, false, null);   // [Interflow fix 2026-09-04 damage-full-packet] пакет одной записи
+                unitHolder.GetDamage(in packet, out float _);
             }
 
             // If it is a permanent effector, we do not handle removal logic
@@ -123,6 +185,11 @@ namespace StrategyCore
 
                 if (!EH.stacks) unitHolder.OnStatusUpdate?.Invoke();
 
+                // [Interflow fix 2026-09-03 control-as-effectors] Состояние ушло из списка — пересобрать
+                // контроль. Именно этот вызов заменил таймеры StunUpdate/MuteUpdate/DisarmUpdate:
+                // время контроля кончается тогда, когда истекает последнее держащее его наложение.
+                unitHolder.RecalculateControl();
+
                 // [Interflow fix 2026-08-05 unit-status-sync] Эффектор истёк — сообщить клиентам «снят»
                 // (фикс §8.6), но только если на юните не осталось других наложений того же эффектора
                 // (разная сила/длительность сосуществуют — значок ещё заслужен).
@@ -138,8 +205,10 @@ namespace StrategyCore
         /// и урон в секунду. 1 — ровно то, что записано в ассете.</param>
         /// <param name="durationOverride">Длительность этого наложения, секунды. Значение ≤ 0 — брать из ассета.
         /// У бессрочных эффекторов игнорируется.</param>
+        /// <param name="restoring">Восстановление сохранённого состояния: приёмник пропустит проверку
+        /// иммунитета к контролю. Боевой код это НЕ ставит — только загрузка сохранения.</param>
         public static void EffectorAdd(Unit unit, Effector effector, Unit unitOwner, int owner, float currentTime = 0,
-                                       float powerMultiplier = 1f, float durationOverride = -1f)
+                                       float powerMultiplier = 1f, float durationOverride = -1f, bool restoring = false)
         {
             // [Interflow fix 2026-08-06 no-effectors-on-buildings] Решение Artsiom: на здания эффекты
             // не вешаются. Заодно закрывает краш ядра: slow-эффектор звал ChangeMoveSpeed, а у зданий
@@ -164,7 +233,7 @@ namespace StrategyCore
             // а на трупе и на здании этого делать нельзя. Так же устроены шаг 0 (Unit.Combat.cs:127)
             // и шаг 1 (Unit.State.cs). Сигнатура и значения по умолчанию не изменились — ни одно
             // из мест вызова не трогается, включая массивные перегрузки ниже.
-            EffectorPacket packet = new EffectorPacket(effector, unitOwner, owner, currentTime, powerMultiplier, durationOverride);
+            EffectorPacket packet = new EffectorPacket(effector, unitOwner, owner, currentTime, powerMultiplier, durationOverride, restoring);
 
             unit.ReceiverEnsure().Receive(in packet);
         }
@@ -219,6 +288,10 @@ namespace StrategyCore
             if (EH.effector.revealInvisible) unitHolder.CanBeSeen(false, EH.owner);
 
             if (!EH.stacks) unitHolder.OnStatusUpdate?.Invoke();
+
+            // [Interflow fix 2026-09-03 control-as-effectors] Диспел снял состояние — пересобрать контроль.
+            // Отсюда и берётся принятое поведение «диспел снимает оглушение»: отдельного кода для этого нет.
+            unitHolder.RecalculateControl();
 
             // [Interflow fix 2026-08-05 unit-status-sync] Досрочное снятие (диспел) — сообщить клиентам
             // «снят» (фикс §8.6: раньше досрочное снятие и permanent-эффекторы висели у клиента вечно).

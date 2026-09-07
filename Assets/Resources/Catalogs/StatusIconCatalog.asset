@@ -17,6 +17,10 @@ MonoBehaviour:
   disarmedIcon: {fileID: 2800000, guid: 1d46ebd6786fbd2468fd0d7f79ec8acb, type: 3}
   polymorphedIcon: {fileID: 2800000, guid: aa11b205c0de4f00a1e5f10b2f5a7c08, type: 3}
   blindIcon: {fileID: 2800000, guid: aa11b205c0de4f00a1e5f10b2f5a7c07, type: 3}
+  stunEffector: {fileID: 11400000, guid: e69115500958dcb4c807863727564054, type: 2}
+  muteEffector: {fileID: 11400000, guid: 70e51523d8ec19b4a81dc8a59dd59ca8, type: 2}
+  disarmEffector: {fileID: 11400000, guid: c2ff1bfca9eabee4f96080d76f526307, type: 2}
+  blindEffector: {fileID: 11400000, guid: 714f07dbbb9463047a437430cfbdead9, type: 2}
   iconMaterial: {fileID: 2100000, guid: 7ef9779f40db4ba4fa115ace9bef13eb, type: 2}
   iconSize: 0.28
   iconGap: 0.05

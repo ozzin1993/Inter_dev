@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using UnityEngine;
 
 namespace StrategyCore
@@ -19,6 +20,13 @@ namespace StrategyCore
         // Сохранённый уровень героя команды: персистентность между смертями (D8).
         // 0 — ещё не задан (первый призыв берёт уровень префаба как базовый).
         readonly int[] heroLevel = new int[2];
+
+        // [Б9 2026-09-06, целевая модель §8] Остальное состояние прокачки героя между смертями (решение Artsiom:
+        // «уровень, улучшения, очки и опыт»): накопленный опыт, непотраченные очки и уровни улучшаемых умений
+        // (глобальный индекс умения → уровень). Раньше сохранялся только уровень, и всё остальное сгорало с гибелью.
+        readonly int[] heroExp = new int[2];
+        readonly int[] heroAbilityPoints = new int[2];
+        readonly Dictionary<int, int>[] heroAbilityLevels = { new Dictionary<int, int>(), new Dictionary<int, int>() };
 
         // [UI-сессия 2026-07-06] Клиентское зеркало «жив ли герой» (heroUnit на клиент не синкается).
         // Заполняется через HeroAliveClientRpc → ApplyHeroAliveClient. Нужно для UI-дизейбла кнопки призыва.
@@ -144,22 +152,47 @@ namespace StrategyCore
             SummonHero(team);
         }
 
-        // Поднять уровень свежезаспавненного героя до сохранённого (heroLevel[team]). Только вверх (SetLevel не опускает).
-        // Первый призыв (heroLevel не задан) — берём уровень префаба как базовый.
+        // Поднять свежезаспавненного героя до сохранённого состояния: уровень, опыт, непотраченные очки и уровни
+        // улучшенных умений (Б9). Уровень — только вверх (SetLevel не опускает); первый призыв (heroLevel не задан) —
+        // берём уровень префаба как базовый.
         void RestoreHeroLevel(int team, Unit hero)
         {
             LevelingUnit lvl = hero != null ? hero.GetComponent<LevelingUnit>() : null;
             if (lvl == null) return; // герой без прокачки — ничего не делаем
             if (heroLevel[team] < lvl.level) heroLevel[team] = lvl.level;      // база из префаба
             if (heroLevel[team] > lvl.level)
-                lvl.SetLevel(heroLevel[team], 0, 0, true, true, true);        // levelUp=true (статы/замки), noVFX=true
+                lvl.SetLevel(heroLevel[team], heroExp[team], heroAbilityPoints[team], true, true, true);  // levelUp=true (статы/замки), noVFX=true
+            else
+            {
+                // Уровень тот же (первый призыв или уже на нём) — опыт и очки всё равно возвращаем.
+                lvl.currentExp = heroExp[team];
+                lvl.abilityPoints = heroAbilityPoints[team];
+            }
+
+            // Улучшения умений: ставим сохранённый уровень каждому улучшаемому умению (очки за это уже уплачены).
+            foreach (KeyValuePair<int, int> saved in heroAbilityLevels[team])
+                hero.RestoreAbilityLevel(saved.Key, saved.Value);
         }
 
-        // Сохранить текущий уровень героя (на смерти) для восстановления при следующем призыве.
+        // Сохранить состояние прокачки героя (на смерти) для восстановления при следующем призыве:
+        // уровень, опыт, непотраченные очки и уровни улучшаемых умений (Б9).
         void CaptureHeroLevel(int team, Unit hero)
         {
             LevelingUnit lvl = hero != null ? hero.GetComponent<LevelingUnit>() : null;
-            if (lvl != null && lvl.level > heroLevel[team]) heroLevel[team] = lvl.level;
+            if (lvl == null) return;
+
+            if (lvl.level > heroLevel[team]) heroLevel[team] = lvl.level;
+            heroExp[team] = lvl.currentExp;
+            heroAbilityPoints[team] = lvl.abilityPoints;
+
+            heroAbilityLevels[team].Clear();
+            if (hero.abilities == null) return;
+            for (int i = 0; i < hero.abilities.Length && i < hero.abilityLevel.Length; i++)
+            {
+                Ability ability = hero.abilities[i];
+                if (ability == null || !ability.heroLevelable) continue;
+                if (hero.abilityLevel[i] > 0) heroAbilityLevels[team][i] = hero.abilityLevel[i];   // 0 — базовый, восстанавливать нечего
+            }
         }
 
         // [UI-сессия 2026-07-06] Синк клиенту факта «жив ли герой» (для UI-дизейбла кнопки призыва).

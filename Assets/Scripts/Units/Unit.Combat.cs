@@ -20,15 +20,41 @@ namespace StrategyCore
         /// <param name="damageType">Damage type.</param>
         /// <param name="directAttack">Direct attacks will trigger attack modifications of the unit(splash) and will try to add attack effectors.</param>
         /// <param name="attackPosition">Can be zero, it is used only for when unit is attacking the ground.</param>
-        public void DealDamage(Unit targetUnit, float amount, DamageType damageType, bool directAttack, Vector3 attackPosition)
+        /// <param name="sourceAbility">Умение-источник для диагностики очереди пакетов (решение Artsiom 05.09.2026);
+        /// null — автоатака (все вызовы из Unit.State.cs). Неавтоатачные вызывающие обязаны назвать своё умение.</param>
+        public void DealDamage(Unit targetUnit, float amount, DamageType damageType, bool directAttack, Vector3 attackPosition, Ability sourceAbility = null)
         {
+            // Одна запись урона — пакет собирается фабрикой: пробитие и промах бьющего кладутся здесь,
+            // состояния автоатаки едут в пакете и вешаются приёмником только при прямой атаке (Р7).
+            DamagePacket packet = DamagePacket.Create(amount, damageType, this.owner, this, directAttack, sourceAbility, attackEffectors);
+            DealDamage(targetUnit, in packet, attackPosition);
+        }
+
+        /// <summary>
+        /// [Interflow fix 2026-09-04 damage-full-packet] Сторона бьющего при ПОЛНОМ пакете (шаг 4 схемы, решение
+        /// Artsiom Р7, 03.09.2026). Цели уходит пакет; соседей по разлёту находит бьющий и шлёт по пакету каждому
+        /// (те же состояния атаки); у бьющего остаются колбэки «после удара» и <see cref="OnDamageDeal"/>.
+        /// Отдельного наложения состояний атаки здесь больше нет — их вешает приёмник, и только при прямой атаке:
+        /// урон умения «от имени юнита» состояний автоатаки больше не вешает.
+        /// Клиент (решение Р1 В): пакет цели уходит только ради анимации удара — приёмник у клиента ничего
+        /// не считает; колбэки, разлёт и OnDamageDeal у клиента не исполняются.
+        /// </summary>
+        /// <param name="packet">Пакет к основной цели; для соседей по разлёту из него берутся источник и состояния.</param>
+        public void DealDamage(Unit targetUnit, in DamagePacket packet, Vector3 attackPosition)
+        {
+            if (NetworkConnectionHandler.isClient)
+            {
+                if (targetUnit != null) targetUnit.GetDamage(in packet, out float _);
+                return;
+            }
+
             // Deal damage
             float damageDealt = 0;
-            if (targetUnit != null)
-            {
-                targetUnit.GetDamage(amount, damageType, this.owner, this, directAttack, out damageDealt);
-                Effector.EffectorAdd(this, targetUnit, attackEffectors);
-            }
+            if (targetUnit != null) targetUnit.GetDamage(in packet, out damageDealt);
+
+            float amount = packet.TotalAmount;
+            DamageType damageType = packet.damageType;
+            bool directAttack = packet.directAttack;
 
             // 3. After damage callbacks
             foreach (var c in OnAfterDamageDealCallbacks)
@@ -63,8 +89,11 @@ namespace StrategyCore
                         damageAmount = (amount * (1 - (dist / splashRadius) * (1 - splashReduction)));
                     }
 
-                    units[i].GetDamage(damageAmount, damageType, this.owner, this, directAttack, out float _);
-                    Effector.EffectorAdd(this, units[i], attackEffectors);
+                    // Сосед получает свой пакет: тот же источник, признак и состояния атаки, своя величина.
+                    DamagePacket neighbour = packet;
+                    neighbour.amount = damageAmount;
+                    neighbour.moreRecords = null;
+                    units[i].GetDamage(in neighbour, out float _);
                 }
             }
 
@@ -79,9 +108,10 @@ namespace StrategyCore
         /// <param name="time">The amount of time till the damage.</param>
         /// <param name="damage">Damage amount.</param>
         /// <param name="dmgType">Damage type.</param>
-        public void GetDamageIn(int owner, Unit unitWhoDamages, float time, float damage, DamageType dmgType)
+        /// <param name="sourceAbility">Умение-источник для диагностики очереди пакетов (решение Artsiom 05.09.2026); null — без умения.</param>
+        public void GetDamageIn(int owner, Unit unitWhoDamages, float time, float damage, DamageType dmgType, Ability sourceAbility)
         {
-            GameManager.Instance.damageInList.Add((owner, unitWhoDamages, this, damage, dmgType));
+            GameManager.Instance.damageInList.Add((owner, unitWhoDamages, this, damage, dmgType, sourceAbility));
             GameManager.Instance.damageInTime.Add(time);
         }
 
@@ -112,16 +142,15 @@ namespace StrategyCore
         }
 
         /// <summary>
-        /// Gets damage from a specified source.
+        /// Воронка приёма урона: ЕДИНСТВЕННЫЙ вход для любого урона (шаг 4 схемы «пакет и приёмник», решение
+        /// Artsiom Р8, 03.09.2026: все источники строят один и тот же полный пакет — <see cref="DamagePacket.Create"/>).
+        /// Здесь: отсев мёртвого, провокация (как есть — Р6 отложено), дальше пакет уходит в очередь и приёмник
+        /// (<see cref="UnitReceiver.Dispatch"/>). Старая сигнатура с шестью аргументами снесена.
         /// </summary>
-        /// <param name="amount">Damage amount.</param>
-        /// <param name="damageType">Damage type.</param>
-        /// <param name="attackingPlayer">Player that deals the damage, can be -1.</param>
-        /// <param name="attackingUnit">Unit that deals the damage, can be null.</param>
-        /// <param name="directAttack">Direct attacks will provoke the target and units around. Direct attacks are type of attacks performed by the attackingUnit itself rather than by the ability or effector.</param>
-        /// <param name="damageDealt">Outputs the final damage dealt taking into account armor type and possible Evasion(ability).</param>
-        /// <returns></returns>
-        public bool GetDamage(float amount, DamageType damageType, int attackingPlayer, Unit attackingUnit, bool directAttack, out float damageDealt)
+        /// <param name="packet">Полный пакет: записи урона, источник, признак прямой атаки, состояния атаки, пробитие и промах бьющего.</param>
+        /// <param name="damageDealt">Сколько здоровья реально снято. Для пакета, ушедшего в очередь (вызов из реакции), — 0.</param>
+        /// <returns>Погиб ли юнит от этого пакета (для отложенного пакета — false).</returns>
+        public bool GetDamage(in DamagePacket packet, out float damageDealt)
         {
             // If unit dies at the same frame multiple times, we only count death once
             if (dead)
@@ -130,8 +159,10 @@ namespace StrategyCore
                 return false;
             }
 
+            Unit attackingUnit = packet.attackingUnit;
+
             // Provoke the units including self when attacked
-            if (directAttack)
+            if (packet.directAttack)
             {
                 // When we get damage we see if attacking unit is visible, if true we go to attack it if certain conditions are true
                 if (!NetworkConnectionHandler.isClient)
@@ -197,14 +228,9 @@ namespace StrategyCore
                 }
             }
 
-            // Приёмная часть переехала в UnitReceiver — нулевой шаг схемы «пакет и приёмник»
-            // (§11.2, §16.2): воронка остаётся тонкой обёрткой, а порядок обработки урона задан
-            // в приёмнике один раз и действует для ВСЕХ источников, включая непереведённые.
-            // Сигнатура и возвращаемые значения не изменились — ни одно место вызова не трогается.
-            // Провокация выше в приёмник НЕ переносится: это открытый вопрос §11.3 схемы.
-            DamagePacket packet = new DamagePacket(amount, damageType, attackingPlayer, attackingUnit, directAttack);
-
-            return ReceiverEnsure().Receive(in packet, out damageDealt);
+            // Приёмная часть — в UnitReceiver (нулевой шаг), очередь — UnitReceiver.Queue.cs (шаг 4).
+            // Провокация выше в приёмник НЕ переносится: решение по ней отложено (Р6, 03.09.2026).
+            return UnitReceiver.Dispatch(this, in packet, out damageDealt);
         }
 
         // ============================= DIE ==============================================================================

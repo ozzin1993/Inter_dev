@@ -43,14 +43,16 @@ namespace StrategyCore
             if (!NetworkConnectionHandler.isClient)
             {
                 // Only server should apply chance ability
-                if (Random.value < InterflowAbility.LevelValueOrZero(bashChance, level))
+                if (Random.value < InterflowAbility.LevelValue(bashChance, level))
                 {
-                    targetUnit.target.Stun(InterflowAbility.LevelValueOrZero(stunTime, level));
+                    targetUnit.target.Stun(InterflowAbility.LevelValue(stunTime, level), byUnit, byOwner);
 
-                    // Apply damage multiplier
-                    if (bashMultiplier.Length > level)
+                    // Apply damage multiplier — общая выборка по уровням (Б8): нет строки — последняя заполненная.
+                    float bashMul = InterflowAbility.LevelValue(bashMultiplier, level);
+                    if (bashMul > 0f)
                     {
-                        targetUnit.GetDamage(dmg * bashMultiplier[level], damageType, byOwner, byUnit, true, out _);
+                        DamagePacket packet = DamagePacket.Create(dmg * bashMul, damageType, byOwner, byUnit, true, this);   // [Interflow fix 2026-09-04 damage-full-packet] пакет одной записи
+                        targetUnit.GetDamage(in packet, out _);
                         if (NetworkManager.Singleton.IsServer)
                         {
                             // Set the HP sync for this tick

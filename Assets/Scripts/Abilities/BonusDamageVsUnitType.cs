@@ -53,18 +53,13 @@ namespace StrategyCore
             float extra = dmg * (mult - 1f);
             if (extra <= 0f) return;
 
-            targetUnit.GetDamage(extra, damageType, byOwner, byUnit, false, out float _);
+            DamagePacket packet = DamagePacket.Create(extra, damageType, byOwner, byUnit, false, this);   // [Interflow fix 2026-09-04 damage-full-packet] пакет одной записи
+            targetUnit.GetDamage(in packet, out float _);
 
             RequestForceSync();
         }
 
-        float MultiplierAt(int level)
-        {
-            if (damageMultiplier == null || damageMultiplier.Length == 0) return 1f;
-            if (level < 0) level = 0;
-            if (level >= damageMultiplier.Length) level = damageMultiplier.Length - 1;
-
-            return damageMultiplier[level];
-        }
+        // Общая выборка по уровням (Б8): массив короче — последний заполненный; пустой — множитель 1.
+        float MultiplierAt(int level) => InterflowAbility.LevelValue(damageMultiplier, level, 1f);
     }
 }

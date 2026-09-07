@@ -17,7 +17,8 @@ namespace StrategyCore
             Unit dealer, Vector2 center, float radius,
             float enemyDamage, DamageType enemyDamageType, UnitSelector enemySelector,
             float allyDamage, DamageType allyDamageType, UnitSelector allySelector,
-            Unit exclude)
+            Unit exclude,
+            Ability sourceAbility) // умение-источник для диагностики очереди пакетов (решение Artsiom 05.09.2026); null — без умения
         {
             if (NetworkConnectionHandler.isClient) return;      // урон — только сервер (правило 6)
             if (dealer == null || radius <= 0f) return;
@@ -29,7 +30,7 @@ namespace StrategyCore
                 Unit[] enemies = Utils.GetUnitsInRadius(center, radius, owner, enemySelector, -1, exclude);
                 for (int i = 0; i < enemies.Length; i++)
                     if (enemies[i] != null && !enemies[i].dead)
-                        dealer.DealDamage(enemies[i], enemyDamage, enemyDamageType, false, Vector3.zero);
+                        dealer.DealDamage(enemies[i], enemyDamage, enemyDamageType, false, Vector3.zero, sourceAbility);
             }
 
             // По своим оркам вокруг (физический). Детонатор исключён (exclude) — он и так жертвуется.
@@ -38,7 +39,7 @@ namespace StrategyCore
                 Unit[] allies = Utils.GetUnitsInRadius(center, radius, owner, allySelector, -1, exclude);
                 for (int i = 0; i < allies.Length; i++)
                     if (allies[i] != null && !allies[i].dead)
-                        dealer.DealDamage(allies[i], allyDamage, allyDamageType, false, Vector3.zero);
+                        dealer.DealDamage(allies[i], allyDamage, allyDamageType, false, Vector3.zero, sourceAbility);
             }
         }
     }

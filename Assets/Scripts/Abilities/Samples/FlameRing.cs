@@ -29,12 +29,12 @@ namespace StrategyCore
             {
                 // Scale, rotation must be set according to the VFX used
                 vfxStorage = Instantiate(VFX, position + new Vector3(0, 0.1f, 0), Quaternion.identity);
-                vfxStorage.transform.SetGlobalScale(new Vector3(InterflowAbility.LevelValueOrZero(radius, level), InterflowAbility.LevelValueOrZero(radius, level), InterflowAbility.LevelValueOrZero(radius, level)));
+                vfxStorage.transform.SetGlobalScale(new Vector3(InterflowAbility.LevelValue(radius, level), InterflowAbility.LevelValue(radius, level), InterflowAbility.LevelValue(radius, level)));
 
                 Projector proj = vfxStorage.GetComponent<Projector>();
-                proj.nearClipPlane = -InterflowAbility.LevelValueOrZero(radius, level);
-                proj.farClipPlane = InterflowAbility.LevelValueOrZero(radius, level);
-                proj.orthographicSize = InterflowAbility.LevelValueOrZero(radius, level);
+                proj.nearClipPlane = -InterflowAbility.LevelValue(radius, level);
+                proj.farClipPlane = InterflowAbility.LevelValue(radius, level);
+                proj.orthographicSize = InterflowAbility.LevelValue(radius, level);
             }
         }
 
@@ -49,16 +49,17 @@ namespace StrategyCore
 
         public override void Use(Unit castingUnit, int castingPlayer, int level, Vector3 position, ref VFXReferencer vfxStorage)
         {
-            // Защита от контент-ошибки: тип урона для уровня не заполнен — тик урона пропускается (блок «баги и корректность»)
-            if (damageType == null || level < 0 || level >= damageType.Length || damageType[level] == null)
+            // Тип урона — общей выборкой по уровням (Б8): нет строки — последняя заполненная; пустой массив — тик пропускается.
+            DamageType levelDamageType = InterflowAbility.LevelItem(damageType, level);
+            if (levelDamageType == null)
             {
-                Debug.LogWarning($"[FlameRing] {name}: тип урона для уровня {level} не заполнен — пропуск");
+                Debug.LogWarning($"[FlameRing] {name}: тип урона не заполнен — пропуск");
                 return;
             }
             // Get all units inside casted area
-            foreach (var unit in Utils.GetUnitsInRadius(new Vector2(position.x, position.z), InterflowAbility.LevelValueOrZero(radius, level), castingUnit.owner, unitSelector))
+            foreach (var unit in Utils.GetUnitsInRadius(new Vector2(position.x, position.z), InterflowAbility.LevelValue(radius, level), castingUnit.owner, unitSelector))
             {
-                castingUnit.DealDamage(unit, InterflowAbility.LevelValueOrZero(dps, level) * Time.deltaTime, damageType[level], false, Vector3.zero);
+                castingUnit.DealDamage(unit, InterflowAbility.LevelValue(dps, level) * Time.deltaTime, levelDamageType, false, Vector3.zero, this);
             }
         }
     }

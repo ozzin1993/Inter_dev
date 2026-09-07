@@ -48,6 +48,39 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b166e7a81d9bcf940a22cc4c185f0e45, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  abilities:
+  - {fileID: 11400000, guid: 266393e319618fb49887d504f71b9710, type: 2}
+  abilityLevel: 
+  abilityLocked: 
+  cooldownAbility: []
+  cooldownAbilityIndex: 
+  cooldownAbilityIsItem: 
+  activeAbility: {fileID: 0}
+  activeAbilityLevel: 0
+  activeAbilityIndex: 0
+  activeAbilityItem: 0
+  activeAbilityUnit: {fileID: 0}
+  activeAbilityLocation: {x: 0, y: 0, z: 0}
+  activeAbilityRange: 0
+  activeAbilityCastTime: 0
+  activeAbilityDuration: 0
+  activeAbilityVFX: {fileID: 0}
+  unitCategory: 0
+  targetPriority: 
+  respondsToAttackCommand: 1
+  respondsToDefenceCommand: 1
+  leavesGrave: 0
+  tier: 1
+  InventorySize: 0
+  items: []
+  itemCharges: 
+  inventoryInitialized: 0
+  isInvisible: 0
+  canBeSeen: 
+  canBeSeenCount: 
+  invisibleAgent: {fileID: 0}
+  lastPos: 0
+  reached: 1
   unitTypeID: 25610
   netID: 0
   owner: 0
@@ -88,7 +121,7 @@ MonoBehaviour:
   unlockTech: {fileID: 11400000, guid: 9e5dd9571c341a34895866373f4f9846, type: 2}
   resourceProduced: []
   resourceCost: []
-  xpReward: 0
+  xpReward: 10
   resourceReward: []
   dieVFX: {fileID: 0}
   attackUnitSelector:
@@ -187,11 +220,8 @@ MonoBehaviour:
   currentActionTime: 0
   disabled: 0
   stunned: 0
-  stunTime: 0
   muted: 0
-  currentMuteTime: 0
   disarmed: 0
-  currentDisarmTime: 0
   polymorphed: 0
   polymorphTime: 0
   polymorphTotalTime: 0
@@ -230,38 +260,6 @@ MonoBehaviour:
   removeFromPosSync: 0
   spawned: 0
   initialized: 0
-  abilities:
-  - {fileID: 11400000, guid: 266393e319618fb49887d504f71b9710, type: 2}
-  abilityLevel: 
-  abilityLocked: 
-  everyFrameAbilities: []
-  everyFrameAbilityIndex: 
-  everyFrameAbilityIsItem: 
-  cooldownAbility: []
-  cooldownAbilityIndex: 
-  cooldownAbilityIsItem: 
-  activeAbility: {fileID: 0}
-  activeAbilityLevel: 0
-  activeAbilityIndex: 0
-  activeAbilityItem: 0
-  activeAbilityUnit: {fileID: 0}
-  activeAbilityLocation: {x: 0, y: 0, z: 0}
-  activeAbilityInUse: 0
-  activeAbilityRange: 0
-  activeAbilityCastTime: 0
-  activeAbilityDuration: 0
-  activeAbilityVFX: {fileID: 0}
-  canCast: 0
-  InventorySize: 0
-  items: []
-  itemCharges: 
-  inventoryInitialized: 0
-  isInvisible: 0
-  canBeSeen: 
-  canBeSeenCount: 
-  invisibleAgent: {fileID: 0}
-  lastPos: 0
-  reached: 1
 --- !u!114 &2950744428342415647
 MonoBehaviour:
   m_ObjectHideFlags: 0

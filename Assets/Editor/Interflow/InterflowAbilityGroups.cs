@@ -145,8 +145,6 @@ namespace StrategyCore
                 case AbilityType.Location:     return "по точке на земле";
                 case AbilityType.Unit:         return "по одной выбранной цели";
                 case AbilityType.Active:       return "по нажатию кнопки, без выбора цели игроком";
-                case AbilityType.Toggle:       return "переключатель: включается и выключается";
-                case AbilityType.Aura:         return "аура — срабатывает каждый тик, пока активна";
                 case AbilityType.Passive:      return "пассивное — работает само, без нажатия";
                 case AbilityType.Construction: return "постройка — ставится на землю";
                 default:                       return "тип не определён";

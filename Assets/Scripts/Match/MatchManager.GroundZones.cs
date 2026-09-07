@@ -21,6 +21,7 @@ namespace StrategyCore
             public int abilityID;   // умение-источник: по нему клиент берёт префаб зоны из ассета
             public int level;       // уровень умения на момент каста — клиент им считает размер визуала
             public Vector3 position;
+            public Unit carrier;    // носитель («аура на время», блок Б7): клиент вешает копию зоны на него; null — зона в точке
         }
 
         // Реестр живых зон (единый источник, правило 5). Заполняется только на сервере.
@@ -29,11 +30,12 @@ namespace StrategyCore
 
         /// <summary>
         /// Сервер: зарегистрировать только что созданную зону и разослать факт клиентам.
-        /// Зовётся из CompositeSkill.ApplyGroundZone сразу после Instantiate.
+        /// Зовётся из CompositeSkill.SpawnGroundZone сразу после Instantiate.
         /// Позиция передаётся ФАКТИЧЕСКАЯ — разброс zoneCount/spread рандомится здесь же, на сервере,
-        /// и клиент его не воспроизвёл бы.
+        /// и клиент его не воспроизвёл бы. Носитель (null — зона стоит в точке) уезжает клиенту сетевым id:
+        /// копию зоны он вешает на юнит, и дальше она идёт за ним без сообщений каждый тик.
         /// </summary>
-        public void RegisterGroundZone(GameObject zoneObject, int abilityID, int level, Vector3 position)
+        public void RegisterGroundZone(GameObject zoneObject, int abilityID, int level, Vector3 position, Unit carrier = null)
         {
             if (NetworkConnectionHandler.isClient) return;   // реестр и рассылка — только сервер (правило 6)
             if (zoneObject == null) return;
@@ -43,7 +45,8 @@ namespace StrategyCore
                 zoneId = nextGroundZoneId++,
                 abilityID = abilityID,
                 level = level,
-                position = position
+                position = position,
+                carrier = carrier
             };
             groundZones.Add(rec);
 
@@ -52,7 +55,7 @@ namespace StrategyCore
             if (zone != null) zone.SetZoneId(rec.zoneId);
 
             if (NetworkDataSync.Instance != null)
-                NetworkDataSync.Instance.GroundZoneSpawnSend(rec.zoneId, rec.abilityID, rec.level, rec.position);
+                NetworkDataSync.Instance.GroundZoneSpawnSend(rec.zoneId, rec.abilityID, rec.level, rec.position, rec.carrier);
         }
 
         /// <summary>
@@ -67,7 +70,9 @@ namespace StrategyCore
             for (int i = 0; i < groundZones.Count; i++)
             {
                 GroundZoneRecord rec = groundZones[i];
-                NetworkDataSync.Instance.GroundZoneResendSend(clientID, rec.zoneId, rec.abilityID, rec.level, rec.position);
+                // Зона с носителем к этому моменту ушла от точки спавна — досылаем её там, где носитель сейчас.
+                Vector3 position = rec.carrier != null ? rec.carrier.transform.position : rec.position;
+                NetworkDataSync.Instance.GroundZoneResendSend(clientID, rec.zoneId, rec.abilityID, rec.level, position, rec.carrier);
             }
         }
 

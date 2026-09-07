@@ -8,6 +8,9 @@ namespace StrategyCore
     // (правило 6). Клиентский синк визуала СДЕЛАН 2026-08-06: сервер держит реестр (MatchManager.GroundZones),
     // клиент получает факт и спавнит ТОТ ЖЕ префаб — на клиенте Start выходит сразу, остаётся чистый визуал.
     // Числа — в Inspector (правило 3).
+    // [Interflow 2026-09-05, блок Б7] Зона с НОСИТЕЛЕМ — это «аура на время» целевой модели (§9): та же зона,
+    // но каждый тик переставляется в позицию носителя и гаснет вместе с ним (решение Artsiom 05.09). Носителя задаёт
+    // серверный спавнер (SetCarrier); клиентская копия следует за юнитом сама — презентер вешает её на его transform.
     public class GroundDamageZone : MonoBehaviour
     {
         [Header("Зона урона (B8)")]
@@ -45,8 +48,29 @@ namespace StrategyCore
         // На клиентской копии остаётся нулём: реестр ведётся только на сервере.
         private int zoneId;
 
+        // Носитель («аура на время»): зона идёт за ним и гаснет с ним. hasCarrier отдельно от ссылки:
+        // уничтоженный юнит Unity сравнивает с null как null, и зона без флага молча осталась бы стоять в точке.
+        private Unit carrier;
+        private bool hasCarrier;
+
+        // Умение-источник для диагностики очереди пакетов (решение Artsiom 05.09.2026); null — без умения.
+        private Ability sourceAbility;
+
         /// <summary>Задать владельца до старта (серверный спавнер зовёт сразу после Instantiate).</summary>
         public void SetOwner(int owner) { ownerPlayer = owner; }
+
+        /// <summary>Задать умение-источник до старта (серверный спавнер, для диагностики очереди пакетов). null — без умения.</summary>
+        public void SetSource(Ability source) { sourceAbility = source; }
+
+        /// <summary>
+        /// Задать носителя до старта (серверный спавнер, блок «зона на земле» с галкой «идёт за кастером»).
+        /// Зона каждый тик встаёт в позицию носителя; носитель погиб или пропал — зона гаснет тем же тиком.
+        /// </summary>
+        public void SetCarrier(Unit unit)
+        {
+            carrier = unit;
+            hasCarrier = unit != null;
+        }
 
         /// <summary>Задать id реестра. Зовёт серверный реестр сразу после регистрации зоны.</summary>
         public void SetZoneId(int id) { zoneId = id; }
@@ -66,6 +90,14 @@ namespace StrategyCore
             if (GameManager.Instance == null) return;
             float dt = GameManager.Instance.currentDeltaTime;
 
+            // Зона с носителем: сначала догоняем его, а если он погиб или пропал — гаснем, не сканируя
+            // (решение Artsiom 05.09: аура на время умирает вместе с носителем).
+            if (hasCarrier)
+            {
+                if (carrier == null || carrier.dead) { Cleanup(); return; }
+                transform.position = carrier.transform.position;
+            }
+
             bool needScan = damagePerSecond != 0f
                             || (zoneEffectors != null && zoneEffectors.Length > 0)
                             || stunOnEnterSeconds > 0f;
@@ -82,7 +114,11 @@ namespace StrategyCore
                         Unit t = targets[i];
                         if (t == null || t.dead) continue;
 
-                        if (damagePerSecond != 0f) t.GetDamage(damagePerSecond * dt, damageType, ownerPlayer, null, false, out _);
+                        if (damagePerSecond != 0f)
+                        {
+                            DamagePacket packet = DamagePacket.Create(damagePerSecond * dt, damageType, ownerPlayer, null, false, sourceAbility);   // [Interflow fix 2026-09-04 damage-full-packet] пакет одной записи
+                            t.GetDamage(in packet, out _);
+                        }
                         if (t.dead) continue; // цель могла погибнуть от этого же урона — по трупу не работаем
 
                         if (zoneEffectors != null && zoneEffectors.Length > 0) Effector.EffectorAdd(ownerPlayer, t, zoneEffectors);
@@ -93,7 +129,9 @@ namespace StrategyCore
                             bool allowed = !stunOnlySelectedCategory || t.unitCategory == stunOnlyCategory;
                             if (allowed)
                             {
-                                t.Stun(stunOnEnterSeconds); // штатный стан уважает ControlImmunity
+                                // Юнита-источника у зоны нет (урон она наносит так же — byUnit=null),
+                                // владельцем идёт её игрок. Иммунитет к контролю спросит наложение состояния.
+                                t.Stun(stunOnEnterSeconds, null, ownerPlayer);
                                 stunnedOnEnter.Add(t);
                             }
                         }

@@ -220,11 +220,12 @@ namespace StrategyCore
             if (mult > 1f)
             {
                 float extra = dmg * (mult - 1f);
-                targetUnit.GetDamage(extra, damageType, byOwner, byUnit, false, out float _);
+                DamagePacket packet = DamagePacket.Create(extra, damageType, byOwner, byUnit, false, this);   // [Interflow fix 2026-09-04 damage-full-packet] пакет одной записи
+                targetUnit.GetDamage(in packet, out float _);
             }
 
             bool stunAllowed = !stunOnlySelectedCategory || targetUnit.unitCategory == stunOnlyCategory;
-            if (impactStunSeconds > 0f && stunAllowed && TechReady(stunRequiredTech, byOwner)) targetUnit.Stun(impactStunSeconds);
+            if (impactStunSeconds > 0f && stunAllowed && TechReady(stunRequiredTech, byOwner)) targetUnit.Stun(impactStunSeconds, byUnit, byOwner);
 
             if (targetEffectorsOnImpact != null && targetEffectorsOnImpact.Length > 0)
                 Effector.EffectorAdd(byUnit, targetUnit, targetEffectorsOnImpact);

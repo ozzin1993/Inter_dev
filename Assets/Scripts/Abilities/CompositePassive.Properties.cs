@@ -7,9 +7,12 @@ namespace StrategyCore
     // ============ КОНСТРУКТОР ПАССИВКИ: ОСЬ «СВОЙСТВА» (правило 22 — партиал по фиче) ==
     // Восемь блоков-галок. Каждый блок — тонкая обёртка над УЖЕ СУЩЕСТВУЮЩИМ механизмом движка
     // (правило 2); ни одна механика здесь не изобретается заново, все они взяты из классов,
-    // которые эти блоки заменяют для НОВЫХ пассивок: Passive, ControlImmunityPassive, SlowImmunity,
+    // которые эти блоки заменяют для НОВЫХ пассивок: Passive, ControlImmunityPassive,
     // PassiveInvisibility, ArmorPierce, SplashModifier, ExtraAttackEffectors, MovementAura, ScalingAura.
     // Старые классы остаются жить — на них висят 33 ассета (решение Artsiom 2026-08-09).
+    // Исключение — блок 3: с 2026-09-03 это «сопротивления и слабости» поверх приёмника состояний
+    // (Units/UnitResistances.cs); прежний блок «иммунитет к замедлениям» и класс SlowImmunity снесены
+    // (решение Artsiom 29.08.2026, Р5: иммунитет к замедлениям = сопротивление 100 %).
 
     /// <summary>Когда аура работает.</summary>
     public enum PassiveAuraCondition
@@ -41,15 +44,20 @@ namespace StrategyCore
         public bool enabled;
     }
 
-    /// <summary>3. Снятие замедлений с носителя каждым тиком.</summary>
+    /// <summary>3. Сопротивления и слабости носителя к категориям состояний.</summary>
     [Serializable]
-    public class PassiveSlowImmunityBlock
+    public class PassiveResistancesBlock
     {
-        [Tooltip("Включить блок: с носителя каждый тик снимаются эффекторы, снижающие скорость передвижения.")]
+        [Tooltip("Включить блок: носитель получает сопротивления или слабости к категориям состояний, пока умение открыто. " +
+                 "Категории контроля (оглушение, немота, безоружие, слепота) сопротивление режет по ВРЕМЕНИ, " +
+                 "числовые (замедления, периодический урон) — по СИЛЕ. Иммунитет к контролю (блок 2) — отдельная " +
+                 "бинарная механика, сопротивление действует поверх него.")]
         public bool enabled;
 
-        [Tooltip("Также снимать эффекторы, снижающие скорость АТАКИ.")]
-        public bool alsoRemoveAttackSlow;
+        [Tooltip("Строки «категория — доля». Из всех источников на юните (пассивки, бафы) действует ОДНО значение: " +
+                 "самая сильная слабость, а когда слабостей нет — самое сильное сопротивление; значения не перемножаются. " +
+                 "1 и больше — состояния категории не действуют вовсе (так задаётся «игнорирует любые замедления»).")]
+        public ResistanceEntry[] entries;
     }
 
     /// <summary>4. Постоянная невидимость носителя.</summary>
@@ -185,36 +193,37 @@ namespace StrategyCore
             c.controlImmunity = false;
         }
 
-        // ====================================================== 3. ИММУНИТЕТ К ЗАМЕДЛЕНИЯМ ==
+        // ================================================= 3. СОПРОТИВЛЕНИЯ И СЛАБОСТИ ==
+        // [Interflow fix 2026-09-03 status-resistances] По образцу блока 2: носитель — компонент на юните
+        // (UnitResistances), навешивается лениво при первой выдаче; источник вклада — этот ассет,
+        // по нему же вклады и снимаются, ровно выданные (флаг в Carrier).
 
-        void ApplySlowImmunity(Unit unit, Carrier c)
+        void ApplyResistances(Unit unit, Carrier c)
         {
-            if (slowImmunity == null || !slowImmunity.enabled) return;
+            if (resistances == null || !resistances.enabled) return;
+            if (resistances.entries == null || resistances.entries.Length == 0) return;
 
-            c.slowImmunity = true;    // работает тиком, своего состояния на юните не оставляет
+            UnitResistances holder = unit.GetComponent<UnitResistances>();
+            if (holder == null) holder = unit.gameObject.AddComponent<UnitResistances>();
+
+            for (int i = 0; i < resistances.entries.Length; i++)
+            {
+                ResistanceEntry entry = resistances.entries[i];
+                if (entry == null) continue;
+
+                holder.Add(this, entry.category, entry.value);   // строки с категорией «Нет» носитель отбрасывает сам
+            }
+
+            c.resistances = true;
         }
 
-        /// <summary>Снять с носителя всё, что замедляет. Зовётся из тика, только на сервере.</summary>
-        void TickSlowImmunity(Unit unit)
+        void RemoveResistances(Unit unit, Carrier c)
         {
-            if (unit.effectors == null || unit.effectors.Count == 0) return;
+            if (!c.resistances) return;
 
-            for (int e = unit.effectors.Count - 1; e >= 0; e--)
-            {
-                EffectorHolder eh = unit.effectors[e];
-                if (eh == null || eh.effector == null || !eh.effector.passiveEffectsOn) continue;
-
-                AbilityPassiveEffects pe = eh.effector.passiveEffects;
-                if (pe == null) continue;
-
-                bool slowsMovement = pe.moveSpeedChange < 0f || pe.moveSpeedPercentageChange < 0f;
-                bool slowsAttack = slowImmunity.alsoRemoveAttackSlow &&
-                                   (pe.attackSpeedChange < 0f || pe.attackSpeedPercentageChange < 0f);
-
-                if (!slowsMovement && !slowsAttack) continue;
-
-                Effector.EffectorRemove(unit, eh);
-            }
+            UnitResistances holder = unit.GetComponent<UnitResistances>();
+            if (holder != null) holder.Remove(this);   // снимает все вклады этого ассета разом
+            c.resistances = false;
         }
 
         // ============================================================== 4. НЕВИДИМОСТЬ ==
@@ -373,7 +382,10 @@ namespace StrategyCore
                 if (aura.onlyMeleeUnits && !target.melee) continue;
 
                 if (dealsDamage)
-                    target.GetDamage(aura.damagePerSecond * dt, aura.damageType, unit.owner, unit, false, out float _);
+                {
+                    DamagePacket packet = DamagePacket.Create(aura.damagePerSecond * dt, aura.damageType, unit.owner, unit, false, this);   // [Interflow fix 2026-09-04 damage-full-packet] пакет одной записи
+                    target.GetDamage(in packet, out float _);
+                }
 
                 if (target.dead) continue;   // погибла от этого же урона — эффекторы на труп не вешаем
 

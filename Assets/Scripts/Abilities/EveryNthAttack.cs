@@ -94,23 +94,26 @@ namespace StrategyCore
         void ApplyEmpowered(Unit targetUnit, float dmg, DamageType damageType, Unit byUnit, int byOwner, int level)
         {
             // Доп. урон через GetDamage (НЕ DealDamage — тот заново вызовет OnAfterDamageDeal → рекурсия). Как Basher.
-            if (targetUnit != null && bonusDamageMultiplier != null && level < bonusDamageMultiplier.Length
-                && bonusDamageMultiplier[level] > 0f)
+            // Множитель — общей выборкой по уровням (Б8): раньше уровень выше длины массива молча гасил усиление.
+            float multiplier = InterflowAbility.LevelValue(bonusDamageMultiplier, level);
+            if (targetUnit != null && multiplier > 0f)
             {
                 DamageType dt = bonusDamageType != null ? bonusDamageType : damageType;
-                targetUnit.GetDamage(dmg * bonusDamageMultiplier[level], dt, byOwner, byUnit, true, out _);
+                DamagePacket packet = DamagePacket.Create(dmg * multiplier, dt, byOwner, byUnit, true, this);   // [Interflow fix 2026-09-04 damage-full-packet] пакет одной записи
+                targetUnit.GetDamage(in packet, out _);
                 RequestForceSync();
             }
 
             // Нокбэк (кирпич B9) на усиленной атаке — от носителя к цели (композиция «Тяжёлые болты»).
             if (triggerKnockback && targetUnit != null && byUnit != null)
-                Knockback.Apply(targetUnit, byUnit.transform.position, knockbackDistance, knockbackStunTime, knockbackRespectControlImmunity);
+                Knockback.Apply(targetUnit, byUnit.transform.position, knockbackDistance, knockbackStunTime, knockbackRespectControlImmunity,
+                                byUnit, byOwner);
 
             // «Глубокая рана»: урон цели за передвижение, пока рана держится («Рассекающие цепи»).
             if (triggerBleedOnMove && targetUnit != null)
             {
                 DamageType bleedType = bleedDamageType != null ? bleedDamageType : damageType;
-                BleedOnMove.Apply(targetUnit, byUnit, byOwner, bleedType, bleedDamagePerMeter, bleedDuration);
+                BleedOnMove.Apply(targetUnit, byUnit, byOwner, bleedType, bleedDamagePerMeter, bleedDuration, this);
             }
         }
 

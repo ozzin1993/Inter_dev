@@ -15,7 +15,8 @@ namespace StrategyCore
     {
         // Текущий уровень ГЗ каждой команды — счётчик: старт = startMainBuildingLevel, растёт по НАБРАННОМУ
         // ОПЫТУ (MatchManager.Experience). Читают статы/облик/контент по уровню.
-        // Серверо-авторитетно; на клиент приходит через ApplyMainBuildingLevel. Mid-game join НЕ покрыт.
+        // Серверо-авторитетно; на клиент приходит через ApplyMainBuildingLevel. Вошедшему в середине матча
+        // уровень досылается отдельно (Б11: MatchManager.ResendMatchStateTo).
         readonly int[] mainBuildingLevel = new int[2];
 
         [Tooltip("Стартовый уровень ГЗ каждой команды на старте матча (по умолчанию 0). Ноль означает: замок " +

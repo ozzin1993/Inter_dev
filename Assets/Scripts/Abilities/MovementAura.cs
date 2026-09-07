@@ -124,7 +124,10 @@ namespace StrategyCore
                     if (onlyMeleeUnits && !target.melee) continue;
 
                     if (damagePerSecond > 0f && damageType != null)
-                        target.GetDamage(damagePerSecond * dt, damageType, u.owner, u, false, out float _);
+                    {
+                        DamagePacket packet = DamagePacket.Create(damagePerSecond * dt, damageType, u.owner, u, false, this);   // [Interflow fix 2026-09-04 damage-full-packet] пакет одной записи
+                        target.GetDamage(in packet, out float _);
+                    }
 
                     if (target.dead) continue; // погибла от этого же урона — эффекторы на труп не вешаем
 

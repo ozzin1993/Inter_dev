@@ -13,11 +13,14 @@ namespace StrategyCore
         Location,  // 3 Location - this skill is used at a chosen location
         Unit,      // 4 Unit - this skill can target only unit class (buildings, trees, units, objects)
         Active,    // 5 Active - this skill is activated immediately when used
-        Toggle,    // 6 Toggle - this skill can be used for turning the ability on and off
-        Aura,      // 7 Aura - this skill can be used for aura effects. Its Use function called every frame
-        Passive,    // 8 Passive - this skill can be used for addition of constant parameters to the unit. Attack, armor, strength etc.
-        Construction, // 9 Construction - Building construction, BuildingConstruction.cs must be part of the unit for additional parameters setup.
-        Null // just a null type placeholder
+        // 6 Toggle — СНЕСЁН блоком Б6 (2026-09-04): переключаемых умений в игре нет (целевая модель §15).
+        // 7 Aura — СНЕСЁН блоком Б7 (2026-09-05): постоянная аура — пассивное умение с радиусом
+        // (CompositePassive, блок 8), аура на время — обычное умение с зоной, идущей за носителем (целевая модель §9).
+        // Номера остальных значений закреплены явно, чтобы снос не сдвинул их молча: тип не сериализуется
+        // и по числу не читается (проверено грепом 04.09), закрепление — страховка на будущее.
+        Passive = 8,    // 8 Passive - this skill can be used for addition of constant parameters to the unit. Attack, armor, strength etc.
+        Construction = 9, // 9 Construction - Building construction, BuildingConstruction.cs must be part of the unit for additional parameters setup.
+        Null = 10 // just a null type placeholder
     }
 
     public abstract class Ability : ScriptableObject
@@ -61,7 +64,7 @@ namespace StrategyCore
         public float[] cooldown;
         [Tooltip("For target abilities, the caster if cast range is set will need to be approach the target to the specified distance.")]
         public float[] castRange;
-        [Tooltip("Amount of time needed to cast this skill. If the unit is interrupted while casting, the cast will begin again, no mana will be reducted until successfull cast. For Processes it is amount of time needed to process.")]
+        [Tooltip("Amount of time needed to cast this skill. If the unit is interrupted while casting, the cast will begin again. For Processes it is amount of time needed to process.")]
         public float[] castTime;
         [Tooltip("Some abilities such as of Area type require this parameter, it will determine the radius of the Area of Effect")]
         public float[] radius;
@@ -73,27 +76,25 @@ namespace StrategyCore
         [Tooltip("If location or unit ability should the casting unit first turn in the direction of target to cast the ability")]
         public bool dontTurn;
 
+        // Умение-канал СНЕСЁН блоком Б6 (2026-09-04, целевая модель §15): полей continuous, interruptible
+        // и requiresCastingUnit больше нет, вместе с ними ушёл теневой кастер (ShadowCaster).
+        // Осиротевшие значения в ассетах Unity молча отбросит. Длительность (duration) осталась —
+        // её читают блоки умений и щит.
         [Space(10)]
-        [Tooltip("When this ability is continuous it will stay active until the duration ends or the caster no longer has enough mana to use. For Area, Location and Unit, Active type abilities.")]
-        public bool continuous;
-        [Tooltip("Does this continuous ability need the caster to stay in place to actively cast it. When false the caster can be interrupted and the ability will still be active.")]
-        public bool interruptible;
-        [Tooltip("When this ability is not interruptible we must define if it needs casting unit to actively cast it.")]
-        public bool requiresCastingUnit = true;
-        [Tooltip("If this ability is continuous it might have a duration. You can specify it here.")]
+        [Tooltip("If this ability has a duration you can specify it here.")]
         public float[] duration;
 
         [Header("Requirements")]
         [Tooltip("Required tech for each level of the ability. Can be left blank.")]
         public MultiLevel<Technology>[] requiredTech;
-        [Tooltip("Required level of the unit for each level of the ability. Can be left blank.")]
-        public int[] requiredLevel;
+        // Открытие умения по уровню юнита (requiredLevel) СНЕСЕНО блоком Б8 (2026-09-06, целевая модель §9):
+        // умения открываются только технологией — базовые (без требуемой техи) сразу, специализации — узлом дерева.
+        // Уровни героя дают улучшения умений (Б9), а не открытие. Осиротевшее поле в ассетах Unity молча отбросит.
 
+        // Цен умения в мане больше нет: manaCost снят блоком Б5, manaCostPerSecond — блоком Б6 вместе
+        // с переключателями и каналами, которые его читали (2026-09-04, целевая модель §9 и §15).
+        // Мана осталась только шкалой готовности авто-умения (AutoAbilityUser).
         [Space(10)]
-        [Tooltip("How much mana this ability needs to be cast. Can leave at 0 if no mana required.")]
-        public float[] manaCost;
-        [Tooltip("If this ability is toggle or continuous, you can charge the mana during the active stage of the ability.")]
-        public float[] manaCostPerSecond;
         [Tooltip("How many resources are required to cast this ability; Purchasing cost for the items. Can be left blank if no cost is required. For UnitTraining and Construction the cost will be determined by resourceCost of the unit, if it exists. If it does not exist this cost will be used.")]
         public MultiLevel<ResourceWrapper>[] cost;
 
@@ -127,7 +128,6 @@ namespace StrategyCore
             if (radius == null || radius.Length == 0) radius = new float[1] { 0 };
 
             if (requiredTech == null) requiredTech = new MultiLevel<Technology>[0];
-            if (requiredLevel == null) requiredLevel = new int[0];
         }
 
         public virtual void Init() // Called in the awake method of GameManager. Awake() of the scriptableObject is broken. Used for initializing all the necessary parameters for each ability. Override it with a base call - base.Init()
@@ -143,10 +143,9 @@ namespace StrategyCore
             if (radius.Length == 0) radius = new float[1] { 0 };
 
             if (requiredTech == null) requiredTech = new MultiLevel<Technology>[0];
-            if (requiredLevel == null) requiredLevel = new int[0];
         }
 
-        // Before actually using the ability, we check if the ability`s custom requirements are met. For standard abilities check is done before Use(), for toggle and continuous before Activate().
+        // Before actually using the ability, we check if the ability`s custom requirements are met. Check is done before Use().
         public virtual bool Check(Unit castingUnit, int castingPlayer, int level) { return true; }
         public virtual bool Check(Unit castingUnit, int castingPlayer, int level, Unit unit) { return true; }
         public virtual bool Check(Unit castingUnit, int castingPlayer, int level, Vector3 location) { return true; }
@@ -157,7 +156,7 @@ namespace StrategyCore
         public virtual void Use(Unit castingUnit, int castingPlayer, int level, Unit unit) { }
         public virtual void Use(Unit castingUnit, int castingPlayer, int level, Vector3 location) { }
 
-        // vfxStorage - is a vfx that is spawned by the continuous ability
+        // vfxStorage - визуал, который умение держит между вызовами (перегрузки с ним остались от аур)
         public virtual void Use(Unit castingUnit, int castingPlayer, int level, ref VFXReferencer vfxStorage) { }
         public virtual void Use(Unit castingUnit, int castingPlayer, int level, Unit unit, ref VFXReferencer vfxStorage) { }
         public virtual void Use(Unit castingUnit, int castingPlayer, int level, Vector3 location, ref VFXReferencer vfxStorage) { }
@@ -168,16 +167,15 @@ namespace StrategyCore
         public virtual void Lock(Unit castingUnit, int castingPlayer, int level) { }
         public virtual void Unlock(Unit castingUnit, int castingPlayer, int level) { }
 
-        // Activate/Deactivate is called if the skill is continuous or toggle, used to initialize or end the ability (Spawn and Removal of VFX)
-        // vfxStorage - is a vfx that is spawned by continuous ability
-
-        // The Activate method is called when the Continuous ability starts to be cast or when Toggle type ability gets turned on.
-        public virtual void Activate(Unit castingUnit, int castingPlayer, int level) { }
+        // Activate/Deactivate: раньше их звали канал и переключатель (снесены блоком Б6, 2026-09-04) и цикл аур
+        // (снесён блоком Б7, 2026-09-05). Activate(Unit,int,int) снесён вместе с циклом аур — единственным вызывателем.
+        // Перегрузки с vfxStorage вызывателей не имеют, их переопределяет только Samples/FlameRing.cs (долг Б6) —
+        // оставлены, пока жив тот класс. Deactivate(Unit,int,int) жив: его зовёт конец облика (Unit.PolymorphUpdate).
         public virtual void Activate(Unit castingUnit, int castingPlayer, int level, ref VFXReferencer vfxStorage) { }
         public virtual void Activate(Unit castingUnit, int castingPlayer, int level, Unit unit, ref VFXReferencer vfxStorage) { }
         public virtual void Activate(Unit castingUnit, int castingPlayer, int level, Vector3 location, ref VFXReferencer vfxStorage) { }
 
-        // The Deactivate is called when the Continuous ability ends to be cast or when Toggle type ability gets turned off.
+        // Deactivate(Unit,int,int) — конец облика полиморфа; остальные перегрузки — см. выше.
         public virtual void Deactivate(Unit castingUnit, int castingPlayer, int level) { }
         public virtual void Deactivate(Unit castingUnit, int castingPlayer, int level, ref VFXReferencer vfxStorage) { }
         public virtual void Deactivate(Unit castingUnit, int castingPlayer, int level, Unit unit, ref VFXReferencer vfxStorage) { }
