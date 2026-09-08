@@ -127,7 +127,8 @@ namespace StrategyCore
                 minDamage = onDamaged.minDamage,
                 doubleBlockBelowHp = onDamaged.doubleBlockBelowHp,
                 onlyFromFront = onDamaged.onlyFromFront,
-                frontAngle = onDamaged.frontAngle
+                frontAngle = onDamaged.frontAngle,
+                source = this            // диагностика: чьё это правило (решение Artsiom 07.09.2026)
             };
 
             // Связка «удар не достиг цели → ударил в ответ»: подписываем на событие приёмника «удар не достиг цели»

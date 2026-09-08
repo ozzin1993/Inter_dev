@@ -607,7 +607,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8509d568c403de249979d10841fcd970, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::StrategyCore.ServerLogToFile
-  serverOnly: 1
+  serverOnly: 0
   logFolderName: Logs
   fileNamePrefix: server
   stackTraceForInfo: 0

@@ -294,7 +294,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5daeb0b37d11e5d24e1b8fe305b61b08, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  logLevel: 2
+  logLevel: 3
   watchStats: 1
   watchEffectors: 1
   watchAbilities: 1

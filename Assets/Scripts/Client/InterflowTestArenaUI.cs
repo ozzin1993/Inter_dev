@@ -383,12 +383,14 @@ namespace StrategyCore
             if (GUILayout.Button("Тишина")) InterflowDebug.level = InterflowDebug.Level.Off;
             if (GUILayout.Button("События")) InterflowDebug.level = InterflowDebug.Level.Events;
             if (GUILayout.Button("Подробно")) InterflowDebug.level = InterflowDebug.Level.Verbose;
+            if (GUILayout.Button("Полно")) InterflowDebug.level = InterflowDebug.Level.Full;
             GUILayout.EndHorizontal();
         }
 
         static string LevelName(InterflowDebug.Level level)
         {
             if (level == InterflowDebug.Level.Off) return "тишина";
+            if (level == InterflowDebug.Level.Full) return "полно";
             if (level == InterflowDebug.Level.Verbose) return "подробно";
             return "события";
         }

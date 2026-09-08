@@ -67,10 +67,39 @@ namespace StrategyCore
             }
 
             // Ослабление главнее: пока есть хоть одно значение меньше 1, усиления не смотрим вовсе.
-            if (weakest < 1f) return p.amount * weakest;
-            if (strongest > 1f) return p.amount * strongest;
+            // Порядок выбора не изменился — прежние два возврата свёрнуты в одно значение, чтобы лог
+            // называл ровно тот множитель, с которым метод возвращает величину.
+            float effectiveMultiplier = weakest < 1f ? weakest : (strongest > 1f ? strongest : 1f);
 
-            return p.amount;
+            // Источники называем поимённо ТОЛЬКО на полном уровне: это второй проход по списку состояний
+            // и склейка строки в самом горячем пути юнита (регенерация тикает каждые 0,1 с у каждого).
+            if (InterflowDebug.FullOn)
+                InterflowDebug.Full("ПРИЁМНИК ЛЕЧЕНИЕ: " + InterflowDebug.Name(unit) +
+                                    " | множитель=" + effectiveMultiplier.ToString("0.##") +
+                                    " | источники=" + MultiplierSources() +
+                                    " | " + p.amount.ToString("0.#") + " → " + (p.amount * effectiveMultiplier).ToString("0.#"));
+
+            return p.amount * effectiveMultiplier;
+        }
+
+        /// <summary>
+        /// Имена состояний с включённым множителем получаемого лечения — для лога полного уровня.
+        /// Зовётся ТОЛЬКО из-под гейта уровня: проходит по списку состояний второй раз и собирает строку.
+        /// </summary>
+        string MultiplierSources()
+        {
+            string names = null;
+
+            for (int i = 0; i < unit.effectors.Count; i++)
+            {
+                Effector effector = unit.effectors[i].effector;
+                if (effector == null || !effector.healReceivedMultiplierOn) continue;
+
+                string one = effector.name + " (\u00d7" + effector.healReceivedMultiplier.ToString("0.##") + ")";
+                names = names == null ? one : names + ", " + one;
+            }
+
+            return names ?? "нет";
         }
     }
 }

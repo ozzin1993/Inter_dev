@@ -91,14 +91,34 @@ namespace StrategyCore
             string text = FactText(reason, value);
             if (string.IsNullOrEmpty(text)) return;
 
-            Vector3 above = unit.transform.position + new Vector3(0f, unit.unitHeight, 0f);
+            // Разводим надписи по высоте (решение Artsiom 07.09.2026). За один кадр по одному юниту их
+            // может быть несколько: число урона и «Щит» при частичном поглощении, число и отказ наложения
+            // состояния атаки, два числа от кирпичей «каждая N-я атака» и «оглушающий удар». Всплывающий
+            // текст стопку не умеет — без смещения надписи легли бы друг на друга. Образец — сбор ресурсов
+            // (ResourceUnit: i * 0.5f). Счётчик живёт ровно один кадр, ссылки на юнитов в нём не копятся.
+            if (factsFrame != Time.frameCount)
+            {
+                factsFrame = Time.frameCount;
+                factsThisFrame.Clear();
+            }
+            factsThisFrame.TryGetValue(unit, out int shown);
+            factsThisFrame[unit] = shown + 1;
+
+            Vector3 above = unit.transform.position
+                          + new Vector3(0f, unit.unitHeight + shown * Settings.factStackStep, 0f);
             FloatingText.Spawn(-1, above, text, FactColor(reason), false);
         }
+
+        // Сколько надписей уже показано над юнитом в текущем кадре. Чистится сменой кадра.
+        readonly Dictionary<Unit, int> factsThisFrame = new Dictionary<Unit, int>();
+        int factsFrame = -1;
 
         /// <summary>
         /// Строка надписи по причине. Ассета настроек может не быть — тогда Settings отдаёт экземпляр
         /// со значениями по умолчанию, и надписи всё равно показываются (§5.5 промта).
-        /// Число урона выводится ЧИСЛОМ без слов, по формату из настроек.
+        /// Число урона выводится ЧИСЛОМ без слов, целым: формат полем не выносится (решение Artsiom
+        /// 07.09.2026) — свободная строка формата из Inspector при опечатке роняет расчёт урона
+        /// исключением прямо посреди приёмника.
         /// </summary>
         string FactText(BattleFactReason reason, float value)
         {
@@ -111,7 +131,10 @@ namespace StrategyCore
                 case BattleFactReason.Invulnerable: return s.invulnerableText;
                 case BattleFactReason.StatusImmune: return s.statusImmuneText;
                 case BattleFactReason.StatusResisted: return s.statusResistedText;
-                case BattleFactReason.DamageDealt: return value.ToString(s.damageNumberFormat);
+                // Минимум «1» (решение Artsiom 07.09.2026): урон меньше половины единицы округлился бы
+                // в «0», а ноль показывать нельзя — здоровье-то снялось. Сам факт до сюда доходит только
+                // при снятом здоровье, гейт стоит в приёмнике (UnitReceiver: dealt > 0).
+                case BattleFactReason.DamageDealt: return Mathf.Max(1, Mathf.RoundToInt(value)).ToString();
             }
 
             // Номер причины, которого у этого пира нет: сервер новее клиента. Молчать нельзя (правило 9) —

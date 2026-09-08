@@ -16,4 +16,15 @@ MonoBehaviour:
   coneSegments: 24
   groundLift: 0.05
   instantAreaFadeSeconds: 1.5
+  hitMissedText: "Мимо"
+  hitMissedColor: {r: 0.85, g: 0.85, b: 0.85, a: 1}
+  shieldAbsorbedText: "Щит"
+  shieldAbsorbedColor: {r: 0.4, g: 0.78, b: 1, a: 1}
+  invulnerableText: "Неуязвим"
+  invulnerableColor: {r: 1, g: 0.84, b: 0.35, a: 1}
+  statusImmuneText: "Иммунитет"
+  statusImmuneColor: {r: 0.78, g: 0.55, b: 1, a: 1}
+  statusResistedText: "Сопротивление"
+  statusResistedColor: {r: 0.95, g: 0.62, b: 0.98, a: 1}
+  damageDealtColor: {r: 1, g: 0.35, b: 0.3, a: 1}
   shieldBarMaterial: {fileID: 2100000, guid: 755a764e2232dd74f9e486a15ce2cb4c, type: 2}

@@ -40,9 +40,12 @@ namespace StrategyCore
         /// <param name="target">Носитель.</param>
         /// <param name="multiplier">Множитель входящего урона: 1.4 = +40%, 0.5 = −50%.</param>
         /// <param name="duration">Длительность в секундах.</param>
+        /// <param name="source">Умение-источник правила — только для диагностики (решение Artsiom 07.09.2026).
+        /// Параметр ОБЯЗАТЕЛЬНЫЙ: каждое место вызова называет своё умение или пишет null явно,
+        /// молчаливого пропуска нет — так же устроен <c>DamagePacket.Create</c>.</param>
         /// <param name="onlyType">Тип урона, к которому применять. Пусто — любой.</param>
         /// <param name="onlyDirectAttack">Только прямые атаки юнитов (не эффекторы и зоны).</param>
-        public static void Apply(Unit target, float multiplier, float duration, DamageType onlyType = null, bool onlyDirectAttack = false)
+        public static void Apply(Unit target, float multiplier, float duration, Ability source, DamageType onlyType = null, bool onlyDirectAttack = false)
         {
             if (NetworkConnectionHandler.isClient) return; // правило 6
             if (target == null || target.dead || duration <= 0f) return;
@@ -55,7 +58,7 @@ namespace StrategyCore
 
             if (mod == null) mod = target.gameObject.AddComponent<IncomingDamageModifier>();
 
-            mod.AddRule(target, multiplier, duration, onlyType, onlyDirectAttack);
+            mod.AddRule(target, multiplier, duration, source, onlyType, onlyDirectAttack);
         }
 
         /// <summary>
@@ -91,7 +94,7 @@ namespace StrategyCore
             }
         }
 
-        void AddRule(Unit target, float multiplier, float duration, DamageType onlyType, bool onlyDirectAttack)
+        void AddRule(Unit target, float multiplier, float duration, Ability source, DamageType onlyType, bool onlyDirectAttack)
         {
             unit = target;
 
@@ -112,7 +115,8 @@ namespace StrategyCore
             {
                 multiplier = multiplier,
                 onlyType = onlyType,
-                onlyDirectAttack = onlyDirectAttack
+                onlyDirectAttack = onlyDirectAttack,
+                source = source          // диагностика: первый выдавший источник (см. счётчик holders выше)
             };
 
             InterflowCombat.IncomingRuleAdd(unit, rule);

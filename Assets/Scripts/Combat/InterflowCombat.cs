@@ -164,6 +164,16 @@ namespace StrategyCore
             /// <summary>Полный угол сектора «спереди» в градусах (90 — по 45 в каждую сторону от взгляда).</summary>
             public float frontAngle = 90f;
 
+            /// <summary>
+            /// Умение-источник правила — ТОЛЬКО для диагностики (решение Artsiom 07.09.2026), на расчёт не влияет.
+            /// null — источник без ассета.
+            ///
+            /// ВНИМАНИЕ: одинаковые правила (тот же множитель и тот же тип) НЕ заводятся дважды —
+            /// второй владелец присоединяется к уже существующему правилу (IncomingDamageModifier.AddRule,
+            /// счётчик holders). Поэтому здесь стоит ПЕРВЫЙ выдавший источник, а не все сразу.
+            /// </summary>
+            public Ability source;
+
             // [Interflow fix 2026-09-04 damage-full-packet] Уведомление onEvaded «по правилу» СНЕСЕНО (решение
             // Artsiom Р4, 03.09.2026): при одном общем броске приёмник не знает, чей вклад сработал. Вместо него —
             // событие приёмника «удар не достиг цели» (HitMissedListenerAdd / NotifyHitMissed ниже).
@@ -291,7 +301,8 @@ namespace StrategyCore
                 if (InterflowDebug.VerboseOn && !Mathf.Approximately(beforeRule, amount))
                     InterflowDebug.Verbose("ВХОДЯЩИЙ УРОН ИЗМЕНЁН у " + InterflowDebug.Name(victim) + ": " +
                                            beforeRule.ToString("0.#") + " → " + amount.ToString("0.#") +
-                                           (r.multiplier != 1f ? " (×" + r.multiplier.ToString("0.##") + ")" : ""));
+                                           (r.multiplier != 1f ? " (×" + r.multiplier.ToString("0.##") + ")" : "") +
+                                           " | правило=" + (r.source != null ? r.source.name : "без ассета"));
             }
 
             return amount;

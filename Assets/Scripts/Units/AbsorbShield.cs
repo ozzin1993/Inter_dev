@@ -81,6 +81,8 @@ namespace StrategyCore
         private void Init(Unit target, float amount, float duration,
                           System.Action<Unit> onShieldDepleted, System.Action<Unit> onShieldEnded)
         {
+            float remainingBefore = remaining;                                         // для лога: был ли щит до этого вызова
+
             unit = target;
             remaining = Mathf.Max(remaining, amount);                                  // обновление берёт больший объём (не складываем)
             if (duration > 0f) remainingTime = Mathf.Max(remainingTime, duration);
@@ -114,6 +116,13 @@ namespace StrategyCore
 
             // Сегмент щита на полоске здоровья: новая величина (хосту — напрямую, клиентам — каналом статусов).
             NotifyShieldBar(unit, remaining);
+
+            if (InterflowDebug.FullOn)
+                InterflowDebug.Full("ЩИТ ВКЛЮЧЁН: " + InterflowDebug.Name(unit) +
+                                    " | объём=" + remaining.ToString("0.#") +
+                                    (remainingBefore > 0f ? " (было " + remainingBefore.ToString("0.#") + ")" : "") +
+                                    " | время=" + (remainingTime > 0f ? remainingTime.ToString("0.#") + " сек" : "без таймера") +
+                                    " | " + (remainingBefore > 0f ? "обновление" : "новый"));
         }
 
         // Щит исчерпан внутри расчёта урона: снимать хук и звать реакции прямо сейчас нельзя
@@ -140,12 +149,20 @@ namespace StrategyCore
             // Щит потаял — обновляем серый сегмент на полоске (RPC и событие список колбэков не трогают).
             NotifyShieldBar(self, remaining);
 
+            // Горячий путь: строка собирается только на полном уровне — метод зовётся из цикла подписок
+            // внутри расчёта урона, то есть на каждый удар по носителю щита.
+            if (InterflowDebug.FullOn)
+                InterflowDebug.Full("ЩИТ ПОГЛОТИЛ: " + InterflowDebug.Name(self) +
+                                    " | поглощено=" + absorbed.ToString("0.#") + " из " + dmg.ToString("0.#") +
+                                    " | осталось=" + remaining.ToString("0.#") +
+                                    (remaining <= 0f ? " | щит пробит" : ""));
+
             return dmg - absorbed;
         }
 
         private void OnTick()
         {
-            if (unit == null || unit.dead) { Cleanup(); return; }
+            if (unit == null || unit.dead) { Cleanup("носитель погиб"); return; }
             if (GameManager.Instance == null) return;
 
             // Щит пробит на прошлом кадре — теперь мы вне цикла колбэков и можем спокойно всё снять
@@ -154,7 +171,7 @@ namespace StrategyCore
                 pendingDepleted = false;
                 System.Action<Unit> reaction = onDepleted;
                 Unit carrier = unit;
-                Cleanup();
+                Cleanup("пробит");
                 if (reaction != null && carrier != null && !carrier.dead) reaction(carrier);
 
                 return;
@@ -163,7 +180,7 @@ namespace StrategyCore
             if (remainingTime > 0f)
             {
                 remainingTime -= GameManager.Instance.currentDeltaTime;
-                if (remainingTime <= 0f) Cleanup();
+                if (remainingTime <= 0f) Cleanup("истёк по времени");
             }
         }
 
@@ -181,10 +198,16 @@ namespace StrategyCore
 
         private bool destroyed; // компонент уже помечен на снятие: Destroy(this) отложен до конца кадра
 
-        private void Cleanup()
+        /// <param name="reason">Почему щит снят — только для лога полного уровня.</param>
+        private void Cleanup(string reason)
         {
             if (destroyed) return;
             destroyed = true;
+
+            if (InterflowDebug.FullOn)
+                InterflowDebug.Full("ЩИТ СНЯТ: " + InterflowDebug.Name(unit) +
+                                    " | причина=" + reason +
+                                    " | остаток объёма=" + remaining.ToString("0.#"));
 
             // Сегмент на полоске: щита больше нет. Мёртвому носителю не шлём — сегмент умирает вместе с ним.
             if (unit != null && !unit.dead) NotifyShieldBar(unit, 0f);

@@ -155,6 +155,16 @@ namespace StrategyCore
             // [Interflow fix 2026-08-02 effector-unify] Длительность берётся у наложения, а не у общего ассета.
             if (EH.currentTime > EH.duration)
             {
+                // Истечение по времени — самый частый способ, каким состояние уходит с юнита.
+                // Идёт мимо EffectorRemove (тот про досрочное снятие), поэтому строка своя.
+                if (InterflowDebug.FullOn)
+                    InterflowDebug.Full("СОСТОЯНИЕ СНЯТО: " + InterflowDebug.Name(unitHolder) +
+                                        " | состояние=" + (EH.effector != null ? EH.effector.name : "нет") +
+                                        " | причина=истекло по времени" +
+                                        " | прошло=" + EH.currentTime.ToString("0.#") +
+                                        " из " + EH.duration.ToString("0.#") + " сек" +
+                                        " | сила=" + EH.powerMultiplier.ToString("0.##"));
+
                 // Remove the passive effects
                 // Снимаем ТЕМ ЖЕ множителем, каким накладывали, иначе статы юнита уплывут.
                 if (EH.effector.passiveEffectsOn) EH.effector.passiveEffects.RemoveEffect(unitHolder, EH.powerMultiplier);
@@ -235,6 +245,16 @@ namespace StrategyCore
             // из мест вызова не трогается, включая массивные перегрузки ниже.
             EffectorPacket packet = new EffectorPacket(effector, unitOwner, owner, currentTime, powerMultiplier, durationOverride, restoring);
 
+            // Загрузка сохранения молчит (решение Artsiom 07.09.2026): она возвращает уже посчитанные
+            // при сохранении силу и длительность, и десятки строк разом ничего не объясняют.
+            if (InterflowDebug.FullOn && !restoring)
+                InterflowDebug.Full("ПАКЕТ СОСТОЯНИЕ: → " + InterflowDebug.Name(unit) +
+                                    " | состояние=" + (effector != null ? effector.name : "нет") +
+                                    " | категория=" + (effector != null ? effector.category.ToString() : "нет") +
+                                    " | от=" + (unitOwner != null ? InterflowDebug.Name(unitOwner) : "игрок " + owner) +
+                                    " | сила=" + powerMultiplier.ToString("0.##") +
+                                    " | длительность=" + (durationOverride > 0f ? durationOverride.ToString("0.#") + " сек" : "из ассета"));
+
             unit.ReceiverEnsure().Receive(in packet);
         }
 
@@ -259,6 +279,14 @@ namespace StrategyCore
         // Removes specified effector from a unit
         public static void EffectorRemove(Unit unitHolder, EffectorHolder EH)
         {
+            // Досрочное снятие (диспел). Истечение по времени идёт другим путём — внутри EffectorUpdate.
+            if (InterflowDebug.FullOn)
+                InterflowDebug.Full("СОСТОЯНИЕ СНЯТО: " + InterflowDebug.Name(unitHolder) +
+                                    " | состояние=" + (EH != null && EH.effector != null ? EH.effector.name : "нет") +
+                                    " | причина=снято досрочно" +
+                                    " | прошло=" + (EH != null ? EH.currentTime.ToString("0.#") : "?") +
+                                    " из " + (EH != null ? EH.duration.ToString("0.#") : "?") + " сек");
+
             // Remove the passive effects
             // [Interflow fix 2026-08-02 effector-unify] Снимаем тем же множителем, каким накладывали.
             if (EH.effector.passiveEffectsOn) EH.effector.passiveEffects.RemoveEffect(unitHolder, EH.powerMultiplier);

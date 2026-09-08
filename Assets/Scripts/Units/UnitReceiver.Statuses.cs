@@ -35,6 +35,9 @@ namespace StrategyCore
         /// </summary>
         public void Receive(in EffectorPacket p)
         {
+            // Лог полного уровня. Загрузка сохранения молчит (решение Artsiom 07.09.2026).
+            bool log = InterflowDebug.FullOn && !p.restoring;
+
             // [Interflow fix 2026-09-03 control-as-effectors] Иммунитет к контролю отбивает НАЛОЖЕНИЕ
             // целиком, если состояние несёт оглушение, немоту или обезоруживание. Точка проверки одна
             // на все виды — прежде она жила в снесённом UnitReceiver.Receive(in ControlPacket).
@@ -48,6 +51,10 @@ namespace StrategyCore
             {
                 // Факт презентации «состояние отбито иммунитетом» (§15, точка 5).
                 if (ShowStatusFact(in p)) RaiseBattleFact(BattleFactReason.StatusImmune);
+
+                if (log)
+                    InterflowDebug.Full("ПРИЁМНИК СОСТОЯНИЕ: отбито иммунитетом к контролю | " + InterflowDebug.Name(unit) +
+                                        " | состояние=" + p.effector.name);
                 return;
             }
 
@@ -64,8 +71,8 @@ namespace StrategyCore
             // [Interflow fix 2026-09-03 status-resistances] Сопротивления и слабости носителя к категории
             // состояния (решения Artsiom 29.08–03.09.2026). Одна точка на все источники наложений.
             // r ≥ 1 (100 % и больше) — наложение отбивается ЦЕЛИКОМ: ни держателя, ни статуса клиенту
-            // (так выражается «игнорирует любые замедления»; факта презентации «не подействовало» нет —
-            // отложено до шага «урон»). Иначе категория контроля режет ВРЕМЯ, числовая — СИЛУ; слабость
+            // (так выражается «игнорирует любые замедления»). С 07.09.2026 отказ НЕ молчит: поднимается
+            // факт презентации «отбито сопротивлением» (§15). Иначе категория контроля режет ВРЕМЯ, числовая — СИЛУ; слабость
             // (r < 0) даёт множитель больше единицы, предела нет (MVP). Порядок: сопротивление считается
             // ДО минимума длительности и ДО слипания — слипание сравнивает уже фактические силу и длительность,
             // поэтому два наложения одного ассета на одном юните при одном и том же r слипаются как раньше;
@@ -80,15 +87,45 @@ namespace StrategyCore
                 {
                     // Факт презентации «состояние отбито сопротивлением» (§15, точка 6).
                     if (ShowStatusFact(in p)) RaiseBattleFact(BattleFactReason.StatusResisted);
+
+                    if (log)
+                        InterflowDebug.Full("ПРИЁМНИК СОСТОЯНИЕ: отбито сопротивлением | " + InterflowDebug.Name(unit) +
+                                            " | состояние=" + p.effector.name +
+                                            " | категория=" + p.effector.category +
+                                            " | доля=" + r.ToString("0.##"));
                     return;
                 }
 
-                if (UnitResistances.CutsTime(p.effector.category)) duration *= 1f - r;
+                bool cutsTime = UnitResistances.CutsTime(p.effector.category);
+                float beforeCut = cutsTime ? duration : power;
+
+                if (cutsTime) duration *= 1f - r;
                 else power *= 1f - r;
+
+                if (log && r != 0f)
+                    InterflowDebug.Full("ПРИЁМНИК СОСТОЯНИЕ: сопротивление | " + InterflowDebug.Name(unit) +
+                                        " | состояние=" + p.effector.name +
+                                        " | категория=" + p.effector.category +
+                                        " | доля=" + r.ToString("0.##") +
+                                        " | режет=" + (cutsTime ? "время" : "силу") +
+                                        " | " + beforeCut.ToString("0.##") + " → " +
+                                        (cutsTime ? duration : power).ToString("0.##"));
             }
 
             // Just a check of duration, it should not be less than GameManager.everyFrameAbilityTickRate * 2
-            if (duration < GameManager.tickRate * 2) duration = GameManager.tickRate * 2;
+            if (duration < GameManager.tickRate * 2)
+            {
+                float beforeMinimum = duration;
+                duration = GameManager.tickRate * 2;
+
+                // Бессрочные молчат: у них длительность в ассете обычно 0, и минимум срабатывал бы всегда,
+                // хотя на бессрочное состояние он не влияет.
+                if (log && !p.effector.permanent)
+                    InterflowDebug.Full("ПРИЁМНИК СОСТОЯНИЕ: длительность поднята до минимума | " + InterflowDebug.Name(unit) +
+                                        " | состояние=" + p.effector.name +
+                                        " | " + beforeMinimum.ToString("0.##") + " → " + duration.ToString("0.##"));
+            }
+
             // Make sure invisibility should not stack, will cause a bug
             bool stacks = p.effector.stacks && !p.effector.makeInvisible;
 
@@ -108,6 +145,12 @@ namespace StrategyCore
                     if (!Mathf.Approximately(existing.duration, duration)) continue;
 
                     existing.currentTime = 0;
+
+                    if (log)
+                        InterflowDebug.Full("ПРИЁМНИК СОСТОЯНИЕ: продлено | " + InterflowDebug.Name(unit) +
+                                            " | состояние=" + p.effector.name +
+                                            " | сила=" + power.ToString("0.##") +
+                                            " | длительность=" + duration.ToString("0.#"));
                     // [Interflow fix 2026-08-05 unit-status-sync] Продление наложения — сообщить клиентам
                     // (единый канал статусов; внутри гейт «только сервер» — локальные ауры клиента не шлют).
                     if ((p.effector.icon != null || p.effector.VFX != null) && NetworkDataSync.Instance != null)
@@ -120,6 +163,16 @@ namespace StrategyCore
             EffectorHolder newEH = new EffectorHolder(p.effector, p.unitOwner, p.owner, duration, stacks, power);
             newEH.currentTime = p.currentTime;
             unit.effectors.Add(newEH);
+
+            if (log)
+                InterflowDebug.Full("ПРИЁМНИК СОСТОЯНИЕ: наложено | " + InterflowDebug.Name(unit) +
+                                    " | состояние=" + newEH.effector.name +
+                                    " | категория=" + newEH.effector.category +
+                                    " | сила=" + power.ToString("0.##") +
+                                    " | длительность=" + duration.ToString("0.#") +
+                                    " | стакается=" + (stacks ? "да" : "нет") +
+                                    " | всего состояний=" + unit.effectors.Count);
+
             if (newEH.effector.VFX != null) unit.AddVFX(newEH.effector.VFX, newEH.effector.aboveHead);
 
             // Add passive effects

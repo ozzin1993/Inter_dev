@@ -776,7 +776,7 @@ namespace StrategyCore
 
             // Ставим ПОСЛЕ щита по той же причине, что и подписку: onEnded прежнего щита снял бы новое правило.
             // Таймер здесь страховочный — обычно правило снимает onEnded, когда щит сходит.
-            if (hasIncomingRule) IncomingDamageModifier.Apply(target, incomingMultiplier, duration);
+            if (hasIncomingRule) IncomingDamageModifier.Apply(target, incomingMultiplier, duration, this);
         }
 
         /// <summary>Кого задевают вспышка и ответ щита: враги носителя по селектору ответа.</summary>

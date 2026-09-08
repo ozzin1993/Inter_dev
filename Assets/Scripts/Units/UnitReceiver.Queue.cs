@@ -102,6 +102,13 @@ namespace StrategyCore
             q.packet = packet;
             q.packet.generation = generation;
             queue.Enqueue(q);
+
+            if (InterflowDebug.FullOn)
+                InterflowDebug.Full("ОЧЕРЕДЬ: пакет отложен | цель=" + InterflowDebug.Name(target) +
+                                    " | умение=" + (packet.sourceAbility != null ? packet.sourceAbility.name : "нет") +
+                                    " | от=" + InterflowDebug.Name(packet.attackingUnit) +
+                                    " | поколение=" + generation +
+                                    " | в очереди=" + queue.Count);
         }
 
         /// <summary>
@@ -117,6 +124,13 @@ namespace StrategyCore
                 if (q.target == null || q.target.dead) continue;
 
                 currentGeneration = q.packet.generation;
+
+                if (InterflowDebug.FullOn)
+                    InterflowDebug.Full("ОЧЕРЕДЬ: разбор | цель=" + InterflowDebug.Name(q.target) +
+                                        " | умение=" + (q.packet.sourceAbility != null ? q.packet.sourceAbility.name : "нет") +
+                                        " | поколение=" + q.packet.generation +
+                                        " | осталось=" + queue.Count);
+
                 q.target.ReceiverEnsure().Receive(in q.packet, out float _);
             }
         }

@@ -65,6 +65,9 @@ namespace StrategyCore
             if (NetworkConnectionHandler.isClient)
             {
                 if (p.directAttack && unit.hasHitAnim && unit.FoWVisible) unit.animator.CrossFade("hit", unit.crossFadeTime, 0, 0f);
+
+                if (InterflowDebug.FullOn)
+                    InterflowDebug.Full("ПРИЁМНИК УРОН: клиент, только анимация | " + InterflowDebug.Name(unit));
                 return false;
             }
 
@@ -87,20 +90,32 @@ namespace StrategyCore
                     InterflowDebug.Verbose("НЕУЯЗВИМ: " + InterflowDebug.Name(unit) + " — урон от " +
                                            InterflowDebug.Name(p.attackingUnit) + " не принят");
                 if (showFacts) RaiseBattleFact(BattleFactReason.Invulnerable);
+
+                if (InterflowDebug.FullOn)
+                    InterflowDebug.Full("ПРИЁМНИК УРОН: отбито неуязвимостью | " + InterflowDebug.Name(unit) +
+                                        " | заявлено=" + p.TotalAmount.ToString("0.#") +
+                                        " | от=" + InterflowDebug.Name(p.attackingUnit));
                 return false;
             }
 
             // 3. Один бросок «удар не достиг цели» (решение Р3): шанс промаха бьющего из пакета (только прямая
             //    атака) плюс сумма шансов ухода правил жертвы, зажим до единицы. Чей вклад сработал — не
             //    разбирается (§13 схемы): событие одно на жертву (решение Р4), приходит и при промахе бьющего.
-            float avoid = (p.directAttack ? p.missChance : 0f) + InterflowCombat.HitAvoidChance(unit, in p);
+            float missFromAttacker = p.directAttack ? p.missChance : 0f;
+            float avoidFromVictim = InterflowCombat.HitAvoidChance(unit, in p);
+            float avoid = missFromAttacker + avoidFromVictim;
             if (avoid > 0f && UnityEngine.Random.value < Mathf.Clamp01(avoid))
             {
                 InterflowDebug.Verbose("УДАР НЕ ДОСТИГ ЦЕЛИ: " + InterflowDebug.Name(p.attackingUnit) + " → " +
                                        InterflowDebug.Name(unit) + " (суммарный шанс " + (Mathf.Clamp01(avoid) * 100f).ToString("0") + "%)");
-                // Факт презентации поднимаем ДО уведомления: у события «удар не достиг цели» есть
-                // подписчики со встречным ударом, и их пакеты не должны стоять между фактом и отправкой.
                 if (showFacts) RaiseBattleFact(BattleFactReason.HitMissed);
+
+                if (InterflowDebug.FullOn)
+                    InterflowDebug.Full("ПРИЁМНИК УРОН: удар не достиг цели | " + InterflowDebug.Name(unit) +
+                                        " | промах бьющего=" + missFromAttacker.ToString("0.##") +
+                                        " | уход жертвы=" + avoidFromVictim.ToString("0.##") +
+                                        " | суммарно=" + Mathf.Clamp01(avoid).ToString("0.##"));
+
                 InterflowCombat.NotifyHitMissed(unit, p.attackingUnit);
                 return false;
             }
@@ -116,10 +131,12 @@ namespace StrategyCore
                 DamageRecord record = p.Record(i);
                 if (record.damageType == null) continue;   // запись без типа (пустой пакет умения) — считать нечем
                 float amount = record.amount;
+                float declared = amount;                   // для лога: что заявила запись до всех расчётов
 
                 // [Interflow fix 2026-07-24 combat-hub] Правила входящего жертвы: множители и вычеты числом.
                 // Считаем ДО штатных колбэков, чтобы щит поглощал уже итоговую величину.
                 amount = InterflowCombat.ModifyIncomingDamage(unit, p.attackingUnit, record.damageType, amount, p.directAttack);
+                float afterRules = amount;                 // для лога: после правил входящего урона жертвы
 
                 // Перебор подписок скопирован дословно с нулевого шага, включая вторую ветку: она допускает
                 // РОСТ урона, когда снижения не было. Это не «взять наименьшее» — упрощать нельзя.
@@ -129,10 +146,19 @@ namespace StrategyCore
                 foreach (var c in unit.OnBeforeGetDamageCallbacks)
                 {
                     float damageChanged = c.Callback(unit, c.Level, amount, p.directAttack);
+
+                    // Подписчик без ассета — поглощающий щит и вызванная неуязвимость:
+                    // они вешают колбэк кодом, а не от умения (Ability = null).
+                    if (InterflowDebug.FullOn && !Mathf.Approximately(damageChanged, amount))
+                        InterflowDebug.Full("ПРИЁМНИК УРОН: подписка сработала | " + InterflowDebug.Name(unit) +
+                                            " | источник=" + (c.Ability != null ? c.Ability.name : "без ассета (щит или неуязвимость)") +
+                                            " | " + amount.ToString("0.#") + " → " + damageChanged.ToString("0.#"));
+
                     if (damageChanged < finalDamage) finalDamage = damageChanged;
                     else if (finalDamage >= amount && damageChanged > finalDamage) finalDamage = damageChanged;
                 }
                 amount = finalDamage;
+                float afterCallbacks = amount;             // для лога: после подписок (щит, снижения)
 
                 // Пробитие брони — из пакета (кладёт отправитель из реестра, §13 схемы).
                 float effectiveArmor = unit.armor * (1f - Mathf.Clamp01(p.armorPierce));
@@ -147,13 +173,33 @@ namespace StrategyCore
                 if (dealt < 0) dealt = 0;
                 if (dealt > unit.health) dealt = unit.health;
 
+                float healthBefore = unit.health;          // для лога: здоровье до снятия
+
                 damageDealt += dealt;
                 died = unit.ChangeHP(-dealt);
 
                 // Число урона (§15, точка 4). За ЗАПИСЬ и строго ДО Die: смерть снимает netID из реестра,
                 // а отправка сообщения требует, чтобы юнит в нём ещё числился (NetworkDataSync.CanSendAbout).
                 // Подъём после цикла не случился бы вовсе — при смерти цикл обрывается и Receive выходит ниже.
-                if (showFacts) RaiseBattleFact(BattleFactReason.DamageDealt, dealt);
+                //
+                // Ноль не показываем (решение Artsiom 07.09.2026): «нанесён урон» — про снятое здоровье,
+                // а dealt == 0 бывает, когда щит съел удар целиком (AbsorbShield.Absorb вернул исходное
+                // число), когда таблица «тип брони × тип урона» дала ноль или когда правило входящего
+                // обнулило урон. Иначе игрок видел бы «0» рядом с надписью про щит.
+                if (showFacts && dealt > 0f) RaiseBattleFact(BattleFactReason.DamageDealt, dealt);
+
+                if (InterflowDebug.FullOn)
+                    InterflowDebug.Full("ПРИЁМНИК УРОН: запись " + (i + 1) + " из " + count +
+                                        " | " + InterflowDebug.Name(unit) +
+                                        " | тип=" + record.damageType.name +
+                                        " | заявлено=" + declared.ToString("0.#") +
+                                        " → правила=" + afterRules.ToString("0.#") +
+                                        " → подписки=" + afterCallbacks.ToString("0.#") +
+                                        " | броня " + unit.armor.ToString("0.#") + " → " + effectiveArmor.ToString("0.#") +
+                                        " (пробитие " + p.armorPierce.ToString("0.##") + ")" +
+                                        " | снято=" + dealt.ToString("0.#") +
+                                        " | здоровье " + healthBefore.ToString("0.#") + " → " + unit.health.ToString("0.#") +
+                                        (died ? " | ПОГИБ" : ""));
 
                 if (died)
                 {
@@ -162,7 +208,15 @@ namespace StrategyCore
                 }
             }
 
-            if (died) return true;
+            if (died)
+            {
+                if (InterflowDebug.FullOn)
+                    InterflowDebug.Full("ПРИЁМНИК УРОН ИТОГ: " + InterflowDebug.Name(unit) +
+                                        " | снято=" + damageDealt.ToString("0.#") +
+                                        " | погиб=да" +
+                                        " | остаток пакета не применён");
+                return true;
+            }
 
             // 5. Состояния атаки бьющего (решение Р7): только при прямой атаке, после урона, только живому.
             //    До шага 4 их вешал бьющий сам (Unit.DealDamage) и без проверки признака — урон умения
@@ -181,6 +235,16 @@ namespace StrategyCore
             //     ДО него и ОДИН раз на пакет: цикл подписок лежит внутри цикла записей, подъём там дал бы
             //     надпись на каждую запись. Погиб — сюда не доходим (выход выше), и это принято.
             if (showFacts && InterflowCombat.AbsorbedThisHit(unit)) RaiseBattleFact(BattleFactReason.ShieldAbsorbed);
+
+            // Итог пакета. ДО NotifyDamaged: она гасит признак «щит поглотил в этом ударе»
+            // (InterflowCombat.absorbedThisHit), и после неё строка соврала бы про щит.
+            if (InterflowDebug.FullOn)
+                InterflowDebug.Full("ПРИЁМНИК УРОН ИТОГ: " + InterflowDebug.Name(unit) +
+                                    " | снято=" + damageDealt.ToString("0.#") +
+                                    " | погиб=нет" +
+                                    " | состояний атаки в пакете=" +
+                                    (p.directAttack && p.attackEffectors != null ? p.attackEffectors.Length.ToString() : "нет") +
+                                    " | щит поглотил=" + (InterflowCombat.AbsorbedThisHit(unit) ? "да" : "нет"));
 
             // 7. [Interflow fix 2026-07-24 combat-hub] Реакции на получение урона (контрудар, ответная заморозка).
             //    Их пакеты уходят в очередь (Dispatch: обработка уже идёт) и разбираются после этого пакета.

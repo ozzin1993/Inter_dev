@@ -92,6 +92,12 @@ namespace StrategyCore
             if (amount > 0 && countAsHeal)
             {
                 HealPacket packet = new HealPacket(amount);
+
+                if (InterflowDebug.FullOn)
+                    InterflowDebug.Full("ПАКЕТ ЛЕЧЕНИЕ: → " + InterflowDebug.Name(this) +
+                                        " | величина=" + packet.amount.ToString("0.#") +
+                                        " | здоровье=" + health.ToString("0.#") + " из " + maxHealth.ToString("0.#"));
+
                 amount = ReceiverEnsure().Receive(in packet);
             }
 

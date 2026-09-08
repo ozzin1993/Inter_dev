@@ -37,6 +37,8 @@ namespace StrategyCore
 
         [Header("Разовые надписи в бою (§15 схемы)")]
         // Шесть причин факта боя (BattleFactReason). Слова и цвета — контент, а не код: правило 3.
+        // Значения ниже — подстраховка на случай ассета без ключей; рабочие значения лежат в
+        // Resources/Catalogs/SkillPresentationSettings.asset (слова и цвета выбраны 08.09.2026 по слову Artsiom).
         // Числа урона выводятся ЧИСЛОМ без слов, поэтому у них не строка, а формат числа.
 
         [Tooltip("Надпись «удар не достиг цели». Одна на промах бьющего и на уход жертвы — " +
@@ -44,40 +46,42 @@ namespace StrategyCore
         public string hitMissedText = "Мимо";
 
         [Tooltip("Цвет надписи «удар не достиг цели»")]
-        public Color hitMissedColor = new Color(0.80f, 0.80f, 0.80f);
+        public Color hitMissedColor = new Color(0.85f, 0.85f, 0.85f);
 
         [Tooltip("Надпись «поглощающий щит принял удар на себя». " +
                  "Появляется и тогда, когда часть урона всё же дошла до здоровья")]
         public string shieldAbsorbedText = "Щит";
 
         [Tooltip("Цвет надписи о поглощении щитом")]
-        public Color shieldAbsorbedColor = new Color(0.45f, 0.75f, 1f);
+        public Color shieldAbsorbedColor = new Color(0.40f, 0.78f, 1f);
 
         [Tooltip("Надпись «цель неуязвима» — весь урон пакета отбит")]
         public string invulnerableText = "Неуязвим";
 
         [Tooltip("Цвет надписи о неуязвимости")]
-        public Color invulnerableColor = new Color(1f, 0.85f, 0.30f);
+        public Color invulnerableColor = new Color(1f, 0.84f, 0.35f);
 
         [Tooltip("Надпись «состояние отбито иммунитетом к контролю» " +
                  "(оглушение, немота, безоружие; слепоту иммунитет не отбивает)")]
         public string statusImmuneText = "Иммунитет";
 
         [Tooltip("Цвет надписи об иммунитете к контролю")]
-        public Color statusImmuneColor = new Color(0.75f, 0.55f, 1f);
+        public Color statusImmuneColor = new Color(0.78f, 0.55f, 1f);
 
         [Tooltip("Надпись «состояние отбито сопротивлением» — сопротивление категории 100 % и выше")]
         public string statusResistedText = "Сопротивление";
 
         [Tooltip("Цвет надписи о сопротивлении состоянию")]
-        public Color statusResistedColor = new Color(0.40f, 0.90f, 0.75f);
+        public Color statusResistedColor = new Color(0.95f, 0.62f, 0.98f);
 
-        [Tooltip("Формат числа урона (правила форматирования чисел .NET). " +
-                 "«0» — целое без дробной части, «0.#» — с одним знаком после запятой при необходимости")]
-        public string damageNumberFormat = "0";
-
-        [Tooltip("Цвет числа урона")]
+        [Tooltip("Цвет числа урона. Само число выводится целым, без дробной части")]
         public Color damageDealtColor = new Color(1f, 0.35f, 0.30f);
+
+        [Tooltip("На сколько метров поднимать каждую СЛЕДУЮЩУЮ надпись над тем же юнитом в одном кадре. " +
+                 "Без этого число урона и «Щит» легли бы в одну точку и обе стали бы нечитаемы. " +
+                 "0 — не разводить")]
+        [Min(0f)]
+        public float factStackStep = 0.5f;
 
         [Header("Щит на полоске здоровья")]
         [Tooltip("Материал серого сегмента поглощающего щита (шейдер StrategyCore/HealthBarShield). " +

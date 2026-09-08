@@ -189,7 +189,7 @@ namespace StrategyCore
             // 3) Уязвимость — обёртка над готовым правилом входящего урона.
             if (alive && onHit.vulnerabilityDuration > 0f && onHit.vulnerabilityMultiplier > 0f
                 && !Mathf.Approximately(onHit.vulnerabilityMultiplier, 1f))
-                IncomingDamageModifier.Apply(target, onHit.vulnerabilityMultiplier, onHit.vulnerabilityDuration,
+                IncomingDamageModifier.Apply(target, onHit.vulnerabilityMultiplier, onHit.vulnerabilityDuration, this,
                                              onHit.vulnerabilityOnlyDamageType, onHit.vulnerabilityOnlyDirectIncoming);
 
             // 4) Вампиризм. Считаем от урона ДО брони цели — семантика прежнего вампиризма (LifestealPassive),

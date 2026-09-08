@@ -161,6 +161,20 @@ namespace StrategyCore
 
             Unit attackingUnit = packet.attackingUnit;
 
+            // Состав пакета — ОДНА точка на весь урон: через эту воронку проходит каждый принятый пакет
+            // ровно один раз (шаг 4 схемы). Строка собирается только на полном уровне: путь горячий —
+            // сюда заходят автоатаки, урон в секунду состояний, ауры, зоны и реакции.
+            if (InterflowDebug.FullOn)
+                InterflowDebug.Full("ПАКЕТ УРОН: → " + InterflowDebug.Name(this) +
+                                    " | умение=" + (packet.sourceAbility != null ? packet.sourceAbility.name : "нет") +
+                                    " | от=" + InterflowDebug.Name(attackingUnit) + " (игрок " + packet.attackingPlayer + ")" +
+                                    " | прямая=" + (packet.directAttack ? "да" : "нет") +
+                                    " | записей=" + packet.RecordCount + ": " + PacketRecordsText(in packet) +
+                                    " | состояния атаки=" + PacketEffectorsText(packet.attackEffectors) +
+                                    " | пробитие=" + packet.armorPierce.ToString("0.##") +
+                                    " | промах=" + packet.missChance.ToString("0.##") +
+                                    " | поколение=" + packet.generation);
+
             // Provoke the units including self when attacked
             if (packet.directAttack)
             {
@@ -231,6 +245,45 @@ namespace StrategyCore
             // Приёмная часть — в UnitReceiver (нулевой шаг), очередь — UnitReceiver.Queue.cs (шаг 4).
             // Провокация выше в приёмник НЕ переносится: решение по ней отложено (Р6, 03.09.2026).
             return UnitReceiver.Dispatch(this, in packet, out damageDealt);
+        }
+
+        /// <summary>
+        /// Записи урона пакета строкой — для лога полного уровня. Зовётся ТОЛЬКО из-под гейта уровня:
+        /// перебирает записи и склеивает строку, а воронка урона — горячий путь.
+        /// </summary>
+        static string PacketRecordsText(in DamagePacket packet)
+        {
+            string text = null;
+
+            for (int i = 0; i < packet.RecordCount; i++)
+            {
+                DamageRecord record = packet.Record(i);
+                string one = record.amount.ToString("0.#") +
+                             " (" + (record.damageType != null ? record.damageType.name : "без типа") + ")";
+
+                text = text == null ? one : text + ", " + one;
+            }
+
+            return text ?? "нет";
+        }
+
+        /// <summary>
+        /// Имена состояний атаки из пакета строкой — для лога полного уровня. Зовётся ТОЛЬКО из-под гейта.
+        /// </summary>
+        static string PacketEffectorsText(Effector[] effectors)
+        {
+            if (effectors == null || effectors.Length == 0) return "нет";
+
+            string text = null;
+
+            for (int i = 0; i < effectors.Length; i++)
+            {
+                if (effectors[i] == null) continue;
+
+                text = text == null ? effectors[i].name : text + ", " + effectors[i].name;
+            }
+
+            return text ?? "нет";
         }
 
         // ============================= DIE ==============================================================================
