@@ -108,8 +108,8 @@ MonoBehaviour:
   singleCellViewBlocker: 0
   transportWeight: 1
   formationPriority: 2
-  maxHealth: 300
-  health: 300
+  maxHealth: 420
+  health: 420
   healthRegen: 0
   maxMana: 0
   mana: 0
@@ -176,7 +176,7 @@ MonoBehaviour:
   attackType: 0
   attackRange: 1
   damageType: {fileID: 0}
-  attackDamage: 60
+  attackDamage: 32
   attackSpeed: 1.5
   attackEffectors: []
   projectileGO: {fileID: 0}

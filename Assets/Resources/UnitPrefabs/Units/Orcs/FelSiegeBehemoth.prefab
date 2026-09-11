@@ -113,8 +113,8 @@ MonoBehaviour:
   singleCellViewBlocker: 0
   transportWeight: 1
   formationPriority: 0
-  maxHealth: 320
-  health: 320
+  maxHealth: 450
+  health: 450
   healthRegen: 0
   maxMana: 0
   mana: 0
