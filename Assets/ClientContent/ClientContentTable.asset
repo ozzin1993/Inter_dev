@@ -130,7 +130,7 @@ MonoBehaviour:
     attackCommand: []
     attackStart: []
     attackEnd: []
-  - prefab: {fileID: 1165191979987236916, guid: 6abb21b4aa690ca46b87b1786802067d, type: 3}
+  - prefab: {fileID: 5186792438009123784, guid: ce0b3e75b57c772408f9ffb121e49001, type: 3}
     icon: {fileID: 2800000, guid: df08f294928d0fc46991839349cc9c97, type: 3}
     ready: []
     move: []
