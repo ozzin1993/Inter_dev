@@ -1,0 +1,57 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fae4d907023251b4c80d78fe85c1ad3e, type: 3}
+  m_Name: OgreGladiator_Unyielding
+  m_EditorClassIdentifier: Interflow.Game::StrategyCore.Effector
+  id: 15
+  displayName: "\u041D\u0435\u043F\u0440\u0435\u043A\u043B\u043E\u043D\u043D\u044B\u0439
+    \u0413\u0438\u0433\u0430\u043D\u0442"
+  icon: {fileID: 2800000, guid: 36a6ed4555364a0498f40da4e6e2d277, type: 3}
+  description: 
+  VFX: {fileID: 4748749153855315147, guid: 7320e06993bf16e4e916a11b26fa3c92, type: 3}
+  aboveHead: 0
+  permanent: 1
+  duration: 0.2
+  stacks: 0
+  damageAmount: 0
+  damageType: {fileID: 0}
+  makeInvisible: 0
+  revealInvisible: 0
+  incomingDamageMultiplier: 1
+  incomingDamageType: {fileID: 0}
+  incomingDirectOnly: 0
+  passiveEffectsOn: 0
+  passiveEffects:
+    exactPercentageReductions: 0
+    damageChange: 0
+    damagePercentageChange: 0
+    attackSpeedChange: 0
+    attackSpeedPercentageChange: 0
+    attackRangeChange: 0
+    attackRangePercentageChange: 0
+    armorChange: 0
+    armorPercentageChange: 0
+    moveSpeedChange: 0
+    moveSpeedPercentageChange: 0
+    healthChange: 0
+    healthPercentageChange: 0
+    healthRegenChange: 0
+    healthRegenPercentageChange: 0
+    manaChange: 0
+    manaPercentageChange: 0
+    manaRegenChange: 0
+    manaRegenPercentageChange: 0
+    visionChange: 0
+    xpRewardChange: 0
+    xpRewardPercentageChange: 0
+    attributeChanges: []
+    attributePercentageChange: []

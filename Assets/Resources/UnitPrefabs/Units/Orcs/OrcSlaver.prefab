@@ -10,6 +10,8 @@ GameObject:
   m_Component:
   - component: {fileID: 9162692768330159776}
   - component: {fileID: 6903377755701969617}
+  - component: {fileID: 2117153912005000679}
+  - component: {fileID: 1959772705547362807}
   m_Layer: 0
   m_Name: OrcSlaver
   m_TagString: Untagged
@@ -45,8 +47,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b166e7a81d9bcf940a22cc4c185f0e45, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Interflow.Game::StrategyCore.Unit
-  abilities: []
-  abilityLevel: 
+  abilities:
+  - {fileID: 11400000, guid: 104101fdfd34e4d4084d883431308533, type: 2}
+  abilityLevel: 00000000
   abilityLocked: 
   everyFrameAbilities: []
   everyFrameAbilityIndex: 
@@ -68,6 +71,8 @@ MonoBehaviour:
   canCast: 0
   unitCategory: 0
   targetPriority: 
+  preferAttackClusters: 0
+  attackClusterRadius: 2
   respondsToAttackCommand: 1
   respondsToDefenceCommand: 1
   leavesGrave: 0
@@ -264,6 +269,39 @@ MonoBehaviour:
   removeFromPosSync: 0
   spawned: 0
   initialized: 0
+--- !u!114 &2117153912005000679
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1410562191258137125}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: eeacf01fdd4e6784fbaffd8a2682fac0, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Interflow.Game::StrategyCore.AutoAbilityUser
+  autoAbilities:
+  - {fileID: 11400000, guid: 104101fdfd34e4d4084d883431308533, type: 2}
+--- !u!114 &1959772705547362807
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1410562191258137125}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 97c556a459149c04e816a5fa8f19c12e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Interflow.Game::StrategyCore.CharacterSockets
+  rightHand: {fileID: 6444641881468910956}
+  leftHand: {fileID: 0}
+  weapon: {fileID: 0}
+  chest: {fileID: 0}
+  center: {fileID: 0}
+  head: {fileID: 0}
+  ground: {fileID: 0}
 --- !u!1001 &356234039379195310
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -272,6 +310,10 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 9162692768330159776}
     m_Modifications:
+    - target: {fileID: 6691037150908016494, guid: f174083163cf4d6449e723d7f0291590, type: 3}
+      propertyPath: m_Controller
+      value: 
+      objectReference: {fileID: 9100000, guid: 1407388a670f0fd429279d03c8391488, type: 2}
     - target: {fileID: 6737897924726584204, guid: f174083163cf4d6449e723d7f0291590, type: 3}
       propertyPath: m_LocalPosition.x
       value: 0
@@ -321,6 +363,11 @@ PrefabInstance:
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: f174083163cf4d6449e723d7f0291590, type: 3}
+--- !u!4 &6444641881468910956 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 6745951740552956098, guid: f174083163cf4d6449e723d7f0291590, type: 3}
+  m_PrefabInstance: {fileID: 356234039379195310}
+  m_PrefabAsset: {fileID: 0}
 --- !u!4 &6444733041019586082 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 6737897924726584204, guid: f174083163cf4d6449e723d7f0291590, type: 3}

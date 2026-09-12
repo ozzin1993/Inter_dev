@@ -46,8 +46,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b166e7a81d9bcf940a22cc4c185f0e45, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  abilities: []
-  abilityLevel: 
+  abilities:
+  - {fileID: 11400000, guid: f830039845b3dc64dafec7d8892a2abb, type: 2}
+  - {fileID: 11400000, guid: 2f528c6d35dc72c4c9abeca9e9493995, type: 2}
+  - {fileID: 11400000, guid: 8a4e026ad576e6e488c85884f7221c75, type: 2}
+  abilityLevel: 000000000000000000000000
   abilityLocked: 
   everyFrameAbilities: []
   everyFrameAbilityIndex: 
@@ -69,6 +72,8 @@ MonoBehaviour:
   canCast: 0
   unitCategory: 0
   targetPriority: 
+  preferAttackClusters: 0
+  attackClusterRadius: 2
   respondsToAttackCommand: 1
   respondsToDefenceCommand: 1
   leavesGrave: 0
@@ -305,6 +310,10 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 5369193491131460125}
     m_Modifications:
+    - target: {fileID: 4192048136038584509, guid: 1fa470a241176034190d47a83252ea48, type: 3}
+      propertyPath: UVModule.sprites.Array.data[0].sprite
+      value: 
+      objectReference: {fileID: 0}
     - target: {fileID: 9179942355226778987, guid: 1fa470a241176034190d47a83252ea48, type: 3}
       propertyPath: m_LocalPosition.x
       value: 0

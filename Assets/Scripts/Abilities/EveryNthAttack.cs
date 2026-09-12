@@ -1,4 +1,4 @@
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using UnityEngine;
 
 namespace StrategyCore
@@ -14,6 +14,11 @@ namespace StrategyCore
         [Header("Каждая N-я атака (B2)")]
         [Tooltip("Каждая какая по счёту атака усилена (N). [БАЛАНС — Влад]")]
         public int everyN = 3;
+        [Range(0,1), Tooltip("Шанс срабатывания после достижения N. 1 — всегда.")] public float procChance=1f;
+
+        [Tooltip("Скилл конструктора, исполняемый при усиленном попадании. Цель или точка берётся из попадания.")]
+        public CompositeSkill onProcSkill;
+        [Tooltip("Считать попадание снаряда в землю один раз, даже если рядом нет целей. Для площадных выстрелов.")] public bool procAtProjectileImpact;
 
         [Tooltip("Множитель доп. урона усиленной атаки по уровням (доля от урона атаки; 0 = без добавки). [БАЛАНС — Влад]")]
         public float[] bonusDamageMultiplier;
@@ -89,18 +94,43 @@ namespace StrategyCore
         void NthApply(Unit targetUnit, Vector3 targetPosition, Effector[] effectors, float dmg, bool directAttack,
                       DamageType damageType, Unit byUnit, Projectile byProjectile, int byOwner, int level)
         {
+            if(procAtProjectileImpact && byProjectile!=null)return;
+            CountAndApply(targetUnit,targetPosition,effectors,dmg,directAttack,damageType,byUnit,byProjectile,byOwner,level);
+        }
+        public void ProjectileImpact(Unit target,Vector3 point,float amount,bool direct,DamageType type,Unit source,Projectile projectile,int owner,int level)
+        {
+            if(procAtProjectileImpact)CountAndApply(target,point,null,amount,direct,type,source,projectile,owner,level);
+        }
+        void CountAndApply(Unit targetUnit, Vector3 targetPosition, Effector[] effectors, float dmg, bool directAttack,
+                      DamageType damageType, Unit byUnit, Projectile byProjectile, int byOwner, int level)
+        {
             if (NetworkConnectionHandler.isClient) return;
             if (onlyDirectAttack && !directAttack) return;   // сплэш/бонус идут directAttack=false → счёт только по главной
-            if (byUnit == null || everyN <= 0) return;
+            if (everyN <= 0) return;
+            if (byUnit == null)
+            {
+                // A launched projectile keeps its per-hit payload after the caster is destroyed.
+                if (everyN == 1 && byProjectile != null && UnityEngine.Random.value < procChance) ApplyProcSkill(null, byOwner, level, targetUnit, targetPosition);
+                return;
+            }
 
             int c = attackCounters.TryGetValue(byUnit, out int v) ? v : 0;
             c++;
             if (c >= everyN)
             {
                 c = 0;
-                ApplyEmpowered(targetUnit, dmg, damageType, byUnit, byOwner, level);
+                if(UnityEngine.Random.value < procChance) {
+                    ApplyEmpowered(targetUnit, dmg, damageType, byUnit, byOwner, level);
+                    ApplyProcSkill(byUnit, byOwner, level, targetUnit, targetPosition);
+                }
             }
             attackCounters[byUnit] = c;
+        }
+
+        void ApplyProcSkill(Unit source, int owner, int level, Unit target, Vector3 point)
+        {
+            if (onProcSkill == null) return;
+            onProcSkill.UseFromHit(source,owner,level,target,point);
         }
 
         void ApplyEmpowered(Unit targetUnit, float dmg, DamageType damageType, Unit byUnit, int byOwner, int level)

@@ -45,8 +45,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b166e7a81d9bcf940a22cc4c185f0e45, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Interflow.Game::StrategyCore.Unit
-  abilities: []
-  abilityLevel: 
+  abilities:
+  - {fileID: 11400000, guid: e868439e93f3ebe4aade365ab62d04d2, type: 2}
+  - {fileID: 11400000, guid: 19e3ee8e5cfd4ee448c87961b4532832, type: 2}
+  - {fileID: 11400000, guid: a4a909b1b934dbc4ba4a3904aa090c00, type: 2}
+  - {fileID: 11400000, guid: 7e99a9a880c22c648b3ce9f8174b1b39, type: 2}
+  - {fileID: 11400000, guid: 830be8305ee0f7241824fccc3b318e1f, type: 2}
+  abilityLevel: 0000000000000000000000000000000000000000
   abilityLocked: 
   everyFrameAbilities: []
   everyFrameAbilityIndex: 
@@ -68,6 +73,8 @@ MonoBehaviour:
   canCast: 0
   unitCategory: 4
   targetPriority: 
+  preferAttackClusters: 0
+  attackClusterRadius: 2
   respondsToAttackCommand: 1
   respondsToDefenceCommand: 1
   leavesGrave: 0
@@ -346,6 +353,10 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 5375542049006519900}
     m_Modifications:
+    - target: {fileID: 870094807698630026, guid: 5663bd09224341c4f945f52533f5eb51, type: 3}
+      propertyPath: m_Controller
+      value: 
+      objectReference: {fileID: 9100000, guid: 4faf31051986f8b429f53cc5a59bdcd0, type: 2}
     - target: {fileID: 3758653476354606475, guid: 5663bd09224341c4f945f52533f5eb51, type: 3}
       propertyPath: m_Name
       value: Haldor_Model

@@ -1,0 +1,58 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fae4d907023251b4c80d78fe85c1ad3e, type: 3}
+  m_Name: OrcWarlock_CausticCurse
+  m_EditorClassIdentifier: Interflow.Game::StrategyCore.Effector
+  id: 10
+  displayName: "\u0415\u0434\u043A\u043E\u0435 \u041F\u0440\u043E\u043A\u043B\u044F\u0442\u0438\u0435"
+  icon: {fileID: 2800000, guid: efef664ef6169aa43bba973172d75b58, type: 3}
+  description: "\u041F\u043E\u043B\u0443\u0447\u0430\u0435\u043C\u044B\u0439 \u043C\u0430\u0433\u0438\u0447\u0435\u0441\u043A\u0438\u0439
+    \u0443\u0440\u043E\u043D \u0443\u0432\u0435\u043B\u0438\u0447\u0435\u043D \u043D\u0430
+    15%."
+  VFX: {fileID: 0}
+  aboveHead: 0
+  permanent: 0
+  duration: 5
+  stacks: 0
+  damageAmount: 0
+  damageType: {fileID: 0}
+  makeInvisible: 0
+  revealInvisible: 0
+  incomingDamageMultiplier: 1.15
+  incomingDamageType: {fileID: 11400000, guid: 34c3e86db64a5014f82747cbad9eadb3, type: 2}
+  incomingDirectOnly: 0
+  passiveEffectsOn: 0
+  passiveEffects:
+    exactPercentageReductions: 0
+    damageChange: 0
+    damagePercentageChange: 0
+    attackSpeedChange: 0
+    attackSpeedPercentageChange: 0
+    attackRangeChange: 0
+    attackRangePercentageChange: 0
+    armorChange: 0
+    armorPercentageChange: 0
+    moveSpeedChange: 0
+    moveSpeedPercentageChange: 0
+    healthChange: 0
+    healthPercentageChange: 0
+    healthRegenChange: 0
+    healthRegenPercentageChange: 0
+    manaChange: 0
+    manaPercentageChange: 0
+    manaRegenChange: 0
+    manaRegenPercentageChange: 0
+    visionChange: 0
+    xpRewardChange: 0
+    xpRewardPercentageChange: 0
+    attributeChanges: []
+    attributePercentageChange: []

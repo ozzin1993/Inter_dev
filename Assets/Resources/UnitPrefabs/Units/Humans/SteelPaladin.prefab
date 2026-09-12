@@ -11,6 +11,7 @@ GameObject:
   - component: {fileID: 9059221817468524375}
   - component: {fileID: 1936979029478643860}
   - component: {fileID: 2114926653383545354}
+  - component: {fileID: 3156141509251546899}
   m_Layer: 0
   m_Name: SteelPaladin
   m_TagString: Untagged
@@ -49,7 +50,9 @@ MonoBehaviour:
   abilities:
   - {fileID: 11400000, guid: 11ff0a22942c7cb4ebb23f0d4937c93e, type: 2}
   - {fileID: 11400000, guid: f7f43490b7ea247498427398747641b8, type: 2}
-  abilityLevel: 0000000000000000
+  - {fileID: 11400000, guid: e342b436af8cc41438e03677309399b2, type: 2}
+  - {fileID: 11400000, guid: dda55823534d4114c8a07cce8fb84d8a, type: 2}
+  abilityLevel: 00000000000000000000000000000000
   abilityLocked: 
   everyFrameAbilities: []
   everyFrameAbilityIndex: 
@@ -293,6 +296,21 @@ NavMeshAgent:
   m_BaseOffset: 0
   m_WalkableMask: 4294967295
   m_ObstacleAvoidanceType: 4
+--- !u!114 &3156141509251546899
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3413404270985750867}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: eeacf01fdd4e6784fbaffd8a2682fac0, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Interflow.Game::StrategyCore.AutoAbilityUser
+  autoAbilities:
+  - {fileID: 11400000, guid: e342b436af8cc41438e03677309399b2, type: 2}
+  - {fileID: 11400000, guid: dda55823534d4114c8a07cce8fb84d8a, type: 2}
 --- !u!1001 &5248941068386339643
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -360,7 +378,7 @@ PrefabInstance:
     - target: {fileID: 95149039229069712, guid: 3327d3287d929964ba96bb8d4f0b5252, type: 3}
       propertyPath: m_Controller
       value: 
-      objectReference: {fileID: 9100000, guid: 5e060a58e7c4c734c84cc2cb83280beb, type: 2}
+      objectReference: {fileID: 9100000, guid: 1639ee38daf5c1446ab446be32ef40e0, type: 2}
     - target: {fileID: 95149039229069712, guid: 3327d3287d929964ba96bb8d4f0b5252, type: 3}
       propertyPath: m_CullingMode
       value: 0

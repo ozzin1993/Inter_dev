@@ -28,6 +28,7 @@ namespace StrategyCore
         {
             target = null;
             if (castingUnit == null || castingUnit.dead) return false;
+            if (!MeetsCastConditions(castingUnit, level)) return false;
 
             switch (targetMode)
             {
@@ -52,7 +53,7 @@ namespace StrategyCore
                         if (!castingUnit.IsAttackTargetInStrikeRange()) return false;
 
                         target = castingUnit.target;
-                        return IsEligibleTarget(target, castingUnit.owner);
+                        return IsEligibleTarget(target, castingUnit.owner,castingUnit);
                     }
 
                     // Без дальности умение бьёт по всей карте. Перебирать её каждый тик только чтобы
@@ -62,7 +63,7 @@ namespace StrategyCore
                     if (LevelValue(castRange, level) <= 0f) return true;
 
                     target = PickAutoCastTarget(castingUnit, level);
-                    return target != null;
+                    return target != null && (damageLink==null || !damageLink.enabled || CollectTargets(castingUnit,castingUnit.owner,level,target,target.transform.position).Count>=2);
             }
 
             return false;
@@ -84,7 +85,7 @@ namespace StrategyCore
             // Все стратегии в SkillTargeting дырки в наборе пропускают штатно.
             // Селектор принадлежности уже применён поиском, боевые роли и мёртвых он не отсеивает.
             for (int i = 0; i < found.Length; i++)
-                if (!IsEligibleTarget(found[i], castingUnit.owner)) found[i] = null;
+                if (!IsEligibleTarget(found[i], castingUnit.owner,castingUnit)) found[i] = null;
 
             return SkillTargeting.Pick(targetStrategy, found, castingUnit,
                                        TargetingOptions(level, castingUnit.transform.position));

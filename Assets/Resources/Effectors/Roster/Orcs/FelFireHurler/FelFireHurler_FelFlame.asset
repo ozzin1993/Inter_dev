@@ -1,0 +1,99 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fae4d907023251b4c80d78fe85c1ad3e, type: 3}
+  m_Name: FelFireHurler_FelFlame
+  m_EditorClassIdentifier: Interflow.Game::StrategyCore.Effector
+  maxStacks: 5
+  healingReduction: 0.1
+  maximumStackTechnology: {fileID: 11400000, guid: 411e783d79469564aaa5750095835247, type: 2}
+  maximumStackEffects:
+    exactPercentageReductions: 1
+    damageChange: 0
+    damagePercentageChange: 0
+    attackSpeedChange: 0
+    attackSpeedPercentageChange: 0
+    attackRangeChange: 0
+    attackRangePercentageChange: 0
+    armorChange: 0
+    armorPercentageChange: -0.15
+    moveSpeedChange: 0
+    moveSpeedPercentageChange: 0
+    healthChange: 0
+    healthPercentageChange: 0
+    healthRegenChange: 0
+    healthRegenPercentageChange: 0
+    manaChange: 0
+    manaPercentageChange: 0
+    manaRegenChange: 0
+    manaRegenPercentageChange: 0
+    visionChange: 0
+    xpRewardChange: 0
+    xpRewardPercentageChange: 0
+    attributeChanges: []
+    attributePercentageChange: []
+  deathSpreadTechnology: {fileID: 11400000, guid: 4ded7ffe20e7e8748ad88acfeefc84d8, type: 2}
+  deathSpreadRadius: 2.5
+  deathSpreadStacks: 2
+  deathSpreadPresentation: {fileID: 11400000, guid: 6f786e581adc3954b833ba36daf101c0, type: 2}
+  id: 16
+  displayName: "\u041D\u0435\u0433\u0430\u0441\u0438\u043C\u043E\u0435 \u041F\u043B\u0430\u043C\u044F"
+  icon: {fileID: 2800000, guid: 002569b9e0832c64cbc953472bbd0dcd, type: 3}
+  description: "\u0417\u0435\u043B\u0451\u043D\u043E\u0435 \u043F\u043B\u0430\u043C\u044F:
+    -10% \u0432\u0445\u043E\u0434\u044F\u0449\u0435\u0433\u043E \u043B\u0435\u0447\u0435\u043D\u0438\u044F
+    \u0437\u0430 \u0441\u0442\u0430\u043A, \u043C\u0430\u043A\u0441\u0438\u043C\u0443\u043C
+    5. \u041D\u0430 5 \u0441\u0442\u0430\u043A\u0430\u0445 \u0441\u043F\u0435\u0446\u0438\u0430\u043B\u0438\u0437\u0430\u0446\u0438\u044F
+    \u0441\u043D\u0438\u0436\u0430\u0435\u0442 \u0431\u0440\u043E\u043D\u044E \u043D\u0430
+    15%; \u0434\u0440\u0443\u0433\u0430\u044F \u043F\u0435\u0440\u0435\u0434\u0430\u0451\u0442
+    2 \u0441\u0442\u0430\u043A\u0430 \u0441\u043E\u0441\u0435\u0434\u044F\u043C \u043F\u0440\u0438
+    \u0441\u043C\u0435\u0440\u0442\u0438. \u0414\u043B\u044F \u0430\u043B\u044C\u0444\u044B:
+    4 \u0441\u0435\u043A\u0443\u043D\u0434\u044B, 3 \u043C\u0430\u0433\u0438\u0447\u0435\u0441\u043A\u043E\u0433\u043E
+    \u0443\u0440\u043E\u043D\u0430/\u0441 \u0437\u0430 \u0441\u0442\u0430\u043A,
+    \u0440\u0430\u0434\u0438\u0443\u0441 \u0440\u0430\u0441\u043F\u0440\u043E\u0441\u0442\u0440\u0430\u043D\u0435\u043D\u0438\u044F
+    2.5 \u043C."
+  VFX: {fileID: 510061921142391358, guid: 854383c68af57c8428230f10329c1d70, type: 3}
+  aboveHead: 0
+  permanent: 0
+  duration: 4
+  stacks: 1
+  damageAmount: 3
+  damageType: {fileID: 11400000, guid: 34c3e86db64a5014f82747cbad9eadb3, type: 2}
+  makeInvisible: 0
+  revealInvisible: 0
+  incomingDamageMultiplier: 1
+  incomingDamageType: {fileID: 0}
+  incomingDirectOnly: 0
+  passiveEffectsOn: 0
+  passiveEffects:
+    exactPercentageReductions: 0
+    damageChange: 0
+    damagePercentageChange: 0
+    attackSpeedChange: 0
+    attackSpeedPercentageChange: 0
+    attackRangeChange: 0
+    attackRangePercentageChange: 0
+    armorChange: 0
+    armorPercentageChange: 0
+    moveSpeedChange: 0
+    moveSpeedPercentageChange: 0
+    healthChange: 0
+    healthPercentageChange: 0
+    healthRegenChange: 0
+    healthRegenPercentageChange: 0
+    manaChange: 0
+    manaPercentageChange: 0
+    manaRegenChange: 0
+    manaRegenPercentageChange: 0
+    visionChange: 0
+    xpRewardChange: 0
+    xpRewardPercentageChange: 0
+    attributeChanges: []
+    attributePercentageChange: []

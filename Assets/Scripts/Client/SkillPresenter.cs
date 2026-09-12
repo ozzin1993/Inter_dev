@@ -46,6 +46,7 @@ namespace StrategyCore
         void OnEnable()
         {
             SkillPresentationEvents.SkillFired += HandleSkillFired;
+            SkillPresentationEvents.DamageLink += HandleDamageLink;
             SkillPresentationEvents.UnitReady += HandleUnitReady;
             SkillPresentationEvents.UnitGone += HandleUnitGone;
             SkillPresentationEvents.CastStarted += HandleCastStarted;
@@ -58,6 +59,7 @@ namespace StrategyCore
         void OnDisable()
         {
             SkillPresentationEvents.SkillFired -= HandleSkillFired;
+            SkillPresentationEvents.DamageLink -= HandleDamageLink;
             SkillPresentationEvents.UnitReady -= HandleUnitReady;
             SkillPresentationEvents.UnitGone -= HandleUnitGone;
             SkillPresentationEvents.CastStarted -= HandleCastStarted;
@@ -72,6 +74,7 @@ namespace StrategyCore
         void HandleSceneLoaded(Scene scene, LoadSceneMode mode)
         {
             zoneVisuals.Clear();
+            damageLinkViews.Clear();
             ClearAreas();
         }
 
@@ -90,6 +93,9 @@ namespace StrategyCore
             if (skill == null) return;
 
             PlayProcAnimation(caster, skill.procAnimationState);
+            if(caster&&skill.line!=null&&skill.line.enabled&&skill.line.presentation&&InterflowAbility.VisibleForLocalViewer(caster.transform.position)){
+                var fx=Instantiate(skill.line.presentation,caster.transform.position,Quaternion.LookRotation(caster.LookDirection,Vector3.up));Destroy(fx.gameObject,Mathf.Max(.1f,skill.line.visualLifetime));
+            }
 
             // Визуал и звук замаха — из точки привязки на модели кастера.
             InterflowAbility.PlaySocketVFX(caster, skill.spawnSocket, skill.localOffset, skill.castVFX, skill.castVfxLifetime);

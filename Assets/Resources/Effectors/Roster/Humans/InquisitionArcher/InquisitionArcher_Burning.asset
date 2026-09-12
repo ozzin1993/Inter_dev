@@ -1,0 +1,57 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fae4d907023251b4c80d78fe85c1ad3e, type: 3}
+  m_Name: InquisitionArcher_Burning
+  m_EditorClassIdentifier: Interflow.Game::StrategyCore.Effector
+  id: 2
+  displayName: "\u041E\u0447\u0438\u0449\u0430\u044E\u0449\u0438\u0439 \u043E\u0433\u043E\u043D\u044C"
+  icon: {fileID: 2800000, guid: ccd834679a04c084db65a4eac0cabf4b, type: 3}
+  description: "\u0413\u043E\u0440\u0435\u043D\u0438\u0435: 10 \u043C\u0430\u0433\u0438\u0447\u0435\u0441\u043A\u043E\u0433\u043E
+    \u0443\u0440\u043E\u043D\u0430 \u0432 \u0441\u0435\u043A\u0443\u043D\u0434\u0443."
+  VFX: {fileID: 8777842880502304527, guid: 0f52a9984eca51d47bcda1cb264de89c, type: 3}
+  aboveHead: 0
+  permanent: 0
+  duration: 3
+  stacks: 0
+  damageAmount: 10
+  damageType: {fileID: 11400000, guid: 34c3e86db64a5014f82747cbad9eadb3, type: 2}
+  makeInvisible: 0
+  revealInvisible: 0
+  incomingDamageMultiplier: 1
+  incomingDamageType: {fileID: 0}
+  incomingDirectOnly: 0
+  passiveEffectsOn: 0
+  passiveEffects:
+    exactPercentageReductions: 0
+    damageChange: 0
+    damagePercentageChange: 0
+    attackSpeedChange: 0
+    attackSpeedPercentageChange: 0
+    attackRangeChange: 0
+    attackRangePercentageChange: 0
+    armorChange: 0
+    armorPercentageChange: 0
+    moveSpeedChange: 0
+    moveSpeedPercentageChange: 0
+    healthChange: 0
+    healthPercentageChange: 0
+    healthRegenChange: 0
+    healthRegenPercentageChange: 0
+    manaChange: 0
+    manaPercentageChange: 0
+    manaRegenChange: 0
+    manaRegenPercentageChange: 0
+    visionChange: 0
+    xpRewardChange: 0
+    xpRewardPercentageChange: 0
+    attributeChanges: []
+    attributePercentageChange: []

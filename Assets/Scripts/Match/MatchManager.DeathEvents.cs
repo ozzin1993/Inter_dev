@@ -69,6 +69,10 @@ namespace StrategyCore
         // При спавне юнита (сервер): подписать его смерть на центральный хендлер РОВНО один раз.
         // Идемпотентность (-= перед +=): повторный OnUnitSpawned для юнита не задвоит подписку.
         void HandleUnitSpawnedForHub(int teamIndex, Unit unit)
+            => ObserveUnitForDeathHub(unit);
+
+        // Native spawns and units placed in a test scene need the same death pipeline as waves.
+        public void ObserveUnitForDeathHub(Unit unit)
         {
             if (NetworkConnectionHandler.isClient) return;      // OnUnitSpawned серверный; страховка (правило 6)
             if (unit == null) return;

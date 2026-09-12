@@ -27,6 +27,9 @@ namespace StrategyCore
         int registeredLevel = -1;  // под каким уровнем зарегистрирован колбэк входящего урона
 
         float remaining;
+        float storedDamage,previousHealth,previousMaxHealth;
+        bool hpHooked,braceAdded;
+        public float StoredDamage => storedDamage;
         bool subscribed;
         bool dieHooked;
         bool exploded;             // детонация одноразова
@@ -66,6 +69,8 @@ namespace StrategyCore
             remaining = Mathf.Max(remaining, duration); // продление, а не суммирование
 
             SkillBuffBlock cfg = source.buff;
+            if(cfg.storeHealthLoss&&!hpHooked){previousHealth=unit.health;previousMaxHealth=unit.maxHealth;unit.OnHPChange+=RecordHealthLoss;hpHooked=true;}
+            if(cfg.brace&&!braceAdded){SkillActionLock.Add(unit);braceAdded=true;}
 
             // Множитель входящего урона. Запись помечается парой (скилл, уровень) — по ней же и снимается,
             // чтобы не задеть чужие колбэки на этом же юните.
@@ -97,7 +102,7 @@ namespace StrategyCore
             }
 
             // Детонация при гибели носителя — штатное событие Unit.OnDie.
-            if (!dieHooked && cfg.detonateOnDeath)
+            if (!dieHooked && (cfg.detonateOnDeath || cfg.rewardCasterOnDeath || cfg.storeHealthLoss || cfg.brace))
             {
                 unit.OnDie += HandleDie;
                 dieHooked = true;
@@ -127,7 +132,7 @@ namespace StrategyCore
             // иначе баф завис бы навсегда: таймер стоит ниже по коду.
             if (source == null || source.buff == null) { Cleanup(); return; }
 
-            float dt = GameManager.instance.currentDeltaTime;
+            float dt = Mathf.Min(GameManager.instance.currentDeltaTime,Mathf.Max(0,remaining));
             SkillBuffBlock cfg = source.buff;
 
             // Аура урона вокруг носителя (наносит сам носитель — как у огненного плаща).
@@ -160,15 +165,30 @@ namespace StrategyCore
             if (burn > 0f) InterflowAbility.PayHealth(unit, burn * dt, caster);
 
             remaining -= dt;
-            if (remaining <= 0f) Cleanup();
+            if (remaining <= 0f) {
+                if(cfg.storeHealthLoss&&!unit.dead&&storedDamage>0&&cfg.detonationDamageType){
+                    if(cfg.detonationPresentation)InterflowAbility.EmitSkillFired(unit,cfg.detonationPresentation,level,unit,unit.transform.position);
+                    SkvernaExplosion.Detonate(unit,new Vector2(unit.transform.position.x,unit.transform.position.z),InterflowAbility.LevelValue(cfg.detonationRadius,level),storedDamage*cfg.storedDamageMultiplier,cfg.detonationDamageType,cfg.detonationSelector,0,null,default(UnitSelector),unit);
+                } Cleanup();
+            }
         }
 
         // Гибель носителя под бафом → детонация. Одноразово.
         void HandleDie(Unit u, int playerThatKills, Unit unitThatKills, bool rewards)
         {
-            if (!exploded && unit != null && source != null && source.buff != null)
+            if (!cleanedUp && !exploded && unit != null && source != null && source.buff != null)
             {
                 SkillBuffBlock cfg = source.buff;
+                exploded=true;
+                if(cfg.rewardCasterOnDeath && caster && !caster.dead && InterflowAbility.OptionalTechUnlocked(cfg.deathRewardTechnology,caster.owner)) {
+                    caster.ChangeHP(caster.maxHealth*InterflowAbility.LevelValue(cfg.deathRewardHealFraction,level));
+                    if(cfg.deathRewardResetCooldown) {
+                        int index=System.Array.IndexOf(caster.abilities,source);
+                        if(index>=0)caster.ChangeAbilityCooldown(-1,index,false);
+                    }
+                    if(cfg.deathRewardPresentation)InterflowAbility.EmitSkillFired(caster,cfg.deathRewardPresentation,level,caster,caster.transform.position);
+                    InterflowAbility.RequestForceSync();
+                }
                 float damage = InterflowAbility.LevelValue(cfg.detonationDamage, level);
                 float radius = InterflowAbility.LevelValue(cfg.detonationRadius, level);
 
@@ -177,6 +197,7 @@ namespace StrategyCore
                     exploded = true;
                     Vector3 p = unit.transform.position;
                     Unit dealer = caster != null ? caster : unit;
+                    if(cfg.detonationPresentation)InterflowAbility.EmitSkillFired(dealer,cfg.detonationPresentation,level,unit,p);
 
                     // allyDamage = 0 → группа своих в хелпере пропускается, взрыв бьёт только по detonationSelector.
                     SkvernaExplosion.Detonate(dealer, new Vector2(p.x, p.z), radius,
@@ -187,6 +208,8 @@ namespace StrategyCore
 
             Cleanup();
         }
+
+        void RecordHealthLoss(){if(!unit||cleanedUp)return;if(Mathf.Approximately(previousMaxHealth,unit.maxHealth))storedDamage+=Mathf.Max(0,previousHealth-unit.health);previousHealth=unit.health;previousMaxHealth=unit.maxHealth;}
 
         void Cleanup()
         {
@@ -215,6 +238,8 @@ namespace StrategyCore
                 }
 
                 if (dieHooked) unit.OnDie -= HandleDie;
+                if(hpHooked){unit.OnHPChange-=RecordHealthLoss;hpHooked=false;}
+                if(braceAdded){SkillActionLock.Remove(unit);braceAdded=false;}
             }
 
             damageCallbackAdded = false;
@@ -233,3 +258,6 @@ namespace StrategyCore
         }
     }
 }
+
+
+

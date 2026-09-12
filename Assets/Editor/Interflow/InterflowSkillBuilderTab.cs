@@ -48,6 +48,7 @@ namespace StrategyCore
 
         static readonly BlockDesc[] BLOCKS =
         {
+            new BlockDesc { order = 0, field = "projectileImpact", title = "При попадании снаряда", kind = StepKind.Event, perTarget = false, hint = "Дополнительный мгновенный скилл в точке прилёта; отдельное оглушение только главной цели.", keys = new[]{ "попадании снаряда" } },
             new BlockDesc { order = 1,  field = "selfCost",        title = "Стоимость в здоровье",     kind = StepKind.Event, perTarget = false,
                             hint = "списывается с кастера один раз за каст, до всего остального",
                             keys = new[]{ "стоимость в здоровье" } },
@@ -60,6 +61,8 @@ namespace StrategyCore
             new BlockDesc { order = 4,  field = "drain",           title = "Высасывание ХП",           kind = StepKind.Event, perTarget = true,
                             hint = "снимает здоровье НАПРЯМУЮ, мимо брони и щитов; долю снятого получает кастер",
                             keys = new[]{ "высасыв", "дренаж" } },
+            new BlockDesc { order = 5, field = "knockback", title = "Отбрасывание", kind = StepKind.Event, perTarget = true, hint = "От точки попадания; ограничение тира и роли действует только на отбрасывание", keys = new[]{ "отбрасывание" } },
+            new BlockDesc { order = 5, field = "disruption", title = "Подавление выбранных ролей", kind = StepKind.Event, perTarget = true, hint = "Немота и снятие ускоряющих эффекторов у указанных ролей; с технологией сжигает долю текущей маны.", keys = new[]{ "подавление" } },
             new BlockDesc { order = 5,  field = "status",          title = "Контроль",                 kind = StepKind.Event, perTarget = true,
                             hint = "оглушение, обезоруживание, немота",
                             keys = new[]{ "контроль" } },
@@ -90,6 +93,9 @@ namespace StrategyCore
             new BlockDesc { order = 14, field = "secondary",       title = "Вторичные цели",           kind = StepKind.Event, perTarget = true,
                             hint = "своя выборка ВОКРУГ каждой основной цели — например вылечить тех, кто её бьёт",
                             keys = new[]{ "вторичн" } },
+            new BlockDesc { order = 15, field = "damageLink", title = "Связь урона", kind = StepKind.State, perTarget = false,
+                            hint = "Связывает выбранные цели одной группой; минимум две. Доля фактического урона передаётся другим участникам без рекурсии.",
+                            keys = new[]{ "связь", "цеп" } },
             new BlockDesc { order = 15, field = "summon",          title = "Призыв",                   kind = StepKind.Event, perTarget = false,
                             hint = "исполняется один раз за каст — набор целей ему не нужен",
                             keys = new[]{ "призыв" } },

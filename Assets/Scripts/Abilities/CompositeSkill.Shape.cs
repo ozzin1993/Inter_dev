@@ -1,4 +1,4 @@
-using UnityEngine;
+﻿using UnityEngine;
 
 namespace StrategyCore
 {
@@ -15,6 +15,8 @@ namespace StrategyCore
 
         [Tooltip("Юнит, чей ВНЕШНИЙ ВИД принимает цель. Статы цели не меняются — меняются только рендереры.")]
         public Unit shapeUnit;
+        public bool applyToCaster;
+        [Tooltip("Заимствовать ближний/дальний бой и дальность облика, восстановить при завершении.")] public bool copyAttackMode;
 
         [Tooltip("Сколько секунд держится облик, по уровням.")]
         public float[] duration;
@@ -52,6 +54,13 @@ namespace StrategyCore
     [System.Serializable]
     public class SkillSecondaryBlock
     {
+        public Technology requiredTechnology;
+        public bool nearestFirst;
+        public bool applyWhenPrimaryDies;
+        public float[] damageFlat;
+        public float damagePercentOfBaseDamage;
+        public DamageType damageType;
+        public CompositeSkill hitPresentation;
         [Tooltip("Включить блок: вокруг каждой основной цели ищется свой набор юнитов.")]
         public bool enabled;
 
@@ -88,11 +97,26 @@ namespace StrategyCore
 
     public partial class CompositeSkill
     {
+        public void UseFromHit(Unit source,int owner,int level,Unit target,Vector3 point)
+        {
+            if(IsClientPeer)return;
+            if(targetMode!=SkillTargetMode.SmartUnit){Use(source,owner,level,point);return;}
+            if(target==null)return;
+            if(!target.dead){Use(source,owner,level,target);return;}
+            if(secondary==null||!secondary.enabled||!secondary.applyWhenPrimaryDies)return;
+            float baseDamage=0;
+            if(damage!=null&&damage.enabled&&damage.entries!=null)foreach(var entry in damage.entries)
+                if(entry!=null&&entry.damageType!=null&&UnitSelector.IsUnitCompatible(owner,target,RelationSelector(entry.targets)))baseDamage+=LevelValue(entry.amount,level);
+            EmitSkillFired(source,this,level,target,point);
+            ApplySecondary(owner,level,target,baseDamage,source);RequestForceSync();
+        }
+
         // --------------------------------------------------------------- 12. ОБЛИК --
         /// <summary>
         /// Подмена облика через штатный <see cref="Unit.Polymorph"/>: ядро само ведёт таймер и вызовет
         /// <see cref="Deactivate"/> по истечении. Двойной полиморф ядро тоже обрабатывает — снимает предыдущий.
         /// </summary>
+        public void ApplyMorphFromNetwork(int level,Unit target){if(NetworkConnectionHandler.isClient)ApplyMorph(level,target);}
         void ApplyMorph(int level, Unit target)
         {
             if (morph == null || !morph.enabled || morph.shapeUnit == null) return;
@@ -110,6 +134,7 @@ namespace StrategyCore
             if (effects != null) effects.AddEffect(target);
 
             target.Polymorph(this, level, time, morph.shapeUnit);
+            if(!NetworkConnectionHandler.isClient&&NetworkDataSync.instance)NetworkDataSync.instance.CompositeMorphSend(target.netID,id,level);
         }
 
         /// <summary>
@@ -127,7 +152,9 @@ namespace StrategyCore
             AbilityPassiveEffects effects = PassiveEffectsAt(level);
             if (effects != null) effects.RemoveEffect(castingUnit);
 
+            var mode=castingUnit.GetComponent<MorphAttackMode>();if(mode)mode.Restore();
             castingUnit.RestoreRenderers();
+            if(Presentation.Selection?.ActiveUnit==castingUnit)Presentation.UI?.Resubscribe();
         }
 
         /// <summary>Запись пассивных эффектов облика по уровню. Нет записи — статы не трогаем.</summary>
@@ -165,15 +192,17 @@ namespace StrategyCore
         /// </summary>
         /// <param name="baseDamageToTarget">Урон, ЗАПИСАННЫЙ в блоке урона для основной цели (до брони) —
         /// из него берётся доля на лечение. Ноль, когда блок урона выключен или урон уносит снаряд.</param>
-        void ApplySecondary(int castingPlayer, int level, Unit target, float baseDamageToTarget)
+        void ApplySecondary(int castingPlayer, int level, Unit target, float baseDamageToTarget, Unit source)
         {
-            if (secondary == null || !secondary.enabled) return;
+            if (secondary == null || !secondary.enabled || !OptionalTechUnlocked(secondary.requiredTechnology,castingPlayer)) return;
             if (target == null || secondary.radius <= 0f) return;
 
             Vector3 p = target.transform.position;
             Unit[] found = Utils.GetUnitsInRadius(new Vector2(p.x, p.z), secondary.radius,
                                                   castingPlayer, secondary.selector, -1, target);
             if (found == null) return;
+            if(secondary.nearestFirst)System.Array.Sort(found,(a,b)=>((a?a.transform.position:p)-p).sqrMagnitude.CompareTo(((b?b.transform.position:p)-p).sqrMagnitude));
+            float damage=LevelValue(secondary.damageFlat,level)+baseDamageToTarget*secondary.damagePercentOfBaseDamage;
 
             float heal = LevelValue(secondary.healFlat, level)
                        + baseDamageToTarget * secondary.healPercentOfBaseDamage;
@@ -186,7 +215,9 @@ namespace StrategyCore
                 if (!CategoryAllowed(u, secondary.categories)) continue;
                 if (secondary.onlyAttackersOfTarget && u.target != target) continue;
 
-                if (heal > 0f) u.ChangeHP(heal);
+                if(damage>0&&secondary.damageType!=null)u.GetDamage(damage,secondary.damageType,castingPlayer,source,false,out _);
+                if(secondary.hitPresentation!=null)EmitSkillFired(source,secondary.hitPresentation,level,u,u.transform.position);
+                if (!u.dead&&heal > 0f) u.ChangeHP(heal);
 
                 if (secondary.effectors != null && secondary.effectors.Length > 0)
                     Effector.EffectorAdd(castingPlayer, u, secondary.effectors);

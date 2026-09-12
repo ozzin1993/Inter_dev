@@ -57,6 +57,8 @@ namespace StrategyCore
                  "Умение-канал (держится, пока хватает маны) собирается штатным флагом «continuous» ниже.")]
         public SkillTrigger trigger = SkillTrigger.Instant;
 
+        public SkillCastConditions castConditions = new SkillCastConditions();
+
         [Header("Цель")]
         [Tooltip("Как выбираются цели. «Умный выбор» означает, что цель подбирает стратегия ниже, а не игрок.")]
         public SkillTargetMode targetMode = SkillTargetMode.AreaAroundSelf;
@@ -130,6 +132,7 @@ namespace StrategyCore
 
         [Tooltip("Префаб снаряда. Обязателен при доставке снарядом.")]
         public Projectile projectilePrefab;
+        [Tooltip("Снаряд считается прямой атакой оружием для реакций на попадание.")] public bool projectileDirectAttack;
 
         [Tooltip("Снаряд летит за целью (самонаведение). ВЫКЛЮЧАТЬ НЕЛЬЗЯ: штатный снаряд без самонаведения " +
                  "наносит урон только по площади, а площадного режима у снаряда скилла нет — цель просто не получит урона. " +
@@ -182,6 +185,9 @@ namespace StrategyCore
 
         [Header("Блок 1 — стоимость в здоровье")]
         public SkillSelfCostBlock selfCost = new SkillSelfCostBlock();
+        [Header("Связь урона между выбранными целями")]
+        public SkillDamageLinkBlock damageLink = new SkillDamageLinkBlock();
+        public SkillProjectileImpactBlock projectileImpact = new SkillProjectileImpactBlock();
 
         [Header("Блок 2 — рывок цели к кастеру")]
         public SkillPullBlock pull = new SkillPullBlock();
@@ -227,6 +233,7 @@ namespace StrategyCore
 
         [Header("Блок 16 — зона на земле")]
         public SkillGroundZoneBlock groundZone = new SkillGroundZoneBlock();
+        public SkillKnockbackBlock knockback = new SkillKnockbackBlock();
 
         [Header("Блок 17 — перемещение кастера")]
         public SkillCasterMoveBlock casterMove = new SkillCasterMoveBlock();
@@ -272,7 +279,8 @@ namespace StrategyCore
         // ==================================================================== ПРОВЕРКА ==
 
         public override bool Check(Unit castingUnit, int castingPlayer, int level) => CheckCommon(castingUnit, level);
-        public override bool Check(Unit castingUnit, int castingPlayer, int level, Unit unit) => CheckCommon(castingUnit, level);
+        public override bool Check(Unit castingUnit, int castingPlayer, int level, Unit unit) =>
+            CheckCommon(castingUnit, level) && (IsClientPeer || targetMode != SkillTargetMode.SmartUnit || IsEligibleTarget(unit, castingPlayer, castingUnit));
         public override bool Check(Unit castingUnit, int castingPlayer, int level, Vector3 location) => CheckCommon(castingUnit, level);
 
         /// <summary>
@@ -282,6 +290,9 @@ namespace StrategyCore
         bool CheckCommon(Unit castingUnit, int level)
         {
             if (IsClientPeer) return true;
+            if(SkillActionLock.Active(castingUnit))return false;
+            if (!MeetsCastConditions(castingUnit, level)) return false;
+            if(buttonCast&&PicksTargetByStrategy&&PickByStrategy(castingUnit,castingUnit.owner,level)==null)return false;
             if (selfCost == null || !selfCost.enabled || !selfCost.blockIfLethal) return true;
             if (castingUnit == null) return true;
 
@@ -344,6 +355,9 @@ namespace StrategyCore
                 }
             }
 
+            if(damageLink!=null&&damageLink.enabled&&!IsClientPeer&&CollectTargets(castingUnit,castingPlayer,level,aimUnit,aimPoint).Count<2)return;
+            using var castModifiers = SpellCastModifiers.Begin(castingUnit, !IsEveryTick);
+
             // ---- Снаряд ----
             // Визуал и звук попадания сюда не входят: их играет презентер по факту SkillFired.
             // Сам снаряд с 2026-08-06 создаётся ТОЛЬКО на сервере: он несёт урон, а значит геймплей
@@ -373,8 +387,12 @@ namespace StrategyCore
             // У переключателя и ауры Use зовётся КАЖДЫЙ ТИК: факт не публикуем, иначе презентер
             // проигрывал бы визуал и звук замаха по десять раз в секунду. Постоянный визуал таких
             // умений вешается эффектором или бафом.
-            if (!IsEveryTick) EmitSkillFired(castingUnit, this, level, aimUnit, aimPoint);
+            if (!IsEveryTick && !(casterMove!=null&&casterMove.enabled&&casterMove.travelSeconds>0)) EmitSkillFired(castingUnit, this, level, aimUnit, aimPoint);
 
+            if(casterMove!=null&&casterMove.enabled&&casterMove.travelSeconds>0&&castingUnit){
+                var travel=castingUnit.GetComponent<SkillTravel>();if(!travel)travel=castingUnit.gameObject.AddComponent<SkillTravel>();
+                travel.Begin(castingUnit,this,level,aimPoint);return;
+            }
             List<Unit> targets = CollectTargets(castingUnit, castingPlayer, level, aimUnit, aimPoint);
             ApplyEffects(castingUnit, castingPlayer, level, targets, aimPoint, viaProjectile);
 
@@ -394,6 +412,7 @@ namespace StrategyCore
             List<Unit> gathered = new List<Unit>();
 
             float area = LevelValue(radius, level);
+            if(line!=null&&line.enabled&&castingUnit){CollectLine(castingUnit,castingPlayer,gathered);SkillTargeting.TakeTargets(gathered,aimPoint,maxTargets,multiPick,result);return result;}
 
             switch (targetMode)
             {
@@ -404,7 +423,7 @@ namespace StrategyCore
 
                 case SkillTargetMode.SmartUnit:
                     // Одна цель — лимит не нужен.
-                    if (aimUnit != null && !aimUnit.dead && PassesFilters(aimUnit)) result.Add(aimUnit);
+                    if (IsEligibleTarget(aimUnit, castingPlayer, castingUnit)) result.Add(aimUnit);
                     return result;
 
                 case SkillTargetMode.WholeTeam:
@@ -451,10 +470,13 @@ namespace StrategyCore
                     if (area <= 0f) return result;
 
                     Unit[] found = Utils.GetUnitsInRadius(new Vector2(aimPoint.x, aimPoint.z), area, castingPlayer,
-                                                          unitSelector, -1, includeSelf ? null : castingUnit);
+                                                          independentAreaTargets ? areaSelector : unitSelector, -1, includeSelf ? null : castingUnit);
                     if (found == null) return result;
 
-                    for (int i = 0; i < found.Length; i++) AddCandidate(found[i], castingUnit, gathered);
+                    for (int i = 0; i < found.Length; i++) {
+                        if(independentAreaTargets){if(found[i]&&!found[i].dead)gathered.Add(found[i]);}
+                        else AddCandidate(found[i], castingUnit, gathered);
+                    }
                     break;
                 }
             }
@@ -467,7 +489,7 @@ namespace StrategyCore
         {
             if (u == null || u.dead) return;
             if (!includeSelf && u == castingUnit) return;
-            if (!PassesFilters(u)) return;
+            if (!PassesFilters(u) || !PassesPositionFilter(u,castingUnit)) return;
 
             into.Add(u);
         }
@@ -477,11 +499,17 @@ namespace StrategyCore
         /// Нужна автокасту — он ищет кандидатов по своему селектору, а стратегию берёт из скилла,
         /// поэтому без этой проверки лечащий скилл мог бы выбрать врага.
         /// </summary>
-        public bool IsEligibleTarget(Unit u, int castingPlayer)
+        public bool IsEligibleTarget(Unit u, int castingPlayer, Unit caster = null)
         {
             if (u == null || u.dead) return false;
             if (!UnitSelector.IsUnitCompatible(castingPlayer, u, unitSelector)) return false;
+            if (!PassesPositionFilter(u,caster)) return false;
+            // A single-target shield should not spend cooldown on an already protected ally.
+            if (targetMode == SkillTargetMode.SmartUnit && shield != null && shield.enabled
+                && shield.skipIfAlreadyShielded && AbsorbShield.IsActiveOn(u)) return false;
 
+            if ((targetStrategy == SkillTargetStrategy.WoundedBelowThreshold || targetStrategy == SkillTargetStrategy.NearestBelowThreshold)
+                && !SkillTargeting.IsBelowHealthThreshold(u, strategyHpThreshold)) return false;
             return PassesFilters(u);
         }
 
@@ -490,6 +518,12 @@ namespace StrategyCore
         {
             if (u == null) return false;
 
+            if (targetPrefabs != null && targetPrefabs.Length > 0)
+            {
+                bool allowed = false;
+                foreach(var prefab in targetPrefabs) if(prefab && prefab.unitTypeID == u.unitTypeID) { allowed=true; break; }
+                if(!allowed)return false;
+            }
             return CategoryAllowed(u, targetCategories);
         }
 
@@ -566,7 +600,7 @@ namespace StrategyCore
                 Unit u = pool[i];
                 if (u == null || u.dead || u == castingUnit) continue;
                 if (!UnitSelector.IsUnitCompatible(castingPlayer, u, unitSelector)) continue;
-                if (!PassesFilters(u)) continue;
+                if (!PassesFilters(u) || !PassesPositionFilter(u,castingUnit)) continue;
                 if (rangeSqr > 0f && castingUnit != null
                     && (u.transform.position - casterPos).sqrMagnitude > rangeSqr) continue; // вне дальности каста
 
@@ -612,16 +646,21 @@ namespace StrategyCore
             Quaternion spawnRot = socket != null ? socket.rotation : Quaternion.identity;
 
             DamageType dmgType;
-            float dmg = FirstProjectileDamage(level, out dmgType);
+            float dmg = FirstProjectileDamage(level, out dmgType) * SpellCastModifiers.Power(castingUnit);
 
             Projectile spawned = Projectile.Spawn(castingPlayer, castingUnit, projectilePrefab, spawnPos, spawnRot,
-                                                  aimUnit, false, dmg, dmgType, true);
+                                                  aimUnit, projectileDirectAttack, dmg, dmgType, true);
             if (spawned == null) return;
 
             // Снаряд уносит только урон и оглушение. Эффекторы ему не отдаём осознанно: ядро применяет
             // Projectile.attackEffectors лишь когда кастер погиб, а при живом кастере накладывает
             // эффекторы ЕГО автоатаки — эффекторы скилла так бы просто потерялись. Поэтому их
             // накладывает сам скилл в момент каста (см. ApplyEffectors).
+            if(projectileImpact!=null && projectileImpact.enabled) { var payload=projectileImpact; spawned.OnSkillImpact=(primary,point)=>{
+                if(NetworkConnectionHandler.isClient)return;
+                if(primary&&!primary.dead&&OptionalTechUnlocked(payload.primaryStunTechnology,castingPlayer)&&payload.primaryStunSeconds>0) {primary.Stun(payload.primaryStunSeconds);if(payload.stunPresentation)payload.stunPresentation.UseFromHit(castingUnit,castingPlayer,level,primary,primary.transform.position);}
+                if(primary)point=primary.transform.position; if(payload.skill)payload.skill.ExecuteImpact(castingUnit,castingPlayer,level,primary,point);
+            }; }
             spawned.stunTime = (status != null && status.enabled) ? LevelValue(status.stunSeconds, level) : 0f;
         }
 
@@ -784,6 +823,7 @@ namespace StrategyCore
             if (buff != null && buff.enabled)
                 sb.Append(" • баф ").Append(LevelValue(buff.duration, 0).ToString("0.#")).Append(" с");
 
+            if(damageLink!=null&&damageLink.enabled)sb.Append(" • связь ").Append(damageLink.sharedFraction.ToString("P0")).Append(" / ").Append(damageLink.duration).Append("с");
             if (shield != null && shield.enabled) sb.Append(" • щит");
             if (blind != null && blind.enabled) sb.Append(" • ослепление");
             if (selfCost != null && selfCost.enabled) sb.Append(" • стоит здоровья кастеру");
@@ -815,6 +855,8 @@ namespace StrategyCore
         {
             switch (targetStrategy)
             {
+                case SkillTargetStrategy.NearestBelowThreshold: return "ближайший ниже порога ХП";
+                case SkillTargetStrategy.HighestDps: return "наибольший урон в секунду";
                 case SkillTargetStrategy.Nearest:               return "ближайший";
                 case SkillTargetStrategy.MostWounded:           return "самый раненый";
                 case SkillTargetStrategy.WoundedBelowThreshold: return "раненый ниже порога";
@@ -852,3 +894,5 @@ namespace StrategyCore
         }
     }
 }
+
+

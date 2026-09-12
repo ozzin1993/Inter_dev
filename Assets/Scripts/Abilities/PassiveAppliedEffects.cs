@@ -59,6 +59,16 @@ namespace StrategyCore
     [System.Serializable]
     public class AbilityPassiveEffects
     {
+        [Tooltip("Use exact reductions: -0.4 means 40% less. Off preserves legacy reciprocal calculation.")]
+        public bool exactPercentageReductions;
+
+        float EnginePercentage(float value)
+        {
+            if (!exactPercentageReductions || value >= 0f) return value;
+            value = Mathf.Max(value, -.99f);
+            return value / (1f + value);
+        }
+
         [Header("Attack change")]
         [Tooltip("Change of attack damage of the unit")]
         public float damageChange;
@@ -139,20 +149,20 @@ namespace StrategyCore
             if (xpRewardChange != 0) unit.ChangeXpReward(xpRewardChange * multiplier);
 
             // Percentages
-            if (damagePercentageChange != 0) unit.ChangeDamage(damagePercentageChange * multiplier, false);
-            if (attackSpeedPercentageChange != 0) unit.ChangeAttackSpeed(attackSpeedPercentageChange * multiplier, false);
-            if (attackRangePercentageChange != 0) unit.ChangeAttackRange(attackRangePercentageChange * multiplier, false);
+            if (damagePercentageChange != 0) unit.ChangeDamage(EnginePercentage(damagePercentageChange * multiplier), false);
+            if (attackSpeedPercentageChange != 0) unit.ChangeAttackSpeed(EnginePercentage(attackSpeedPercentageChange * multiplier), false);
+            if (attackRangePercentageChange != 0) unit.ChangeAttackRange(EnginePercentage(attackRangePercentageChange * multiplier), false);
 
-            if (armorPercentageChange != 0) unit.ChangeArmor(armorPercentageChange * multiplier, false);
+            if (armorPercentageChange != 0) unit.ChangeArmor(EnginePercentage(armorPercentageChange * multiplier), false);
 
-            if (moveSpeedPercentageChange != 0) unit.ChangeMoveSpeed(moveSpeedPercentageChange * multiplier, false);
+            if (moveSpeedPercentageChange != 0) unit.ChangeMoveSpeed(EnginePercentage(moveSpeedPercentageChange * multiplier), false);
 
-            if (healthPercentageChange != 0) unit.ChangeMaxHP(healthPercentageChange * multiplier, false);
-            if (healthRegenPercentageChange != 0) unit.ChangeHealthRegen(healthRegenPercentageChange * multiplier, false);
-            if (manaPercentageChange != 0) unit.ChangeMaxMP(manaPercentageChange * multiplier, false);
-            if (manaRegenPercentageChange != 0) unit.ChangeManaRegen(manaRegenPercentageChange * multiplier, false);
+            if (healthPercentageChange != 0) unit.ChangeMaxHP(EnginePercentage(healthPercentageChange * multiplier), false);
+            if (healthRegenPercentageChange != 0) unit.ChangeHealthRegen(EnginePercentage(healthRegenPercentageChange * multiplier), false);
+            if (manaPercentageChange != 0) unit.ChangeMaxMP(EnginePercentage(manaPercentageChange * multiplier), false);
+            if (manaRegenPercentageChange != 0) unit.ChangeManaRegen(EnginePercentage(manaRegenPercentageChange * multiplier), false);
 
-            if (xpRewardPercentageChange != 0) unit.ChangeXpReward(xpRewardPercentageChange * multiplier, false);
+            if (xpRewardPercentageChange != 0) unit.ChangeXpReward(EnginePercentage(xpRewardPercentageChange * multiplier), false);
 
             // Attributes
             if (attributeON && unit.attributeUnit)
@@ -215,20 +225,20 @@ namespace StrategyCore
             if (xpRewardChange != 0) unit.ChangeXpReward(-xpRewardChange * multiplier);
 
             // Reverse Percentage effect
-            if (damagePercentageChange != 0) unit.ChangeDamage(-damagePercentageChange * multiplier, true);
-            if (attackSpeedPercentageChange != 0) unit.ChangeAttackSpeed(-attackSpeedPercentageChange * multiplier, true);
-            if (attackRangePercentageChange != 0) unit.ChangeAttackRange(-attackRangePercentageChange * multiplier, true);
+            if (damagePercentageChange != 0) unit.ChangeDamage(-EnginePercentage(damagePercentageChange * multiplier), true);
+            if (attackSpeedPercentageChange != 0) unit.ChangeAttackSpeed(-EnginePercentage(attackSpeedPercentageChange * multiplier), true);
+            if (attackRangePercentageChange != 0) unit.ChangeAttackRange(-EnginePercentage(attackRangePercentageChange * multiplier), true);
 
-            if (armorPercentageChange != 0) unit.ChangeArmor(-armorPercentageChange * multiplier, true);
+            if (armorPercentageChange != 0) unit.ChangeArmor(-EnginePercentage(armorPercentageChange * multiplier), true);
 
-            if (moveSpeedPercentageChange != 0) unit.ChangeMoveSpeed(-moveSpeedPercentageChange * multiplier, true);
+            if (moveSpeedPercentageChange != 0) unit.ChangeMoveSpeed(-EnginePercentage(moveSpeedPercentageChange * multiplier), true);
 
-            if (healthPercentageChange != 0) unit.ChangeMaxHP(-healthPercentageChange * multiplier, true);
-            if (healthRegenPercentageChange != 0) unit.ChangeHealthRegen(-healthRegenPercentageChange * multiplier, true);
-            if (manaPercentageChange != 0) unit.ChangeMaxMP(-manaPercentageChange * multiplier, true);
-            if (manaRegenPercentageChange != 0) unit.ChangeManaRegen(-manaRegenPercentageChange * multiplier, true);
+            if (healthPercentageChange != 0) unit.ChangeMaxHP(-EnginePercentage(healthPercentageChange * multiplier), true);
+            if (healthRegenPercentageChange != 0) unit.ChangeHealthRegen(-EnginePercentage(healthRegenPercentageChange * multiplier), true);
+            if (manaPercentageChange != 0) unit.ChangeMaxMP(-EnginePercentage(manaPercentageChange * multiplier), true);
+            if (manaRegenPercentageChange != 0) unit.ChangeManaRegen(-EnginePercentage(manaRegenPercentageChange * multiplier), true);
 
-            if (xpRewardPercentageChange != 0) unit.ChangeXpReward(-xpRewardPercentageChange * multiplier, true);
+            if (xpRewardPercentageChange != 0) unit.ChangeXpReward(-EnginePercentage(xpRewardPercentageChange * multiplier), true);
 
             // Attributes
             if (attributeON && unit.attributeUnit)

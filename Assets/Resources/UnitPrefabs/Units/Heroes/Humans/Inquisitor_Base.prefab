@@ -10,6 +10,8 @@ GameObject:
   m_Component:
   - component: {fileID: 5021083195266792033}
   - component: {fileID: 4300940518348336390}
+  - component: {fileID: 337264769513786542}
+  - component: {fileID: 8842719894615581119}
   m_Layer: 0
   m_Name: Inquisitor_Base
   m_TagString: Untagged
@@ -45,8 +47,15 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b166e7a81d9bcf940a22cc4c185f0e45, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Interflow.Game::StrategyCore.Unit
-  abilities: []
-  abilityLevel: 
+  abilities:
+  - {fileID: 11400000, guid: 3b4c4fa125b95414d8bbaac497a9bf64, type: 2}
+  - {fileID: 11400000, guid: ab85640621632a64c91387f824af3bf7, type: 2}
+  - {fileID: 11400000, guid: 30a3f861fc6b9614cbe5a1b67d2305c0, type: 2}
+  - {fileID: 11400000, guid: 2ade2473f34fade499898d0d911cbd5e, type: 2}
+  - {fileID: 11400000, guid: 4cc3344ab80fd76439cd8b105c71ea68, type: 2}
+  - {fileID: 11400000, guid: 74b4cac7d32edfe4b9d550e46bc2e4ce, type: 2}
+  - {fileID: 11400000, guid: 1100791002f0d684a8c6ecfa7962278a, type: 2}
+  abilityLevel: 00000000000000000000000000000000000000000000000000000000
   abilityLocked: 
   everyFrameAbilities: []
   everyFrameAbilityIndex: 
@@ -68,6 +77,8 @@ MonoBehaviour:
   canCast: 0
   unitCategory: 4
   targetPriority: 
+  preferAttackClusters: 0
+  attackClusterRadius: 2
   respondsToAttackCommand: 1
   respondsToDefenceCommand: 1
   leavesGrave: 0
@@ -109,7 +120,7 @@ MonoBehaviour:
   maxHealth: 450
   health: 450
   healthRegen: 0
-  maxMana: 100
+  maxMana: 1000
   mana: 0
   manaRegen: 0
   isInvulnerable: 0
@@ -266,6 +277,38 @@ MonoBehaviour:
   removeFromPosSync: 0
   spawned: 0
   initialized: 0
+--- !u!114 &337264769513786542
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3353359683649963311}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 97c556a459149c04e816a5fa8f19c12e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Interflow.Game::StrategyCore.CharacterSockets
+  rightHand: {fileID: 0}
+  leftHand: {fileID: 0}
+  weapon: {fileID: 8714788822870504329}
+  chest: {fileID: 0}
+  center: {fileID: 0}
+  head: {fileID: 0}
+  ground: {fileID: 0}
+--- !u!114 &8842719894615581119
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3353359683649963311}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4f524aa1dbfa9e64aa8469837ea8468a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Interflow.Client::StrategyCore.UnitMorphPoseBlend
+  seconds: 0.22
 --- !u!1 &5554439592509807518
 GameObject:
   m_ObjectHideFlags: 0
@@ -395,6 +438,14 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 5021083195266792033}
     m_Modifications:
+    - target: {fileID: 236153843315537170, guid: 0b72cc3b29dd562478e54eeafdb889a5, type: 3}
+      propertyPath: m_LocalRotation.x
+      value: -0.5785476
+      objectReference: {fileID: 0}
+    - target: {fileID: 236153843315537170, guid: 0b72cc3b29dd562478e54eeafdb889a5, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: -0.35251343
+      objectReference: {fileID: 0}
     - target: {fileID: 1456601810394999161, guid: 0b72cc3b29dd562478e54eeafdb889a5, type: 3}
       propertyPath: m_Name
       value: Inquisitor_Base_Model
@@ -466,7 +517,7 @@ PrefabInstance:
     - target: {fileID: 5304430953249466809, guid: 0b72cc3b29dd562478e54eeafdb889a5, type: 3}
       propertyPath: m_Controller
       value: 
-      objectReference: {fileID: 9100000, guid: 1f15031447ddb2946ad2c259ed8864b5, type: 2}
+      objectReference: {fileID: 9100000, guid: aa26c5b5df600e24187efefe0bdd4050, type: 2}
     - target: {fileID: 5304430953249466809, guid: 0b72cc3b29dd562478e54eeafdb889a5, type: 3}
       propertyPath: m_CullingMode
       value: 0

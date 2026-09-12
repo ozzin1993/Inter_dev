@@ -1,4 +1,4 @@
-using UnityEngine;
+﻿using UnityEngine;
 
 namespace StrategyCore
 {
@@ -76,6 +76,16 @@ namespace StrategyCore
             }
 
             return false;
+        }
+
+        /// <summary>Add absorbed resource to the current shield instead of replacing its capacity.</summary>
+        public static void Add(Unit target,float amount,float duration,System.Action<Unit> onEnded=null)
+        {
+            if (!target || target.dead || amount<=0 || NetworkConnectionHandler.isClient) return;
+            float current=0;
+            foreach(var shield in target.GetComponents<AbsorbShield>())
+                if(!shield.destroyed){current=shield.remaining;break;}
+            Apply(target,current+amount,duration,null,onEnded);
         }
 
         private void Init(Unit target, float amount, float duration,

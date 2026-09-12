@@ -1,4 +1,4 @@
-// [Interflow fix 2026-06-27] Все подсказки [Tooltip] в этом файле локализованы на русский (правка ассета, разрешена Artsiom; только текст Tooltip). Оригинал EN: _BACKUP_TOOLTIPS/Scripts/Unit.cs. Реестр: wiki concepts/asset-fork-debt.
+﻿// [Interflow fix 2026-06-27] Все подсказки [Tooltip] в этом файле локализованы на русский (правка ассета, разрешена Artsiom; только текст Tooltip). Оригинал EN: _BACKUP_TOOLTIPS/Scripts/Unit.cs. Реестр: wiki concepts/asset-fork-debt.
 using System;
 using System.Collections.Generic;
 using Unity.Netcode;
@@ -58,6 +58,7 @@ namespace StrategyCore
         /// <returns>Did you unit die.</returns>
         public bool ChangeHP(float amount, bool noSync = false)
         {
+            amount = Effector.ModifyHealing(this, amount);
             health += amount;
 
             if (health > maxHealth)

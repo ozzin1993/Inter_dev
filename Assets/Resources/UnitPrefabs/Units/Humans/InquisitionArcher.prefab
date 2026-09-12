@@ -77,8 +77,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b166e7a81d9bcf940a22cc4c185f0e45, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  abilities: []
-  abilityLevel: 
+  abilities:
+  - {fileID: 11400000, guid: aabb3874d91537d4d84a346f73f49720, type: 2}
+  - {fileID: 11400000, guid: 5282866c054562e4aaf46afe4e892774, type: 2}
+  abilityLevel: 0000000000000000
   abilityLocked: 
   everyFrameAbilities: []
   everyFrameAbilityIndex: 

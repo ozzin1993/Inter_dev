@@ -10,6 +10,7 @@ GameObject:
   m_Component:
   - component: {fileID: 3440995027833748302}
   - component: {fileID: 66127649563394161}
+  - component: {fileID: 8371864953108594979}
   m_Layer: 0
   m_Name: FelSiegeBehemoth
   m_TagString: Untagged
@@ -45,8 +46,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b166e7a81d9bcf940a22cc4c185f0e45, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Interflow.Game::StrategyCore.Unit
-  abilities: []
-  abilityLevel: 
+  abilities:
+  - {fileID: 11400000, guid: a2355bbe6b5a2cf41a2cd394b3040d33, type: 2}
+  abilityLevel: 00000000
   abilityLocked: 
   everyFrameAbilities: []
   everyFrameAbilityIndex: 
@@ -68,6 +70,8 @@ MonoBehaviour:
   canCast: 0
   unitCategory: 2
   targetPriority: 
+  preferAttackClusters: 0
+  attackClusterRadius: 2
   respondsToAttackCommand: 1
   respondsToDefenceCommand: 1
   leavesGrave: 0
@@ -273,6 +277,20 @@ MonoBehaviour:
   removeFromPosSync: 0
   spawned: 0
   initialized: 0
+--- !u!114 &8371864953108594979
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3544968693617493039}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: eeacf01fdd4e6784fbaffd8a2682fac0, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Interflow.Game::StrategyCore.AutoAbilityUser
+  autoAbilities:
+  - {fileID: 11400000, guid: a2355bbe6b5a2cf41a2cd394b3040d33, type: 2}
 --- !u!1001 &4692937757217247911
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -281,6 +299,18 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 3440995027833748302}
     m_Modifications:
+    - target: {fileID: 1160145414635976805, guid: 82d711a9673a950438b0fab52be47adf, type: 3}
+      propertyPath: m_Controller
+      value: 
+      objectReference: {fileID: 9100000, guid: 4e76781b9a8dae2449b483ee3885f242, type: 2}
+    - target: {fileID: 2322875422024605453, guid: 82d711a9673a950438b0fab52be47adf, type: 3}
+      propertyPath: UVModule.sprites.Array.data[0].sprite
+      value: 
+      objectReference: {fileID: 0}
+    - target: {fileID: 3419492469237904096, guid: 82d711a9673a950438b0fab52be47adf, type: 3}
+      propertyPath: UVModule.sprites.Array.data[0].sprite
+      value: 
+      objectReference: {fileID: 0}
     - target: {fileID: 4935844079523511061, guid: 82d711a9673a950438b0fab52be47adf, type: 3}
       propertyPath: m_Name
       value: FelSiegeBehemoth_Model

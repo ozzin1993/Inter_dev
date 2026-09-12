@@ -12,6 +12,7 @@ GameObject:
   - component: {fileID: 1526241182521751945}
   - component: {fileID: 5186792438009123784}
   - component: {fileID: 7339970038069368820}
+  - component: {fileID: 3667807022571829292}
   m_Layer: 0
   m_Name: Swordsman
   m_TagString: Untagged
@@ -70,8 +71,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::StrategyCore.Unit
   abilities:
-  - {fileID: 11400000, guid: 745d7ba2997971a49a5ae87f4199a234, type: 2}
-  abilityLevel: 00000000
+  - {fileID: 11400000, guid: e159191901b5cfb4eb91dbcc1ee1a8ce, type: 2}
+  - {fileID: 11400000, guid: 194da6a4eace9734f8b31fda2c5ea73e, type: 2}
+  abilityLevel: 0000000000000000
   abilityLocked: 
   everyFrameAbilities: []
   everyFrameAbilityIndex: 
@@ -305,8 +307,26 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: eeacf01fdd4e6784fbaffd8a2682fac0, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Interflow.Game::StrategyCore.AutoAbilityUser
-  autoAbilities:
-  - {fileID: 11400000, guid: 745d7ba2997971a49a5ae87f4199a234, type: 2}
+  autoAbilities: []
+--- !u!114 &3667807022571829292
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7159909171149085634}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 97c556a459149c04e816a5fa8f19c12e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Interflow.Game::StrategyCore.CharacterSockets
+  rightHand: {fileID: 0}
+  leftHand: {fileID: 5130831272297287719}
+  weapon: {fileID: 0}
+  chest: {fileID: 0}
+  center: {fileID: 0}
+  head: {fileID: 0}
+  ground: {fileID: 0}
 --- !u!1001 &4602713609655919414
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -477,5 +497,10 @@ Transform:
 --- !u!4 &5128355476377694147 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 4631191521234150, guid: ec40be0b218a7a242a61be659cdadb17, type: 3}
+  m_PrefabInstance: {fileID: 5132942668072575781}
+  m_PrefabAsset: {fileID: 0}
+--- !u!4 &5130831272297287719 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 4433173527638786, guid: ec40be0b218a7a242a61be659cdadb17, type: 3}
   m_PrefabInstance: {fileID: 5132942668072575781}
   m_PrefabAsset: {fileID: 0}

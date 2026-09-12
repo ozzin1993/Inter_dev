@@ -1,4 +1,4 @@
-// [Interflow fix 2026-06-27] Все подсказки [Tooltip] в этом файле локализованы на русский (правка ассета, разрешена Artsiom; только текст Tooltip). Оригинал EN: _BACKUP_TOOLTIPS/Scripts/Unit.cs. Реестр: wiki concepts/asset-fork-debt.
+﻿// [Interflow fix 2026-06-27] Все подсказки [Tooltip] в этом файле локализованы на русский (правка ассета, разрешена Artsiom; только текст Tooltip). Оригинал EN: _BACKUP_TOOLTIPS/Scripts/Unit.cs. Реестр: wiki concepts/asset-fork-debt.
 using System;
 using System.Collections.Generic;
 using Unity.Netcode;
@@ -20,20 +20,20 @@ namespace StrategyCore
         /// <param name="damageType">Damage type.</param>
         /// <param name="directAttack">Direct attacks will trigger attack modifications of the unit(splash) and will try to add attack effectors.</param>
         /// <param name="attackPosition">Can be zero, it is used only for when unit is attacking the ground.</param>
-        public void DealDamage(Unit targetUnit, float amount, DamageType damageType, bool directAttack, Vector3 attackPosition)
+        public void DealDamage(Unit targetUnit, float amount, DamageType damageType, bool directAttack, Vector3 attackPosition, Projectile sourceProjectile = null)
         {
             // Deal damage
             float damageDealt = 0;
             if (targetUnit != null)
             {
                 targetUnit.GetDamage(amount, damageType, this.owner, this, directAttack, out damageDealt);
-                Effector.EffectorAdd(this, targetUnit, attackEffectors);
+                if(directAttack)Effector.EffectorAdd(this, targetUnit, attackEffectors);
             }
 
             // 3. After damage callbacks
             foreach (var c in OnAfterDamageDealCallbacks)
             {
-                c.Callback(targetUnit, attackPosition, attackEffectors, amount, directAttack, damageType, this, null, owner, c.Level);
+                c.Callback(targetUnit, attackPosition, attackEffectors, amount, directAttack, damageType, this, sourceProjectile, owner, c.Level);
             }
 
             // Splash logic - get all units in radius, damage them accordingly. Only if it is not projectile type attack - it is handled by Projectile.cs
@@ -191,7 +191,7 @@ namespace StrategyCore
 
             // [Interflow fix 2026-07-24 combat-hub] Пробитие брони: атакующий игнорирует долю защиты цели.
             // Штатной точки для этого нет, а хук жертвы не знает, кто бьёт.
-            float effectiveArmor = InterflowCombat.EffectiveArmor(this, attackingUnit, armor);
+            float effectiveArmor = damageType.ignoresArmor ? 0f : InterflowCombat.EffectiveArmor(this, attackingUnit, armor);
 
             // Final damage amount based on damage and armor type
             damageDealt = amount * GameManager.instance.damageToArmor[armorType.index * GameManager.instance.DTAWidth + damageType.index] * (1 - ((0.06f * effectiveArmor) / (1 + 0.06f * effectiveArmor)));
@@ -201,7 +201,10 @@ namespace StrategyCore
 
             if (damageDealt > health) damageDealt = health;
 
+            // Successful direct hits include killing blows; misses grant no resource.
+            if(!NetworkConnectionHandler.isClient&&damageDealt>0){if(attackingUnit){var resource=attackingUnit.GetComponent<CombatResource>();if(resource)resource.Hit(this,damageDealt,directAttack);}var ownResource=GetComponent<CombatResource>();if(ownResource)ownResource.Threatened(attackingUnit);}
             bool died = ChangeHP(-damageDealt);
+            DamageLinkGroup.NotifyDamage(this, damageDealt);
             if (died) Die(attackingPlayer, attackingUnit);
             else if (hasHitAnim && directAttack && FoWVisible) animator.CrossFade("hit", crossFadeTime, 0, 0f); //animator.Play("hit", 0, 0.01f);
 

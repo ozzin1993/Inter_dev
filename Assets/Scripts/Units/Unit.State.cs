@@ -1,4 +1,4 @@
-// [Interflow fix 2026-06-27] Все подсказки [Tooltip] в этом файле локализованы на русский (правка ассета, разрешена Artsiom; только текст Tooltip). Оригинал EN: _BACKUP_TOOLTIPS/Scripts/Unit.cs. Реестр: wiki concepts/asset-fork-debt.
+﻿// [Interflow fix 2026-06-27] Все подсказки [Tooltip] в этом файле локализованы на русский (правка ассета, разрешена Artsiom; только текст Tooltip). Оригинал EN: _BACKUP_TOOLTIPS/Scripts/Unit.cs. Реестр: wiki concepts/asset-fork-debt.
 using System;
 using System.Collections.Generic;
 using Unity.Netcode;
@@ -249,7 +249,7 @@ namespace StrategyCore
                 {
                     if (activeAbilityUnit)
                     {
-                        if (LookAt(activeAbilityUnit.transform.position) && !activeAbility.dontTurn && !playCast)
+                        if (!activeAbility.dontTurn && !playCast && LookAt(activeAbilityUnit.transform.position))
                         {
                             Vector3 horizontalPartDir = Quaternion.Euler(horizontalPart.rotation.eulerAngles - horizontalPartForward.eulerAngles) * Vector3.forward;
                             float dot = Vector3.Dot(horizontalPartDir.normalized, (new Vector3(activeAbilityUnit.transform.position.x, 0, activeAbilityUnit.transform.position.z) - new Vector3(horizontalPart.position.x, 0, horizontalPart.position.z)).normalized);
@@ -258,7 +258,7 @@ namespace StrategyCore
                     }
                     else if (activeAbilityLocation != Vector3.zero)
                     {
-                        if (LookAt(activeAbilityLocation) && !activeAbility.dontTurn && !playCast)
+                        if (!activeAbility.dontTurn && !playCast && LookAt(activeAbilityLocation))
                         {
                             Vector3 horizontalPartDir = Quaternion.Euler(horizontalPart.rotation.eulerAngles - horizontalPartForward.eulerAngles) * Vector3.forward;
                             float dot = Vector3.Dot(horizontalPartDir.normalized, (new Vector3(activeAbilityLocation.x, 0, activeAbilityLocation.z) - new Vector3(horizontalPart.position.x, 0, horizontalPart.position.z)).normalized);
@@ -315,7 +315,6 @@ namespace StrategyCore
                     // Wait till mute wears off
                     if (!muted)
                     {
-                        if (hasCastAnim && FoWVisible) animator.CrossFade("cast", crossFadeTime, 0, 0f);
                         UseAbilityImmediately(activeAbility, activeAbilityLevel, activeAbilityIndex, activeAbilityItem, activeAbilityUnit, activeAbilityLocation, true);
                     }
                 }
@@ -794,19 +793,19 @@ namespace StrategyCore
                     if (activeAbilityUnit)
                     {
                         activeAbility.Use(this, this.owner, activeAbilityLevel, activeAbilityUnit, ref activeAbilityVFX);
-                        LookAt(activeAbilityUnit.transform.position);
+                        if (!activeAbility.dontTurn) LookAt(activeAbilityUnit.transform.position);
                     }
                     else if (activeAbilityLocation != Vector3.zero)
                     {
                         activeAbility.Use(this, this.owner, activeAbilityLevel, activeAbilityLocation, ref activeAbilityVFX);
-                        LookAt(activeAbilityLocation);
+                        if (!activeAbility.dontTurn) LookAt(activeAbilityLocation);
                     }
                     else activeAbility.Use(this, this.owner, activeAbilityLevel, ref activeAbilityVFX);
                 }
                 // Rotation update
                 else if (activeAbilityCastTime != 0) // We use cast time as indicator that cast is currently being performed
                 {
-                    if (activeAbility.dontTurn)
+                    if (activeAbility.dontTurn && !playCast)
                     {
                         playCast = true;
                         if (hasCastAnim) animator.CrossFade("cast", crossFadeTime, 0, 0f);
@@ -815,7 +814,7 @@ namespace StrategyCore
                     // Casting an ability, rotate towards the point
                     if (activeAbilityUnit)
                     {
-                        if (LookAt(activeAbilityUnit.transform.position) && !playCast)
+                        if (!activeAbility.dontTurn && !playCast && LookAt(activeAbilityUnit.transform.position))
                         {
                             Vector3 horizontalPartDir = Quaternion.Euler(horizontalPart.rotation.eulerAngles - horizontalPartForward.eulerAngles) * Vector3.forward;
                             float dot = Vector3.Dot(horizontalPartDir.normalized, (new Vector3(activeAbilityUnit.transform.position.x, 0, activeAbilityUnit.transform.position.z) - new Vector3(horizontalPart.position.x, 0, horizontalPart.position.z)).normalized);
@@ -828,7 +827,7 @@ namespace StrategyCore
                     }
                     else if (activeAbilityLocation != Vector3.zero)
                     {
-                        if (LookAt(activeAbilityLocation) && !playCast)
+                        if (!activeAbility.dontTurn && !playCast && LookAt(activeAbilityLocation))
                         {
                             Vector3 horizontalPartDir = Quaternion.Euler(horizontalPart.rotation.eulerAngles - horizontalPartForward.eulerAngles) * Vector3.forward;
                             float dot = Vector3.Dot(horizontalPartDir.normalized, (new Vector3(activeAbilityLocation.x, 0, activeAbilityLocation.z) - new Vector3(horizontalPart.position.x, 0, horizontalPart.position.z)).normalized);
@@ -1061,6 +1060,8 @@ namespace StrategyCore
             }
 
             LookAt(attackPosition);
+            if (!NetworkConnectionHandler.isClient && TryGetComponent<WeaponDeployment>(out var deployment)
+                && !deployment.ReadyToFire()) return true;
 
             if (currentAttackCount == 0)
             {
@@ -1896,7 +1897,9 @@ namespace StrategyCore
             polymorphLvl = lvl;
             polymorphShape = shapeUnit;
 
+            if(ability is CompositeSkill shapeSkill&&shapeSkill.morph!=null&&shapeSkill.morph.copyAttackMode){var mode=GetComponent<MorphAttackMode>();if(!mode)mode=gameObject.AddComponent<MorphAttackMode>();mode.Apply(this,shapeUnit);}
             ReplaceRenderers(shapeUnit, false);
+            if(Presentation.Selection?.ActiveUnit==this)Presentation.UI?.Resubscribe();
         }
 
         /// <summary>

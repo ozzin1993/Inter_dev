@@ -42,6 +42,8 @@ GameObject:
   - component: {fileID: 4953302071323063503}
   - component: {fileID: 1165191979987236916}
   - component: {fileID: 7848067163205269994}
+  - component: {fileID: 6984238272786173369}
+  - component: {fileID: 6603955973545488471}
   m_Layer: 0
   m_Name: PriestOfLight
   m_TagString: Untagged
@@ -77,8 +79,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b166e7a81d9bcf940a22cc4c185f0e45, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  abilities: []
-  abilityLevel: 
+  abilities:
+  - {fileID: 11400000, guid: 364a956fb59687f43a6542196f423dda, type: 2}
+  - {fileID: 11400000, guid: 65f2591e0d4b390489ef149982a21e48, type: 2}
+  abilityLevel: 0000000000000000
   abilityLocked: 
   everyFrameAbilities: []
   everyFrameAbilityIndex: 
@@ -321,6 +325,40 @@ NavMeshAgent:
   m_BaseOffset: 0
   m_WalkableMask: 4294967295
   m_ObstacleAvoidanceType: 4
+--- !u!114 &6984238272786173369
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6797796247634689522}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: eeacf01fdd4e6784fbaffd8a2682fac0, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Interflow.Game::StrategyCore.AutoAbilityUser
+  autoAbilities:
+  - {fileID: 11400000, guid: 364a956fb59687f43a6542196f423dda, type: 2}
+  - {fileID: 11400000, guid: 65f2591e0d4b390489ef149982a21e48, type: 2}
+--- !u!114 &6603955973545488471
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6797796247634689522}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 97c556a459149c04e816a5fa8f19c12e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Interflow.Game::StrategyCore.CharacterSockets
+  rightHand: {fileID: 9065490644380536130}
+  leftHand: {fileID: 0}
+  weapon: {fileID: 0}
+  chest: {fileID: 0}
+  center: {fileID: 0}
+  head: {fileID: 0}
+  ground: {fileID: 0}
 --- !u!1001 &4879417583044494065
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -466,7 +504,7 @@ PrefabInstance:
     - target: {fileID: 95942999271586406, guid: bcb0f782911447a4ea725283873b9cfe, type: 3}
       propertyPath: m_Controller
       value: 
-      objectReference: {fileID: 9100000, guid: 28f0e920d38a1294bb5f7fcbf07263da, type: 2}
+      objectReference: {fileID: 9100000, guid: 62dd27ccc2ca30846911ddcbb2300420, type: 2}
     - target: {fileID: 95942999271586406, guid: bcb0f782911447a4ea725283873b9cfe, type: 3}
       propertyPath: m_CullingMode
       value: 0

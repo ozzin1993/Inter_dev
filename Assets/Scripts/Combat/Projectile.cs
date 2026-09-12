@@ -88,6 +88,8 @@ namespace StrategyCore
         Unit target; // Target unit. If null projectile goes to targetPosition
         Vector3 targetPosition; // Target position is used when target is null
         float radiusSq; // Radius squared; optimisation.
+        public Vector3 OriginPosition => origin;
+        public System.Action<Unit,Vector3> OnSkillImpact;
         Vector3 origin; // To store where the projectile first spawned.
         float currentTime;
 
@@ -199,6 +201,14 @@ namespace StrategyCore
                     }
                 }
 
+                OnSkillImpact?.Invoke(target, targetPosition);
+                OnSkillImpact = null;
+
+                // One impact event per landing, independent of the number of splash victims.
+                foreach(var callback in OnAfterDamageDealCallbacks)
+                    if(callback.Ability is EveryNthAttack nth && nth.procAtProjectileImpact)
+                        nth.ProjectileImpact(target,targetPosition,damage,directAttack,damageType,ownerUnit,this,owner,callback.Level);
+
                 // Bouncy projectile
                 if (bounceCount != 0)
                 {
@@ -259,11 +269,12 @@ namespace StrategyCore
         /// <param name="damageType">Damage type.</param>
         public void Damage(Unit targetUnit, float amount, DamageType damageType)
         {
+            if (targetUnit == null || targetUnit.dead) return;
             // Stun
             if (stunTime != 0) targetUnit.Stun(stunTime);
 
             // Unit who sent projectile has died, deal damage with projectile and define what happens when projectile kills
-            if (ownerUnit == null)
+            if (ownerUnit == null || ownerUnit.dead)
             {
                 // Deal damage
                 targetUnit.GetDamage(amount, damageType, owner, null, directAttack, out float _);
@@ -272,13 +283,13 @@ namespace StrategyCore
                 // After damage callbacks
                 foreach (var c in OnAfterDamageDealCallbacks)
                 {
-                    c.Callback(target, targetPosition, attackEffectors, damage, directAttack, damageType, ownerUnit, this, owner, c.Level);
+                    c.Callback(targetUnit, targetUnit.transform.position, attackEffectors, amount, directAttack, damageType, ownerUnit, this, owner, c.Level);
                 }
             }
             else
             {
-                if (followTarget) ownerUnit.DealDamage(targetUnit, amount, damageType, directAttack, target.transform.position);
-                else ownerUnit.DealDamage(targetUnit, amount, damageType, directAttack, targetPosition);
+                if (followTarget) ownerUnit.DealDamage(targetUnit, amount, damageType, directAttack, targetUnit.transform.position, this);
+                else ownerUnit.DealDamage(targetUnit, amount, damageType, directAttack, targetPosition, this);
             }
         }
 
@@ -412,7 +423,7 @@ namespace StrategyCore
                     // Damage
                     p.damageType = whoSent.damageType;
                     p.attackEffectors = whoSent.attackEffectors;
-                    p.OnAfterDamageDealCallbacks = whoSent.OnAfterDamageDealCallbacks;
+                    p.OnAfterDamageDealCallbacks = new List<AfterDamageDealCallback>(whoSent.OnAfterDamageDealCallbacks);
 
                     // Splash
                     p.isSplash = whoSent.isSplash;
@@ -430,7 +441,7 @@ namespace StrategyCore
             }
 
             // Set the projectile's target, so that it can work. If we want to damage unit at position projectile must have splash
-            if (targetPosition != Vector3.zero || (whoSent.isSplash && !whoSent.projectileFollowTarget))
+            if (targetPosition != Vector3.zero || (whoSent != null && whoSent.isSplash && !whoSent.projectileFollowTarget))
             {
                 // Do not follow target
                 p.followTarget = false;
@@ -460,6 +471,12 @@ namespace StrategyCore
                 }
 
                 GameManager.instance.Tick += p.VisibilityCheck;
+            }
+            else
+            {
+                // With fog disabled (or an explicitly visible skill projectile), impact VFX
+                // must still be enabled. The old default false suppressed every explosion.
+                p.EnableRenderers();
             }
 
             p.searchUnitSelector = searchUnitSelector;

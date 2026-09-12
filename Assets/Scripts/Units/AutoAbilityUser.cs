@@ -38,6 +38,7 @@ namespace StrategyCore
         // Рантайм-кэш индексов в пуле умений юнита — по элементу на каждое умение, не сериализуется.
         private int[] cachedIndex;
         private bool[] resolved;
+        private float[] retryMissingAt;
 
         private void Awake()
         {
@@ -50,6 +51,7 @@ namespace StrategyCore
             int count = autoAbilities != null ? autoAbilities.Length : 0;
             cachedIndex = new int[count];
             resolved = new bool[count];
+            retryMissingAt = new float[count];
             for (int i = 0; i < count; i++) cachedIndex[i] = -1;
         }
 
@@ -164,12 +166,14 @@ namespace StrategyCore
             // «Не найдено» (-1) не перерешаем каждый тик (иначе спам-лог/лишний перебор).
             if (resolved[entry])
             {
-                if (cachedIndex[entry] < 0) return -1;
-                if (unit != null && Utils.GetAbilityByIndex(unit, cachedIndex[entry]) == skill)
+                if (cachedIndex[entry] < 0 && Time.time < retryMissingAt[entry]) return -1;
+                if (cachedIndex[entry] >= 0 && unit != null && Utils.GetAbilityByIndex(unit, cachedIndex[entry]) == skill)
                     return cachedIndex[entry];
                 // индекс устарел — перерезолвим ниже
             }
 
+            bool firstAttempt = !resolved[entry];
+            retryMissingAt[entry] = Time.time + 1f;
             resolved[entry] = true;
             cachedIndex[entry] = -1;
             if (skill == null || unit.abilities == null) return -1;
@@ -177,7 +181,7 @@ namespace StrategyCore
             int idx = Utils.GetAbilityIndex(unit.abilities, skill);
             if (idx >= 0 && Utils.GetAbilityByIndex(unit, idx) == skill)
                 cachedIndex[entry] = idx;
-            else
+            else if (firstAttempt)
                 Debug.LogWarning($"[AutoAbilityUser] У '{unit.unitName}' умение '{skill.name}' " +
                                  "не найдено в списке Abilities — авто-применение этого умения отключено.");
 

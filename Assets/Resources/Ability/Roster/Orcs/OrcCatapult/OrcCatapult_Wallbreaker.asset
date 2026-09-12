@@ -1,0 +1,67 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: dc95806b72a87762a7828c6e6fd970dd, type: 3}
+  m_Name: OrcCatapult_Wallbreaker
+  m_EditorClassIdentifier: Interflow.Game::StrategyCore.BonusDamageVsUnitType
+  id: 59
+  abilityName:
+  - "\u0421\u0442\u0435\u043D\u043E\u0431\u0438\u0442"
+  description:
+  - 
+  icon:
+  - {fileID: 2800000, guid: 002569b9e0832c64cbc953472bbd0dcd, type: 3}
+  slotNumber: -1
+  isItem: 0
+  useUponPickUp: 0
+  dropOnDeath: 0
+  charges: 0
+  maxLevels: 1
+  heroLevelable: 0
+  cooldown:
+  - 0
+  castRange:
+  - 0
+  castTime:
+  - 0
+  radius:
+  - 0
+  showRadiusCircle: 0
+  unitSelector:
+    isOwn: 0
+    isAlly: 0
+    isEnemy: 0
+    isUnit: 0
+    isBuilding: 0
+    isStaticDestructible: 0
+    isTree: 0
+    isGround: 0
+    isWater: 0
+    isAir: 0
+    includeInvisible: 0
+    includeInvulnerable: 0
+  dontTurn: 0
+  continuous: 0
+  interruptible: 0
+  requiresCastingUnit: 1
+  duration: []
+  requiredTech:
+  - data:
+    - {fileID: 11400000, guid: bf4fd3e76c1a9d24eba67ebf52e8ad5b, type: 2}
+  requiredLevel: 
+  manaCost: []
+  manaCostPerSecond: []
+  cost: []
+  hitPresentation: {fileID: 0}
+  targetUnitType: 1
+  damageMultiplier:
+  - 1.6
+  onlyDirectAttack: 1

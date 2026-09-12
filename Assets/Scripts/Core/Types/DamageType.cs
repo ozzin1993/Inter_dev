@@ -1,4 +1,4 @@
-using System.Collections;
+﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -11,6 +11,9 @@ namespace StrategyCore
 
         [DamageTypeID]
         public int id;
+
+        [Tooltip("Урон этого типа обходит числовую броню. Таблица типов брони и модификаторы урона продолжают работать.")]
+        public bool ignoresArmor;
 
         [Header("Text")]
         public string displayName;

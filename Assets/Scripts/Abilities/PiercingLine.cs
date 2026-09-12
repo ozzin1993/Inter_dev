@@ -14,6 +14,9 @@ namespace StrategyCore
     /// </summary>
     public class PiercingLine : InterflowAbility
     {
+        [Tooltip("Визуальный скилл попадания; механические блоки не вызываются.")]
+        public CompositeSkill hitPresentation;
+
         public override AbilityType type { get { return AbilityType.Passive; } }
 
         [Header("Пронзание по прямой")]
@@ -69,12 +72,14 @@ namespace StrategyCore
                          DamageType damageType, Unit byUnit, Projectile byProjectile, int byOwner, int level)
         {
             if (NetworkConnectionHandler.isClient) return; // правило 6
-            if (byUnit == null) return;
+            if (byUnit == null && byProjectile == null) return;
             if (onlyDirectAttack && !directAttack) return;
 
             Vector3 endPoint = targetUnit != null ? targetUnit.transform.position : targetPosition;
 
-            Vector2 from = new Vector2(byUnit.transform.position.x, byUnit.transform.position.z);
+            Vector3 launch = byProjectile != null ? byProjectile.OriginPosition : byUnit.transform.position;
+            Vector2 from = new Vector2(launch.x, launch.z);
+            if (hitPresentation != null && targetUnit != null) EmitSkillFired(byUnit, hitPresentation, level, targetUnit, endPoint + Vector3.up * Mathf.Max(.5f,targetUnit.unitHeight*.5f));
             Vector2 to = new Vector2(endPoint.x, endPoint.z);
             Vector2 dir = to - from;
 
@@ -88,7 +93,7 @@ namespace StrategyCore
             Vector2 center = from + dir * (length * 0.5f);
             float searchRadius = length * 0.5f + corridorWidth;
 
-            Unit[] candidates = Utils.GetUnitsInRadius(center, searchRadius, byUnit.owner, unitSelector, -1, targetUnit);
+            Unit[] candidates = Utils.GetUnitsInRadius(center, searchRadius, byOwner, unitSelector, -1, targetUnit);
             if (candidates == null || candidates.Length == 0) return;
 
             float bonusDamage = dmg * LevelValue(damagePercent, level, 1f);
@@ -111,8 +116,9 @@ namespace StrategyCore
                 if (offset > halfWidth) continue;
 
                 u.GetDamage(bonusDamage, damageType, byOwner, byUnit, false, out float _);
-                if (applyAttackEffectors && effectors != null && effectors.Length > 0) Effector.EffectorAdd(byUnit, u, effectors);
+                if (applyAttackEffectors && effectors != null && effectors.Length > 0) Effector.EffectorAdd(byOwner, u, effectors);
 
+                if (hitPresentation != null) EmitSkillFired(byUnit, hitPresentation, level, u, u.transform.position + Vector3.up * Mathf.Max(.5f,u.unitHeight*.5f));
                 hit++;
                 if (maxExtraTargets > 0 && hit >= maxExtraTargets) break;
             }

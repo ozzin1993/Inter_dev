@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEditor;
@@ -44,12 +44,20 @@ namespace StrategyCore
         {
             var foldout = new Foldout { text = "Кто использует", value = false, style = { marginBottom = 4 } };
 
-            var recs = Of(ability);
-            if (recs.Count == 0)
-                foldout.Add(new Label("Ссылок не найдено (сцены здесь не сканируются — см. вкладку «Чистка»).")
-                    { style = { whiteSpace = WhiteSpace.Normal, color = new Color(0.7f, 0.7f, 0.7f) } });
-            else
-                foreach (var r in recs) foldout.Add(Row(r));
+            // A collapsed section must not load the entire unit roster and its models.
+            // Build reverse references only when the designer opens this section.
+            bool populated = false;
+            foldout.RegisterValueChangedCallback(evt =>
+            {
+                if (!evt.newValue || populated) return;
+                populated = true;
+                var recs = Of(ability);
+                if (recs.Count == 0)
+                    foldout.Add(new Label("Ссылок не найдено (сцены здесь не сканируются — см. вкладку «Чистка»).")
+                        { style = { whiteSpace = WhiteSpace.Normal, color = new Color(0.7f, 0.7f, 0.7f) } });
+                else
+                    foreach (var r in recs) foldout.Add(Row(r));
+            });
 
             return foldout;
         }
@@ -163,10 +171,7 @@ namespace StrategyCore
             return list;
         }
 
-        public static IEnumerable<GameObject> AllUnitGOs() =>
-            AssetDatabase.FindAssets("t:GameObject")
-                .Select(g => AssetDatabase.LoadAssetAtPath<GameObject>(AssetDatabase.GUIDToAssetPath(g)))
-                .Where(go => go != null && go.GetComponent<Unit>() != null);
+        public static IEnumerable<GameObject> AllUnitGOs() => InterflowUnitPrefabIndex.LoadUnits();
 
         public static IEnumerable<FactionConfig> AllFactions() =>
             AssetDatabase.FindAssets("t:FactionConfig")

@@ -45,8 +45,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b166e7a81d9bcf940a22cc4c185f0e45, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Interflow.Game::StrategyCore.Unit
-  abilities: []
-  abilityLevel: 
+  abilities:
+  - {fileID: 11400000, guid: dd8cb8e15d878b64b90375473a5fa55b, type: 2}
+  - {fileID: 11400000, guid: ae8cec0f83eab8346be88799eafa86d9, type: 2}
+  - {fileID: 11400000, guid: 0bb5cae847b969344ae2e2ce2872cb80, type: 2}
+  abilityLevel: 000000000000000000000000
   abilityLocked: 
   everyFrameAbilities: []
   everyFrameAbilityIndex: 
@@ -68,6 +71,8 @@ MonoBehaviour:
   canCast: 0
   unitCategory: 0
   targetPriority: 
+  preferAttackClusters: 0
+  attackClusterRadius: 2
   respondsToAttackCommand: 1
   respondsToDefenceCommand: 1
   leavesGrave: 0

@@ -53,7 +53,7 @@ namespace StrategyCore
         /// <param name="location">Target location, can be Vector3.zero.</param>
         public bool UseAbilityItem(int abilityIndex, bool isItem, Unit unit, Vector3 location, bool issuedByPlayer = false)
         {
-            if (muted) return false;
+            if (dead || muted) return false;
             if (isBeingBuilt) return false;
 
             // Clients send the command to the server
@@ -79,6 +79,11 @@ namespace StrategyCore
                 currentAbility = Utils.GetAbilityByIndex(this, abilityIndex);
                 currentLevel = abilityLevel[abilityIndex];
             }
+
+            // Reject invalid composite targets before interrupting the current command.
+            if (currentAbility is CompositeSkill composite
+                && !(unit != null ? composite.Check(this, owner, currentLevel, unit)
+                                  : composite.Check(this, owner, currentLevel))) return false;
 
             if (!firstAttack) AttackStop();
             OnCommand?.Invoke(issuedByPlayer);
@@ -134,7 +139,13 @@ namespace StrategyCore
             if (abilityTarget) customCheck = ability.Check(this, this.owner, abilityLevel, abilityTarget);
             else if (abilityLocation != Vector3.zero) customCheck = ability.Check(this, this.owner, abilityLevel, abilityLocation);
             else customCheck = ability.Check(this, this.owner, abilityLevel);
-            if (customCheck == false) return;
+            if (!customCheck)
+            {
+                // A late check can fail after the wind-up (for example, an HP cost).
+                // Release the cast state so the unit can accept its next command.
+                if (interrupt && !NetworkConnectionHandler.isClient) Idle();
+                return;
+            }
 
             // If server/offline we generate unique shadow caster ID
             if (!NetworkConnectionHandler.isClient && ability.continuous && !ability.interruptible)
@@ -208,7 +219,7 @@ namespace StrategyCore
             }
 
             // Cooldown
-            if (ability.cooldown.Length > abilityLevel && ability.cooldown[abilityLevel] != 0) ChangeAbilityCooldown(ability.cooldown[abilityLevel], abilityIndex, isItem);
+            if (ability.cooldown.Length > abilityLevel && ability.cooldown[abilityLevel] != 0) ChangeAbilityCooldown(ability.cooldown[abilityLevel] * (isItem ? 1f : SpellCastModifiers.Cooldown(this)), abilityIndex, isItem);
             // Subtract costs
             SubtractAbilityItemCost(owner, abilityIndex, isItem);
             // Item charge decrease

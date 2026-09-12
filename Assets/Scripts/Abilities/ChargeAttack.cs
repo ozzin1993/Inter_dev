@@ -1,4 +1,4 @@
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using UnityEngine;
 
 namespace StrategyCore
@@ -55,6 +55,13 @@ namespace StrategyCore
         [Tooltip("Эффекторы на ЦЕЛЬ удара с разгона. Пусто — только урон и оглушение.")]
         public Effector[] targetEffectorsOnImpact;
 
+        [Header("Приоритет и визуал разгона")]
+        [Tooltip("Сначала искать эти роли; пусто — ближайшая подходящая цель.")]
+        public Unit.UnitCategory[] preferredCategories;
+        public Effector chargePresentation;
+        public CompositeSkill impactPresentation;
+        public CompositeSkill stunPresentation;
+
         // ---- состояние по юниту (SO один на всех носителей) ----
         class ChargeState
         {
@@ -62,6 +69,7 @@ namespace StrategyCore
             public float timeLeft;
             public float cooldownLeft;
             public float appliedSpeedBonus;
+            public Unit target;
             public int level;
         }
 
@@ -159,7 +167,7 @@ namespace StrategyCore
                 if (st.active)
                 {
                     st.timeLeft -= dt;
-                    if (st.timeLeft <= 0f)
+                    if (st.timeLeft <= 0f || !st.target || st.target.dead || u.stunned)
                     {
                         // Разгон сорван (цель не достигнута) — уходим в откат, иначе юнит
                         // разгонялся бы каждый тик и перебивал приказы игрока
@@ -181,7 +189,7 @@ namespace StrategyCore
 
         void TryStartCharge(Unit unit, ChargeState st)
         {
-            if (!unit.canMove || unit.stunned) return;
+            if (!unit.canMove || !unit.canAttack || unit.stunned) return;
 
             float triggerRange = LevelValue(castRange, st.level, 0f);
             if (triggerRange <= 0f) return;
@@ -192,6 +200,7 @@ namespace StrategyCore
 
             Unit best = null;
             float bestSqr = float.MaxValue;
+            bool bestPreferred=false;
             float minSqr = minChargeDistance * minChargeDistance;
 
             for (int i = 0; i < enemies.Length; i++)
@@ -202,13 +211,17 @@ namespace StrategyCore
                 float sqr = (e.transform.position - unit.transform.position).sqrMagnitude;
                 if (sqr < minSqr) continue; // слишком близко — разгоняться незачем
 
-                if (sqr < bestSqr) { bestSqr = sqr; best = e; }
+                bool preferred=preferredCategories!=null && System.Array.IndexOf(preferredCategories,e.unitCategory)>=0;
+                if(best==null || (preferred&&!bestPreferred) || (preferred==bestPreferred && sqr<bestSqr))
+                {bestSqr=sqr;best=e;bestPreferred=preferred;}
             }
 
             if (best == null) return;
 
             st.active = true;
             st.timeLeft = chargeDuration;
+            st.target=best;
+            if(chargePresentation)Effector.EffectorAdd(unit,chargePresentation,unit,unit.owner);
 
             if (speedBonusPercent != 0f)
             {
@@ -223,6 +236,9 @@ namespace StrategyCore
         {
             st.active = false;
             st.timeLeft = 0f;
+            st.target=null;
+            if(unit&&chargePresentation)for(int i=unit.effectors.Count-1;i>=0;i--)
+                if(unit.effectors[i].effector==chargePresentation)Effector.EffectorRemove(unit,unit.effectors[i]);
 
             if (Mathf.Abs(st.appliedSpeedBonus) > 0.0001f && unit != null)
             {
@@ -236,7 +252,7 @@ namespace StrategyCore
                          DamageType damageType, Unit byUnit, Projectile byProjectile, int byOwner, int level)
         {
             if (NetworkConnectionHandler.isClient) return;
-            if (byUnit == null || targetUnit == null || !directAttack) return;
+            if (byUnit == null || byUnit.dead || targetUnit == null || targetUnit.dead || !directAttack) return;
             if (!states.TryGetValue(byUnit, out ChargeState st) || !st.active) return;
 
             float mult = LevelValue(impactDamageMultiplier, level, 1f);
@@ -247,7 +263,7 @@ namespace StrategyCore
             }
 
             bool stunAllowed = !stunOnlySelectedCategory || targetUnit.unitCategory == stunOnlyCategory;
-            if (impactStunSeconds > 0f && stunAllowed && TechReady(stunRequiredTech, byOwner)) targetUnit.Stun(impactStunSeconds);
+            if (impactStunSeconds > 0f && stunAllowed && TechReady(stunRequiredTech, byOwner)) { targetUnit.Stun(impactStunSeconds); if(targetUnit.stunned&&stunPresentation)EmitSkillFired(byUnit,stunPresentation,level,targetUnit,targetPosition); }
 
             if (targetEffectorsOnImpact != null && targetEffectorsOnImpact.Length > 0)
                 Effector.EffectorAdd(byUnit, targetUnit, targetEffectorsOnImpact);
@@ -255,6 +271,7 @@ namespace StrategyCore
             if (selfEffectorsAfterImpact != null && selfEffectorsAfterImpact.Length > 0 && TechReady(selfBuffRequiredTech, byOwner))
                 Effector.EffectorAdd(byUnit, byUnit, selfEffectorsAfterImpact);
 
+            if(impactPresentation)EmitSkillFired(byUnit,impactPresentation,level,targetUnit,targetPosition);
             StopCharge(byUnit, st);
             st.cooldownLeft = LevelValue(cooldown, level, 0f);
 

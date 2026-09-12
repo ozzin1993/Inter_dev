@@ -1,0 +1,93 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fae4d907023251b4c80d78fe85c1ad3e, type: 3}
+  m_Name: Gurtag_MonolithBlessing
+  m_EditorClassIdentifier: Interflow.Game::StrategyCore.Effector
+  maxStacks: 0
+  healingReduction: 0
+  maximumStackTechnology: {fileID: 0}
+  maximumStackEffects:
+    exactPercentageReductions: 0
+    damageChange: 0
+    damagePercentageChange: 0
+    attackSpeedChange: 0
+    attackSpeedPercentageChange: 0
+    attackRangeChange: 0
+    attackRangePercentageChange: 0
+    armorChange: 0
+    armorPercentageChange: 0
+    moveSpeedChange: 0
+    moveSpeedPercentageChange: 0
+    healthChange: 0
+    healthPercentageChange: 0
+    healthRegenChange: 0
+    healthRegenPercentageChange: 0
+    manaChange: 0
+    manaPercentageChange: 0
+    manaRegenChange: 0
+    manaRegenPercentageChange: 0
+    visionChange: 0
+    xpRewardChange: 0
+    xpRewardPercentageChange: 0
+    attributeChanges: []
+    attributePercentageChange: []
+  deathSpreadTechnology: {fileID: 0}
+  deathSpreadRadius: 0
+  deathSpreadStacks: 0
+  deathSpreadPresentation: {fileID: 0}
+  id: 30
+  displayName: "\u041C\u043E\u043D\u043E\u043B\u0438\u0442: \u0432\u0430\u043C\u043F\u0438\u0440\u0438\u0437\u043C+25%"
+  icon: {fileID: 0}
+  description: 
+  VFX: {fileID: 3751964667274624922, guid: ad9510163db756c45a3ebe727cf59109, type: 3}
+  aboveHead: 0
+  permanent: 0
+  duration: 0.3
+  stacks: 0
+  damageAmount: 0
+  damageType: {fileID: 0}
+  makeInvisible: 0
+  revealInvisible: 0
+  incomingDamageMultiplier: 1
+  incomingDamageType: {fileID: 0}
+  incomingDirectOnly: 0
+  incomingRangedOnly: 0
+  lifestealFraction: 0.25
+  waiveSpellHealthCost: 1
+  freeCostPrefabs:
+  - {fileID: 7981063900339769507, guid: 140470b1679b1754595f313547e8f8b0, type: 3}
+  passiveEffectsOn: 1
+  passiveEffects:
+    exactPercentageReductions: 0
+    damageChange: 0
+    damagePercentageChange: 0
+    attackSpeedChange: 0
+    attackSpeedPercentageChange: 0
+    attackRangeChange: 0
+    attackRangePercentageChange: 0
+    armorChange: 0
+    armorPercentageChange: 0
+    moveSpeedChange: 0
+    moveSpeedPercentageChange: 0
+    healthChange: 0
+    healthPercentageChange: 0
+    healthRegenChange: 0
+    healthRegenPercentageChange: 0
+    manaChange: 0
+    manaPercentageChange: 0
+    manaRegenChange: 0
+    manaRegenPercentageChange: 0
+    visionChange: 0
+    xpRewardChange: 0
+    xpRewardPercentageChange: 0
+    attributeChanges: []
+    attributePercentageChange: []

@@ -5,7 +5,7 @@ namespace StrategyCore
     // Effectors are temporary effects that modify a unit�s parameters, either buffing or nerfing them. They can be applied through attacks or abilities and are commonly used in auras.
     // Effectors appear in the unit�s Status UI and last for a specified duration.
 
-    public class Effector : ScriptableObject
+    public partial class Effector : ScriptableObject
     {
         [EffectorID]
         public int id;
@@ -42,6 +42,16 @@ namespace StrategyCore
         [Tooltip("Carrier of this effector will be revealed by the team that applied the effect")]
         public bool revealInvisible;
 
+        [Header("Incoming damage")]
+        [Tooltip("1 = unchanged; 1.15 = +15% incoming damage. Scales with application power.")]
+        [Min(0)] public float incomingDamageMultiplier = 1f;
+        [Tooltip("Empty: all damage types.")] public DamageType incomingDamageType;
+        public bool incomingDirectOnly;
+        [Tooltip("Только прямые атаки дальнобойных юнитов, без DoT и ближнего боя.")] public bool incomingRangedOnly;
+        [Range(0,1)] public float lifestealFraction;
+        public bool waiveSpellHealthCost;
+        [Tooltip("Пусто — любой носитель; иначе только эти префабы получают освобождение от HP-цены.")] public Unit[] freeCostPrefabs;
+
         [Header("Passive changes")]
         [Tooltip("Turns on passive effects of the effector")]
         public bool passiveEffectsOn = false;
@@ -60,15 +70,19 @@ namespace StrategyCore
         // This function is called by the unit that holds this effector currently
         public static void EffectorUpdate(EffectorHolder EH, Unit unitHolder)
         {
-            // if (unitHolder == null) return; // Means unit was destroyed
+            if (unitHolder == null || unitHolder.dead || EH == null || EH.effector == null) return;
+            EffectorStackState.Changed(unitHolder,EH.effector,true);
+            float dt = GameManager.instance.currentDeltaTime;
+            float damageTime = EH.effector.permanent ? dt : Mathf.Min(dt, Mathf.Max(0f, EH.duration - EH.currentTime));
 
             // Damage
             if (EH.effector.damageAmount != 0)
             {
                 // [Interflow fix 2026-08-02 effector-unify] Урон в секунду масштабируется множителем силы наложения.
-                unitHolder.GetDamage(EH.effector.damageAmount * EH.powerMultiplier * GameManager.instance.currentDeltaTime, EH.effector.damageType, EH.owner, EH.unitOwner, false, out float _);
+                unitHolder.GetDamage(EH.effector.damageAmount * EH.powerMultiplier * damageTime, EH.effector.damageType, EH.owner, EH.unitOwner, false, out float _);
             }
 
+            if(unitHolder.dead)return;
             // If it is a permanent effector, we do not handle removal logic
             if (EH.effector.permanent) return;
 
@@ -76,11 +90,12 @@ namespace StrategyCore
 
             // REMOVAL OF EFFECTOR
             // [Interflow fix 2026-08-02 effector-unify] Длительность берётся у наложения, а не у общего ассета.
-            if (EH.currentTime > EH.duration)
+            if (EH.currentTime >= EH.duration)
             {
                 // Remove the passive effects
                 // Снимаем ТЕМ ЖЕ множителем, каким накладывали, иначе статы юнита уплывут.
                 if (EH.effector.passiveEffectsOn) EH.effector.passiveEffects.RemoveEffect(unitHolder, EH.powerMultiplier);
+            if (EH.incomingRule != null) { InterflowCombat.IncomingRuleRemove(unitHolder, EH.incomingRule); EH.incomingRule = null; }
 
                 // Remove tha effector
                 bool invisibilityAbilityPresent = false;
@@ -92,6 +107,8 @@ namespace StrategyCore
                     {
                         if (EH.effector.VFX != null) unitHolder.RemoveVFX(EH.effector.VFX);
                         unitHolder.effectors.RemoveAt(i);
+                        EffectorCombatBenefits.Refresh(unitHolder);
+                        EffectorStackState.Changed(unitHolder,EH.effector);
                     }
                     else
                     {
@@ -106,7 +123,7 @@ namespace StrategyCore
                 // Remove visibility of the unit
                 if (EH.effector.revealInvisible) unitHolder.CanBeSeen(false, EH.owner);
 
-                if (!EH.stacks) unitHolder.OnStatusUpdate?.Invoke();
+                if (!EH.stacks || EH.effector.maxStacks>0) unitHolder.OnStatusUpdate?.Invoke();
 
                 // [Interflow fix 2026-08-05 unit-status-sync] Эффектор истёк — сообщить клиентам «снят»
                 // (фикс §8.6), но только если на юните не осталось других наложений того же эффектора
@@ -129,7 +146,7 @@ namespace StrategyCore
             // [Interflow fix 2026-08-06 no-effectors-on-buildings] Решение Artsiom: на здания эффекты
             // не вешаются. Заодно закрывает краш ядра: slow-эффектор звал ChangeMoveSpeed, а у зданий
             // нет NavMeshAgent — EffectorAdd обрывался исключением на полпути (воспроизведено 2026-08-06).
-            if (unit.unitType == UnitType.Building) return;
+            if (unit == null || unit.dead || effector == null || unit.unitType == UnitType.Building) return;
 
             // [Interflow fix 2026-08-02 effector-unify]
             // Раньше здесь правились поля САМОГО ассета (общего для всех носителей): наложение на одного юнита
@@ -167,14 +184,27 @@ namespace StrategyCore
                 }
             }
 
+            if(stacks && effector.maxStacks>0) {
+                int count=0;EffectorHolder latest=null;
+                foreach(var holder in unit.effectors)if(holder.effector==effector){count++;holder.currentTime=0;latest=holder;}
+                if(count>=effector.maxStacks){if(latest!=null){latest.unitOwner=unitOwner;latest.owner=owner;}EffectorStackState.Changed(unit,effector);if(NetworkDataSync.instance)NetworkDataSync.instance.UnitStatusEffectorSend(unit,effector.id,duration);return;}
+            }
+
             // Add new effector to the unit
             EffectorHolder newEH = new EffectorHolder(effector, unitOwner, owner, duration, stacks, powerMultiplier);
             newEH.currentTime = currentTime;
             unit.effectors.Add(newEH);
+            if(effector.lifestealFraction>0||effector.waiveSpellHealthCost)EffectorCombatBenefits.Refresh(unit);
+            EffectorStackState.Changed(unit,effector);
             if (newEH.effector.VFX != null) unit.AddVFX(newEH.effector.VFX, newEH.effector.aboveHead);
 
             // Add passive effects
             if (newEH.effector.passiveEffectsOn) newEH.effector.passiveEffects.AddEffect(unit, powerMultiplier);
+
+            if (!Mathf.Approximately(effector.incomingDamageMultiplier, 1f))
+                newEH.incomingRule = InterflowCombat.IncomingRuleAdd(unit, new InterflowCombat.IncomingRule {
+                    multiplier = Mathf.Max(0f, 1f + (effector.incomingDamageMultiplier - 1f) * powerMultiplier),
+                    onlyType = effector.incomingDamageType, onlyDirectAttack = effector.incomingDirectOnly, onlyRangedAttack=effector.incomingRangedOnly });
 
             // Make Invisible
             if (newEH.effector.makeInvisible) unit.SetInvisibility(true);
@@ -183,7 +213,7 @@ namespace StrategyCore
             // Should be applied only by the current player`s team
             if (newEH.effector.revealInvisible) unit.CanBeSeen(true, owner);
 
-            if (!newEH.stacks) unit.OnStatusUpdate?.Invoke();
+            if (!newEH.stacks || effector.maxStacks>0) unit.OnStatusUpdate?.Invoke();
 
             // [Interflow fix 2026-08-05 unit-status-sync] Единый канал статусов: отправка «эффектор
             // появился» из ОДНОЙ точки — покрывает атаки, ауры и скиллы одинаково (решение Artsiom
@@ -214,9 +244,11 @@ namespace StrategyCore
         // Removes specified effector from a unit
         public static void EffectorRemove(Unit unitHolder, EffectorHolder EH)
         {
+            if (unitHolder == null || EH == null || !unitHolder.effectors.Contains(EH)) return;
             // Remove the passive effects
             // [Interflow fix 2026-08-02 effector-unify] Снимаем тем же множителем, каким накладывали.
             if (EH.effector.passiveEffectsOn) EH.effector.passiveEffects.RemoveEffect(unitHolder, EH.powerMultiplier);
+            if (EH.incomingRule != null) { InterflowCombat.IncomingRuleRemove(unitHolder, EH.incomingRule); EH.incomingRule = null; }
 
             // Remove tha effector
             bool invisibilityAbilityPresent = false;
@@ -228,6 +260,8 @@ namespace StrategyCore
                 {
                     if (EH.effector.VFX != null) unitHolder.RemoveVFX(EH.effector.VFX);
                     unitHolder.effectors.RemoveAt(i);
+                        EffectorCombatBenefits.Refresh(unitHolder);
+                        EffectorStackState.Changed(unitHolder,EH.effector);
                 }
                 else
                 {
@@ -242,7 +276,7 @@ namespace StrategyCore
             // Remove visibility of the unit
             if (EH.effector.revealInvisible) unitHolder.CanBeSeen(false, EH.owner);
 
-            if (!EH.stacks) unitHolder.OnStatusUpdate?.Invoke();
+            if (!EH.stacks || EH.effector.maxStacks>0) unitHolder.OnStatusUpdate?.Invoke();
 
             // [Interflow fix 2026-08-05 unit-status-sync] Досрочное снятие (диспел) — сообщить клиентам
             // «снят» (фикс §8.6: раньше досрочное снятие и permanent-эффекторы висели у клиента вечно).

@@ -10,6 +10,8 @@ GameObject:
   m_Component:
   - component: {fileID: 6377506946288334658}
   - component: {fileID: 4956746033797629416}
+  - component: {fileID: 2892922331030911694}
+  - component: {fileID: 5605773310799376453}
   m_Layer: 0
   m_Name: OrcWarlock
   m_TagString: Untagged
@@ -45,8 +47,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b166e7a81d9bcf940a22cc4c185f0e45, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Interflow.Game::StrategyCore.Unit
-  abilities: []
-  abilityLevel: 
+  abilities:
+  - {fileID: 11400000, guid: 5f1018865d8c39244af4ef68e90efc71, type: 2}
+  - {fileID: 11400000, guid: a85e239de5ee5ca4c8d00b9bf4c5f17f, type: 2}
+  abilityLevel: 0000000000000000
   abilityLocked: 
   everyFrameAbilities: []
   everyFrameAbilityIndex: 
@@ -265,6 +269,39 @@ MonoBehaviour:
   removeFromPosSync: 0
   spawned: 0
   initialized: 0
+--- !u!114 &2892922331030911694
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3681492924040138259}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: eeacf01fdd4e6784fbaffd8a2682fac0, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Interflow.Game::StrategyCore.AutoAbilityUser
+  autoAbilities:
+  - {fileID: 11400000, guid: a85e239de5ee5ca4c8d00b9bf4c5f17f, type: 2}
+--- !u!114 &5605773310799376453
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3681492924040138259}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 97c556a459149c04e816a5fa8f19c12e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Interflow.Game::StrategyCore.CharacterSockets
+  rightHand: {fileID: 6179338831683673710}
+  leftHand: {fileID: 0}
+  weapon: {fileID: 0}
+  chest: {fileID: 0}
+  center: {fileID: 0}
+  head: {fileID: 0}
+  ground: {fileID: 0}
 --- !u!1001 &1990852465635970843
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -277,6 +314,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: OrcWarlock_Model
       objectReference: {fileID: 0}
+    - target: {fileID: 4121514567084981103, guid: 340521233e60f7e4fb0761c02958a7d7, type: 3}
+      propertyPath: m_Controller
+      value: 
+      objectReference: {fileID: 9100000, guid: 33e76760a24f8bd4c95d8a49644042ae, type: 2}
     - target: {fileID: 5948918424560703284, guid: 340521233e60f7e4fb0761c02958a7d7, type: 3}
       propertyPath: m_LocalPosition.x
       value: 0
@@ -325,6 +366,11 @@ PrefabInstance:
 --- !u!4 &5273187454638544943 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 5948918424560703284, guid: 340521233e60f7e4fb0761c02958a7d7, type: 3}
+  m_PrefabInstance: {fileID: 1990852465635970843}
+  m_PrefabAsset: {fileID: 0}
+--- !u!4 &6179338831683673710 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 5647942920351322485, guid: 340521233e60f7e4fb0761c02958a7d7, type: 3}
   m_PrefabInstance: {fileID: 1990852465635970843}
   m_PrefabAsset: {fileID: 0}
 --- !u!4 &8522385134067597964 stripped

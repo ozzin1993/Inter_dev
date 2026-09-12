@@ -63,6 +63,7 @@ namespace StrategyCore
 
         [Tooltip("Кому достаётся этот урон. Позволяет в одном скилле бить врагов сильно, а своих слабо.")]
         public SkillDamageTargets targets = SkillDamageTargets.Enemies;
+        [Tooltip("Допустимые префабы для этой порции урона. Пусто — все выбранные цели.")] public Unit[] targetPrefabs;
     }
 
     /// <summary>2. Разовый урон целям.</summary>
@@ -100,6 +101,7 @@ namespace StrategyCore
     [Serializable]
     public class SkillEffectorRecord
     {
+        [Tooltip("Необязательная технология, открывающая именно эту запись эффектора.")] public Technology requiredTechnology;
         [Tooltip("Ассет эффектора: ЧТО он делает — какие статы меняет, урон в секунду, VFX, иконку, стакинг.")]
         public Effector effector;
 
@@ -136,6 +138,7 @@ namespace StrategyCore
     [Serializable]
     public class SkillHealBlock
     {
+        [Tooltip("Дополнительное лечение самому кастеру, по уровням.")] public float[] extraSelf;
         [Tooltip("Включить блок: скилл мгновенно лечит цели.")]
         public bool enabled;
 
@@ -151,6 +154,9 @@ namespace StrategyCore
     [Serializable]
     public class SkillBuffBlock
     {
+        [Tooltip("Запретить движение, обычные атаки и новые CompositeSkill на время бафа.")] public bool brace;
+        [Tooltip("Накапливать фактическую потерю HP, включая союзные жертвы, и взорвать в конце. При смерти отменяется.")] public bool storeHealthLoss;
+        public float storedDamageMultiplier=1;
         [Tooltip("Включить блок: на цели вешается длящийся баф (компонент SkillBuff).")]
         public bool enabled;
 
@@ -197,6 +203,16 @@ namespace StrategyCore
         [Header("Детонация при смерти носителя")]
         [Tooltip("Взорвать носителя, если он погиб под бафом. Срабатывает один раз.")]
         public bool detonateOnDeath;
+        [Tooltip("Визуальное подтверждение детонации при смерти носителя.")] public CompositeSkill detonationPresentation;
+        [Header("Награда кастеру при гибели носителя")]
+        public bool rewardCasterOnDeath;
+        [Tooltip("Пусто — награда доступна без технологии.")]
+        public Technology deathRewardTechnology;
+        [Tooltip("Доля максимального здоровья кастера, 0.5 = 50%.")]
+        public float[] deathRewardHealFraction;
+        public bool deathRewardResetCooldown;
+        [Tooltip("Визуальное подтверждение награды на кастере.")]
+        public CompositeSkill deathRewardPresentation;
 
         [Tooltip("Радиус взрыва, по уровням.")]
         public float[] detonationRadius;
@@ -215,6 +231,8 @@ namespace StrategyCore
     [Serializable]
     public class SkillShieldBlock
     {
+        [Tooltip("Значок и VFX, которые снимаются вместе со щитом, включая его пробитие.")]
+        public Effector visualEffector;
         [Tooltip("Включить блок: цели получают поглощающий щит.")]
         public bool enabled;
 
@@ -474,23 +492,30 @@ namespace StrategyCore
                     float baseDamageToTarget = skipProjectileCarried
                         ? 0f
                         : ApplyDamage(castingUnit, castingPlayer, level, t, origin);
-                    if (t.dead) continue; // погиб от этого же урона — дальше по нему не работаем
+                    if (t.dead) { if(secondary!=null&&secondary.applyWhenPrimaryDies) ApplySecondary(castingPlayer,level,t,baseDamageToTarget,castingUnit); continue; }
 
                     ApplyDrain(castingUnit, level, t);
                     if (t.dead) continue; // высасывание добило — дальше по нему не работаем
 
+                    ApplyDisruption(castingUnit,t,level);
+                    if(t.dead)continue;
+                    ApplyLinePull(castingUnit,t);
+                    ApplyKnockback(t,origin,castingUnit);
                     ApplyStatus(level, t, skipProjectileCarried);
-                    ApplyEffectors(castingPlayer, level, t); // эффекторы снарядом не переносятся — вешаем сами
-                    ApplyHeal(level, t);
+                    ApplyEffectors(castingPlayer, level, t,castingUnit); // эффекторы снарядом не переносятся — вешаем сами
+                    ApplyHeal(level, t,castingUnit);
                     ApplyMana(level, t);
                     ApplyBuff(castingUnit, level, t);
                     ApplyShield(castingPlayer, level, t);
                     ApplyBlind(level, t);
-                    ApplyMorph(level, t);
+                    if(morph==null||!morph.applyToCaster)ApplyMorph(level, t);
                     ApplyOwnership(castingUnit, t);          // после всех эффектов: меняет сторону цели
-                    ApplySecondary(castingPlayer, level, t, baseDamageToTarget); // своя выборка вокруг этой цели
+                    ApplySecondary(castingPlayer, level, t, baseDamageToTarget,castingUnit); // своя выборка вокруг этой цели
                 }
             }
+
+            if(morph!=null&&morph.applyToCaster)ApplyMorph(level,castingUnit);
+            if(damageLink!=null&&damageLink.enabled&&targets!=null)DamageLinkGroup.Create(this,castingUnit,castingPlayer,targets,SpellCastModifiers.Power(castingUnit));
 
             // ---------- 15. Призыв ----------
             if (summon != null && summon.enabled) ApplySummon(castingUnit, castingPlayer, level);
@@ -523,8 +548,9 @@ namespace StrategyCore
                 SkillDamageEntry entry = damage.entries[e];
                 if (entry == null || entry.damageType == null) continue;
                 if (target.dead) return dealt;
+                if(entry.targetPrefabs!=null&&entry.targetPrefabs.Length>0){bool allowed=false;foreach(var p in entry.targetPrefabs)if(p&&p.unitTypeID==target.unitTypeID){allowed=true;break;}if(!allowed)continue;}
 
-                float amount = LevelValue(entry.amount, level);
+                float amount = LevelValue(entry.amount, level) * SpellCastModifiers.Power(castingUnit);
                 if (amount <= 0f) continue;
 
                 // Кого именно задевает ЭТА запись — решает штатный предикат селектора,
@@ -579,24 +605,24 @@ namespace StrategyCore
         // ------------------------------------------------------------- 4. ЭФФЕКТОРЫ --
         // Ассет эффектора говорит ЧТО происходит, умение — СКОЛЬКО и КАК ДОЛГО (ADR-006 §5.2).
         // Здесь же вешается эффектор-значок состояния: он тоже эффектор, только своих чисел не имеет.
-        void ApplyEffectors(int castingPlayer, int level, Unit target)
+        void ApplyEffectors(int castingPlayer, int level, Unit target,Unit source)
         {
             if (effectors != null && effectors.enabled && effectors.records != null)
             {
                 for (int i = 0; i < effectors.records.Length; i++)
                 {
                     SkillEffectorRecord r = effectors.records[i];
-                    if (r == null || r.effector == null) continue;
+                    if (r == null || r.effector == null || !OptionalTechUnlocked(r.requiredTechnology,castingPlayer)) continue;
 
                     // unitOwner = null: тот же владелец, что был у прежнего массивного вызова
                     // Effector.EffectorAdd(castingPlayer, target, set) — поведение не меняется.
-                    Effector.EffectorAdd(target, r.effector, null, castingPlayer, 0f,
+                    Effector.EffectorAdd(target, r.effector, source, castingPlayer, 0f,
                                          RecordPower(r, level), RecordDuration(r, level));
                 }
             }
 
             if (statusEffector != null)
-                Effector.EffectorAdd(target, statusEffector, null, castingPlayer);
+                Effector.EffectorAdd(target, statusEffector, source, castingPlayer);
         }
 
         /// <summary>Множитель силы записи на уровне. Пусто или 0 — как в ассете (множитель 1).</summary>
@@ -618,11 +644,12 @@ namespace StrategyCore
         }
 
         // ---------------------------------------------------------------- 5. ЛЕЧЕНИЕ --
-        void ApplyHeal(int level, Unit target)
+        void ApplyHeal(int level, Unit target,Unit caster)
         {
             if (heal == null || !heal.enabled) return;
 
             float amount = LevelValue(heal.flat, level);
+            if(target==caster)amount+=LevelValue(heal.extraSelf,level);
             float percent = LevelValue(heal.percentOfMaxHp, level);
             if (percent > 0f) amount += percent / 100f * target.maxHealth; // проценты целым числом: 25 = 25%
 
@@ -675,7 +702,7 @@ namespace StrategyCore
                                    && incomingMultiplier > 0f
                                    && duration > 0f;
 
-            if (!hasReaction && !hasRetaliation && !hasIncomingRule)
+            if (!hasReaction && !hasRetaliation && !hasIncomingRule && shield.visualEffector == null)
             {
                 AbsorbShield.Apply(target, amount, duration);
                 return;
@@ -711,7 +738,7 @@ namespace StrategyCore
                 }
             };
 
-            if (!hasRetaliation && !hasIncomingRule)
+            if (!hasRetaliation && !hasIncomingRule && shield.visualEffector == null)
             {
                 AbsorbShield.Apply(target, amount, duration, onDepleted);
                 return;
@@ -721,15 +748,22 @@ namespace StrategyCore
             // (любая причина снятия). ПОРЯДОК КАК В ShieldAlly: сначала щит, потом подписка — перекаст
             // поверх живого щита дёргает прежний onEnded, и тот снёс бы только что поставленную подписку.
             InterflowCombat.DamagedHandler retaliation = null;
+            EffectorHolder shieldVisual = null;
             Action<Unit> onEnded = carrier =>
             {
                 if (carrier == null) return;
 
+                if (shieldVisual != null) Effector.EffectorRemove(carrier, shieldVisual);
                 if (retaliation != null) InterflowCombat.DamagedListenerRemove(carrier, retaliation);
                 if (hasIncomingRule) IncomingDamageModifier.RemoveRule(carrier, incomingMultiplier);
             };
 
             AbsorbShield.Apply(target, amount, duration, onDepleted, onEnded);
+            if (shield.visualEffector != null)
+            {
+                Effector.EffectorAdd(target, shield.visualEffector, null, castingPlayer, durationOverride: duration);
+                shieldVisual = target.effectors.Find(e => e.effector == shield.visualEffector);
+            }
 
             if (hasRetaliation)
             {
@@ -825,7 +859,7 @@ namespace StrategyCore
 
             Vector3 center = origin;
             if (castingUnit != null && groundZone.forwardOffset != 0f)
-                center += castingUnit.transform.forward * groundZone.forwardOffset;
+                center += castingUnit.LookDirection * groundZone.forwardOffset;
 
             for (int i = 0; i < groundZone.zoneCount; i++)
             {

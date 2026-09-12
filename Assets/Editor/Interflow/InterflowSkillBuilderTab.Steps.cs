@@ -87,6 +87,7 @@ namespace StrategyCore
             box.Add(AimExplanation());
 
             AddField(box, so, "trigger");
+            AddField(box, so, "castConditions");
             AddField(box, so, "targetMode");
             AddField(box, so, "buttonCast");
 
@@ -103,9 +104,10 @@ namespace StrategyCore
 
             // Направление показываем всегда: от него зависит доворот кастера, а не только конус.
             AddField(box, so, "directionMatters");
+            AddField(box,so,"line");
 
             // Два селектора умения идут рядом: принадлежность (unitSelector) и боевые роли (targetCategories).
-            foreach (var f in new[] { "unitSelector", "targetCategories", "maxTargets", "multiPick",
+            foreach (var f in new[] { "unitSelector", "targetCategories", "targetPrefabs", "targetFrontAngle", "independentAreaTargets", "areaSelector", "maxTargets", "multiPick",
                                       "includeSelf", "radius", "castRange" })
                 AddField(box, so, f);
 
@@ -118,9 +120,10 @@ namespace StrategyCore
             if (selected.delivery == SkillDelivery.Projectile)
             {
                 AddField(box, so, "projectilePrefab");
+            AddField(box, so, "projectileDirectAttack");
                 AddField(box, so, "projectileFollowsTarget");
                 box.Add(Hint("Штатный снаряд несёт только урон и оглушение. Всё остальное срабатывает в момент каста, " +
-                             "а не при попадании."));
+                             "Для эффектов при прилёте используйте отдельный блок «При попадании снаряда»."));
             }
 
             box.Bind(so);
@@ -183,6 +186,11 @@ namespace StrategyCore
                     break;
             }
 
+            if (selected.line != null && selected.line.enabled)
+            {
+                what = "Заденет врагов по полосе " + selected.line.length + " × " + selected.line.width + " м перед кастером; селектор и фильтры действуют на всю полосу.";
+                unused = "угол конуса; радиус не задаёт форму попадания";
+            }
             if (!selected.PicksTargetByStrategy) unused = "стратегия выбора цели, " + unused;
             if (selected.delivery != SkillDelivery.Projectile) unused += ", настройки снаряда";
 
@@ -402,12 +410,12 @@ namespace StrategyCore
                 }
             if (selected.heal != null && selected.heal.enabled)
                 lines.Add($"лечение {InterflowAbility.LevelValue(selected.heal.flat, l)} " +
-                          $"(+{InterflowAbility.LevelValue(selected.heal.percentOfMaxHp, l)} % от макс. ХП)");
+                          $"(+{100f * InterflowAbility.LevelValue(selected.heal.percentOfMaxHp, l)} % от макс. ХП)");
             if (selected.buff != null && selected.buff.enabled)
                 lines.Add($"баф {InterflowAbility.LevelValue(selected.buff.duration, l)} с");
             if (selected.shield != null && selected.shield.enabled)
                 lines.Add($"щит {InterflowAbility.LevelValue(selected.shield.flat, l)} " +
-                          $"на {InterflowAbility.LevelValue(selected.shield.duration, l)} с");
+                          $"(+{100f * InterflowAbility.LevelValue(selected.shield.percentOfMaxHp, l)}% макс. ХП) на {InterflowAbility.LevelValue(selected.shield.duration, l)} с");
 
             box.Add(new Label(string.Join("   ·   ", lines)) { style = { whiteSpace = WhiteSpace.Normal } });
             box.Add(Hint("Массивы по уровням короче нужного клампятся к последнему элементу — значение выше " +

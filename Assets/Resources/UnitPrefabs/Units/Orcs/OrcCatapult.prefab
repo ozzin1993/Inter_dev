@@ -76,8 +76,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b166e7a81d9bcf940a22cc4c185f0e45, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Interflow.Game::StrategyCore.Unit
-  abilities: []
-  abilityLevel: 
+  abilities:
+  - {fileID: 11400000, guid: f24d7a3e4250286459b788c79f1da98a, type: 2}
+  - {fileID: 11400000, guid: 14f223603e786c64f834918f7f77be5b, type: 2}
+  abilityLevel: 0000000000000000
   abilityLocked: 
   everyFrameAbilities: []
   everyFrameAbilityIndex: 
@@ -99,6 +101,8 @@ MonoBehaviour:
   canCast: 0
   unitCategory: 2
   targetPriority: 
+  preferAttackClusters: 1
+  attackClusterRadius: 2
   respondsToAttackCommand: 1
   respondsToDefenceCommand: 1
   leavesGrave: 0
@@ -186,13 +190,13 @@ MonoBehaviour:
   splashUnitSelector:
     isOwn: 0
     isAlly: 0
-    isEnemy: 0
-    isUnit: 0
-    isBuilding: 0
+    isEnemy: 1
+    isUnit: 1
+    isBuilding: 1
     isStaticDestructible: 0
     isTree: 0
-    isGround: 0
-    isWater: 0
+    isGround: 1
+    isWater: 1
     isAir: 0
     includeInvisible: 0
     includeInvulnerable: 0
@@ -203,7 +207,7 @@ MonoBehaviour:
   attackDamage: 35
   attackSpeed: 1
   attackEffectors: []
-  projectileGO: {fileID: 2635973562696908253, guid: b88bdc0c3352c0941aac2c40ca0bdf56, type: 3}
+  projectileGO: {fileID: 2635973562696908253, guid: 3dd5d0ff78110254885d05f63e9e604c, type: 3}
   projectileVFX: {fileID: 0}
   attackVFXLine: {fileID: 0}
   attackSoundRef: {fileID: 0}
@@ -220,10 +224,10 @@ MonoBehaviour:
   periodicSequential: 1
   periodicAttackDelay: 0
   periodicAttackCount: 0
-  isSplash: 0
-  splashRadius: 0
+  isSplash: 1
+  splashRadius: 2
   splashReduction: 1
-  projectileFollowTarget: 1
+  projectileFollowTarget: 0
   multiTarget: 0
   multiTargetCount: 0
   additionalTargets: []

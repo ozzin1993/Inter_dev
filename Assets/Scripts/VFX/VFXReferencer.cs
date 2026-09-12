@@ -9,6 +9,7 @@ namespace StrategyCore
     public class VFXReferencer : MonoBehaviour
     {
         [HideInInspector] public int id;
+        [System.NonSerialized] internal VFXReferencer sourcePrefab;
 
         [Tooltip("If this VFX element is using line renderer or line particle system for continuous ability, add VFXLine component and assign this variable")]
         public VFXLine vfxLine;

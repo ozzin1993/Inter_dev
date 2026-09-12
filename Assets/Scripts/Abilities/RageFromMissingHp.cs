@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -11,6 +11,9 @@ namespace StrategyCore
     public class RageFromMissingHp : InterflowAbility
     {
         public override AbilityType type => AbilityType.Passive;
+        [Range(0,1),Tooltip("0 — плавно; 0.1 — ступень за каждые 10% потерянного здоровья.")] public float missingHpStep;
+        public Effector ragePresentation;
+        [Range(0,1)] public float presentationMissingHpThreshold=.1f;
 
         [Header("Ярость от нехватки ХП (B5)")]
         [Tooltip("Кривая: доля НЕДОСТАЮЩЕГО ХП (0..1) → множитель урона (1 = без бонуса). [БАЛАНС — Влад]")]
@@ -70,6 +73,7 @@ namespace StrategyCore
                 if (c.Ability == this && c.Level == level) { unit.OnDamageDealModifyCallbacks.RemoveAt(i); break; }
             }
 
+            RemovePresentation(unit);
             // Снять подписку OnHPChange + вернуть СВОЙ вклад брони (как было).
             if (hpHandlers.TryGetValue(unit, out Action h))
             {
@@ -90,11 +94,14 @@ namespace StrategyCore
             }
         }
 
+        float QuantizeMissing(float value) => missingHpStep>0?Mathf.Floor((value+.00001f)/missingHpStep)*missingHpStep:value;
+        void RemovePresentation(Unit unit){if(!ragePresentation)return;for(int i=unit.effectors.Count-1;i>=0;i--)if(unit.effectors[i].effector==ragePresentation)Effector.EffectorRemove(unit,unit.effectors[i]);}
+
         // Множитель урона от нехватки ХП (детерминирован от HP, читается вживую → без состояния).
         float DamageApply(Unit unit, int level, float dmg, bool directAttack)
         {
             if (unit == null || unit.maxHealth <= 0f) return dmg;
-            float missing = Mathf.Clamp01(1f - unit.health / unit.maxHealth);
+            float missing = QuantizeMissing(Mathf.Clamp01(1f - unit.health / unit.maxHealth));
             float mult = damageByMissingHp != null ? damageByMissingHp.Evaluate(missing) : 1f;
             if (lowHpThreshold > 0f && belowThresholdDamageMult != 1f && (unit.health / unit.maxHealth) < lowHpThreshold)
                 mult *= belowThresholdDamageMult;
@@ -108,7 +115,8 @@ namespace StrategyCore
             if (NetworkConnectionHandler.isClient) return;
             if (unit == null) return;
 
-            float missing = unit.maxHealth > 0f ? Mathf.Clamp01(1f - unit.health / unit.maxHealth) : 0f;
+            float missing = QuantizeMissing(unit.maxHealth > 0f ? Mathf.Clamp01(1f - unit.health / unit.maxHealth) : 0f);
+            if(ragePresentation){if(unit.health>0&&!unit.dead&&missing>=presentationMissingHpThreshold)Effector.EffectorAdd(unit,ragePresentation,unit,unit.owner);else RemovePresentation(unit);}
 
             if (InterflowDebug.VerboseOn)
                 InterflowDebug.Verbose("ЯРОСТЬ пересчёт у " + InterflowDebug.Name(unit) + ": потеряно " +

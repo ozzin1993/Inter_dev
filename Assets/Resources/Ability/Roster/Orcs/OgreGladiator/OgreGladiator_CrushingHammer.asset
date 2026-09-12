@@ -1,0 +1,210 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7e4e62b425a51ad40a0252b2c65f29c4, type: 3}
+  m_Name: OgreGladiator_CrushingHammer
+  m_EditorClassIdentifier: Interflow.Game::StrategyCore.CompositePassive
+  id: 68
+  abilityName:
+  - "\u0421\u043E\u043A\u0440\u0443\u0448\u0430\u044E\u0449\u0438\u0439 \u041C\u043E\u043B\u043E\u0442"
+  description:
+  - "\u041D\u0438\u0436\u0435 50% \u0437\u0434\u043E\u0440\u043E\u0432\u044C\u044F
+    \u043A\u0430\u0436\u0434\u0430\u044F \u0430\u0442\u0430\u043A\u0430 \u043D\u0430\u043D\u043E\u0441\u0438\u0442
+    30% \u0443\u0440\u043E\u043D\u0430 \u0441\u043E\u0441\u0435\u0434\u043D\u0438\u043C
+    \u043F\u0440\u043E\u0442\u0438\u0432\u043D\u0438\u043A\u0430\u043C \u0432\u043E\u043A\u0440\u0443\u0433
+    \u041E\u0433\u0440\u0430. \u0420\u0430\u0434\u0438\u0443\u0441 \u0434\u043B\u044F
+    \u0430\u043B\u044C\u0444\u044B: 2 \u043C."
+  icon:
+  - {fileID: 2800000, guid: 36a6ed4555364a0498f40da4e6e2d277, type: 3}
+  slotNumber: -1
+  isItem: 0
+  useUponPickUp: 0
+  dropOnDeath: 0
+  charges: 0
+  maxLevels: 1
+  heroLevelable: 0
+  cooldown:
+  - 0
+  castRange:
+  - 0
+  castTime:
+  - 0
+  radius:
+  - 0
+  showRadiusCircle: 0
+  unitSelector:
+    isOwn: 0
+    isAlly: 0
+    isEnemy: 0
+    isUnit: 0
+    isBuilding: 0
+    isStaticDestructible: 0
+    isTree: 0
+    isGround: 0
+    isWater: 0
+    isAir: 0
+    includeInvisible: 0
+    includeInvulnerable: 0
+  dontTurn: 0
+  continuous: 0
+  interruptible: 0
+  requiresCastingUnit: 1
+  duration: []
+  requiredTech:
+  - data:
+    - {fileID: 11400000, guid: 120d00a322d48874984d83a4d75e7903, type: 2}
+  requiredLevel: 
+  manaCost: []
+  manaCostPerSecond: []
+  cost: []
+  stats:
+    enabled: 0
+    effects:
+      exactPercentageReductions: 0
+      damageChange: 0
+      damagePercentageChange: 0
+      attackSpeedChange: 0
+      attackSpeedPercentageChange: 0
+      attackRangeChange: 0
+      attackRangePercentageChange: 0
+      armorChange: 0
+      armorPercentageChange: 0
+      moveSpeedChange: 0
+      moveSpeedPercentageChange: 0
+      healthChange: 0
+      healthPercentageChange: 0
+      healthRegenChange: 0
+      healthRegenPercentageChange: 0
+      manaChange: 0
+      manaPercentageChange: 0
+      manaRegenChange: 0
+      manaRegenPercentageChange: 0
+      visionChange: 0
+      xpRewardChange: 0
+      xpRewardPercentageChange: 0
+      attributeChanges: []
+      attributePercentageChange: []
+  controlImmunity:
+    casterHpBelow: 0
+    presentation: {fileID: 0}
+    enabled: 0
+  slowImmunity:
+    casterHpBelow: 0
+    enabled: 0
+    alsoRemoveAttackSlow: 0
+  invisibility:
+    enabled: 0
+  armorPierce:
+    enabled: 0
+    fraction:
+    - 0.2
+  splash:
+    enabled: 0
+    radiusPercentChange: 0.4
+    radiusFlatChange: 0
+    newSplashReduction: -1
+    enableSplashIfDisabled: 0
+  attackEffectors:
+    enabled: 0
+    effectors: []
+  aura:
+    enabled: 0
+    condition: 0
+    damagePerSecond: 0
+    damageType: {fileID: 0}
+    effectors: []
+    onlyMeleeUnits: 0
+    movementEpsilon: 0.02
+    missingHpFrom: 0.25
+    includeSelf: 0
+  defense:
+    enabled: 0
+    damageType: {fileID: 0}
+    additionalDamageTypes: []
+    onlyDirectAttack: 1
+    frontArc: 360
+    chance: 1
+    incomingMultiplier: 0.8
+    counterAttackFraction: 0
+    presentation: {fileID: 0}
+  deathEffect:
+    enabled: 0
+    radius: 3
+    enemyDamage: 0
+    damageType: {fileID: 0}
+    enemySelector:
+      isOwn: 0
+      isAlly: 0
+      isEnemy: 1
+      isUnit: 1
+      isBuilding: 0
+      isStaticDestructible: 0
+      isTree: 0
+      isGround: 1
+      isWater: 1
+      isAir: 1
+      includeInvisible: 1
+      includeInvulnerable: 0
+    allyHeal: 0
+    allyHealMaxHpFraction: 0
+    nearestAllyOnly: 1
+    allySearchRadius: 0
+    allySelector:
+      isOwn: 1
+      isAlly: 1
+      isEnemy: 0
+      isUnit: 1
+      isBuilding: 0
+      isStaticDestructible: 0
+      isTree: 0
+      isGround: 1
+      isWater: 1
+      isAir: 1
+      includeInvisible: 1
+      includeInvulnerable: 1
+    deathPresentation: {fileID: 0}
+    healPresentation: {fileID: 0}
+  killEffect:
+    enabled: 0
+    healMaxHpFraction: 0
+    damageFractionPerKill: 0
+    presentation: {fileID: 0}
+  damageReaction:
+    enabled: 0
+    damageTypes: []
+    onlyDirectAttack: 0
+    cooldown: 0
+    healMaxHpFraction: 0
+    presentation: {fileID: 0}
+  cleave:
+    enabled: 1
+    centerOnCaster: 1
+    radius: 2
+    damageFraction: 0.3
+    casterHpBelow: 0.5
+    targets:
+      isOwn: 0
+      isAlly: 0
+      isEnemy: 1
+      isUnit: 1
+      isBuilding: 0
+      isStaticDestructible: 0
+      isTree: 0
+      isGround: 1
+      isWater: 1
+      isAir: 0
+      includeInvisible: 0
+      includeInvulnerable: 0
+    upgradeTechnology: {fileID: 0}
+    upgradedRadius: 2
+    upgradedDamageFraction: 0.6
+    hitPresentation: {fileID: 11400000, guid: 55e9d5666a68c1c4988f42b0282a0cbd, type: 2}
+  attackPresentation: {fileID: 0}

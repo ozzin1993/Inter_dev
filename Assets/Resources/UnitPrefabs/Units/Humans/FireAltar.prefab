@@ -42,6 +42,7 @@ GameObject:
   - component: {fileID: 9059221817468524375}
   - component: {fileID: 1936979029478643860}
   - component: {fileID: 2114926653383545354}
+  - component: {fileID: 8636214214585389548}
   m_Layer: 0
   m_Name: FireAltar
   m_TagString: Untagged
@@ -80,7 +81,9 @@ MonoBehaviour:
   abilities:
   - {fileID: 11400000, guid: 11ff0a22942c7cb4ebb23f0d4937c93e, type: 2}
   - {fileID: 11400000, guid: f7f43490b7ea247498427398747641b8, type: 2}
-  abilityLevel: 0000000000000000
+  - {fileID: 11400000, guid: 5c5ea175763139c4ba034cf046e23500, type: 2}
+  - {fileID: 11400000, guid: 88a6f3dd564f5554abc4ddd1dd03319a, type: 2}
+  abilityLevel: 00000000000000000000000000000000
   abilityLocked: 
   everyFrameAbilities: []
   everyFrameAbilityIndex: 
@@ -325,6 +328,20 @@ NavMeshAgent:
   m_BaseOffset: 0
   m_WalkableMask: 4294967295
   m_ObstacleAvoidanceType: 4
+--- !u!114 &8636214214585389548
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3413404270985750867}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d3f3785708f5f1142bb3140a92b174c4, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Interflow.Game::StrategyCore.WeaponDeployment
+  seconds: 1.75
+  deploymentVisual: {fileID: 11400000, guid: c4d784a63d1b8784e98f39ef33342813, type: 2}
 --- !u!1001 &4953661242611161998
 PrefabInstance:
   m_ObjectHideFlags: 0

@@ -15,6 +15,9 @@ namespace StrategyCore
     /// </summary>
     public class BonusDamageVsUnitType : InterflowAbility
     {
+        [Tooltip("Визуальный скилл попадания; механические блоки не вызываются.")]
+        public CompositeSkill hitPresentation;
+
         public override AbilityType type { get { return AbilityType.Passive; } }
 
         [Header("Бонус по типу цели")]
@@ -60,7 +63,7 @@ namespace StrategyCore
                         DamageType damageType, Unit byUnit, Projectile byProjectile, int byOwner, int level)
         {
             if (NetworkConnectionHandler.isClient) return; // правило 6 — урон наносит сервер
-            if (targetUnit == null || byUnit == null) return;
+            if (targetUnit == null || (byUnit == null && byProjectile == null)) return;
             if (onlyDirectAttack && !directAttack) return;
             if (targetUnit.unitType != targetUnitType) return;
 
@@ -74,6 +77,13 @@ namespace StrategyCore
 
             targetUnit.GetDamage(extra, damageType, byOwner, byUnit, false, out float _);
 
+            if (hitPresentation != null)
+            {
+                Vector3 source = byProjectile != null ? byProjectile.OriginPosition : byUnit.transform.position;
+                Vector3 toward = source-targetUnit.transform.position; toward.y=0;
+                Vector3 contact=targetUnit.transform.position+Vector3.up*Mathf.Max(.5f,targetUnit.unitHeight*.5f)+toward.normalized*targetUnit.unitRadius;
+                EmitSkillFired(byUnit, hitPresentation, level, targetUnit, contact);
+            }
             RequestForceSync();
         }
 

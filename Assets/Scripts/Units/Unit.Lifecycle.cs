@@ -182,6 +182,7 @@ namespace StrategyCore
             GameManager.instance.Tick -= CommandSoundTimerUpdate;
 
             TechnologyManager.instance.OnTechUnlock[owner] -= AllAbilityLockLevelsCalculate;
+            TechnologyManager.instance.OnTechLock[owner] -= AllAbilityLockLevelsCalculate;
 
             if (idleRandomTime != 0) GameManager.instance.Tick -= RandomIdleAnimation;
             GameManager.instance.Tick -= HandleEffectors;
@@ -196,6 +197,7 @@ namespace StrategyCore
         private void Subscribe()
         {
             TechnologyManager.instance.OnTechUnlock[owner] += AllAbilityLockLevelsCalculate;
+            TechnologyManager.instance.OnTechLock[owner] += AllAbilityLockLevelsCalculate;
 
             if (idleRandomTime != 0) GameManager.instance.Tick += RandomIdleAnimation;
             GameManager.instance.Tick += HandleEffectors;
@@ -334,7 +336,9 @@ namespace StrategyCore
 
                 // TechTree subscribe to it
                 TechnologyManager.instance.OnTechUnlock[owner] -= AllAbilityLockLevelsCalculate; // When new tech is unlocked, check if there are any abilities to unlock
+                TechnologyManager.instance.OnTechLock[owner] -= AllAbilityLockLevelsCalculate;
                 TechnologyManager.instance.OnTechUnlock[newOwner] += AllAbilityLockLevelsCalculate;
+                TechnologyManager.instance.OnTechLock[newOwner] += AllAbilityLockLevelsCalculate;
 
                 // Below data for new ownership
                 owner = newOwner;

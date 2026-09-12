@@ -1,0 +1,27 @@
+﻿#if UNITY_EDITOR
+using System;using System.IO;using System.Linq;using UnityEditor;using UnityEditor.Animations;using UnityEngine;using StrategyCore;
+[InitializeOnLoad] public static class SupremePunisherSkillSetup {
+ const string W=@"C:\Users\aleks\Documents\Codex\2026-09-11\v\work\skills-28\";
+ const string F="Assets/Resources/Ability/Roster/Humans/SupremePunisher/";
+ const string V="Assets/VFX/Skills/SupremePunisher/";
+ const string A="Assets/Models/Units/Humans/SupremePunisher/Animations/";
+ static SupremePunisherSkillSetup(){EditorApplication.update+=Poll;}
+ static void Poll(){if(EditorApplication.isCompiling||EditorApplication.isUpdating||EditorApplication.isPlayingOrWillChangePlaymode||!File.Exists(W+"configure-supremepunisher.txt"))return;try{File.Delete(W+"configure-supremepunisher.txt");}catch(IOException){return;}try{Configure();File.WriteAllText(W+"supremepunisher-configured.txt","OK");}catch(Exception e){File.WriteAllText(W+"supremepunisher-configured.txt",e.ToString());Debug.LogException(e);}}
+ static T Asset<T>(string name)where T:Ability{var a=AssetDatabase.LoadAssetAtPath<T>(F+name+".asset");if(a)return a;a=ScriptableObject.CreateInstance<T>();a.id=InterflowEditorUI.NextFreeId("t:Ability",o=>((Ability)o).id);a.abilityName=new[]{name};AssetDatabase.CreateAsset(a,F+name+".asset");return a;}
+ static VFXReferencer Vfx(string name,string source,float scale,bool loop=false){var old=AssetDatabase.LoadAssetAtPath<GameObject>(V+name+".prefab");if(old)return old.GetComponent<VFXReferencer>();var root=new GameObject(name);try{root.AddComponent<VFXReferencer>();var visual=(GameObject)PrefabUtility.InstantiatePrefab(AssetDatabase.LoadAssetAtPath<GameObject>("Assets/Lana Studio/Casual RPG VFX/Prefabs/"+source+".prefab"));visual.transform.SetParent(root.transform,false);visual.transform.localScale=Vector3.one*scale;foreach(var ps in visual.GetComponentsInChildren<ParticleSystem>(true)){var m=ps.main;m.loop=loop;m.playOnAwake=true;}return PrefabUtility.SaveAsPrefabAsset(root,V+name+".prefab").GetComponent<VFXReferencer>();}finally{UnityEngine.Object.DestroyImmediate(root);}}
+
+
+
+ static void Configure(){InterflowEditorUI.EnsureFolder(F);InterflowEditorUI.EnsureFolder(V);
+ var harvest=Asset<CompositePassive>("SupremePunisher_UnholyHarvest");var blast=Asset<CompositePassive>("SupremePunisher_SacredExplosion");var hv=Asset<CompositeSkill>("SupremePunisher_Harvest_Visual");var bv=Asset<CompositeSkill>("SupremePunisher_Explosion_Visual");
+ hv.targetMode=SkillTargetMode.Self;hv.impactVFX=Vfx("HarvestGrace","Range_attack/Hit_light",.65f);hv.impactVfxLifetime=1.2f;hv.procAnimationState="";hv.spawnSocket=SkillSocketType.None;
+ bv.targetMode=SkillTargetMode.SmartPoint;bv.radius=new[]{4f};bv.impactVFX=Vfx("SacredExplosion","Fire/Fire_explosion_earth",2f);bv.impactVfxLifetime=2.5f;bv.procAnimationState="";bv.spawnSocket=SkillSocketType.None;
+ var explosion=PrefabUtility.LoadPrefabContents(V+"SacredExplosion.prefab");try{explosion.transform.GetChild(0).localScale=Vector3.one*3.5f;foreach(var ps in explosion.GetComponentsInChildren<ParticleSystem>(true)){var m=ps.main;m.simulationSpeed=1.5f;}PrefabUtility.SaveAsPrefabAsset(explosion,V+"SacredExplosion.prefab");}finally{PrefabUtility.UnloadPrefabContents(explosion);}
+ harvest.abilityName=new[]{"Жатва Нечестивых"};harvest.description=new[]{"За убийство врага восстанавливает 15% максимального HP и получает +10% к урону до конца жизни в бою. Бонус урона суммируется."};harvest.maxLevels=1;harvest.killEffect=new PassiveKillBlock{enabled=true,healMaxHpFraction=.15f,damageFractionPerKill=.1f,presentation=hv};
+ blast.abilityName=new[]{"Священный Взрыв"};blast.description=new[]{"При смерти наносит 250 магического урона врагам в радиусе 4 м."};blast.maxLevels=1;blast.deathEffect=new PassiveDeathBlock{enabled=true,radius=4,enemyDamage=250,damageType=AssetDatabase.LoadAssetAtPath<DamageType>("Assets/Resources/DamageTypes/Magic.asset"),deathPresentation=bv};
+ harvest.requiredTech=new[]{new MultiLevel<Technology>{data=new[]{AssetDatabase.LoadAssetAtPath<Technology>("Assets/Resources/Technology/Lyudi_T6_B1.asset")}}};blast.requiredTech=new[]{new MultiLevel<Technology>{data=new[]{AssetDatabase.LoadAssetAtPath<Technology>("Assets/Resources/Technology/Lyudi_T6_B2.asset")}}};
+ foreach(var a in new Ability[]{harvest,blast,hv,bv}){a.icon=new[]{AssetDatabase.LoadAssetAtPath<Texture2D>("Assets/Art/Icons/icons/humans_tech_shields.png")};EditorUtility.SetDirty(a);}
+ const string prefab="Assets/Resources/UnitPrefabs/Units/Humans/SupremePunisher.prefab";var root=PrefabUtility.LoadPrefabContents(prefab);try{var unit=root.GetComponent<Unit>();unit.abilities=(unit.abilities??Array.Empty<Ability>()).Where(a=>a&&a!=harvest&&a!=blast&&AssetDatabase.AssetPathToGUID(AssetDatabase.GetAssetPath(a))!="745d7ba2997971a49a5ae87f4199a234").Concat(new Ability[]{harvest,blast}).ToArray();unit.abilityLevel=new int[unit.abilities.Length];var auto=root.GetComponent<AutoAbilityUser>();if(auto){var so=new SerializedObject(auto);var list=so.FindProperty("autoAbilities");for(int i=list.arraySize-1;i>=0;i--){var a=list.GetArrayElementAtIndex(i).objectReferenceValue as Ability;if(!a||!unit.abilities.Contains(a)){list.GetArrayElementAtIndex(i).objectReferenceValue=null;list.DeleteArrayElementAtIndex(i);}}so.ApplyModifiedPropertiesWithoutUndo();}PrefabUtility.SaveAsPrefabAsset(root,prefab);}finally{PrefabUtility.UnloadPrefabContents(root);}AssetDatabase.SaveAssets();InterflowAbilityUsage.InvalidateCache();InterflowAbilityGroups.InvalidateCache();
+ }
+}
+#endif

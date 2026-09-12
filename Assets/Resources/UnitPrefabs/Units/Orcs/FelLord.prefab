@@ -11,6 +11,7 @@ GameObject:
   - component: {fileID: 8796860210320938395}
   - component: {fileID: 8023405183949508496}
   - component: {fileID: 1861081911821071567}
+  - component: {fileID: 7239153191776659564}
   m_Layer: 0
   m_Name: FelLord
   m_TagString: Untagged
@@ -46,8 +47,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b166e7a81d9bcf940a22cc4c185f0e45, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  abilities: []
-  abilityLevel: 
+  abilities:
+  - {fileID: 11400000, guid: c0490c23bd9f51949a98f84c23a2d4e1, type: 2}
+  abilityLevel: 00000000
   abilityLocked: 
   everyFrameAbilities: []
   everyFrameAbilityIndex: 
@@ -69,6 +71,8 @@ MonoBehaviour:
   canCast: 0
   unitCategory: 0
   targetPriority: 
+  preferAttackClusters: 0
+  attackClusterRadius: 2
   respondsToAttackCommand: 1
   respondsToDefenceCommand: 1
   leavesGrave: 0
@@ -297,6 +301,20 @@ NavMeshAgent:
   m_BaseOffset: 0
   m_WalkableMask: 4294967295
   m_ObstacleAvoidanceType: 4
+--- !u!114 &7239153191776659564
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4474016933933179267}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: eeacf01fdd4e6784fbaffd8a2682fac0, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Interflow.Game::StrategyCore.AutoAbilityUser
+  autoAbilities:
+  - {fileID: 11400000, guid: c0490c23bd9f51949a98f84c23a2d4e1, type: 2}
 --- !u!1001 &3353927061475219528
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -305,6 +323,98 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 8796860210320938395}
     m_Modifications:
+    - target: {fileID: 197282620351250253, guid: 77ecbdc69430a1f46bae0bbb27c113a3, type: 3}
+      propertyPath: UVModule.sprites.Array.data[0].sprite
+      value: 
+      objectReference: {fileID: 0}
+    - target: {fileID: 389903079053849658, guid: 77ecbdc69430a1f46bae0bbb27c113a3, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: -0.045543745
+      objectReference: {fileID: 0}
+    - target: {fileID: 389903079053849658, guid: 77ecbdc69430a1f46bae0bbb27c113a3, type: 3}
+      propertyPath: m_LocalRotation.x
+      value: -0.42603013
+      objectReference: {fileID: 0}
+    - target: {fileID: 389903079053849658, guid: 77ecbdc69430a1f46bae0bbb27c113a3, type: 3}
+      propertyPath: m_LocalRotation.y
+      value: -0.8991433
+      objectReference: {fileID: 0}
+    - target: {fileID: 389903079053849658, guid: 77ecbdc69430a1f46bae0bbb27c113a3, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: -0.08924978
+      objectReference: {fileID: 0}
+    - target: {fileID: 943073540539447202, guid: 77ecbdc69430a1f46bae0bbb27c113a3, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 0.86936885
+      objectReference: {fileID: 0}
+    - target: {fileID: 943073540539447202, guid: 77ecbdc69430a1f46bae0bbb27c113a3, type: 3}
+      propertyPath: m_LocalRotation.x
+      value: -0.0028984572
+      objectReference: {fileID: 0}
+    - target: {fileID: 943073540539447202, guid: 77ecbdc69430a1f46bae0bbb27c113a3, type: 3}
+      propertyPath: m_LocalRotation.y
+      value: -0.034662995
+      objectReference: {fileID: 0}
+    - target: {fileID: 943073540539447202, guid: 77ecbdc69430a1f46bae0bbb27c113a3, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: -0.49293807
+      objectReference: {fileID: 0}
+    - target: {fileID: 2477126890481938911, guid: 77ecbdc69430a1f46bae0bbb27c113a3, type: 3}
+      propertyPath: UVModule.sprites.Array.data[0].sprite
+      value: 
+      objectReference: {fileID: 0}
+    - target: {fileID: 2692408931960248612, guid: 77ecbdc69430a1f46bae0bbb27c113a3, type: 3}
+      propertyPath: UVModule.sprites.Array.data[0].sprite
+      value: 
+      objectReference: {fileID: 0}
+    - target: {fileID: 3609670442184601217, guid: 77ecbdc69430a1f46bae0bbb27c113a3, type: 3}
+      propertyPath: UVModule.sprites.Array.data[0].sprite
+      value: 
+      objectReference: {fileID: 0}
+    - target: {fileID: 4142241994877682406, guid: 77ecbdc69430a1f46bae0bbb27c113a3, type: 3}
+      propertyPath: m_Controller
+      value: 
+      objectReference: {fileID: 9100000, guid: 5f5ab89a032ecd54c814d3a4dcddcb51, type: 2}
+    - target: {fileID: 6079201247828107985, guid: 77ecbdc69430a1f46bae0bbb27c113a3, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 0.80502
+      objectReference: {fileID: 0}
+    - target: {fileID: 6079201247828107985, guid: 77ecbdc69430a1f46bae0bbb27c113a3, type: 3}
+      propertyPath: m_LocalRotation.x
+      value: 0.5923966
+      objectReference: {fileID: 0}
+    - target: {fileID: 6079201247828107985, guid: 77ecbdc69430a1f46bae0bbb27c113a3, type: 3}
+      propertyPath: m_LocalRotation.y
+      value: -0.0032784196
+      objectReference: {fileID: 0}
+    - target: {fileID: 6079201247828107985, guid: 77ecbdc69430a1f46bae0bbb27c113a3, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: -0.031597883
+      objectReference: {fileID: 0}
+    - target: {fileID: 6166075561248664632, guid: 77ecbdc69430a1f46bae0bbb27c113a3, type: 3}
+      propertyPath: m_LocalRotation.x
+      value: -0.12867202
+      objectReference: {fileID: 0}
+    - target: {fileID: 6166075561248664632, guid: 77ecbdc69430a1f46bae0bbb27c113a3, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: 0.013609359
+      objectReference: {fileID: 0}
+    - target: {fileID: 6300314333263157517, guid: 77ecbdc69430a1f46bae0bbb27c113a3, type: 3}
+      propertyPath: UVModule.sprites.Array.data[0].sprite
+      value: 
+      objectReference: {fileID: 0}
+    - target: {fileID: 6385597272096908543, guid: 77ecbdc69430a1f46bae0bbb27c113a3, type: 3}
+      propertyPath: m_LocalRotation.x
+      value: -0.004831745
+      objectReference: {fileID: 0}
+    - target: {fileID: 6385597272096908543, guid: 77ecbdc69430a1f46bae0bbb27c113a3, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: -0.08836409
+      objectReference: {fileID: 0}
+    - target: {fileID: 6564928052978272578, guid: 77ecbdc69430a1f46bae0bbb27c113a3, type: 3}
+      propertyPath: UVModule.sprites.Array.data[0].sprite
+      value: 
+      objectReference: {fileID: 0}
     - target: {fileID: 7266504525508133414, guid: 77ecbdc69430a1f46bae0bbb27c113a3, type: 3}
       propertyPath: m_Name
       value: FelLord_Model
@@ -348,6 +458,18 @@ PrefabInstance:
     - target: {fileID: 8042338155918923932, guid: 77ecbdc69430a1f46bae0bbb27c113a3, type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8549045047106726081, guid: 77ecbdc69430a1f46bae0bbb27c113a3, type: 3}
+      propertyPath: m_LocalRotation.x
+      value: -0.050106317
+      objectReference: {fileID: 0}
+    - target: {fileID: 8549045047106726081, guid: 77ecbdc69430a1f46bae0bbb27c113a3, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: 0.011658105
+      objectReference: {fileID: 0}
+    - target: {fileID: 8821799118847343821, guid: 77ecbdc69430a1f46bae0bbb27c113a3, type: 3}
+      propertyPath: UVModule.sprites.Array.data[0].sprite
+      value: 
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []

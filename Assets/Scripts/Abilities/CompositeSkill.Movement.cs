@@ -29,6 +29,25 @@ namespace StrategyCore
         [Tooltip("Уважать иммунитет к контролю у самого кастера. " +
                  "ВЫКЛ — кастер перемещается даже под иммунитетом (это его собственное умение, а не контроль извне).")]
         public bool respectControlImmunity;
+        [Min(0),Tooltip("0 — телепорт; больше нуля — плавный рывок с эффектами по прибытии.")] public float travelSeconds;
+        [Min(0)] public float leapHeight;
+        [Tooltip("Optional animator state held during travel.")] public string travelAnimationState;
+        [Min(0),Tooltip("Пройти дальше выбранной цели на это расстояние.")] public float passThroughDistance;
+        public CompositeSkill trailSkill;
+        [Min(.3f)] public float trailSpacing=1;
+    }
+
+    [System.Serializable]
+    public class SkillKnockbackBlock
+    {
+        public bool enabled;
+        [Tooltip("Дальность отбрасывания в метрах.")] public float distance=1.5f;
+        [Tooltip("Максимальный тир отбрасываемой цели; 0 — любой.")] public int maxTier;
+        [Tooltip("Разрешённые роли; пусто — любые.")] public Unit.UnitCategory[] categories;
+        public bool respectControlImmunity=true;
+        public bool alongCasterFacing;
+        [Min(0),Tooltip("0 preserves instant displacement; positive values move the target over this duration.")] public float travelSeconds;
+        public Unit[] targetPrefabs;
     }
 
     public partial class CompositeSkill
@@ -40,6 +59,19 @@ namespace StrategyCore
         /// Решение Artsiom 2026-08-06: несостоявшийся рывок ОТСЕКАЕТ цель от остальных блоков этого каста —
         /// умение считается исполненным (откат и мана списаны штатно), но по этой цели не делает ничего.
         /// </summary>
+        void ApplyKnockback(Unit target,Vector3 origin,Unit caster)
+        {
+            if(knockback==null||!knockback.enabled||target==null||target.dead)return;
+            if(knockback.maxTier>0&&target.tier>knockback.maxTier)return;
+            if(!CategoryAllowed(target,knockback.categories))return;
+            if(knockback.targetPrefabs!=null&&knockback.targetPrefabs.Length>0&&!System.Array.Exists(knockback.targetPrefabs,p=>p&&p.unitTypeID==target.unitTypeID))return;
+            if(knockback.alongCasterFacing&&caster)origin=target.transform.position-caster.LookDirection;
+            if(knockback.travelSeconds>0){
+                Vector3 direction=target.transform.position-origin;direction.y=0;
+                if(direction.sqrMagnitude<.0001f)direction=target.LookDirection;
+                SkillDisplacement.Begin(target,target.transform.position+direction.normalized*knockback.distance,knockback.travelSeconds,knockback.respectControlImmunity);
+            }else Knockback.Apply(target,origin,knockback.distance,0,knockback.respectControlImmunity);
+        }
         bool ApplyPull(Unit castingUnit, Unit target)
         {
             if (pull == null || !pull.enabled) return true;   // блок выключен — цель обрабатываем как обычно

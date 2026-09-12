@@ -10,6 +10,8 @@ GameObject:
   m_Component:
   - component: {fileID: 8247184747591622600}
   - component: {fileID: 7981063900339769507}
+  - component: {fileID: 8302943073001262626}
+  - component: {fileID: 6094536311477630000}
   m_Layer: 0
   m_Name: FelWarlock
   m_TagString: Untagged
@@ -45,8 +47,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b166e7a81d9bcf940a22cc4c185f0e45, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Interflow.Game::StrategyCore.Unit
-  abilities: []
-  abilityLevel: 
+  abilities:
+  - {fileID: 11400000, guid: fac6e9426770ab949a5bae9d9be68387, type: 2}
+  - {fileID: 11400000, guid: f4a6a6327f3e0fd45baa01f1a3743185, type: 2}
+  abilityLevel: 0000000000000000
   abilityLocked: 
   everyFrameAbilities: []
   everyFrameAbilityIndex: 
@@ -68,6 +72,8 @@ MonoBehaviour:
   canCast: 0
   unitCategory: 3
   targetPriority: 
+  preferAttackClusters: 0
+  attackClusterRadius: 2
   respondsToAttackCommand: 1
   respondsToDefenceCommand: 1
   leavesGrave: 0
@@ -272,6 +278,39 @@ MonoBehaviour:
   removeFromPosSync: 0
   spawned: 0
   initialized: 0
+--- !u!114 &8302943073001262626
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2696193342011931110}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: eeacf01fdd4e6784fbaffd8a2682fac0, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Interflow.Game::StrategyCore.AutoAbilityUser
+  autoAbilities:
+  - {fileID: 11400000, guid: f4a6a6327f3e0fd45baa01f1a3743185, type: 2}
+--- !u!114 &6094536311477630000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2696193342011931110}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 97c556a459149c04e816a5fa8f19c12e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Interflow.Game::StrategyCore.CharacterSockets
+  rightHand: {fileID: 8429074199840922513}
+  leftHand: {fileID: 0}
+  weapon: {fileID: 0}
+  chest: {fileID: 0}
+  center: {fileID: 0}
+  head: {fileID: 0}
+  ground: {fileID: 0}
 --- !u!1001 &3373114490391782343
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -280,6 +319,10 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 8247184747591622600}
     m_Modifications:
+    - target: {fileID: 1552223886501070766, guid: 06111b68135839446ae2cfb092636685, type: 3}
+      propertyPath: m_Controller
+      value: 
+      objectReference: {fileID: 9100000, guid: ede15348f7a46694a8d066951d1fbe73, type: 2}
     - target: {fileID: 4857897123535396308, guid: 06111b68135839446ae2cfb092636685, type: 3}
       propertyPath: m_LocalPosition.x
       value: 0
@@ -324,6 +367,38 @@ PrefabInstance:
       propertyPath: m_Name
       value: FelWarlock_Model
       objectReference: {fileID: 0}
+    - target: {fileID: 6339881446087937819, guid: 06111b68135839446ae2cfb092636685, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 0.8855327
+      objectReference: {fileID: 0}
+    - target: {fileID: 6339881446087937819, guid: 06111b68135839446ae2cfb092636685, type: 3}
+      propertyPath: m_LocalRotation.x
+      value: -0.052909285
+      objectReference: {fileID: 0}
+    - target: {fileID: 6339881446087937819, guid: 06111b68135839446ae2cfb092636685, type: 3}
+      propertyPath: m_LocalRotation.y
+      value: -0.4612293
+      objectReference: {fileID: 0}
+    - target: {fileID: 6339881446087937819, guid: 06111b68135839446ae2cfb092636685, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: 0.017323056
+      objectReference: {fileID: 0}
+    - target: {fileID: 7183873774689783682, guid: 06111b68135839446ae2cfb092636685, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 0.812461
+      objectReference: {fileID: 0}
+    - target: {fileID: 7183873774689783682, guid: 06111b68135839446ae2cfb092636685, type: 3}
+      propertyPath: m_LocalRotation.x
+      value: 0.12684084
+      objectReference: {fileID: 0}
+    - target: {fileID: 7183873774689783682, guid: 06111b68135839446ae2cfb092636685, type: 3}
+      propertyPath: m_LocalRotation.y
+      value: 0.24038485
+      objectReference: {fileID: 0}
+    - target: {fileID: 7183873774689783682, guid: 06111b68135839446ae2cfb092636685, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: 0.51578456
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
@@ -337,5 +412,10 @@ Transform:
 --- !u!4 &7900723818417520147 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 4857897123535396308, guid: 06111b68135839446ae2cfb092636685, type: 3}
+  m_PrefabInstance: {fileID: 3373114490391782343}
+  m_PrefabAsset: {fileID: 0}
+--- !u!4 &8429074199840922513 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 6500281487599597654, guid: 06111b68135839446ae2cfb092636685, type: 3}
   m_PrefabInstance: {fileID: 3373114490391782343}
   m_PrefabAsset: {fileID: 0}

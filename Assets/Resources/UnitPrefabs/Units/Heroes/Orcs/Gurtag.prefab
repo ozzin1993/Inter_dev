@@ -45,8 +45,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b166e7a81d9bcf940a22cc4c185f0e45, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Interflow.Game::StrategyCore.Unit
-  abilities: []
-  abilityLevel: 
+  abilities:
+  - {fileID: 11400000, guid: 9d7f74ba006128c4bbc0497838bb7720, type: 2}
+  - {fileID: 11400000, guid: 48f754ad3eba01b4bb973c69d8fafe74, type: 2}
+  - {fileID: 11400000, guid: db9005bc7d712a94385ed8caf8bb7350, type: 2}
+  - {fileID: 11400000, guid: 9eeec8e77d671764e820eb71e054847f, type: 2}
+  abilityLevel: 00000000000000000000000000000000
   abilityLocked: 
   everyFrameAbilities: []
   everyFrameAbilityIndex: 
@@ -68,6 +72,8 @@ MonoBehaviour:
   canCast: 0
   unitCategory: 0
   targetPriority: 
+  preferAttackClusters: 0
+  attackClusterRadius: 2
   respondsToAttackCommand: 1
   respondsToDefenceCommand: 1
   leavesGrave: 0
@@ -278,6 +284,46 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 5181999521715856522}
     m_Modifications:
+    - target: {fileID: 2638096185282041866, guid: 3a91d533ba51cbe469ee555d1659afeb, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: -0.04429458
+      objectReference: {fileID: 0}
+    - target: {fileID: 2638096185282041866, guid: 3a91d533ba51cbe469ee555d1659afeb, type: 3}
+      propertyPath: m_LocalRotation.x
+      value: -0.4211598
+      objectReference: {fileID: 0}
+    - target: {fileID: 2638096185282041866, guid: 3a91d533ba51cbe469ee555d1659afeb, type: 3}
+      propertyPath: m_LocalRotation.y
+      value: -0.9021167
+      objectReference: {fileID: 0}
+    - target: {fileID: 2638096185282041866, guid: 3a91d533ba51cbe469ee555d1659afeb, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: -0.08275218
+      objectReference: {fileID: 0}
+    - target: {fileID: 3571658069436972628, guid: 3a91d533ba51cbe469ee555d1659afeb, type: 3}
+      propertyPath: m_Controller
+      value: 
+      objectReference: {fileID: 9100000, guid: cb4c41ba402f9cc41ad1fae6abe6b53d, type: 2}
+    - target: {fileID: 3815798839914991144, guid: 3a91d533ba51cbe469ee555d1659afeb, type: 3}
+      propertyPath: UVModule.sprites.Array.data[0].sprite
+      value: 
+      objectReference: {fileID: 0}
+    - target: {fileID: 7019286213045318462, guid: 3a91d533ba51cbe469ee555d1659afeb, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 0.7598087
+      objectReference: {fileID: 0}
+    - target: {fileID: 7019286213045318462, guid: 3a91d533ba51cbe469ee555d1659afeb, type: 3}
+      propertyPath: m_LocalRotation.x
+      value: 0.0704027
+      objectReference: {fileID: 0}
+    - target: {fileID: 7019286213045318462, guid: 3a91d533ba51cbe469ee555d1659afeb, type: 3}
+      propertyPath: m_LocalRotation.y
+      value: 0.049778085
+      objectReference: {fileID: 0}
+    - target: {fileID: 7019286213045318462, guid: 3a91d533ba51cbe469ee555d1659afeb, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: -0.64440393
+      objectReference: {fileID: 0}
     - target: {fileID: 7453801271440401454, guid: 3a91d533ba51cbe469ee555d1659afeb, type: 3}
       propertyPath: m_LocalPosition.x
       value: 0
@@ -321,6 +367,14 @@ PrefabInstance:
     - target: {fileID: 7798801268859682452, guid: 3a91d533ba51cbe469ee555d1659afeb, type: 3}
       propertyPath: m_Name
       value: Gurtag_Model
+      objectReference: {fileID: 0}
+    - target: {fileID: 9099919000406234227, guid: 3a91d533ba51cbe469ee555d1659afeb, type: 3}
+      propertyPath: m_LocalRotation.x
+      value: -0.057871446
+      objectReference: {fileID: 0}
+    - target: {fileID: 9099919000406234227, guid: 3a91d533ba51cbe469ee555d1659afeb, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: 0.011592182
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []

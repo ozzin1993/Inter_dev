@@ -54,6 +54,24 @@ namespace StrategyCore
         [Header("Блок 8 — аура")]
         public PassiveAuraBlock aura = new PassiveAuraBlock();
 
+        [Header("Блок 9 — защита и парирование")]
+        public PassiveDefenseBlock defense = new PassiveDefenseBlock();
+
+        [Header("Блок 10 — посмертный эффект")]
+        public PassiveDeathBlock deathEffect = new PassiveDeathBlock();
+
+        [Header("Блок 11 — награда за убийство")]
+        public PassiveKillBlock killEffect = new PassiveKillBlock();
+        public PassiveDamageReactionBlock damageReaction = new PassiveDamageReactionBlock();
+        public PassiveCleaveBlock cleave = new PassiveCleaveBlock();
+        public PassiveManaBurnBlock manaBurn = new PassiveManaBurnBlock();
+        public PassiveSpellCastBlock spellCast = new PassiveSpellCastBlock();
+        public PassiveCombatResourceBlock combatResource = new PassiveCombatResourceBlock();
+        public PassiveAllyDeathBlock allyDeath = new PassiveAllyDeathBlock();
+
+        [Tooltip("Визуальный скилл при попадании обычной атаки. Его механические блоки не исполняются.")]
+        public CompositeSkill attackPresentation;
+
         // ======================================================= СОСТОЯНИЕ НОСИТЕЛЕЙ ==
 
         /// <summary>
@@ -67,6 +85,7 @@ namespace StrategyCore
 
             public bool stats;
             public bool controlImmunity;
+            public System.Action hpControlHandler;
             public bool slowImmunity;
             public bool invisibility;
 
@@ -75,6 +94,14 @@ namespace StrategyCore
             public Effector[] originalAttackEffectors; // null — набор атаки не трогали
 
             public bool aura;
+            public InterflowCombat.IncomingRule defenseRule;
+            public System.Action<Unit, int, Unit, bool> deathHandler;
+            public AfterDamageDealCallback attackVisualCallback;
+            public AfterDamageDealCallback cleaveCallback;
+            public AfterDamageDealCallback manaBurnCallback;
+            public float killDamageFraction;
+            public float reactionReadyAt;
+            public InterflowCombat.DamagedHandler damagedHandler;
             public Vector3 lastPosition;               // для условия «в движении»
         }
 
@@ -88,6 +115,7 @@ namespace StrategyCore
         {
             base.Init();
 
+            UnwireKillEffect();
             carriers.Clear();
             auraDamageTypeWarned = false;
             UnwireTick();
@@ -117,6 +145,15 @@ namespace StrategyCore
             ApplySplash(unit, c);
             ApplyAttackEffectors(unit, c);
             ApplyAura(unit, c);
+            ApplyDefense(unit, c);
+            ApplyDeathEffect(unit, c);
+            ApplyAttackPresentation(unit,c);
+            WireKillEffect();
+            ApplyDamageReaction(unit,c);
+            ApplyCleave(unit,c);
+            ApplyManaBurn(unit,c);
+            if(!NetworkConnectionHandler.isClient&&combatResource!=null&&combatResource.enabled){var resource=unit.GetComponent<CombatResource>();if(!resource)resource=unit.gameObject.AddComponent<CombatResource>();resource.Configure(this,combatResource);}
+            if(spellCast!=null&&spellCast.enabled){var m=unit.GetComponent<SpellCastModifiers>()??unit.gameObject.AddComponent<SpellCastModifiers>();m.Set(this,spellCast);}
 
             if (c.slowImmunity || c.aura) WireTick();
         }
@@ -134,10 +171,21 @@ namespace StrategyCore
             RemoveArmorPierce(unit, c);
             RemoveSplash(unit, c);
             RemoveAttackEffectors(unit, c);
+            RemoveDefense(unit, c);
+            RemoveDeathEffect(unit, c);
+            RemoveAttackPresentation(unit,c);
+            RemoveKillEffect(unit,c);
+            RemoveDamageReaction(unit,c);
+            RemoveCleave(unit,c);
+            RemoveManaBurn(unit,c);
+            var resource=unit.GetComponent<CombatResource>();if(resource)resource.Remove(this);
+            var spellModifiers=unit.GetComponent<SpellCastModifiers>();if(spellModifiers)spellModifiers.Remove(this);
             // Иммунитет к замедлениям и аура своего состояния на юните не оставляют:
             // они живут тиком, и достаточно убрать носителя из списка.
 
             carriers.Remove(unit);
+
+            if (carriers.Count == 0) UnwireKillEffect();
 
             if (!AnyoneNeedsTick()) UnwireTick();
         }

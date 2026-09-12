@@ -1,0 +1,421 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e15fcca452434ea4c96c2cd743b313b0, type: 3}
+  m_Name: Korgal_FelDischarge
+  m_EditorClassIdentifier: Interflow.Game::StrategyCore.CompositeSkill
+  id: 107
+  abilityName:
+  - "\u0412\u044B\u0431\u0440\u043E\u0441 \u0421\u043A\u0432\u0435\u0440\u043D\u044B"
+  description:
+  - "\u0426\u0435\u043D\u043060HP, CD7\u0441. \u0421\u043B\u0443\u0447\u0430\u0439\u043D\u044B\u0439
+    \u0441\u043E\u044E\u0437\u043D\u044B\u0439 \u043E\u0440\u043A \u0432\u043F\u0435\u0440\u0435\u0434\u0438
+    \u0432\u0437\u0440\u044B\u0432\u0430\u0435\u0442\u0441\u044F: \u0432\u0440\u0430\u0433\u0430\u043C70\u0447\u0438\u0441\u0442\u043E\u0433\u043E,
+    \u0441\u0432\u043E\u0438\u043C \u043E\u0440\u043A\u0430\u043C25\u0444\u0438\u0437\u0438\u0447\u0435\u0441\u043A\u043E\u0433\u043E,
+    \u0440\u0430\u0434\u0438\u0443\u04412\u043C. \u0410\u043B\u044C\u0444\u0430:
+    \u043F\u043E\u0438\u0441\u043A \u043F\u0435\u0440\u0435\u0434 \u0441\u043E\u0431\u043E\u0439
+    \u0432120\xB0, \u0434\u0430\u043B\u044C\u043D\u043E\u0441\u0442\u044C10\u043C."
+  icon:
+  - {fileID: 2800000, guid: 4254ba2eb43e6d24eb11271d5e72448c, type: 3}
+  slotNumber: -1
+  isItem: 0
+  useUponPickUp: 0
+  dropOnDeath: 0
+  charges: 0
+  maxLevels: 1
+  heroLevelable: 0
+  cooldown:
+  - 7
+  castRange:
+  - 10
+  castTime:
+  - 0.4
+  radius:
+  - 2
+  showRadiusCircle: 0
+  unitSelector:
+    isOwn: 1
+    isAlly: 1
+    isEnemy: 0
+    isUnit: 1
+    isBuilding: 0
+    isStaticDestructible: 0
+    isTree: 0
+    isGround: 1
+    isWater: 1
+    isAir: 1
+    includeInvisible: 0
+    includeInvulnerable: 0
+  dontTurn: 0
+  continuous: 0
+  interruptible: 0
+  requiresCastingUnit: 1
+  duration:
+  - 0
+  requiredTech: []
+  requiredLevel: 
+  manaCost:
+  - 0
+  manaCostPerSecond: []
+  cost: []
+  line:
+    enabled: 0
+    length: 8
+    width: 2
+    pullTechnology: {fileID: 0}
+    presentation: {fileID: 0}
+    visualLifetime: 1.2
+  disruption:
+    enabled: 0
+    categories: 
+    additionalPrefabs: []
+    silenceSeconds: 3
+    purgeSpeedBuffs: 0
+    manaBurnTechnology: {fileID: 0}
+    currentManaFraction: 0.3
+    manaDamageType: {fileID: 0}
+    presentation: {fileID: 0}
+  targetPrefabs:
+  - {fileID: 7979685570125523016, guid: f3d1eb0008d2ec1459c1931e9366fe2b, type: 3}
+  - {fileID: 4956746033797629416, guid: 442a588d804b7f24ebcb0a5287e4b8ec, type: 3}
+  - {fileID: 6903377755701969617, guid: 502f9a4d5b7af444a8ff0a181b858e26, type: 3}
+  - {fileID: 1073327749393669297, guid: 4291fe72f0ed04e4099e810909bcbb99, type: 3}
+  - {fileID: 7981063900339769507, guid: 140470b1679b1754595f313547e8f8b0, type: 3}
+  - {fileID: 8888853940312966006, guid: c45428e4c52b75743bfc09c49c5f372f, type: 3}
+  - {fileID: 8023405183949508496, guid: c5e28a09b110e9942956f8e66aaf8c82, type: 3}
+  - {fileID: 3611669292108843126, guid: b87bfa5823251e14fb72771d1a23c98a, type: 3}
+  - {fileID: 1443571596614172794, guid: 7f12b92834a312744802738c7a1dc920, type: 3}
+  independentAreaTargets: 1
+  areaSelector:
+    isOwn: 1
+    isAlly: 1
+    isEnemy: 1
+    isUnit: 1
+    isBuilding: 0
+    isStaticDestructible: 0
+    isTree: 0
+    isGround: 1
+    isWater: 1
+    isAir: 1
+    includeInvisible: 0
+    includeInvulnerable: 0
+  targetFrontAngle: 120
+  trigger: 0
+  castConditions:
+    casterHpBelow: 0
+    requireAreaTarget: 0
+    requireOriginalForm: 0
+    requiredShape: {fileID: 0}
+  targetMode: 5
+  buttonCast: 1
+  targetStrategy: 4
+  searchOrigin: 0
+  strategyUseCurrentHealth: 0
+  strategyHpThreshold: 0.3
+  targetCategories: 
+  maxTargets: 0
+  multiPick: 0
+  includeSelf: 1
+  coneAngle: 90
+  directionMatters: 0
+  delivery: 0
+  projectilePrefab: {fileID: 0}
+  projectileDirectAttack: 0
+  projectileFollowsTarget: 1
+  spawnSocket: 0
+  localOffset: {x: 0, y: 0, z: 0}
+  castVFX: {fileID: 0}
+  castVfxLifetime: 2
+  impactVFX: {fileID: 8772974551395215538, guid: b7e9aee96bd17614b89d01d6f79b1bac, type: 3}
+  impactVfxLifetime: 1.2
+  castSound: {fileID: 0}
+  impactSound: {fileID: 0}
+  soundVolume: 1
+  procAnimationState: 
+  statusEffector: {fileID: 0}
+  selfCost:
+    enabled: 1
+    flatHp:
+    - 60
+    percentOfCurrentHp: []
+    blockIfLethal: 1
+  damageLink:
+    enabled: 0
+    duration: 5
+    sharedFraction: 0.4
+    sharedDamageType: {fileID: 0}
+    deathBurstTechnology: {fileID: 0}
+    deathBurstDamage: 0
+    deathBurstDamageType: {fileID: 0}
+    deathPresentation: {fileID: 0}
+    chainMaterial: {fileID: 0}
+    chainColor: {r: 0.25, g: 1, b: 0.1, a: 0.8}
+    chainWidth: 0.065
+  projectileImpact:
+    enabled: 0
+    skill: {fileID: 0}
+    primaryStunTechnology: {fileID: 0}
+    primaryStunSeconds: 0
+    stunPresentation: {fileID: 0}
+  pull:
+    enabled: 0
+    gap: 0
+  damage:
+    enabled: 1
+    entries:
+    - amount:
+      - 70
+      damageType: {fileID: 11400000, guid: b12ed07c7bfe8a34e95f9a59bb3c8689, type: 2}
+      targets: 0
+      targetPrefabs: []
+    - amount:
+      - 25
+      damageType: {fileID: 11400000, guid: f9053eb8c43d2b4489895a8f084c16be, type: 2}
+      targets: 1
+      targetPrefabs:
+      - {fileID: 7979685570125523016, guid: f3d1eb0008d2ec1459c1931e9366fe2b, type: 3}
+      - {fileID: 4956746033797629416, guid: 442a588d804b7f24ebcb0a5287e4b8ec, type: 3}
+      - {fileID: 6903377755701969617, guid: 502f9a4d5b7af444a8ff0a181b858e26, type: 3}
+      - {fileID: 1073327749393669297, guid: 4291fe72f0ed04e4099e810909bcbb99, type: 3}
+      - {fileID: 7981063900339769507, guid: 140470b1679b1754595f313547e8f8b0, type: 3}
+      - {fileID: 8888853940312966006, guid: c45428e4c52b75743bfc09c49c5f372f, type: 3}
+      - {fileID: 8023405183949508496, guid: c5e28a09b110e9942956f8e66aaf8c82, type: 3}
+      - {fileID: 3611669292108843126, guid: b87bfa5823251e14fb72771d1a23c98a, type: 3}
+      - {fileID: 1443571596614172794, guid: 7f12b92834a312744802738c7a1dc920, type: 3}
+  drain:
+    enabled: 0
+    flat: []
+    percentOfMaxHp: []
+    percentOfCurrentHp: []
+    casterHealMultiplier: []
+  status:
+    enabled: 0
+    stunSeconds: []
+    disarmSeconds: []
+    muteSeconds: []
+  effectors:
+    enabled: 0
+    records: []
+    effectors: []
+  heal:
+    extraSelf: []
+    enabled: 0
+    flat: []
+    percentOfMaxHp: []
+  mana:
+    enabled: 0
+    flat: []
+    percentOfMaxMana: []
+  buff:
+    enabled: 0
+    duration: []
+    auraDamagePerSecond: []
+    auraDamageType: {fileID: 0}
+    auraRadius: []
+    auraSelector:
+      isOwn: 0
+      isAlly: 0
+      isEnemy: 0
+      isUnit: 0
+      isBuilding: 0
+      isStaticDestructible: 0
+      isTree: 0
+      isGround: 0
+      isWater: 0
+      isAir: 0
+      includeInvisible: 0
+      includeInvulnerable: 0
+    healPerSecond: []
+    healPercentOfMaxPerSecond: []
+    selfBurnPerSecond: []
+    incomingDamageMultiplier: []
+    controlImmunity: 0
+    buffVFX: {fileID: 0}
+    detonateOnDeath: 0
+    detonationPresentation: {fileID: 0}
+    rewardCasterOnDeath: 0
+    deathRewardTechnology: {fileID: 0}
+    deathRewardHealFraction: []
+    deathRewardResetCooldown: 0
+    deathRewardPresentation: {fileID: 0}
+    detonationRadius: []
+    detonationDamage: []
+    detonationDamageType: {fileID: 0}
+    detonationSelector:
+      isOwn: 0
+      isAlly: 0
+      isEnemy: 0
+      isUnit: 0
+      isBuilding: 0
+      isStaticDestructible: 0
+      isTree: 0
+      isGround: 0
+      isWater: 0
+      isAir: 0
+      includeInvisible: 0
+      includeInvulnerable: 0
+  shield:
+    visualEffector: {fileID: 0}
+    enabled: 0
+    flat: []
+    percentOfMaxHp: []
+    duration: []
+    onDepletedEffectors: []
+    onDepletedRadius: 0
+    retaliationRadius: 0
+    retaliationStunSeconds: 0
+    retaliationEffectors: []
+    retaliationOnlyMelee: 1
+    reactionSelector:
+      isOwn: 0
+      isAlly: 0
+      isEnemy: 0
+      isUnit: 0
+      isBuilding: 0
+      isStaticDestructible: 0
+      isTree: 0
+      isGround: 0
+      isWater: 0
+      isAir: 0
+      includeInvisible: 0
+      includeInvulnerable: 0
+    onDepletedBlindChance: 0
+    onDepletedBlindDuration: 0
+    incomingDamageMultiplier: 1
+    skipIfAlreadyShielded: 1
+  blind:
+    enabled: 0
+    chance: []
+    duration: []
+  morph:
+    enabled: 0
+    shapeUnit: {fileID: 0}
+    applyToCaster: 0
+    copyAttackMode: 0
+    duration: []
+    disarmWhileMorphed: 1
+    muteWhileMorphed: 1
+    passiveEffects: []
+  ownership:
+    enabled: 0
+    sound: {fileID: 0}
+    soundVolume: 1
+  secondary:
+    requiredTechnology: {fileID: 0}
+    nearestFirst: 0
+    applyWhenPrimaryDies: 0
+    damageFlat: []
+    damagePercentOfBaseDamage: 0
+    damageType: {fileID: 0}
+    hitPresentation: {fileID: 0}
+    enabled: 0
+    radius: 6
+    selector:
+      isOwn: 0
+      isAlly: 0
+      isEnemy: 0
+      isUnit: 0
+      isBuilding: 0
+      isStaticDestructible: 0
+      isTree: 0
+      isGround: 0
+      isWater: 0
+      isAir: 0
+      includeInvisible: 0
+      includeInvulnerable: 0
+    categories: 
+    onlyAttackersOfTarget: 1
+    healFlat: []
+    healPercentOfBaseDamage: 0
+    maxSecondaryTargets: 0
+    effectors: []
+  summon:
+    enabled: 0
+    mode: 0
+    prefab: {fileID: 0}
+    count: []
+    lifetime: []
+    obeyCommands: 0
+    command: 1
+    maxAlivePerCaster: 0
+    killSummonsOnOwnerDeath: 0
+    maxAlivePerPlayer: 0
+    spawnSpread: 1.5
+    summonVFX: {fileID: 0}
+    summonSound: {fileID: 0}
+    summonSoundVolume: 1
+  groundZone:
+    enabled: 0
+    zonePrefab: {fileID: 0}
+    zoneCount: 1
+    spread: 1.5
+    forwardOffset: 0
+  knockback:
+    enabled: 0
+    distance: 1.5
+    maxTier: 0
+    categories: 
+    respectControlImmunity: 1
+  casterMove:
+    enabled: 0
+    respectControlImmunity: 0
+    travelSeconds: 0
+    leapHeight: 0
+    passThroughDistance: 0
+    trailSkill: {fileID: 0}
+    trailSpacing: 1
+  delegateService:
+    enabled: 0
+    service: 0
+    meteorDurationSeconds: 5
+    meteorsPerSecond: 4
+    meteorImpactRadius: 2
+    meteorPhysicalDamage: 0
+    meteorPhysicalDamageType: {fileID: 0}
+    meteorFireDamage: 0
+    meteorFireDamageType: {fileID: 0}
+    meteorStunSeconds: 0
+    meteorUseDensityTargeting: 1
+    meteorTargetSelector:
+      isOwn: 0
+      isAlly: 0
+      isEnemy: 0
+      isUnit: 0
+      isBuilding: 0
+      isStaticDestructible: 0
+      isTree: 0
+      isGround: 0
+      isWater: 0
+      isAir: 0
+      includeInvisible: 0
+      includeInvulnerable: 0
+    meteorSplashSelector:
+      isOwn: 0
+      isAlly: 0
+      isEnemy: 0
+      isUnit: 0
+      isBuilding: 0
+      isStaticDestructible: 0
+      isTree: 0
+      isGround: 0
+      isWater: 0
+      isAir: 0
+      includeInvisible: 0
+      includeInvulnerable: 0
+    meteorVFX: {fileID: 0}
+    meteorImpactSound: {fileID: 0}
+    meteorImpactVolume: 1
+    resurrectRadius: 8
+    resurrectCount: 3
+    resurrectHighestTierFirst: 1
+    resurrectTemporary: 1
+    resurrectLifetime: 30
+    resurrectObeyCommands: 1

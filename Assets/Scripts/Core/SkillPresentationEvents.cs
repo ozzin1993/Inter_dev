@@ -28,6 +28,8 @@ namespace StrategyCore
         /// Кастер и цель могут быть null — умение без кастера или без конкретной цели.
         /// </summary>
         public static event Action<Unit, int, int, Unit, Vector3> SkillFired;
+        public static event Action<int,int,Unit,Unit[],float> DamageLink;
+        public static void RaiseDamageLink(int id,int skillId,Unit caster,Unit[] members,float duration)=>DamageLink?.Invoke(id,skillId,caster,members,duration);
 
         /// <summary>Поднять факт «умение сработало». Зовётся сервером (локально) и приёмником RPC (у клиента).</summary>
         public static void RaiseSkillFired(Unit caster, int abilityID, int level, Unit aimUnit, Vector3 aimPoint)

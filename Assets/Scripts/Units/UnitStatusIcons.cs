@@ -1,4 +1,4 @@
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using UnityEngine;
 
 namespace StrategyCore
@@ -45,7 +45,7 @@ namespace StrategyCore
             for (int i = 0; i < unit.effectors.Count; i++)
             {
                 EffectorHolder eh = unit.effectors[i];
-                if (eh == null || eh.stacks || eh.effector == null || eh.effector.icon == null) continue;
+                if (eh == null || eh.effector == null || (eh.stacks && eh.effector.maxStacks<=0) || eh.effector.icon == null) continue;
                 if (!seen.Add(eh.effector.id)) continue; // несколько наложений одного id — один значок
                 buffer.Add(new Entry { key = eh.effector.id, icon = eh.effector.icon });
             }

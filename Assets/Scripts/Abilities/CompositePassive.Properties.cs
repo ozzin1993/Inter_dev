@@ -36,6 +36,8 @@ namespace StrategyCore
     [Serializable]
     public class PassiveControlImmunityBlock
     {
+        [Range(0,1)] public float casterHpBelow;
+        public Effector presentation;
         [Tooltip("Включить блок: носителя нельзя оглушить, обезоружить и заглушить. " +
                  "Уже идущее оглушение не снимается — иммунитет действует на НОВЫЕ попытки контроля.")]
         public bool enabled;
@@ -45,11 +47,13 @@ namespace StrategyCore
     [Serializable]
     public class PassiveSlowImmunityBlock
     {
+        [Range(0,1)] public float casterHpBelow;
         [Tooltip("Включить блок: с носителя каждый тик снимаются эффекторы, снижающие скорость передвижения.")]
         public bool enabled;
 
         [Tooltip("Также снимать эффекторы, снижающие скорость АТАКИ.")]
         public bool alsoRemoveAttackSlow;
+        [Tooltip("Также снимать эффекторы, снижающие исходящий урон носителя.")] public bool alsoRemoveDamageReduction;
     }
 
     /// <summary>4. Постоянная невидимость носителя.</summary>
@@ -167,22 +171,32 @@ namespace StrategyCore
 
         void ApplyControlImmunity(Unit unit, Carrier c)
         {
-            if (controlImmunity == null || !controlImmunity.enabled) return;
-
-            ControlImmunity ci = unit.GetComponent<ControlImmunity>();
-            if (ci == null) ci = unit.gameObject.AddComponent<ControlImmunity>();
-
-            ci.Add();                 // рефкаунт: снимаем ровно столько, сколько выдали
-            c.controlImmunity = true;
+            if(controlImmunity==null||!controlImmunity.enabled)return;
+            c.hpControlHandler=()=>RefreshControlImmunity(unit,c);
+            unit.OnHPChange+=c.hpControlHandler;
+            RefreshControlImmunity(unit,c);
         }
-
+        void RefreshControlImmunity(Unit unit, Carrier c)
+        {
+            if(NetworkConnectionHandler.isClient||!unit)return;
+            bool active=!unit.dead&&unit.health>0&&(controlImmunity.casterHpBelow<=0||SkillTargeting.IsBelowHealthThreshold(unit,controlImmunity.casterHpBelow));
+            if(active==c.controlImmunity)return;
+            var ci=unit.GetComponent<ControlImmunity>();
+            if(active){if(!ci)ci=unit.gameObject.AddComponent<ControlImmunity>();ci.Add();if(controlImmunity.presentation)Effector.EffectorAdd(unit,controlImmunity.presentation,unit,unit.owner);}
+            else {if(ci)ci.Remove();RemoveControlPresentation(unit);}
+            c.controlImmunity=active;
+        }
+        void RemoveControlPresentation(Unit unit)
+        {
+            if(!controlImmunity.presentation)return;
+            for(int i=unit.effectors.Count-1;i>=0;i--)if(unit.effectors[i].effector==controlImmunity.presentation)Effector.EffectorRemove(unit,unit.effectors[i]);
+        }
         void RemoveControlImmunity(Unit unit, Carrier c)
         {
-            if (!c.controlImmunity) return;
-
-            ControlImmunity ci = unit.GetComponent<ControlImmunity>();
-            if (ci != null) ci.Remove();
-            c.controlImmunity = false;
+            if(c.hpControlHandler!=null){unit.OnHPChange-=c.hpControlHandler;c.hpControlHandler=null;}
+            if(!c.controlImmunity)return;
+            var ci=unit.GetComponent<ControlImmunity>();if(ci)ci.Remove();
+            RemoveControlPresentation(unit);c.controlImmunity=false;
         }
 
         // ====================================================== 3. ИММУНИТЕТ К ЗАМЕДЛЕНИЯМ ==
@@ -197,6 +211,7 @@ namespace StrategyCore
         /// <summary>Снять с носителя всё, что замедляет. Зовётся из тика, только на сервере.</summary>
         void TickSlowImmunity(Unit unit)
         {
+            if(slowImmunity.casterHpBelow>0&&!SkillTargeting.IsBelowHealthThreshold(unit,slowImmunity.casterHpBelow))return;
             if (unit.effectors == null || unit.effectors.Count == 0) return;
 
             for (int e = unit.effectors.Count - 1; e >= 0; e--)
@@ -211,7 +226,8 @@ namespace StrategyCore
                 bool slowsAttack = slowImmunity.alsoRemoveAttackSlow &&
                                    (pe.attackSpeedChange < 0f || pe.attackSpeedPercentageChange < 0f);
 
-                if (!slowsMovement && !slowsAttack) continue;
+                bool weakens=slowImmunity.alsoRemoveDamageReduction&&(pe.damageChange<0||pe.damagePercentageChange<0);
+                if (!slowsMovement && !slowsAttack && !weakens) continue;
 
                 Effector.EffectorRemove(unit, eh);
             }

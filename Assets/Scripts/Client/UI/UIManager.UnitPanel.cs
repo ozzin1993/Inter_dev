@@ -1,4 +1,4 @@
-using Camera_TopDownNS;
+﻿using Camera_TopDownNS;
 using System.Collections;
 using System.Collections.Generic;
 using Unity.Netcode;
@@ -236,7 +236,8 @@ namespace StrategyCore
             if (pc.activeUnit.maxMana != 0)
             {
                 manaBar.style.display = DisplayStyle.Flex;
-                manaBar.title = Mathf.Ceil(pc.activeUnit.mana) + " / " + Mathf.Ceil(pc.activeUnit.maxMana);
+                string resourceLabel="";foreach(var ability in pc.activeUnit.abilities)if(ability is CompositePassive passive&&passive.combatResource!=null&&passive.combatResource.enabled){resourceLabel=passive.combatResource.resourceName+" ";break;}
+                manaBar.title = resourceLabel + Mathf.Ceil(pc.activeUnit.mana) + " / " + Mathf.Ceil(pc.activeUnit.maxMana);
                 manaBar.value = pc.activeUnit.mana / pc.activeUnit.maxMana;
                 manaRegen.text = (pc.activeUnit.manaRegen > 0) ? "+" + pc.activeUnit.manaRegen.ToString("0.0") : pc.activeUnit.manaRegen.ToString("0.0");
             }

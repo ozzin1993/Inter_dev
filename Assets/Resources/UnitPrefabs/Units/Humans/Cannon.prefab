@@ -76,8 +76,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b166e7a81d9bcf940a22cc4c185f0e45, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Interflow.Game::StrategyCore.Unit
-  abilities: []
-  abilityLevel: 
+  abilities:
+  - {fileID: 11400000, guid: 9fed120a4aac1d141898a4167b086239, type: 2}
+  abilityLevel: 00000000
   abilityLocked: 
   everyFrameAbilities: []
   everyFrameAbilityIndex: 
@@ -186,13 +187,13 @@ MonoBehaviour:
   splashUnitSelector:
     isOwn: 0
     isAlly: 0
-    isEnemy: 0
-    isUnit: 0
-    isBuilding: 0
+    isEnemy: 1
+    isUnit: 1
+    isBuilding: 1
     isStaticDestructible: 0
     isTree: 0
-    isGround: 0
-    isWater: 0
+    isGround: 1
+    isWater: 1
     isAir: 0
     includeInvisible: 0
     includeInvulnerable: 0

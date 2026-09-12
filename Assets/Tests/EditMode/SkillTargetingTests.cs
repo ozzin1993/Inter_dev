@@ -54,6 +54,34 @@ namespace StrategyCore.Tests
 
         Unit MakeSelf(Vector3 position) => MakeUnit("__self", position);
 
+        [Test]
+        public void HealthThreshold_ExcludesExactBoundaryButAcceptsLowerHealth()
+        {
+            var u = MakeUnit("boundary", Vector3.zero, 3000, 10000);
+            Assert.IsFalse(SkillTargeting.IsBelowHealthThreshold(u, .3f));
+            u.health = 2999;
+            Assert.IsTrue(SkillTargeting.IsBelowHealthThreshold(u, .3f));
+        }
+
+        [Test]
+        public void NearestBelowThreshold_PrefersNearEligibleOverMoreWoundedFarAlly()
+        {
+            var near = MakeUnit("near", Vector3.right, 29, 100);
+            var far = MakeUnit("far", Vector3.right * 3, 1, 100);
+            var healthy = MakeUnit("healthy", Vector3.zero, 30, 100);
+            Assert.AreSame(near, SkillTargeting.Pick(SkillTargetStrategy.NearestBelowThreshold,
+                new[] {far, healthy, near}, null, new SkillTargeting.Options { hpThreshold = .3f, origin = Vector3.zero }));
+        }
+
+        [Test]
+        public void HighestDps_UsesAttackIntervalAndSkipsNullCandidates()
+        {
+            var fast = MakeUnit("fast", Vector3.right); fast.attackDamage=50;fast.attackSpeed=.5f;
+            var slow = MakeUnit("slow", Vector3.left);slow.attackDamage=80;slow.attackSpeed=2;
+            Assert.AreSame(fast, SkillTargeting.Pick(SkillTargetStrategy.HighestDps,
+                new Unit[] {slow,null,fast},null,new SkillTargeting.Options()));
+        }
+
         // ================================================================== Nearest ==
 
         [Test]
@@ -513,6 +541,23 @@ namespace StrategyCore.Tests
             into.Add(MakeUnit("остаток2", Vector3.zero));
             SkillTargeting.TakeTargets(new List<Unit>(), Vector3.zero, 3, SkillTargeting.MultiPick.Nearest, into);
             Assert.AreEqual(0, into.Count);
+        }
+
+        [TestCase(10000f, false)]
+        [TestCase(3000f, false)]
+        [TestCase(2999f, true)]
+        public void CastCondition_HealthThreshold_GatesManualAndAutomatic(float hp, bool allowed)
+        {
+            var unit = MakeUnit("caster", Vector3.zero, hp, 10000);
+            var skill = ScriptableObject.CreateInstance<CompositeSkill>();
+            try
+            {
+                skill.targetMode = SkillTargetMode.AreaAroundSelf;
+                skill.castConditions = new SkillCastConditions { casterHpBelow = .3f };
+                Assert.AreEqual(allowed, skill.Check(unit, unit.owner, 0));
+                Assert.AreEqual(allowed, skill.AutoCastReady(unit, 0, out _));
+            }
+            finally { Object.DestroyImmediate(skill); }
         }
 
         // ============================================================= WeightedPick ==

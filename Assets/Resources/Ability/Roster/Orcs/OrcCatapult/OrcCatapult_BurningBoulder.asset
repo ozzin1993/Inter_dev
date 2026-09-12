@@ -1,0 +1,79 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 634aee3b2916be74f827df107fae0860, type: 3}
+  m_Name: OrcCatapult_BurningBoulder
+  m_EditorClassIdentifier: Interflow.Game::StrategyCore.EveryNthAttack
+  id: 57
+  abilityName:
+  - "\u0413\u043E\u0440\u044F\u0449\u0438\u0439 \u0412\u0430\u043B\u0443\u043D"
+  description:
+  - "\u041F\u043E\u043F\u0430\u0434\u0430\u043D\u0438\u0435 \u043E\u0441\u0442\u0430\u0432\u043B\u044F\u0435\u0442
+    \u043E\u0433\u043E\u043D\u044C \u043D\u0430 4 \u0441\u0435\u043A\u0443\u043D\u0434\u044B
+    \u0438 \u043E\u0442\u0431\u0440\u0430\u0441\u044B\u0432\u0430\u0435\u0442 \u043F\u0435\u0445\u043E\u0442\u0443
+    \u04221\u2013\u04222. \u0421\u043C\u043E\u043B\u044F\u043D\u0430\u044F \u0417\u0430\u0440\u044F\u0434\u043A\u0430:
+    \u0432\u0440\u0430\u0433\u0438 \u0432 \u043E\u0433\u043D\u0435 \u0437\u0430\u043C\u0435\u0434\u043B\u0435\u043D\u044B
+    \u043D\u0430 35%."
+  icon:
+  - {fileID: 2800000, guid: 002569b9e0832c64cbc953472bbd0dcd, type: 3}
+  slotNumber: -1
+  isItem: 0
+  useUponPickUp: 0
+  dropOnDeath: 0
+  charges: 0
+  maxLevels: 1
+  heroLevelable: 0
+  cooldown:
+  - 0
+  castRange:
+  - 0
+  castTime:
+  - 0
+  radius:
+  - 0
+  showRadiusCircle: 0
+  unitSelector:
+    isOwn: 0
+    isAlly: 0
+    isEnemy: 0
+    isUnit: 0
+    isBuilding: 0
+    isStaticDestructible: 0
+    isTree: 0
+    isGround: 0
+    isWater: 0
+    isAir: 0
+    includeInvisible: 0
+    includeInvulnerable: 0
+  dontTurn: 0
+  continuous: 0
+  interruptible: 0
+  requiresCastingUnit: 1
+  duration: []
+  requiredTech: []
+  requiredLevel: 
+  manaCost: []
+  manaCostPerSecond: []
+  cost: []
+  everyN: 1
+  onProcSkill: {fileID: 11400000, guid: 8ac849c18fbcf1645968dda4200a5662, type: 2}
+  procAtProjectileImpact: 1
+  bonusDamageMultiplier: []
+  bonusDamageType: {fileID: 0}
+  onlyDirectAttack: 1
+  triggerKnockback: 0
+  knockbackDistance: 2
+  knockbackStunTime: 0
+  knockbackRespectControlImmunity: 1
+  triggerBleedOnMove: 0
+  bleedDamagePerMeter: 2
+  bleedDuration: 4
+  bleedDamageType: {fileID: 0}

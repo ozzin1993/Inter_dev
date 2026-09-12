@@ -70,8 +70,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::StrategyCore.Unit
   abilities:
-  - {fileID: 11400000, guid: 745d7ba2997971a49a5ae87f4199a234, type: 2}
-  abilityLevel: 00000000
+  - {fileID: 11400000, guid: d17d26e000a20aa4aa65d4273524eb15, type: 2}
+  - {fileID: 11400000, guid: 3d36b1afc330db544afc43458d919889, type: 2}
+  abilityLevel: 0000000000000000
   abilityLocked: 
   everyFrameAbilities: []
   everyFrameAbilityIndex: 
@@ -305,8 +306,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: eeacf01fdd4e6784fbaffd8a2682fac0, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Interflow.Game::StrategyCore.AutoAbilityUser
-  autoAbilities:
-  - {fileID: 11400000, guid: 745d7ba2997971a49a5ae87f4199a234, type: 2}
+  autoAbilities: []
 --- !u!1001 &2240904114704389702
 PrefabInstance:
   m_ObjectHideFlags: 0

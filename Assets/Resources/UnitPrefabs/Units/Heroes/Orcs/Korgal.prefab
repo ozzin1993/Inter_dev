@@ -10,6 +10,7 @@ GameObject:
   m_Component:
   - component: {fileID: 7844604301432118620}
   - component: {fileID: 3611669292108843126}
+  - component: {fileID: 817612660290949829}
   m_Layer: 0
   m_Name: Korgal
   m_TagString: Untagged
@@ -45,8 +46,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b166e7a81d9bcf940a22cc4c185f0e45, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Interflow.Game::StrategyCore.Unit
-  abilities: []
-  abilityLevel: 
+  abilities:
+  - {fileID: 11400000, guid: 15b04bdaa90d7884d981ba8eea1e5111, type: 2}
+  - {fileID: 11400000, guid: a410d14396714d449af975ed2b4b32b6, type: 2}
+  - {fileID: 11400000, guid: 4d0e640e1d2091244b4197039ef942d9, type: 2}
+  - {fileID: 11400000, guid: 3d1034bb399c1d647965bc2ff0a71eb5, type: 2}
+  abilityLevel: 00000000000000000000000000000000
   abilityLocked: 
   everyFrameAbilities: []
   everyFrameAbilityIndex: 
@@ -68,6 +73,8 @@ MonoBehaviour:
   canCast: 0
   unitCategory: 3
   targetPriority: 
+  preferAttackClusters: 0
+  attackClusterRadius: 2
   respondsToAttackCommand: 1
   respondsToDefenceCommand: 1
   leavesGrave: 0
@@ -272,6 +279,25 @@ MonoBehaviour:
   removeFromPosSync: 0
   spawned: 0
   initialized: 0
+--- !u!114 &817612660290949829
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1185175352175676958}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 97c556a459149c04e816a5fa8f19c12e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Interflow.Game::StrategyCore.CharacterSockets
+  rightHand: {fileID: 0}
+  leftHand: {fileID: 0}
+  weapon: {fileID: 4112092521494847435}
+  chest: {fileID: 0}
+  center: {fileID: 0}
+  head: {fileID: 0}
+  ground: {fileID: 0}
 --- !u!1001 &4373833578302278978
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -283,6 +309,14 @@ PrefabInstance:
     - target: {fileID: 1551361124018751028, guid: 7fcd7f5c5a4a06b4bb0f790ee04a507d, type: 3}
       propertyPath: m_Name
       value: Korgal_Model
+      objectReference: {fileID: 0}
+    - target: {fileID: 2206068244493004354, guid: 7fcd7f5c5a4a06b4bb0f790ee04a507d, type: 3}
+      propertyPath: m_LocalRotation.x
+      value: -0.030907623
+      objectReference: {fileID: 0}
+    - target: {fileID: 2206068244493004354, guid: 7fcd7f5c5a4a06b4bb0f790ee04a507d, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: 0.15561365
       objectReference: {fileID: 0}
     - target: {fileID: 2219247765073779854, guid: 7fcd7f5c5a4a06b4bb0f790ee04a507d, type: 3}
       propertyPath: m_LocalPosition.x
@@ -323,6 +357,42 @@ PrefabInstance:
     - target: {fileID: 2219247765073779854, guid: 7fcd7f5c5a4a06b4bb0f790ee04a507d, type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4518519918454628546, guid: 7fcd7f5c5a4a06b4bb0f790ee04a507d, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: -0.9182601
+      objectReference: {fileID: 0}
+    - target: {fileID: 4518519918454628546, guid: 7fcd7f5c5a4a06b4bb0f790ee04a507d, type: 3}
+      propertyPath: m_LocalRotation.x
+      value: -0.0033596086
+      objectReference: {fileID: 0}
+    - target: {fileID: 4518519918454628546, guid: 7fcd7f5c5a4a06b4bb0f790ee04a507d, type: 3}
+      propertyPath: m_LocalRotation.y
+      value: -0.04325288
+      objectReference: {fileID: 0}
+    - target: {fileID: 4518519918454628546, guid: 7fcd7f5c5a4a06b4bb0f790ee04a507d, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: 0.39359418
+      objectReference: {fileID: 0}
+    - target: {fileID: 5200662241353959156, guid: 7fcd7f5c5a4a06b4bb0f790ee04a507d, type: 3}
+      propertyPath: m_Controller
+      value: 
+      objectReference: {fileID: 9100000, guid: ea40f2c5fbc0ee94490e30ed9aa6327d, type: 2}
+    - target: {fileID: 7236305190573301827, guid: 7fcd7f5c5a4a06b4bb0f790ee04a507d, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 0.8874985
+      objectReference: {fileID: 0}
+    - target: {fileID: 7236305190573301827, guid: 7fcd7f5c5a4a06b4bb0f790ee04a507d, type: 3}
+      propertyPath: m_LocalRotation.x
+      value: -0.034834277
+      objectReference: {fileID: 0}
+    - target: {fileID: 7236305190573301827, guid: 7fcd7f5c5a4a06b4bb0f790ee04a507d, type: 3}
+      propertyPath: m_LocalRotation.y
+      value: 0.2907672
+      objectReference: {fileID: 0}
+    - target: {fileID: 7236305190573301827, guid: 7fcd7f5c5a4a06b4bb0f790ee04a507d, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: -0.35579136
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []

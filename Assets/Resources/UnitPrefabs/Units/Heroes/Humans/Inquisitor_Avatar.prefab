@@ -46,8 +46,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b166e7a81d9bcf940a22cc4c185f0e45, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Interflow.Game::StrategyCore.Unit
-  abilities: []
-  abilityLevel: 
+  abilities:
+  - {fileID: 11400000, guid: 2ade2473f34fade499898d0d911cbd5e, type: 2}
+  - {fileID: 11400000, guid: 4cc3344ab80fd76439cd8b105c71ea68, type: 2}
+  abilityLevel: 0000000000000000
   abilityLocked: 
   everyFrameAbilities: []
   everyFrameAbilityIndex: 
@@ -69,6 +71,8 @@ MonoBehaviour:
   canCast: 0
   unitCategory: 4
   targetPriority: 
+  preferAttackClusters: 0
+  attackClusterRadius: 2
   respondsToAttackCommand: 1
   respondsToDefenceCommand: 1
   leavesGrave: 0
@@ -110,7 +114,7 @@ MonoBehaviour:
   maxHealth: 550
   health: 550
   healthRegen: 0
-  maxMana: 100
+  maxMana: 0
   mana: 0
   manaRegen: 0
   isInvulnerable: 0
@@ -510,7 +514,7 @@ PrefabInstance:
     - target: {fileID: 2880511677876015704, guid: b9fabf7f6c9efd44384386f544ddf53d, type: 3}
       propertyPath: m_Controller
       value: 
-      objectReference: {fileID: 9100000, guid: 5e060a58e7c4c734c84cc2cb83280beb, type: 2}
+      objectReference: {fileID: 9100000, guid: c40f9b84d55a03447b242c732b0d0e67, type: 2}
     - target: {fileID: 3966846981880401852, guid: b9fabf7f6c9efd44384386f544ddf53d, type: 3}
       propertyPath: m_AABB.m_Center.x
       value: 0.26502967

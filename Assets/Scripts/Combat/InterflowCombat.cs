@@ -134,8 +134,15 @@ namespace StrategyCore
             public float multiplier = 1f;
             /// <summary>Тип урона, к которому применяется правило. Пусто — любой тип.</summary>
             public DamageType onlyType;
+            public DamageType[] additionalTypes;
             /// <summary>Применять только к прямым атакам юнитов (не к эффекторам/зонам).</summary>
             public bool onlyDirectAttack;
+            public bool onlyRangedAttack;
+            public bool onlyEnemyMelee;
+            public float frontArc = 360f;
+            public float chance = 1f;
+            public System.Action<Unit, Unit> onApplied;
+            internal bool reacting;
         }
 
         static readonly Dictionary<Unit, List<IncomingRule>> incomingByVictim = new Dictionary<Unit, List<IncomingRule>>();
@@ -168,7 +175,7 @@ namespace StrategyCore
 
         /// <summary>
         /// Изменение входящего урона правилами жертвы. Вызывается из <c>Unit.GetDamage</c>
-        /// ПОСЛЕ штатных колбэков и ДО формулы брони. Знает тип урона — в отличие от штатного хука.
+        /// ДО штатных колбэков и формулы брони. Знает тип урона — в отличие от штатного хука.
         /// </summary>
         public static float ModifyIncomingDamage(Unit victim, Unit attacker, DamageType damageType, float amount, bool directAttack)
         {
@@ -192,9 +199,29 @@ namespace StrategyCore
                 IncomingRule r = list[i];
                 if (r == null) continue;
                 if (r.onlyDirectAttack && !directAttack) continue;
-                if (r.onlyType != null && r.onlyType != damageType) continue;
+                if(r.onlyEnemyMelee&&(!directAttack||!attacker||!attacker.melee||!UnitSelector.IsUnitCompatible(victim.owner,attacker,new UnitSelector{isEnemy=true,isUnit=true,isGround=true,isAir=true,isWater=true})))continue;
+                if(r.onlyRangedAttack&&(!directAttack||!attacker||attacker.melee))continue;
+                if (r.onlyType != null && r.onlyType != damageType && (r.additionalTypes == null || System.Array.IndexOf(r.additionalTypes, damageType) < 0)) continue;
 
+                if (amount <= 0f) continue;
+                if (r.frontArc < 360f)
+                {
+                    if (attacker == null) continue;
+                    Vector3 incoming = attacker.transform.position - victim.transform.position;
+                    incoming.y = 0f;
+                    if (Vector3.Angle(victim.LookDirection, incoming) > r.frontArc * 0.5f) continue;
+                }
+                if (r.chance < 1f && (NetworkConnectionHandler.isClient || UnityEngine.Random.value >= r.chance)) continue;
                 amount *= r.multiplier;
+                // Reactions may deal damage back or remove their own rule. Do not re-enter
+                // the same reaction while its counterattack is resolving.
+                if (r.onApplied != null && !r.reacting)
+                {
+                    r.reacting = true;
+                    try { r.onApplied(victim, attacker); }
+                    finally { r.reacting = false; }
+                }
+                if (i >= list.Count || list[i] != r) i--;
             }
 
             return amount;

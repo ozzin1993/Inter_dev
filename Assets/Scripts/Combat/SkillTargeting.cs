@@ -24,7 +24,9 @@ namespace StrategyCore
         [InspectorName("С наибольшим запасом ХП")]     Strongest,
         [InspectorName("Случайный")]                   RandomOne,
         [InspectorName("Скопление")]                   Cluster,
-        [InspectorName("Текущая цель атаки кастера")]  CurrentAttackTarget
+        [InspectorName("Текущая цель атаки кастера")]  CurrentAttackTarget,
+        [InspectorName("Наибольший урон в секунду")] HighestDps,
+        [InspectorName("Ближайший ниже порога ХП")] NearestBelowThreshold
     }
 
     /// <summary>
@@ -143,6 +145,13 @@ namespace StrategyCore
         /// Самый раненый, но только среди тех, кто ниже порога доли ХП. В отличие от <see cref="MostWounded"/>
         /// по здоровым не кастует вовсе: никто не просел — цели нет, откат копится дальше.
         /// </summary>
+        public static bool IsBelowHealthThreshold(Unit unit, float threshold)
+        {
+            if (unit == null || unit.dead || unit.maxHealth <= 0f) return false;
+            float ratio = unit.health / unit.maxHealth;
+            return ratio < threshold && !Mathf.Approximately(ratio, threshold);
+        }
+
         public static Unit MostWoundedBelowThreshold(Unit[] candidates, Unit self, float hpThreshold)
         {
             if (candidates == null) return null;
@@ -156,7 +165,7 @@ namespace StrategyCore
                 if (c.maxHealth <= 0f) continue;
 
                 float ratio = c.health / c.maxHealth;
-                if (ratio >= hpThreshold) continue;
+                if (!IsBelowHealthThreshold(c, hpThreshold)) continue;
 
                 if (ratio < bestRatio) { bestRatio = ratio; best = c; }
             }
@@ -336,8 +345,23 @@ namespace StrategyCore
                 case SkillTargetStrategy.MostWounded:
                     return MostWounded(candidates, self);
 
+                case SkillTargetStrategy.NearestBelowThreshold:
+                    if (candidates == null) return null;
+                    var wounded = System.Array.FindAll(candidates, c => IsBelowHealthThreshold(c, options.hpThreshold));
+                    return Nearest(wounded, self, options.origin);
+
                 case SkillTargetStrategy.WoundedBelowThreshold:
                     return MostWoundedBelowThreshold(candidates, self, options.hpThreshold);
+
+                case SkillTargetStrategy.HighestDps:
+                    Unit threatening = null;
+                    float highest = float.MinValue;
+                    if (candidates != null) foreach (Unit candidate in candidates) {
+                        if (candidate == null || candidate.dead || candidate == self) continue;
+                        float dps = candidate.attackDamage / Mathf.Max(.1f, candidate.attackSpeed);
+                        if (dps > highest) { highest = dps; threatening = candidate; }
+                    }
+                    return threatening;
 
                 case SkillTargetStrategy.Strongest:
                     return Strongest(candidates, self, options.useCurrentHealth);
@@ -400,3 +424,4 @@ namespace StrategyCore
         }
     }
 }
+

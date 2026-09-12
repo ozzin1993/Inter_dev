@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -203,7 +203,7 @@ namespace StrategyCore
         /// <summary>Бейдж «виден ли значок в панели состояний» — главная ловушка настройки эффектора.</summary>
         static void AddVisibilityBadge()
         {
-            bool visible = !selected.stacks && selected.icon != null;
+            bool visible = (!selected.stacks || selected.maxStacks>0) && selected.icon != null;
             string text = visible
                 ? "Значок виден в панели состояний"
                 : selected.stacks
@@ -221,7 +221,7 @@ namespace StrategyCore
                     borderBottomLeftRadius = 3, borderBottomRightRadius = 3
                 }
             };
-            badge.tooltip = "Значок состояния рисуется только у эффекторов без Stacks и с заданной иконкой.";
+            badge.tooltip = "Значок показывается при заданной иконке: для обычного эффектора либо ограниченных стаков (Max Stacks > 0).";
             rightPanel.Add(badge);
         }
 

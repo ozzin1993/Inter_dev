@@ -31,7 +31,8 @@ namespace StrategyCore
             if (tech != null)
             {
                 TechnologyManager.instance.TechTree[player][tech] = unlocked;
-                TechnologyManager.instance.OnTechUnlock[player]?.Invoke();
+                if (unlocked) TechnologyManager.instance.OnTechUnlock[player]?.Invoke();
+                else TechnologyManager.instance.OnTechLock[player]?.Invoke();
 
                 if (tech.shared)
                 {
@@ -39,18 +40,19 @@ namespace StrategyCore
 
                     for (int i = 0; i < allies.Length; i++)
                     {
-                        if (!TechnologyManager.instance.TechTree[allies[i]][tech])
+                        if (TechnologyManager.instance.TechTree[allies[i]][tech] != unlocked)
                         {
                             TechnologyManager.instance.TechTree[allies[i]][tech] = unlocked;
                             // Send a message previously unknown tech was unlocked
-                            TechnologyManager.instance.OnTechUnlock[allies[i]]?.Invoke();
+                            if (unlocked) TechnologyManager.instance.OnTechUnlock[allies[i]]?.Invoke();
+                            else TechnologyManager.instance.OnTechLock[allies[i]]?.Invoke();
                         }
                     }
                 }
             }
             else
             {
-                Debug.LogWarning("Desync on technology with an id " + techID + " (" + tech.displayName + "). It does not exist on player " + SlotManager.instance.currentPlayer);
+                Debug.LogWarning("Desync on technology with an id " + techID + ". It does not exist on player " + SlotManager.instance.currentPlayer);
             }
         }
 

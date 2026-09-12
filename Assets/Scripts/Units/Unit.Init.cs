@@ -30,6 +30,8 @@ namespace StrategyCore
 
             // Subsctibe to winning conditions (specific units should die)
             GameManager.instance.SubscribeToSpecificWinningConditions(this);
+            if (unitType == UnitType.Unit && MatchManager.instance != null)
+                MatchManager.instance.ObserveUnitForDeathHub(this);
 
             // Healthbar
             // [Interflow 2026-08-01 server-opt] На дедике бар не создаём вовсе (раньше спавнилась пустышка).
@@ -300,6 +302,7 @@ namespace StrategyCore
 
             // TechTree subscribe to it
             if (!staticObject) TechnologyManager.instance.OnTechUnlock[owner] += AllAbilityLockLevelsCalculate; // When new tech is unlocked, check if there are any abilities to unlock
+            if (!staticObject) TechnologyManager.instance.OnTechLock[owner] += AllAbilityLockLevelsCalculate;
 
             initialized = true;
         }

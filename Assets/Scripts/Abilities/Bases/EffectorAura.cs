@@ -1,4 +1,4 @@
-using System.Collections;
+﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -11,6 +11,8 @@ namespace StrategyCore
         [Header("Effector Aura Settings")]
         [Tooltip("Effectors to apply to units in radius")]
         public Effector[] effectors;
+        public bool originalFormOnly;
+        [Tooltip("Короткий эффектор на самом источнике ауры, например купол границы.")] public Effector casterEffector;
         
         [Tooltip("VFX to show on the caster while aura is active")]
         public VFXReferencer auraVFX;
@@ -35,6 +37,8 @@ namespace StrategyCore
 
         public override void Use(Unit castingUnit, int castingPlayer, int level)
         {
+            if(!castingUnit||castingUnit.dead||(originalFormOnly&&castingUnit.polymorphed))return;
+            if(casterEffector)Effector.EffectorAdd(castingUnit,casterEffector,castingUnit,castingPlayer);
             // Get units in radius
             Unit[] units = Utils.GetUnitsInRadius(new Vector2(castingUnit.transform.position.x, castingUnit.transform.position.z), radius[level], castingUnit.owner, unitSelector);
 

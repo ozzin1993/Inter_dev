@@ -1,4 +1,4 @@
-using Camera_TopDownNS;
+﻿using Camera_TopDownNS;
 using System.Collections;
 using System.Collections.Generic;
 using Unity.Netcode;
@@ -236,7 +236,7 @@ namespace StrategyCore
                     if (iconLevel == -1) iconLevel = 0;
 
                     // Display ability
-                    if (((isLeveling || !abilities[slotToAbilityIndex[i]].heroLevelable) && pc.activeUnit.abilityLocked[slotToGlobalAbilityIndex[i]])
+                    if ((abilities[slotToAbilityIndex[i]] is CompositeSkill formSkill && !formSkill.IsFormAllowed(pc.activeUnit)) || ((isLeveling || !abilities[slotToAbilityIndex[i]].heroLevelable) && pc.activeUnit.abilityLocked[slotToGlobalAbilityIndex[i]])
                         || (abilities[slotToAbilityIndex[i]] is UpgradeBuilding && (pc.activeUnit.activeProcess[0] != null || (pc.activeUnit.transportUnit && pc.activeUnit.transportUnit.units.Count > 0))))
                     {
                         // Ability is locked

@@ -80,7 +80,9 @@ MonoBehaviour:
   abilities:
   - {fileID: 11400000, guid: 11ff0a22942c7cb4ebb23f0d4937c93e, type: 2}
   - {fileID: 11400000, guid: f7f43490b7ea247498427398747641b8, type: 2}
-  abilityLevel: 0000000000000000
+  - {fileID: 11400000, guid: 43f213353f12eaf43be801e1a7683699, type: 2}
+  - {fileID: 11400000, guid: 4c57d1e2f1974bc42b30329a7317d4e5, type: 2}
+  abilityLevel: 00000000000000000000000000000000
   abilityLocked: 
   everyFrameAbilities: []
   everyFrameAbilityIndex: 
@@ -102,6 +104,8 @@ MonoBehaviour:
   canCast: 0
   unitCategory: 2
   targetPriority: 
+  preferAttackClusters: 0
+  attackClusterRadius: 2
   respondsToAttackCommand: 1
   respondsToDefenceCommand: 1
   leavesGrave: 0
@@ -120,7 +124,7 @@ MonoBehaviour:
   netID: 0
   owner: 1
   unitName: "\u0411\u0430\u043B\u043B\u0438\u0441\u0442\u0430"
-  icon: {fileID: 0}
+  icon: {fileID: 2800000, guid: 9dc7058ef6459c343b2e79b64d619d65, type: 3}
   description: dawrf ebanna
   isSelectable: 1
   unitType: 0

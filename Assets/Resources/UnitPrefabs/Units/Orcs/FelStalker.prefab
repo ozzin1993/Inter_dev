@@ -45,8 +45,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b166e7a81d9bcf940a22cc4c185f0e45, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Interflow.Game::StrategyCore.Unit
-  abilities: []
-  abilityLevel: 
+  abilities:
+  - {fileID: 11400000, guid: 552069c1022ac94439369be1f1e6ab4e, type: 2}
+  - {fileID: 11400000, guid: 56cf8415fb01d3f42a70497ea45362fe, type: 2}
+  abilityLevel: 0000000000000000
   abilityLocked: 
   everyFrameAbilities: []
   everyFrameAbilityIndex: 
@@ -68,6 +70,8 @@ MonoBehaviour:
   canCast: 0
   unitCategory: 0
   targetPriority: 
+  preferAttackClusters: 0
+  attackClusterRadius: 2
   respondsToAttackCommand: 1
   respondsToDefenceCommand: 1
   leavesGrave: 0
@@ -343,6 +347,14 @@ PrefabInstance:
     - target: {fileID: 3903542148379530257, guid: 5fc9fa965336f884d8ae1ea2837aff29, type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
       value: 13.117
+      objectReference: {fileID: 0}
+    - target: {fileID: 4121323763893814553, guid: 5fc9fa965336f884d8ae1ea2837aff29, type: 3}
+      propertyPath: UVModule.sprites.Array.data[0].sprite
+      value: 
+      objectReference: {fileID: 0}
+    - target: {fileID: 5091764490802657389, guid: 5fc9fa965336f884d8ae1ea2837aff29, type: 3}
+      propertyPath: UVModule.sprites.Array.data[0].sprite
+      value: 
       objectReference: {fileID: 0}
     - target: {fileID: 5148477762095354050, guid: 5fc9fa965336f884d8ae1ea2837aff29, type: 3}
       propertyPath: m_LocalPosition.x

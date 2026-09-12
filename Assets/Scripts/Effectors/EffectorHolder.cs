@@ -14,6 +14,7 @@ namespace StrategyCore
         public Unit unitOwner; // Which player`s effector is this. If damaging one this player will be seen as a killer
         public int owner = -1; // Which player`s effector is this. If damaging one this player will be seen as a killer
         public float currentTime;
+        internal InterflowCombat.IncomingRule incomingRule;
 
         // [Interflow fix 2026-08-02 effector-unify]
         // Фактические параметры ЭТОГО наложения. Раньше EffectorAdd правил их прямо в ассете,

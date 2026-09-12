@@ -27,6 +27,12 @@ namespace StrategyCore
         [Header("Эффекты по входящим (добавлено 2026-07-24 — «Защитный частокол»)")]
         [Tooltip("Эффекторы, накладываемые целям в зоне (замедление, кровотечение). Обновляются каждый тик — длительность у эффектора должна быть короткой.")]
         [SerializeField] private Effector[] zoneEffectors;
+        [Min(0),Tooltip("0 — каждый тик; 1 — раз в секунду, начиная после первой секунды.")] public float effectorInterval;
+        public Effector[] allyEffectors;
+        public UnitSelector allySelector;
+        float pulseTime;
+        [Tooltip("Дополнительные эффекторы зоны, доступные после технологии.")]
+        [SerializeField] private SkillEffectorRecord[] conditionalEffectors;
         [Tooltip("Оглушение цели при ПЕРВОМ попадании в зону, сек. 0 — не оглушать. Уважает иммунитет к контролю. Нужно для «колья останавливают кавалерию».")]
         [SerializeField] private float stunOnEnterSeconds = 0f;
         [Tooltip("Оглушать только цели этой категории (например Боец — кавалерия помечается им же). Снимите галку ниже, чтобы оглушать всех.")]
@@ -64,11 +70,13 @@ namespace StrategyCore
         private void OnTick()
         {
             if (GameManager.instance == null) return;
-            float dt = GameManager.instance.currentDeltaTime;
+            float dt = Mathf.Min(GameManager.instance.currentDeltaTime, Mathf.Max(0f, remaining));
 
+            pulseTime+=dt; bool pulse=effectorInterval<=0||pulseTime+.0001f>=effectorInterval; if(pulse&&effectorInterval>0)pulseTime-=effectorInterval;
+            if(allyEffectors!=null&&allyEffectors.Length>0){var allies=Utils.GetUnitsInRadius(new Vector2(transform.position.x,transform.position.z),radius,ownerPlayer,allySelector,-1,null);if(allies!=null)foreach(var ally in allies)if(ally&&!ally.dead)Effector.EffectorAdd(ownerPlayer,ally,allyEffectors);}
             bool needScan = damagePerSecond != 0f
                             || (zoneEffectors != null && zoneEffectors.Length > 0)
-                            || stunOnEnterSeconds > 0f;
+                            || (conditionalEffectors != null && conditionalEffectors.Length > 0) || stunOnEnterSeconds > 0f;
 
             if (needScan)
             {
@@ -85,7 +93,11 @@ namespace StrategyCore
                         if (damagePerSecond != 0f) t.GetDamage(damagePerSecond * dt, damageType, ownerPlayer, null, false, out _);
                         if (t.dead) continue; // цель могла погибнуть от этого же урона — по трупу не работаем
 
-                        if (zoneEffectors != null && zoneEffectors.Length > 0) Effector.EffectorAdd(ownerPlayer, t, zoneEffectors);
+                        if (pulse && zoneEffectors != null && zoneEffectors.Length > 0) Effector.EffectorAdd(ownerPlayer, t, zoneEffectors);
+
+                        if(conditionalEffectors!=null)foreach(var record in conditionalEffectors)
+                            if(record!=null&&record.effector!=null&&InterflowAbility.OptionalTechUnlocked(record.requiredTechnology,ownerPlayer))
+                                Effector.EffectorAdd(t,record.effector,null,ownerPlayer,0f,CompositeSkill.RecordPower(record,0),CompositeSkill.RecordDuration(record,0));
 
                         // Оглушение — один раз на вход в зону (иначе цель стояла бы в стане вечно)
                         if (stunOnEnterSeconds > 0f && !stunnedOnEnter.Contains(t))

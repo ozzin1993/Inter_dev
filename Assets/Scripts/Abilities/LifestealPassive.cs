@@ -16,6 +16,10 @@ namespace StrategyCore
         [Tooltip("Лечить только от прямых атак (не от урона способностей/эффекторов/сплэша). " +
                  "§6.1: выбор режима — в будущем нужны оба; стартовое значение — только прямые.")]
         public bool onlyDirectAttack = true;
+        [Range(0,1)] public float casterHpBelow;
+        public Technology upgradeTechnology;
+        [Range(0,1)] public float upgradedHealPercent;
+        public CompositeSkill healPresentation;
 
         public override void Unlock(Unit unit, int castingPlayer, int level)
         {
@@ -48,13 +52,16 @@ namespace StrategyCore
         {
             if (NetworkConnectionHandler.isClient) return;                                  // страховка (правило 6)
             if (onlyDirectAttack && !directAttack) return;                                  // §6.1: только прямые (по флагу)
-            if (byUnit == null) return;                                                     // некого лечить
+            if (byUnit == null || byUnit.dead) return;
+            if(casterHpBelow>0&&!SkillTargeting.IsBelowHealthThreshold(byUnit,casterHpBelow))return;                                                     // некого лечить
             if (unitSelector.AnySelectors() && !UnitSelector.IsUnitCompatible(byOwner, targetUnit, unitSelector)) return;
             if (healPercent == null || level >= healPercent.Length) return;
 
-            float heal = dmg * healPercent[level];
+            float fraction=upgradeTechnology&&OptionalTechUnlocked(upgradeTechnology,byOwner)?upgradedHealPercent:healPercent[level];
+            float heal = dmg * fraction;
             if (heal <= 0f) return;
             byUnit.ChangeHP(heal);
+            if(healPresentation)EmitSkillFired(byUnit,healPresentation,level,byUnit,byUnit.transform.position);
         }
     }
 }

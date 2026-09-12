@@ -1,4 +1,4 @@
-// [Interflow fix 2026-06-27] Все подсказки [Tooltip] в этом файле локализованы на русский (правка ассета, разрешена Artsiom; только текст Tooltip). Оригинал EN: _BACKUP_TOOLTIPS/Scripts/Unit.cs. Реестр: wiki concepts/asset-fork-debt.
+﻿// [Interflow fix 2026-06-27] Все подсказки [Tooltip] в этом файле локализованы на русский (правка ассета, разрешена Artsiom; только текст Tooltip). Оригинал EN: _BACKUP_TOOLTIPS/Scripts/Unit.cs. Реестр: wiki concepts/asset-fork-debt.
 using System;
 using System.Collections.Generic;
 using Unity.Netcode;
@@ -22,6 +22,7 @@ namespace StrategyCore
         public VFXReferencer AddVFX(VFXReferencer vfx, bool aboveHead = false, bool unitCentre = false)
         {
             VFXReferencer temp = Instantiate(vfx, vfxHolder);
+            temp.sourcePrefab = vfx;
             if (unitCentre) temp.transform.localPosition += new Vector3(0, unitHeight * 0.5f, 0);
             else if (aboveHead) temp.transform.localPosition += new Vector3(0, unitHeight + 0.1f, 0);
 
@@ -34,11 +35,15 @@ namespace StrategyCore
         /// <param name="vfx">VFX to remove.</param>
         public void RemoveVFX(VFXReferencer vfx)
         {
+            if (!vfxHolder || !vfx) return;
             VFXReferencer[] elements = vfxHolder.GetComponentsInChildren<VFXReferencer>();
             for (int i = 0; i < elements.Length; i++)
             {
-                if (elements[i].id == vfx.id)
+                if (elements[i].sourcePrefab == vfx || (elements[i].sourcePrefab == null && elements[i].id == vfx.id))
                 {
+                    // Detach immediately: Destroy is deferred, so another removal this frame must find the next instance.
+                    elements[i].transform.SetParent(null, true);
+                    elements[i].gameObject.SetActive(false);
                     Destroy(elements[i].gameObject);
                     return;
                 }

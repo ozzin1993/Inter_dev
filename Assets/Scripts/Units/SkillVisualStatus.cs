@@ -1,4 +1,4 @@
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using UnityEngine;
 
 namespace StrategyCore
@@ -65,7 +65,7 @@ namespace StrategyCore
 
             // Значок в панели состояний штатно рисуется только у НЕстакающих эффекторов с иконкой —
             // у остальных показываем один VFX, без записи значка.
-            Effector iconSource = (!stacks && effector.icon != null) ? effector : null;
+            Effector iconSource = ((!stacks || effector.maxStacks>0) && effector.icon != null) ? effector : null;
             if (iconSource == null && effector.VFX == null) return;
 
             float duration;

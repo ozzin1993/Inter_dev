@@ -49,6 +49,7 @@ namespace StrategyCore
 
             ValidateUnits(issues, units, factions);
             ValidateAbilities(issues, units, factions);
+            ValidateEffectorAssets(issues);
             ValidateCompositeSkills(issues, units, factions);
             ValidateFactions(issues, factions);
             ValidateTechTiers(issues, factions);
@@ -65,10 +66,9 @@ namespace StrategyCore
         static List<(Unit unit, string path)> LoadAllUnitPrefabs()
         {
             var result = new List<(Unit, string)>();
-            foreach (string guid in AssetDatabase.FindAssets("t:GameObject"))
+            foreach (var go in InterflowUnitPrefabIndex.LoadUnits())
             {
-                string path = AssetDatabase.GUIDToAssetPath(guid);
-                var go = AssetDatabase.LoadAssetAtPath<GameObject>(path);
+                string path = AssetDatabase.GetAssetPath(go);
                 if (go == null) continue;
                 var unit = go.GetComponent<Unit>();
                 if (unit != null) result.Add((unit, path));
@@ -225,6 +225,27 @@ namespace StrategyCore
 
         // ======================== БЛОК «УМЕНИЯ» (шаг 2) ========================
 
+        static void ValidateEffectorAssets(List<InterflowIssue> issues)
+        {
+            var registered = new Dictionary<int, Effector>();
+            foreach (string guid in AssetDatabase.FindAssets("t:Effector")) {
+                string path = AssetDatabase.GUIDToAssetPath(guid);
+                var effect = AssetDatabase.LoadAssetAtPath<Effector>(path);
+                if (effect == null) continue;
+                if (!InResourcesSubfolder(path, "Effectors")) {
+                    issues.Add(new InterflowIssue(InterflowIssueSeverity.Warning,
+                        $"Эффектор «{effect.name}» вне Resources/Effectors — сеть и сохранения не найдут его по id.",
+                        "GameManager.AbilitiesInit / Effector.GetEffectorByID", effect));
+                    continue;
+                }
+                if (registered.ContainsKey(effect.id))
+                    issues.Add(new InterflowIssue(InterflowIssueSeverity.Error,
+                        $"Дублируется Effector.id={effect.id}: «{effect.name}» и «{registered[effect.id].name}» — ошибка при старте игры.",
+                        "GameManager.AbilitiesInit", effect));
+                else registered.Add(effect.id, effect);
+            }
+        }
+
         static void ValidateAbilities(List<InterflowIssue> issues, List<(Unit unit, string path)> units, List<FactionConfig> factions)
         {
             // Все Ability проекта (t: находит и наследников — наши кастомные классы тоже).
@@ -267,7 +288,7 @@ namespace StrategyCore
             }
             foreach (var a in uiAbilities)
             {
-                if (a.icon == null || a.icon == null)
+                if (a.icon == null || a.icon.Length == 0 || a.icon.All(i => i == null))
                     issues.Add(new InterflowIssue(InterflowIssueSeverity.Warning,
                         $"У UI-умения «{a.name}» не задана иконка icon — в таблице будет пустая ячейка.",
                         "Гайд 03 часть 1 (иконка из icon)", a));
@@ -443,6 +464,12 @@ namespace StrategyCore
                 }
 
                 // --- 2. Доставка снарядом ---
+                if(skill.line!=null&&skill.line.enabled&&(skill.line.length<=0||skill.line.width<=0||!skill.directionMatters)) issues.Add(new InterflowIssue(InterflowIssueSeverity.Error,"Линия: нужны положительные длина/ширина и учёт направления.","CompositeSkill",skill));
+                if(skill.disruption!=null&&skill.disruption.enabled&&skill.disruption.manaBurnTechnology&&skill.disruption.currentManaFraction>0&&!skill.disruption.manaDamageType) issues.Add(new InterflowIssue(InterflowIssueSeverity.Error,"Подавление: не задан тип урона сжигаемой маны.","CompositeSkill",skill));
+                if(skill.projectileImpact!=null && skill.projectileImpact.enabled) {
+                    if(skill.delivery!=SkillDelivery.Projectile || !skill.projectileImpact.skill || skill.projectileImpact.skill==skill || skill.projectileImpact.skill.delivery!=SkillDelivery.Instant)
+                        issues.Add(new InterflowIssue(InterflowIssueSeverity.Error, "При попадании снаряда: нужен отдельный мгновенный скилл и доставка снарядом.", "CompositeSkill", skill));
+                }
                 if (skill.delivery == SkillDelivery.Projectile)
                 {
                     if (skill.projectilePrefab == null)
@@ -488,6 +515,14 @@ namespace StrategyCore
                         $"Скилл «{n}»: блок призыва включён, но префаб юнита не задан — призыва не будет.",
                         "План §5.2", skill));
 
+                if(skill.damageLink!=null&&skill.damageLink.enabled){
+                    if(skill.damageLink.duration<=0||skill.damageLink.sharedFraction<=0||!skill.damageLink.sharedDamageType)
+                        issues.Add(new InterflowIssue(InterflowIssueSeverity.Error,$"Скилл «{n}»: связь урона требует положительных длительности и доли урона, а также типа урона.","Связь урона",skill));
+                    if(skill.maxTargets==1||skill.targetMode==SkillTargetMode.Self||skill.targetMode==SkillTargetMode.SmartUnit)
+                        issues.Add(new InterflowIssue(InterflowIssueSeverity.Error,$"Скилл «{n}»: связь урона требует минимум двух выбранных целей.","Связь урона",skill));
+                    if(!skill.damageLink.chainMaterial)
+                        issues.Add(new InterflowIssue(InterflowIssueSeverity.Warning,$"Скилл «{n}»: связь урона не имеет материала цепей.","Связь урона",skill));
+                }
                 // --- 4. Зона: префаб без компонента ---
                 if (skill.groundZone != null && skill.groundZone.enabled)
                 {
@@ -589,7 +624,7 @@ namespace StrategyCore
                                 "SaveManager.UnitData (строка effectors)", skill));
 
                         // Множитель масштабирует ровно две вещи: пассивные изменения статов и урон в секунду.
-                        bool scalable = rec.effector.passiveEffectsOn || rec.effector.damageAmount != 0;
+                        bool scalable = rec.effector.passiveEffectsOn || rec.effector.damageAmount != 0 || !Mathf.Approximately(rec.effector.incomingDamageMultiplier, 1f);
                         bool powerSet = rec.power != null && rec.power.Any(x => x > 0f && Mathf.Abs(x - 1f) > 0.0001f);
                         if (powerSet && !scalable)
                             issues.Add(new InterflowIssue(InterflowIssueSeverity.Warning,
@@ -640,13 +675,8 @@ namespace StrategyCore
                         $"Скилл «{n}»: задан визуал каста, но castTime = 0 — замах и удар совпадут в один кадр.",
                         "План §5.2", skill));
 
-                // --- 12. Каст с кнопки с умным выбором: клиент не воспроизведёт выбор цели ---
-                if (skill.buttonCast && skill.PicksTargetByStrategy
-                    && (skill.impactVFX != null || skill.delivery == SkillDelivery.Projectile))
-                    issues.Add(new InterflowIssue(InterflowIssueSeverity.Warning,
-                        $"Скилл «{n}»: цель выбирает стратегия на СЕРВЕРЕ — клиент не увидит визуала попадания и снаряда. " +
-                        "Значки состояний и визуал бафа до клиента доедут: их сервер шлёт отдельным сообщением.",
-                        "CompositeSkill.Execute (ранний выход клиента)", skill));
+                // Smart targeting publishes its resolved aim through SkillFired. SkillPresenter
+                // displays impact and the client-only projectile; the old early-return warning was stale.
 
                 // --- 13. Сокет задан, а на носителе нет CharacterSockets ---
                 if (skill.spawnSocket != SkillSocketType.None && (skill.castVFX != null || skill.delivery == SkillDelivery.Projectile))
@@ -654,7 +684,7 @@ namespace StrategyCore
                     foreach (var (unit, _) in units)
                     {
                         if (unit.abilities == null || !unit.abilities.Contains(skill)) continue;
-                        if (unit.GetComponent<CharacterSockets>() != null) continue;
+                        if (unit.GetComponentInChildren<CharacterSockets>(true) != null) continue;
 
                         issues.Add(new InterflowIssue(InterflowIssueSeverity.Warning,
                             $"Скилл «{n}» стреляет из точки привязки, но на носителе «{unit.name}» нет компонента CharacterSockets — всё пойдёт из центра объекта.",
@@ -774,7 +804,8 @@ namespace StrategyCore
             || (s.blind != null && s.blind.enabled)
             || (s.morph != null && s.morph.enabled)
             || (s.ownership != null && s.ownership.enabled)
-            || (s.secondary != null && s.secondary.enabled);
+            || (s.secondary != null && s.secondary.enabled)
+            || (s.damageLink != null && s.damageLink.enabled);
 
         /// <summary>Имена включённых блоков, у которых все числа нулевые или ссылки пусты.</summary>
         static IEnumerable<string> EmptyEnabledBlocks(CompositeSkill s)
@@ -809,6 +840,7 @@ namespace StrategyCore
             if (s.buff != null && s.buff.enabled && Any(s.buff.duration)
                 && !Any(s.buff.auraDamagePerSecond) && !Any(s.buff.healPerSecond) && !Any(s.buff.healPercentOfMaxPerSecond)
                 && !Any(s.buff.selfBurnPerSecond) && !s.buff.controlImmunity && !s.buff.detonateOnDeath
+                && !s.buff.rewardCasterOnDeath && !s.buff.brace && !s.buff.storeHealthLoss
                 && (s.buff.incomingDamageMultiplier == null || !s.buff.incomingDamageMultiplier.Any(v => v != 1f)))
                 yield return "длящийся баф";
 
@@ -830,7 +862,7 @@ namespace StrategyCore
 
             if (s.secondary != null && s.secondary.enabled
                 && (s.secondary.radius <= 0f
-                    || (!Any(s.secondary.healFlat) && (s.secondary.effectors == null || s.secondary.effectors.Length == 0))))
+                    || (!Any(s.secondary.healFlat) && s.secondary.healPercentOfBaseDamage <= 0 && !Any(s.secondary.damageFlat) && s.secondary.damagePercentOfBaseDamage <= 0 && (s.secondary.effectors == null || s.secondary.effectors.Length == 0))))
                 yield return "вторичные цели";
         }
 

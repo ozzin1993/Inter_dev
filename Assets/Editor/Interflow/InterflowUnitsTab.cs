@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEditor;
@@ -223,9 +223,7 @@ namespace StrategyCore
         // Скан всех префабов проекта с компонентом Unit — как SCEditor.LoadUnits (t:GameObject + GetComponent<Unit>).
         static void RefreshUnitList()
         {
-            allUnits = AssetDatabase.FindAssets("t:GameObject")
-                .Select(g => AssetDatabase.LoadAssetAtPath<GameObject>(AssetDatabase.GUIDToAssetPath(g)))
-                .Where(go => go != null && go.GetComponent<Unit>() != null)
+            allUnits = InterflowUnitPrefabIndex.LoadUnits()
                 .Select(go => go.GetComponent<Unit>())
                 .OrderBy(u => u.name)
                 .ToList();

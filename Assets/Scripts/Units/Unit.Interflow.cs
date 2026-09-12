@@ -1,4 +1,4 @@
-using UnityEngine;
+﻿using UnityEngine;
 
 namespace StrategyCore
 {
@@ -28,6 +28,8 @@ namespace StrategyCore
         [Tooltip("Упорядоченный список категорий целей. При выборе НОВОЙ цели юнит предпочитает ближайшего из первой непустой категории (сначала элемент [0], затем [1] и т.д.). " +
                  "Пусто — берётся командный дефолт из MatchManager; если и он пуст — штатный выбор (ближайший). Уже начатый бой не прерывается.")]
         public UnitCategory[] targetPriority;
+        [Tooltip("При выборе новой цели атаковать самое плотное скопление. Уже начатая атака не прерывается.")] public bool preferAttackClusters;
+        [Tooltip("Радиус скопления для обычной атаки.")] public float attackClusterRadius=2f;
 
         [Header("Реакция на общие приказы (Interflow)")]
         [Tooltip("Реагирует на кнопку АТАКА (весь отряд в атаку). ВЫКЛ — юнит игнорирует этот приказ.")]

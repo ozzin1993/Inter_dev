@@ -1,4 +1,4 @@
-using UnityEngine;
+﻿using UnityEngine;
 
 namespace StrategyCore
 {
@@ -26,6 +26,21 @@ namespace StrategyCore
         {
             if (unit == null) return null;
 
+            if(unit.preferAttackClusters)
+            {
+                var position=new Vector2(unit.transform.position.x,unit.transform.position.z);
+                var group=Utils.GetUnitsInRadius(position,radius,unit.owner,selector,-1,unit);
+                Unit best=null;int score=-1;float distance=float.MaxValue;
+                foreach(var candidate in group)
+                {
+                    if(!candidate||candidate.dead||(FoWVisible&&FogOfWar.instance&&!FogOfWar.instance.IsVisible(candidate.FoWCell,unit.team)))continue;
+                    int count=0;foreach(var other in group)
+                        if(other&&!other.dead&&(!FoWVisible||!FogOfWar.instance||FogOfWar.instance.IsVisible(other.FoWCell,unit.team))&&(candidate.transform.position-other.transform.position).sqrMagnitude<=unit.attackClusterRadius*unit.attackClusterRadius)count++;
+                    float d=(candidate.transform.position-unit.transform.position).sqrMagnitude;
+                    if(count>score||(count==score&&d<distance)){best=candidate;score=count;distance=d;}
+                }
+                if(best)return best;
+            }
             // 1) Эффективный список категорий: собственный список юнита перебивает командный дефолт.
             Unit.UnitCategory[] priority =
                 (unit.targetPriority != null && unit.targetPriority.Length > 0)

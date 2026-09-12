@@ -94,6 +94,13 @@ namespace StrategyCore
         /// Попросить немедленную синхронизацию состояния клиентам (батч ХП и пр.).
         /// Зовётся ОДИН раз после пачки изменений, а не на каждую цель. На клиенте — ничего не делает.
         /// </summary>
+        public static bool OptionalTechUnlocked(Technology technology,int player)
+        {
+            if(technology==null)return true;
+            var tree=TechnologyManager.instance?TechnologyManager.instance.TechTree:null;
+            return tree!=null&&player>=0&&player<tree.Length&&tree[player]!=null&&tree[player].TryGetValue(technology,out var unlocked)&&unlocked;
+        }
+
         public static void RequestForceSync()
         {
             if (NetworkManager.Singleton == null || !NetworkManager.Singleton.IsServer) return;
