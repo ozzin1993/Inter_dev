@@ -30,6 +30,8 @@ namespace StrategyCore
         public Action onHPCleared; // Units that have their hp changed subscribe to this to clear their ID added flag
         public Action onMPCleared; // Units that have their mp changed subscribe to this to clear their ID added flag
         public Action onXPCleared; // Units that have their xp changed subscribe to this to clear their ID added flag
+        // [Interflow fix 2026-09-09 characteristics-sync] Четвёртый канал семьи: характеристики.
+        public Action onCharCleared; // Units that have their characteristics changed subscribe to this to clear their ID added flag
 
         // Server
         int tickCount = 0;
@@ -82,11 +84,16 @@ namespace StrategyCore
                 ResourceSend();
                 XPChangeSend();
 
-                if (tickCount == 10)
+                // [Interflow fix 2026-09-09 force-sync-miss] Сравнение НЕ на равенство: счётчик
+                // увеличивается ДО проверки, поэтому принудительный запрос (ForceSync ставит 10)
+                // проскакивал равенство — 11 никогда не равно 10, и периодическая отправка здоровья
+                // и маны выпадала до конца матча. Лечила только пауза: ForceSend обнуляет счётчик.
+                if (tickCount >= 10)
                 {
                     tickCount = 0;
                     HPChangeSend();
                     MPChangeSend();
+                    CharacteristicsChangeSend();
                 }
             }
         }
@@ -101,6 +108,7 @@ namespace StrategyCore
             XPChangeSend();
             HPChangeSend();
             MPChangeSend();
+            CharacteristicsChangeSend();
         }
 
         // Forces the game to sync MP and HP at the next tick

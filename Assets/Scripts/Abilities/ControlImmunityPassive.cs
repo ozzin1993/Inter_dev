@@ -40,6 +40,7 @@ namespace StrategyCore
             if (ci == null) ci = unit.gameObject.AddComponent<ControlImmunity>();
 
             ci.Add();
+            AbilityFacts.Granted(this, unit, level);   // [2026-09-10] показ срабатывания — см. AbilityFacts
         }
 
         public override void Lock(Unit unit, int castingPlayer, int level)
@@ -48,6 +49,7 @@ namespace StrategyCore
 
             ControlImmunity ci = unit.GetComponent<ControlImmunity>();
             if (ci != null) ci.Remove();
+            AbilityFacts.Revoked(this, unit, level);   // [2026-09-10] показ срабатывания — см. AbilityFacts
         }
     }
 }

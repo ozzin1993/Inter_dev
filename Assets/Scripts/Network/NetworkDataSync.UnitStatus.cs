@@ -255,30 +255,110 @@ namespace StrategyCore
         // SkillPresentationEvents, а рисует клиентский презентер (событийная инверсия, решение Р6).
         // Причина едет ЧИСЛОМ (нумерация BattleFactReason сплошная от нуля), поэтому порядок значений
         // перечисления менять нельзя — иначе сервер и клиент разойдутся в толковании номера.
+        // [Interflow 2026-09-09 passive-facts] Этим же сообщением едут срабатывания пассивных умений:
+        // новых каналов под них не заводится, добавлены только номера причин.
 
         /// <summary>
         /// Сервер: по юниту произошло разовое событие боя (защита сработала или прошёл урон).
         /// Шлёт клиентам И поднимает факт локально: сообщение идёт SendTo.NotServer и до хоста
         /// не доходит, а хосту показывать надпись надо так же (образец — щит, AbsorbShield.NotifyShieldBar).
         /// </summary>
-        /// <param name="value">Число факта. Осмысленно только у BattleFactReason.DamageDealt
-        /// (фактически снятое здоровье); у остальных причин 0.</param>
-        public void UnitBattleFactSend(Unit unit, BattleFactReason reason, float value)
+        /// <param name="value">Число факта. У части причин осмысленно (снятое здоровье, урон ответа,
+        /// номер блока свойств), у остальных 0 — см. <see cref="BattleFactReason"/>.</param>
+        /// <param name="before">Значение ДО события, для скобки «было → стало» (0 у обоих — скобки нет).</param>
+        /// <param name="after">Значение ПОСЛЕ события.</param>
+        public void UnitBattleFactSend(Unit unit, BattleFactReason reason, float value,
+                                       float before = 0f, float after = 0f)
         {
             if (!CanSendAbout(unit)) return;
 
-            UnitBattleFactClientRpc(unit.netID, (byte)reason, value);
-            SkillPresentationEvents.RaiseBattleFact(unit, reason, value);
+            // [Interflow 2026-09-11] Номер удара, бьющий и умение НЕ приходят параметрами: их держит
+            // контекст идущего приёма пакета (UnitReceiver.Queue.cs). Факт поднимают полтора десятка
+            // мест внутри удара (правила входящего, щит, число урона, наложение состояния, реакции
+            // пассивок) — протаскивание трёх лишних аргументов через каждое ничего бы не дало.
+            // Удар не идёт (выдача блока свойств, баф вне боя) — номер 0, бьющего нет, умения нет.
+            Unit attacker = UnitReceiver.CurrentAttacker;
+            UInt16 attackerID = StillRegistered(attacker) ? attacker.netID : (UInt16)0;
+
+            UnitBattleFactClientRpc(unit.netID, (byte)reason, value, before, after,
+                                    UnitReceiver.CurrentHitId, attackerID, UnitReceiver.CurrentAbilityID);
+
+            SkillPresentationEvents.RaiseBattleFact(
+                MakeFact(unit, unit.transform.position, reason, value, before, after,
+                         UnitReceiver.CurrentHitId, attacker, UnitReceiver.CurrentAbilityID));
         }
 
         [Rpc(SendTo.NotServer, InvokePermission = RpcInvokePermission.Server)]
-        private void UnitBattleFactClientRpc(UInt16 netID, byte reason, float value)
+        private void UnitBattleFactClientRpc(UInt16 netID, byte reason, float value, float before, float after,
+                                             int hitId, UInt16 attackerID, int abilityID)
         {
             if (NetworkConnectionHandler.Instance != null && NetworkConnectionHandler.Instance.connectionStage == 2) return;
             if (GameManager.Instance == null) return; // кадр выгрузки сцены
             if (!TryResolveUnit(netID, "UnitBattleFactSend", out Unit unit)) return;
 
-            SkillPresentationEvents.RaiseBattleFact(unit, (BattleFactReason)reason, value);
+            // Бьющий необязателен и мог погибнуть по дороге: конвенция «0 — нет ссылки», как у факта
+            // срабатывания умения. Без него строка просто лишится имени слева, факт не отменяется.
+            Unit attacker = attackerID != 0 ? ResolveUnitQuiet(attackerID) : null;
+
+            SkillPresentationEvents.RaiseBattleFact(
+                MakeFact(unit, unit.transform.position, (BattleFactReason)reason, value, before, after,
+                         hitId, attacker, abilityID));
+        }
+
+        // ============================== ФАКТ БОЯ В ТОЧКЕ ==============================
+        // [Interflow 2026-09-09 passive-facts] Тот же факт, но привязанный к точке мира. Нужен там,
+        // где носителя к моменту события уже нет: реакция «носитель погиб» срабатывает в месте гибели,
+        // а netID мертвеца снят с учёта, и сообщение «про юнита» отсеялось бы гейтом StillRegistered.
+        // Гейт здесь только серверный — юнита, про которого спрашивать, нет.
+
+        /// <summary>Сервер: разовое событие боя произошло в точке мира (носителя уже нет).</summary>
+        public void BattleFactAtPointSend(Vector3 position, BattleFactReason reason, float value,
+                                          float before = 0f, float after = 0f)
+        {
+            if (!ServerCanSend()) return;
+
+            Unit attacker = UnitReceiver.CurrentAttacker;
+            UInt16 attackerID = StillRegistered(attacker) ? attacker.netID : (UInt16)0;
+
+            BattleFactAtPointClientRpc(position, (byte)reason, value, before, after,
+                                       UnitReceiver.CurrentHitId, attackerID, UnitReceiver.CurrentAbilityID);
+
+            SkillPresentationEvents.RaiseBattleFactAt(
+                MakeFact(null, position, reason, value, before, after,
+                         UnitReceiver.CurrentHitId, attacker, UnitReceiver.CurrentAbilityID));
+        }
+
+        [Rpc(SendTo.NotServer, InvokePermission = RpcInvokePermission.Server)]
+        private void BattleFactAtPointClientRpc(Vector3 position, byte reason, float value, float before, float after,
+                                                int hitId, UInt16 attackerID, int abilityID)
+        {
+            if (NetworkConnectionHandler.Instance != null && NetworkConnectionHandler.Instance.connectionStage == 2) return;
+            if (GameManager.Instance == null) return; // кадр выгрузки сцены
+
+            Unit attacker = attackerID != 0 ? ResolveUnitQuiet(attackerID) : null;
+
+            SkillPresentationEvents.RaiseBattleFactAt(
+                MakeFact(null, position, (BattleFactReason)reason, value, before, after, hitId, attacker, abilityID));
+        }
+
+        /// <summary>
+        /// [Interflow 2026-09-11] Сборка описания факта. Отдельный метод, потому что собирают его четыре
+        /// места (отправка и приём, по юниту и в точке), а полей девять — копия кода расходилась бы.
+        /// </summary>
+        static BattleFactInfo MakeFact(Unit unit, Vector3 position, BattleFactReason reason, float value,
+                                       float before, float after, int hitId, Unit attacker, int abilityID)
+        {
+            BattleFactInfo info;
+            info.unit = unit;
+            info.position = position;
+            info.reason = reason;
+            info.value = value;
+            info.before = before;
+            info.after = after;
+            info.hitId = hitId;
+            info.attacker = attacker;
+            info.abilityID = abilityID;
+            return info;
         }
 
         // ============================== ОБЩЕЕ ==============================
@@ -312,7 +392,10 @@ namespace StrategyCore
             return ServerCanSend() && StillRegistered(unit);
         }
 
-        static bool TryResolveUnit(UInt16 netID, string source, out Unit unit)
+        /// <param name="allowDead">[Interflow 2026-09-11] Принимать и мёртвого. Нужно строкам показа:
+        /// смертельная строка отправляется ДО снятия номера, но у клиента смерть могла примениться
+        /// своим путём раньше приёма — и штатный резолв отбросил бы самую важную строку удара.</param>
+        static bool TryResolveUnit(UInt16 netID, string source, out Unit unit, bool allowDead = false)
         {
             if (!SlotManager.Instance.unitNetID.TryGetValue(netID, out unit) || unit == null)
             {
@@ -320,7 +403,19 @@ namespace StrategyCore
                 unit = null;
                 return false;
             }
-            return !unit.dead;
+            return allowDead || !unit.dead;
+        }
+
+        /// <summary>
+        /// [Interflow 2026-09-11] Резолв БЕЗ крика в консоль: юнит мог погибнуть между отправкой и приёмом,
+        /// и его номер у клиента уже снят. Для ссылок «кто ударил» это штатный случай, а не рассинхрон —
+        /// строка показа просто лишится имени слева. Для самой цели сообщения по-прежнему годится
+        /// только громкий <see cref="TryResolveUnit"/>: её отсутствие — настоящая ошибка.
+        /// </summary>
+        static Unit ResolveUnitQuiet(UInt16 netID)
+        {
+            SlotManager.Instance.unitNetID.TryGetValue(netID, out Unit unit);
+            return unit;
         }
     }
 

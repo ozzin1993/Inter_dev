@@ -18,9 +18,6 @@ namespace StrategyCore
     /// </summary>
     public class ShieldBarDisplay : MonoBehaviour
     {
-        // Имя объекта полоски: своим юнитам ядро инстанцирует её с этим именем, врагам ставит его явно.
-        const string HealthBarName = "HealthBar(Clone)";
-
         static readonly int segStartProp = Shader.PropertyToID("_SegStart");
         static readonly int segWidthProp = Shader.PropertyToID("_SegWidth");
 
@@ -87,7 +84,9 @@ namespace StrategyCore
         /// </summary>
         bool TryCreateSegment()
         {
-            Transform bar = transform.Find(HealthBarName);
+            // [Interflow 2026-09-09 unit-overlay] Полоска — по ссылке юнита: она переехала
+            // в контейнер надюнитовых элементов, поиском по прямым детям её больше не найти.
+            Transform bar = unit != null ? unit.HealthBarRoot : null;
             if (bar == null) return false;
 
             Material material = ResolveMaterial();

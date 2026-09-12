@@ -426,6 +426,16 @@ namespace StrategyCore
         /// <returns></returns>
         public bool ChangeTeamTo(ulong clientID, int team)
         {
+            // Смена команды — операция ЛОББИ. Признак «мы ещё в лобби» — gameStarted == Menu, а НЕ gameOn:
+            // gameOn гаснет ещё и на паузе (NetworkConnectionHandler.PauseTheGame), и по нему запрос,
+            // присланный во время паузы идущего матча, прошёл бы. Отсчёт до старта состояния не меняет,
+            // поэтому его поведение не трогается. Отладочный режим на эту проверку не влияет.
+            if (gameStarted != GameState.Menu)
+            {
+                Debug.LogWarning($"[SlotManager] ChangeTeamTo: клиент {clientID} прислал смену команды вне лобби (состояние {gameStarted}) — отклонено.");
+                return false;
+            }
+
             // Fetch current scene data
             if (SceneHandler.Instance.sceneData == null || SceneHandler.Instance.sceneIndex >= SceneHandler.Instance.sceneData.Length) return false;
             SceneData sceneData = SceneHandler.Instance.sceneData[SceneHandler.Instance.sceneIndex];

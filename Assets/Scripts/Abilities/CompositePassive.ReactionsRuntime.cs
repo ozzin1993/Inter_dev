@@ -18,6 +18,12 @@ namespace StrategyCore
     //   • добивание — событие хаба MatchManager.OnUnitDeathServer: узнать, что добил ИМЕННО наш
     //     носитель, можно только там, где видно жертву и убийцу одновременно;
     //   • порог здоровья — штатное Unit.OnHPChange.
+    //
+    // [Interflow 2026-09-09 passive-facts] Каждое срабатывание, кроме ухода от удара, поднимает
+    // разовый факт боя — надпись над юнитом и строку в ленте (партиал CompositePassive.Facts.cs).
+    // Уход от удара своего факта НЕ получает намеренно: приёмник делает один общий бросок и не
+    // различает уход жертвы и промах бьющего (решение Artsiom Р4 от 03.09.2026), поэтому у обоих
+    // случаев одна надпись «Мимо» — она уже шлётся штатной причиной HitMissed.
     public partial class CompositePassive
     {
         /// <summary>Что выдано носителю по оси реакций. Снимаем ровно то, что выдали.</summary>
@@ -66,9 +72,16 @@ namespace StrategyCore
             WireHpBelow(unit, st);
 
             if (st.incomingRule == null && st.damagedHandler == null && st.hitMissedHandler == null &&
-                st.dieHandler == null && st.hpHandler == null && !IsKillEnabled()) return;
+                st.dieHandler == null && st.hpHandler == null && !IsKillEnabled())
+            {
+                if (InterflowDebug.FullOn)
+                    LogReactionsNotWired(unit, "включённые реакции не дали ни одной подписки: числа нейтральны или блоки пусты");
+                return;
+            }
 
             reactionCarriers[unit] = st;
+
+            if (InterflowDebug.FullOn) LogReactionsWired(unit, st, level);
 
             if (NeedsReactionTick()) WireReactionTick();
         }
@@ -85,6 +98,8 @@ namespace StrategyCore
             if (st.hpHandler != null) unit.OnHPChange -= st.hpHandler;
 
             reactionCarriers.Remove(unit);
+
+            if (InterflowDebug.FullOn) LogReactionsUnwired(unit, st, "закрытие умения");
 
             if (reactionCarriers.Count == 0) { UnwireReactionTick(); UnwireKillHub(); }
         }
@@ -115,7 +130,14 @@ namespace StrategyCore
             float flat = LevelValue(onDamaged.flatBlock, level);
 
             if (mult <= 0f) mult = 1f;                       // пусто или ноль в поле множителя — «не менять»
-            if (evade <= 0f && flat <= 0f && Mathf.Approximately(mult, 1f)) return;
+
+            if (evade <= 0f && flat <= 0f && Mathf.Approximately(mult, 1f))
+            {
+                if (InterflowDebug.FullOn)
+                    LogReactionSkipped(1, unit, "правило входящего урона",
+                                       "числа нейтральны: множитель 1, шанс ухода 0, вычет числом 0");
+                return;
+            }
 
             InterflowCombat.IncomingRule rule = new InterflowCombat.IncomingRule
             {
@@ -141,9 +163,13 @@ namespace StrategyCore
 
                 st.hitMissedHandler = h;
                 InterflowCombat.HitMissedListenerAdd(unit, h);
+
+                if (InterflowDebug.FullOn) LogCounterWired(unit, true);
             }
 
             st.incomingRule = InterflowCombat.IncomingRuleAdd(unit, rule);
+
+            if (InterflowDebug.FullOn) LogIncomingRuleWired(unit, rule);
         }
 
         /// <summary>Ответный удар по кругу. Живёт на уведомлении «урон получен» — там известен бьющий.</summary>
@@ -161,37 +187,77 @@ namespace StrategyCore
 
             st.damagedHandler = h;
             InterflowCombat.DamagedListenerAdd(unit, h);
+
+            if (InterflowDebug.FullOn) LogCounterWired(unit, false);
         }
 
         void Counterstrike(Unit victim, bool directAttack, int level)
         {
-            if (NetworkConnectionHandler.isClient) return;
-            if (victim == null || victim.dead || victim.stunned) return;
-            if (onDamaged == null || !onDamaged.enabled || !onDamaged.counterEnabled) return;
-            if (onDamaged.onlyDirectAttack && !directAttack) return;
-            if (!reactionCarriers.TryGetValue(victim, out ReactionState st)) return;
+            if (NetworkConnectionHandler.isClient) return;   // не игровой отказ — молчим
+
+            if (victim == null || victim.dead || victim.stunned)
+            {
+                if (InterflowDebug.FullOn && victim != null && CounterLogged())
+                    LogReactionSkipped(1, victim, "ответный удар", victim.dead ? "носитель мёртв" : "носитель оглушён");
+                return;
+            }
+
+            if (onDamaged == null || !onDamaged.enabled || !onDamaged.counterEnabled) return;   // выключено — молчим
+
+            if (onDamaged.onlyDirectAttack && !directAttack)
+            {
+                if (InterflowDebug.FullOn) LogReactionSkipped(1, victim, "ответный удар", "удар не прямая атака");
+                return;
+            }
+
+            if (!reactionCarriers.TryGetValue(victim, out ReactionState st))
+            {
+                if (InterflowDebug.FullOn) LogReactionSkipped(1, victim, "ответный удар", "носитель не числится в списке реакций");
+                return;
+            }
 
             // Откат проверяем по величине И ставим ДО удара: два носителя ответа рядом иначе
             // отвечали бы друг другу рекурсивно. Ноль тоже защищает — запись живёт до тика.
-            if (st.counterCooldownLeft > 0f) return;
+            if (st.counterCooldownLeft > 0f)
+            {
+                if (InterflowDebug.FullOn)
+                    LogReactionSkipped(1, victim, "ответный удар", "идёт откат, осталось " + st.counterCooldownLeft.ToString("0.#") + " сек");
+                return;
+            }
 
             float radiusValue = LevelValue(onDamaged.counterRadius, level);
-            if (radiusValue <= 0f) return;
+            if (radiusValue <= 0f)
+            {
+                if (InterflowDebug.FullOn) LogReactionSkipped(1, victim, "ответный удар", "радиус ответа на уровне " + level + " равен нулю");
+                return;
+            }
 
             float damage = LevelValue(onDamaged.counterFlatDamage, level)
                          + victim.attackDamage * LevelValue(onDamaged.counterPercentOfAttack, level);
 
             bool hasEffectors = onDamaged.counterEffectors != null && onDamaged.counterEffectors.Length > 0;
-            if (damage <= 0f && !hasEffectors) return;
+            if (damage <= 0f && !hasEffectors)
+            {
+                if (InterflowDebug.FullOn) LogReactionSkipped(1, victim, "ответный удар", "нечем отвечать: урон ноль и состояний нет");
+                return;
+            }
 
             DamageType dt = onDamaged.counterDamageType != null ? onDamaged.counterDamageType : victim.damageType;
-            if (dt == null && damage > 0f) return;
+            if (dt == null && damage > 0f)
+            {
+                if (InterflowDebug.FullOn) LogReactionSkipped(1, victim, "ответный удар", "тип урона ответа неизвестен");
+                return;
+            }
 
             st.counterCooldownLeft = Mathf.Max(onDamaged.counterCooldown, 0.01f);
 
             Vector2 center = new Vector2(victim.transform.position.x, victim.transform.position.z);
             Unit[] targets = Utils.GetUnitsInRadius(center, radiusValue, victim.owner, onDamaged.counterSelector, -1, victim);
-            if (targets == null) return;
+            if (targets == null)
+            {
+                if (InterflowDebug.FullOn) LogReactionSkipped(1, victim, "ответный удар", "в радиусе нет целей");
+                return;
+            }
 
             int hit = 0;
             for (int i = 0; i < targets.Length; i++)
@@ -214,7 +280,16 @@ namespace StrategyCore
             {
                 InterflowDebug.Verbose("ОТВЕТНЫЙ УДАР: " + InterflowDebug.Name(victim) + " задел " + hit +
                                        " целей на " + damage.ToString("0.#") + " урона");
+
+                // [Interflow 2026-09-09 passive-facts] Надпись над ОТВЕТИВШИМ: число — урон одной цели.
+                Fact(victim, BattleFactReason.PassiveCounter, damage);
+
+                if (InterflowDebug.FullOn) LogCounterFired(victim, hit, damage, dt, onDamaged.counterEffectors);
                 RequestForceSync();
+            }
+            else if (InterflowDebug.FullOn)
+            {
+                LogReactionSkipped(1, victim, "ответный удар", "в радиусе нет живых целей");
             }
         }
 
@@ -228,29 +303,69 @@ namespace StrategyCore
         /// </summary>
         void CounterstrikeOnEvade(Unit victim, Unit attacker, int level)
         {
-            if (NetworkConnectionHandler.isClient) return;
-            if (victim == null || victim.dead || victim.stunned) return;
-            if (onDamaged == null || !onDamaged.enabled || !onDamaged.counterEnabled || !onDamaged.counterOnlyOnEvade) return;
-            if (attacker == null || attacker.dead) return;           // бьющий неизвестен — отвечать некому
-            if (!reactionCarriers.TryGetValue(victim, out ReactionState st)) return;
-            if (st.counterCooldownLeft > 0f) return;
+            if (NetworkConnectionHandler.isClient) return;   // не игровой отказ — молчим
+
+            if (victim == null || victim.dead || victim.stunned)
+            {
+                if (InterflowDebug.FullOn && victim != null && CounterLogged())
+                    LogReactionSkipped(1, victim, "встречный удар при уходе", victim.dead ? "носитель мёртв" : "носитель оглушён");
+                return;
+            }
+
+            if (onDamaged == null || !onDamaged.enabled || !onDamaged.counterEnabled || !onDamaged.counterOnlyOnEvade) return;   // выключено — молчим
+
+            if (attacker == null || attacker.dead)
+            {
+                if (InterflowDebug.FullOn) LogReactionSkipped(1, victim, "встречный удар при уходе", "бьющий неизвестен или мёртв");
+                return;
+            }
+
+            if (!reactionCarriers.TryGetValue(victim, out ReactionState st))
+            {
+                if (InterflowDebug.FullOn) LogReactionSkipped(1, victim, "встречный удар при уходе", "носитель не числится в списке реакций");
+                return;
+            }
+
+            if (st.counterCooldownLeft > 0f)
+            {
+                if (InterflowDebug.FullOn)
+                    LogReactionSkipped(1, victim, "встречный удар при уходе", "идёт откат, осталось " + st.counterCooldownLeft.ToString("0.#") + " сек");
+                return;
+            }
 
             float radiusValue = LevelValue(onDamaged.counterRadius, level);
-            if (radiusValue <= 0f) return;
+            if (radiusValue <= 0f)
+            {
+                if (InterflowDebug.FullOn) LogReactionSkipped(1, victim, "встречный удар при уходе", "радиус ответа на уровне " + level + " равен нулю");
+                return;
+            }
 
             // Бьющий дальше радиуса ответа (например дальний стрелок) — встречного удара нет.
             Vector3 delta = attacker.transform.position - victim.transform.position;
             delta.y = 0f;
-            if (delta.sqrMagnitude > radiusValue * radiusValue) return;
+            if (delta.sqrMagnitude > radiusValue * radiusValue)
+            {
+                if (InterflowDebug.FullOn)
+                    LogReactionSkipped(1, victim, "встречный удар при уходе", "бьющий дальше радиуса ответа " + radiusValue.ToString("0.#"));
+                return;
+            }
 
             float damage = LevelValue(onDamaged.counterFlatDamage, level)
                          + victim.attackDamage * LevelValue(onDamaged.counterPercentOfAttack, level);
 
             bool hasEffectors = onDamaged.counterEffectors != null && onDamaged.counterEffectors.Length > 0;
-            if (damage <= 0f && !hasEffectors) return;
+            if (damage <= 0f && !hasEffectors)
+            {
+                if (InterflowDebug.FullOn) LogReactionSkipped(1, victim, "встречный удар при уходе", "нечем отвечать: урон ноль и состояний нет");
+                return;
+            }
 
             DamageType dt = onDamaged.counterDamageType != null ? onDamaged.counterDamageType : victim.damageType;
-            if (dt == null && damage > 0f) return;
+            if (dt == null && damage > 0f)
+            {
+                if (InterflowDebug.FullOn) LogReactionSkipped(1, victim, "встречный удар при уходе", "тип урона ответа неизвестен");
+                return;
+            }
 
             st.counterCooldownLeft = Mathf.Max(onDamaged.counterCooldown, 0.01f);
 
@@ -264,8 +379,17 @@ namespace StrategyCore
 
             InterflowDebug.Verbose("ВСТРЕЧНЫЙ УДАР ПРИ УХОДЕ: " + InterflowDebug.Name(victim) + " ответил " +
                                    InterflowDebug.Name(attacker) + " на " + damage.ToString("0.#") + " урона");
+
+            // [Interflow 2026-09-09 passive-facts] Надпись над ОТВЕТИВШИМ. Отдельная причина, а не общая
+            // с ответом по кругу: при разборе надо видеть, какой из двух режимов ответа сработал.
+            Fact(victim, BattleFactReason.PassiveCounterOnEvade, damage);
+
+            if (InterflowDebug.FullOn) LogCounterOnEvadeFired(victim, attacker, damage, dt, onDamaged.counterEffectors);
             RequestForceSync();
         }
+
+        /// <summary>Включён ли ответный удар в ассете — чтобы выключенный блок молчал в отказных строках.</summary>
+        bool CounterLogged() { return onDamaged != null && onDamaged.enabled && onDamaged.counterEnabled; }
 
         // ===================================================== 2. НОСИТЕЛЬ ПОГИБ ==
 
@@ -298,6 +422,10 @@ namespace StrategyCore
             float healFlat = LevelValue(onDeath.allyHealFlat, level);
             float healPercent = LevelValue(onDeath.allyHealPercentOfMaxHp, level);
 
+            // Локальные счётчики только ради итоговой строки лога: расчёт ими не пользуется.
+            int enemiesHit = 0;
+            int healedCount = 0;
+
             // 1) Урон врагам. Носитель мёртв, поэтому бьём от его владельца, а не от него самого:
             //    так урон засчитывается команде и не тянет за собой цепочку реакций мертвеца.
             if (enemyDamage > 0f && onDeath.enemyDamageType == null)
@@ -308,18 +436,17 @@ namespace StrategyCore
                 Unit[] enemies = Utils.GetUnitsInRadius(center, radiusValue, owner, onDeath.enemySelector, -1, unit);
                 if (enemies != null)
                 {
-                    int hitCount = 0;
                     for (int i = 0; i < enemies.Length; i++)
                         if (enemies[i] != null && !enemies[i].dead)
                         {
                             DamagePacket packet = DamagePacket.Create(enemyDamage, onDeath.enemyDamageType, owner, null, false, this);   // [Interflow fix 2026-09-04 damage-full-packet] пакет одной записи
                             enemies[i].GetDamage(in packet, out float _);
-                            hitCount++;
+                            enemiesHit++;
                         }
 
-                    if (hitCount > 0)
+                    if (enemiesHit > 0)
                         InterflowDebug.Verbose("ВЗРЫВ ПРИ ГИБЕЛИ: " + InterflowDebug.Name(unit) + " задел " +
-                                               hitCount + " целей на " + enemyDamage.ToString("0.#") + " урона");
+                                               enemiesHit + " целей на " + enemyDamage.ToString("0.#") + " урона");
                 }
             }
 
@@ -335,13 +462,14 @@ namespace StrategyCore
                         if (nearest != null)
                         {
                             HealUnit(nearest, healFlat, healPercent);
+                            healedCount = 1;
+
                             InterflowDebug.Verbose("ЛЕЧЕНИЕ ПРИ ГИБЕЛИ: " + InterflowDebug.Name(nearest) + " получил +" +
                                                    (healFlat + healPercent * nearest.maxHealth).ToString("0.#") + " здоровья");
                         }
                     }
                     else
                     {
-                        int healedCount = 0;
                         for (int i = 0; i < allies.Length; i++)
                             if (allies[i] != null && !allies[i].dead) { HealUnit(allies[i], healFlat, healPercent); healedCount++; }
 
@@ -366,6 +494,16 @@ namespace StrategyCore
                     onDeath.summonObeyCommands, onDeath.summonCommand, 0, false, onDeath.summonSpawnSpread);
 
             InterflowDebug.Event("РЕАКЦИЯ «ПОГИБ» у " + InterflowDebug.Name(unit) + ": сработала");
+
+            // [Interflow 2026-09-09 passive-facts] Надпись В ТОЧКЕ ГИБЕЛИ, а не над носителем:
+            // носитель уже мёртв, его netID снят с учёта, и сообщение «про юнита» до клиента не дошло бы.
+            // Число — сколько врагов задето взрывом.
+            FactAt(deathPos, BattleFactReason.PassiveDeathBurst, enemiesHit);
+
+            if (InterflowDebug.FullOn)
+                LogDeathFired(unit, radiusValue, enemiesHit, enemyDamage, onDeath.enemyDamageType,
+                              healedCount, healFlat, healPercent, onDeath.zonePrefab != null,
+                              onDeath.summonPrefab != null && MatchManager.Instance != null ? onDeath.summonCount : 0);
         }
 
         static Unit NearestAlive(Unit[] candidates, Vector3 from)
@@ -423,8 +561,15 @@ namespace StrategyCore
             if (NetworkConnectionHandler.isClient) return;
             if (onKill == null || !onKill.enabled) return;
             if (killerUnit == null || killerUnit.dead) return;
+            // Событие хаба приходит на КАЖДУЮ смерть в матче: если добивший не наш носитель,
+            // это не отказ нашей реакции, а чужое событие — молчим.
             if (!reactionCarriers.TryGetValue(killerUnit, out ReactionState st)) return;
-            if (victim == killerUnit) return;                       // сам себя не «добивал»
+
+            if (victim == killerUnit)
+            {
+                if (InterflowDebug.FullOn) LogReactionSkipped(3, killerUnit, "добивание", "носитель числится собственным убийцей");
+                return;                                             // сам себя не «добивал»
+            }
 
             int level = st.level;
 
@@ -437,6 +582,8 @@ namespace StrategyCore
             bool hasEffectors = onKill.cryEffectors != null && onKill.cryEffectors.Length > 0;
             float radiusValue = LevelValue(onKill.cryRadius, level);
 
+            int cried = 0;   // локальный счётчик только ради строки лога
+
             if (hasEffectors && radiusValue > 0f)
             {
                 Vector3 pos = killerUnit.transform.position;
@@ -445,8 +592,18 @@ namespace StrategyCore
                 if (allies != null)
                     for (int i = 0; i < allies.Length; i++)
                         if (allies[i] != null && !allies[i].dead)
+                        {
                             Effector.EffectorAdd(killerUnit, allies[i], onKill.cryEffectors);
+                            cried++;
+                        }
             }
+
+            // [Interflow 2026-09-09 passive-facts] Надпись над ДОБИВШИМ: число — сколько союзников задел клич.
+            Fact(killerUnit, BattleFactReason.PassiveOnKill, cried);
+
+            if (InterflowDebug.FullOn)
+                LogKillFired(killerUnit, victim, flat + (percent > 0f ? killerUnit.maxHealth * percent : 0f),
+                             cried, onKill.cryEffectors);
 
             RequestForceSync();
         }
@@ -473,13 +630,34 @@ namespace StrategyCore
             if (NetworkConnectionHandler.isClient) return;
             if (unit == null || unit.dead || onHpBelow == null || !onHpBelow.enabled) return;
             if (!reactionCarriers.TryGetValue(unit, out ReactionState st)) return;
-            if (unit.maxHealth <= 0f) return;
 
-            bool below = unit.health / unit.maxHealth < onHpBelow.threshold;
+            if (unit.maxHealth <= 0f)
+            {
+                if (InterflowDebug.FullOn) LogReactionSkipped(4, unit, "порог здоровья", "максимальное здоровье равно нулю");
+                return;
+            }
 
+            float hpFraction = unit.health / unit.maxHealth;   // локальная: решение и строка лога по ОДНОМУ значению
+            bool below = hpFraction < onHpBelow.threshold;
+
+            // Здоровье выше порога — это норма, а не отказ: событие изменения здоровья приходит
+            // на каждый удар по носителю, и строка здесь забила бы лог не хуже тика (правило промта
+            // про горячие пути). Пишем только случаи «ниже порога, но не сработало».
             if (!below) { st.hpBelowLatched = false; return; }   // поднялся выше порога — снова взведён
-            if (st.hpBelowLatched) return;
-            if (st.hpCooldownLeft > 0f) return;
+
+            if (st.hpBelowLatched)
+            {
+                if (InterflowDebug.FullOn)
+                    LogReactionSkipped(4, unit, "порог здоровья", "уже сработала и заперта до подъёма выше порога");
+                return;
+            }
+
+            if (st.hpCooldownLeft > 0f)
+            {
+                if (InterflowDebug.FullOn)
+                    LogReactionSkipped(4, unit, "порог здоровья", "идёт откат, осталось " + st.hpCooldownLeft.ToString("0.#") + " сек");
+                return;
+            }
 
             st.hpBelowLatched = true;
             st.hpCooldownLeft = onHpBelow.cooldown;
@@ -492,6 +670,8 @@ namespace StrategyCore
             bool hasAllyEffectors = onHpBelow.allyEffectors != null && onHpBelow.allyEffectors.Length > 0;
             float radiusValue = LevelValue(onHpBelow.allyRadius, level);
 
+            int helped = 0;   // локальный счётчик только ради строки лога
+
             if (hasAllyEffectors && radiusValue > 0f)
             {
                 Vector3 pos = unit.transform.position;
@@ -500,10 +680,21 @@ namespace StrategyCore
                 if (allies != null)
                     for (int i = 0; i < allies.Length; i++)
                         if (allies[i] != null && !allies[i].dead)
+                        {
                             Effector.EffectorAdd(unit, allies[i], onHpBelow.allyEffectors);
+                            helped++;
+                        }
             }
 
             InterflowDebug.Event("РЕАКЦИЯ «ЗДОРОВЬЕ НИЖЕ ПОРОГА» у " + InterflowDebug.Name(unit) + ": сработала");
+
+            // [Interflow 2026-09-09 passive-facts] Надпись над носителем: число — доля здоровья в процентах
+            // на момент срабатывания. Сразу видно, на каком пороге реакция ушла.
+            Fact(unit, BattleFactReason.PassiveHpBelow, hpFraction * 100f);
+
+            if (InterflowDebug.FullOn)
+                LogHpBelowFired(unit, onHpBelow.threshold, hpFraction, onHpBelow.selfEffectors, helped);
+
             RequestForceSync();
 
             if (NeedsReactionTick()) WireReactionTick();
@@ -576,6 +767,10 @@ namespace StrategyCore
             {
                 if (st.dieHandler != null) unit.OnDie -= st.dieHandler;
                 if (st.hpHandler != null) unit.OnHPChange -= st.hpHandler;
+
+                // Второй путь снятия. Он и UnwireReactions исключают друг друга: оба убирают ключ
+                // из reactionCarriers, поэтому строка «снято» на носителя пишется ровно один раз.
+                if (InterflowDebug.FullOn) LogReactionsUnwired(unit, st, "смерть носителя");
             }
 
             reactionCarriers.Remove(unit);

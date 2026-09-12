@@ -557,6 +557,19 @@ namespace StrategyCore
                     NetworkCommandSync.Instance.ConstructionCancelSend(thisUnit);
                     return;
                 }
+
+                // Стадия постройки: отменять можно только НЕДОСТРОЕННОЕ. Достроенное здание сохраняет компонент
+                // ConstructionUnit (он снимается лишь сменой типа юнита, Utils.UnitRemoveComponents), и запрос
+                // сносил живое здание с возвратом ресурсов. Признак — completed (решение Artsiom 09.09): вместе
+                // с этим закрыта и отмена НАЧАТОГО УЛУЧШЕНИЯ — у улучшаемого здания completed остаётся true.
+                // Гейт здесь, а не в приёмнике: через эту точку идут И хост из панели (UIManager.CancelButton),
+                // И клиент через ConstructionCancelServerRpc (правило 5). Ветка calledByServer == true не трогается:
+                // это зеркало решения сервера у клиента, спорить с ним нельзя.
+                if (completed)
+                {
+                    Debug.LogWarning("Отмена стройки отклонена: здание уже достроено. (CancelConstruction ConstructionUnit)");
+                    return;
+                }
             }
 
             // We must the cancellation info to clients

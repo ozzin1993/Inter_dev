@@ -146,17 +146,14 @@ namespace StrategyCore
 
                     if (NetworkManager.Singleton.IsServer)
                     {
-                        if (!positionsSent)
-                        {
-                            // We do not remove, since we first have to send the position
-                            NetworkDataSync.Instance.removeSyncList.Add(netID);
-                            removeFromPosSync = true;
-                        }
-                        else
-                        {
-                            NetworkDataSync.Instance.positionSyncList.Remove(netID);
-                            NetworkDataSync.Instance.removeSyncList.Add(netID);
-                        }
+                        // [Interflow fix 2026-09-09 stop-final-position] Из списка позиций юнит уходит ТОЛЬКО
+                        // отложенно: сборщик тика (NetworkDataSync.PositionSync.cs:99-129) сначала отправит его
+                        // фактическую конечную координату, и лишь потом — маркер остановки из removeSyncList.
+                        // Прежняя ветка «позиции уже отправлялись» снимала юнита со списка сразу, поэтому
+                        // клиент доезжал только до последней ПРИСЛАННОЙ точки — ошибка в одно перемещение
+                        // за сетевой такт. Механизм отложенного удаления уже был, применяем его всегда.
+                        NetworkDataSync.Instance.removeSyncList.Add(netID);
+                        removeFromPosSync = true;
                     }
                 }
                 if (waitTwoUpdates != 0) waitTwoUpdates = 0;
@@ -195,7 +192,22 @@ namespace StrategyCore
 
                     if (NetworkManager.Singleton.IsServer)
                     {
-                        NetworkDataSync.Instance.positionSyncList.Add(netID);
+                        // [Interflow fix 2026-09-09 stop-final-position] Юнит поехал снова ДО того, как тик успел
+                        // снять его по отложенному удалению: он всё ещё в positionSyncList, и повторное добавление
+                        // оставило бы дубль — тик снимает ровно одно вхождение (PositionSync.cs:126-129), поэтому
+                        // остановившийся юнит навсегда остался бы в списке позиций (клиенту каждый такт уходила бы
+                        // его статичная координата, а на клиенте не гасла бы анимация ходьбы). Вместо добавления
+                        // отменяем отложенное удаление и снимаем ещё НЕ отправленный маркер остановки: пока
+                        // removeFromPosSync истинен, тика не было, значит маркер ещё лежит в removeSyncList.
+                        if (removeFromPosSync)
+                        {
+                            removeFromPosSync = false;
+                            NetworkDataSync.Instance.removeSyncList.Remove(netID);
+                        }
+                        else
+                        {
+                            NetworkDataSync.Instance.positionSyncList.Add(netID);
+                        }
                         positionsSent = false;
                     }
                 }
@@ -212,7 +224,9 @@ namespace StrategyCore
         {
             if (NetworkConnectionHandler.isClient)
             {
-                NetworkCommandSync.Instance.SetWaypointCommandSend(this, unit);
+                // Отправка снята: приёмник закрыт — прямого управления юнитами нет (решение Artsiom 09.09).
+                // Клиент выходит здесь как и раньше; локально команда состояния не меняла, а сервер
+                // те же вызовы делает у себя сам (ConstructionUnit, ResourceUnit и менеджеры матча).
                 return;
             }
 
@@ -250,7 +264,9 @@ namespace StrategyCore
         {
             if (NetworkConnectionHandler.isClient)
             {
-                NetworkCommandSync.Instance.SetWaypointCommandSend(this, position);
+                // Отправка снята: приёмник закрыт — прямого управления юнитами нет (решение Artsiom 09.09).
+                // Клиент выходит здесь как и раньше; локально команда состояния не меняла, а сервер
+                // те же вызовы делает у себя сам (ConstructionUnit, ResourceUnit и менеджеры матча).
                 return;
             }
 

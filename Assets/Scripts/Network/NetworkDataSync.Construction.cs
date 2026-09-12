@@ -113,8 +113,11 @@ namespace StrategyCore
         }
 
         // Client: Worker starts repairing
+        // [Interflow fix 2026-09-09 repair-id-order] Порядок параметров приведён к порядку отправителя
+        // (:110-112 шлёт building.netID, worker.netID) и к образцу согласованной пары стройки (:39-46).
+        // Прежние имена были переставлены, из-за чего на клиенте «ремонтировало» рабочего зданием.
         [Rpc(SendTo.NotServer, InvokePermission = RpcInvokePermission.Server)]
-        private void WorkerStartTheRepairsClientRpc(UInt16 workerNetID, UInt16 buildingNetID)
+        private void WorkerStartTheRepairsClientRpc(UInt16 buildingNetID, UInt16 workerNetID)
         {
             // Joining mid-game, we do not accept any data from the server. Only scene data.
             if (NetworkConnectionHandler.Instance.connectionStage == 2) return;

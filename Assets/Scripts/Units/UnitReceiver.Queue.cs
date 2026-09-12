@@ -38,21 +38,70 @@ namespace StrategyCore
         /// <summary>Поколение обрабатываемого сейчас пакета: порождённые им получают на единицу больше.</summary>
         static int currentGeneration;
 
+        // ============================== НОМЕР УДАРА ==============================
+        // [Interflow 2026-09-11] Решение Artsiom: строки одного удара лента собирает в ГРУППУ по номеру.
+        // Номер живёт здесь, в обрамлении приёма пакета: один принятый пакет — один номер, и его видят
+        // все факты, поднятые за время этого приёма (снижение, уязвимость, щит, число урона, состояния
+        // атаки). Отдельного поля в пакете не нужно: вложенного приёма не бывает — пакет, пришедший
+        // во время обработки, уходит в очередь и получает свой номер, когда до него дойдёт разбор.
+        //
+        // Вместе с номером держим бьющего и умение: их спрашивает отправка факта, чтобы не тащить
+        // два лишних параметра через десяток мест подъёма (CompositePassive.Facts, InterflowCombat,
+        // приём наложения состояния — все они поднимают факт изнутри удара).
+
+        /// <summary>Сквозной счётчик ударов за прогон. Переполнение не обрабатывается: матч кончится раньше.</summary>
+        static int hitCounter;
+
+        /// <summary>Номер идущего сейчас удара. 0 — приём пакета не идёт, факт поднят вне удара.</summary>
+        public static int CurrentHitId { get; private set; }
+
+        /// <summary>Бьющий в идущем сейчас ударе. null — источник без юнита (состояние, зона) или удар не идёт.</summary>
+        public static Unit CurrentAttacker { get; private set; }
+
+        /// <summary>Умение идущего сейчас удара. −1 — умения нет (автоатака, урон в секунду) или удар не идёт.</summary>
+        public static int CurrentAbilityID { get; private set; } = -1;
+
+        /// <summary>Открыть удар: выдать номер и запомнить, кто и чем бьёт.</summary>
+        static void HitBegin(in DamagePacket packet)
+        {
+            // Периодический тик номера НЕ получает: горение и ауры идут по десять раз в секунду,
+            // и каждый такой тик заводил бы в ленте группу, у которой заголовка никогда не будет
+            // (разбор тика уходит в свёртку). Бьющего и умение всё равно запоминаем — они нужны
+            // редким фактам изнутри тика.
+            CurrentHitId = packet.periodic ? 0 : ++hitCounter;
+            CurrentAttacker = packet.attackingUnit;
+            CurrentAbilityID = packet.sourceAbility != null ? packet.sourceAbility.id : -1;
+        }
+
+        /// <summary>Закрыть удар. После этого факты снова считаются поднятыми вне удара.</summary>
+        static void HitEnd()
+        {
+            CurrentHitId = 0;
+            CurrentAttacker = null;
+            CurrentAbilityID = -1;
+        }
+
         /// <summary>
         /// Отдать пакет в обработку с учётом очереди. Зовёт воронка <c>Unit.GetDamage(in DamagePacket)</c>.
         /// Пакет, пришедший во время обработки другого (из реакции), уходит в очередь; для него
         /// «погиб» и <paramref name="damageDealt"/> неизвестны в момент вызова — возвращаются false и 0
         /// (единственный читатель этих значений — <c>Unit.DealDamage</c> для <c>OnDamageDeal</c>;
         /// реакции их не читают).
+        ///
+        /// [Interflow fix 2026-09-09 hit-outcome] <paramref name="outcome"/> у отложенного пакета —
+        /// <see cref="DamageOutcome.Unknown"/>: состоялся удар или нет, в момент вызова НЕИЗВЕСТНО.
+        /// «Неизвестно» не читается бьющим как «принят», поэтому реакции попадания на такой пакет
+        /// не срабатывают (они и не должны: очередь наполняют реакции, а не автоатака).
         /// </summary>
-        public static bool Dispatch(Unit target, in DamagePacket packet, out float damageDealt)
+        public static bool Dispatch(Unit target, in DamagePacket packet, out float damageDealt, out DamageOutcome outcome)
         {
             damageDealt = 0f;
+            outcome = DamageOutcome.Unknown;
             if (target == null) return false;
 
             // Клиент: только анимация, без очереди (решение Р1 В).
             if (NetworkConnectionHandler.isClient)
-                return target.ReceiverEnsure().Receive(in packet, out damageDealt);
+                return target.ReceiverEnsure().Receive(in packet, out damageDealt, out outcome);
 
             if (processingDepth > 0)
             {
@@ -65,7 +114,8 @@ namespace StrategyCore
             bool died;
             try
             {
-                died = target.ReceiverEnsure().Receive(in packet, out damageDealt);
+                HitBegin(in packet);
+                died = target.ReceiverEnsure().Receive(in packet, out damageDealt, out outcome);
                 Drain();
             }
             finally
@@ -74,6 +124,7 @@ namespace StrategyCore
                 processingDepth = 0;
                 currentGeneration = 0;
                 queue.Clear();
+                HitEnd();
             }
 
             return died;
@@ -131,7 +182,12 @@ namespace StrategyCore
                                         " | поколение=" + q.packet.generation +
                                         " | осталось=" + queue.Count);
 
-                q.target.ReceiverEnsure().Receive(in q.packet, out float _);
+                // Свой номер удара: пакет из очереди — отдельный удар, и в ленте у него своя группа.
+                HitBegin(in q.packet);
+
+                // Исход отложенного пакета никто не читает: реакции его не спрашивают, а бьющий
+                // получил свой ответ ещё в Dispatch («неизвестно»).
+                q.target.ReceiverEnsure().Receive(in q.packet, out float _, out DamageOutcome _);
             }
         }
     }

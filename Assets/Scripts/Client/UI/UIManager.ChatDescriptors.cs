@@ -21,11 +21,9 @@ namespace StrategyCore
             string elemName = "null";
             int inventoryIndex = -1;
 
-            // Command hotkeys
-            if (Keyboard.current.aKey.isPressed) AttackMoveButton(); // Attack
-            else if (Keyboard.current.hKey.isPressed) HoldButton(); // Hold
-            else if (Keyboard.current.sKey.isPressed) StopButton(); // Idle(Stop)
-            else if (Keyboard.current.backspaceKey.isPressed) ReturnButton(new ClickEvent()); // One container back/close
+            // Клавиши A, H, S (атака с движением, удержание, стоп) СНЯТЫ вместе со своими приёмниками:
+            // прямого управления юнитами нет (решение Artsiom 09.09).
+            if (Keyboard.current.backspaceKey.isPressed) ReturnButton(new ClickEvent()); // One container back/close
             else if (Keyboard.current.lKey.isPressed) LevelButton(new ClickEvent()); // Levelling
             else if (Keyboard.current.kKey.isPressed) ShopButton(new ClickEvent()); // Shoping unit change
 

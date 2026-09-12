@@ -124,6 +124,17 @@ namespace StrategyCore
         // Every N ticks server gathers units that have changed HP and send info to clients
         private void HPChangeSend()
         {
+            if (hpChangedUnits.Count == 0) return;
+
+            // [Interflow fix 2026-09-09 sync-send-unregistered] Юнит мог сойти с учёта между добавлением
+            // в очередь и отправкой (смерть, смена номера, смена сцены). Его номер всё равно уходил
+            // клиенту со здоровьем 0, и тот печатал «Desync! Unit netID…». Шлём только тех, кто в реестре —
+            // тот же поэлементный отсев, что в SkillBuffVfxSend (NetworkDataSync.UnitStatus.cs).
+            // Очистка списка и сброс флагов НИЖЕ идут в любом случае, даже когда после отсева пусто:
+            // иначе флаг «я уже в очереди» залипнет у тех, кто из очереди только что выпал.
+            for (int i = hpChangedUnits.Count - 1; i >= 0; i--)
+                if (!SlotManager.Instance.unitNetID.ContainsKey(hpChangedUnits[i])) hpChangedUnits.RemoveAt(i);
+
             if (hpChangedUnits.Count > 0)
             {
                 float[] hpAmount = new float[hpChangedUnits.Count];
@@ -137,9 +148,10 @@ namespace StrategyCore
                 }
 
                 HPChangeClientRpc(hpChangedUnits.ToArray(), hpAmount);
-                hpChangedUnits.Clear();
-                onHPCleared?.Invoke();
             }
+
+            hpChangedUnits.Clear();
+            onHPCleared?.Invoke();
         }
 
         [Rpc(SendTo.NotServer, InvokePermission = RpcInvokePermission.Server)]
@@ -165,6 +177,13 @@ namespace StrategyCore
         // Every N ticks server gathers units that have changed HP and send info to clients
         private void MPChangeSend()
         {
+            if (mpChangedUnits.Count == 0) return;
+
+            // [Interflow fix 2026-09-09 sync-send-unregistered] Симметрично здоровью: отсев тех,
+            // кто уже не в реестре netID, до сборки сообщения. Очистка и сброс флагов — ниже, всегда.
+            for (int i = mpChangedUnits.Count - 1; i >= 0; i--)
+                if (!SlotManager.Instance.unitNetID.ContainsKey(mpChangedUnits[i])) mpChangedUnits.RemoveAt(i);
+
             if (mpChangedUnits.Count > 0)
             {
                 float[] mpAmount = new float[mpChangedUnits.Count];
@@ -178,8 +197,13 @@ namespace StrategyCore
                 }
 
                 MPChangeClientRpc(mpChangedUnits.ToArray(), mpAmount);
-                mpChangedUnits.Clear();
             }
+
+            // [Interflow fix 2026-09-09 mp-sync-flag] Сброс флагов у юнитов — как у здоровья.
+            // Без этого вызова MPSyncFalse не звал никто: mpSync оставался поднятым, и юнит попадал
+            // в очередь отправки ОДИН раз за жизнь — все последующие изменения маны клиенту не ехали.
+            mpChangedUnits.Clear();
+            onMPCleared?.Invoke();
         }
 
         [Rpc(SendTo.NotServer, InvokePermission = RpcInvokePermission.Server)]
@@ -205,6 +229,12 @@ namespace StrategyCore
         // Every N ticks server gathers units that have changed HP and send info to clients
         private void XPChangeSend()
         {
+            if (xpChangedUnits.Count == 0) return;
+
+            // [Interflow fix 2026-09-09 sync-send-unregistered] Отсев сошедших с учёта — как у здоровья и маны.
+            for (int i = xpChangedUnits.Count - 1; i >= 0; i--)
+                if (!SlotManager.Instance.unitNetID.ContainsKey(xpChangedUnits[i])) xpChangedUnits.RemoveAt(i);
+
             if (xpChangedUnits.Count > 0)
             {
                 int[] xpAmount = new int[xpChangedUnits.Count];
@@ -222,9 +252,17 @@ namespace StrategyCore
                 }
 
                 XPChangeClientRpc(xpChangedUnits.ToArray(), xpAmount, lvl, abilPoints);
-                xpChangedUnits.Clear();
             }
 
+            // [Interflow fix 2026-09-09 xp-clear-symmetry] Сброс флагов приведён к образцу здоровья
+            // (решение Artsiom 09.09 «реши сам»): раньше событие поднималось КАЖДЫЙ тик, было что слать
+            // или нет, — флаг снимался по расписанию, а не по факту отправки.
+            // ОПОРА этого размещения: флаг снимается раньше, чем номер уходит из реестра —
+            // Unit.Combat.cs зовёт XPSyncFalse до SlotManager.RemoveNetID, ConstructionUnit — через Die,
+            // GameManager.ClearScene снимает флаги сам. Единственный путь мимо — SlotManager.AssignNetID
+            // (смена номера у живого юнита); закрыть его снятием флагов в RemoveNetID НЕ УДАЛОСЬ:
+            // файл держит другая сессия (лок 2026-09-09_1537). Отложено, записано в логе сессии.
+            xpChangedUnits.Clear();
             onXPCleared?.Invoke();
         }
 

@@ -80,6 +80,7 @@ namespace StrategyCore
             float reduction = newSplashReduction >= 0f ? newSplashReduction : unit.splashReduction;
 
             unit.ChangeSplash(true, newRadius, reduction, unit.projectileFollowTarget);
+            AbilityFacts.Granted(this, unit, level);   // [2026-09-10] показ срабатывания — см. AbilityFacts
         }
 
         public override void Lock(Unit unit, int castingPlayer, int level)
@@ -88,6 +89,7 @@ namespace StrategyCore
             if (!saved.TryGetValue(unit, out SplashState state)) return;
 
             unit.ChangeSplash(state.isSplash, state.radius, state.reduction, state.followTarget);
+            AbilityFacts.Revoked(this, unit, level);   // [2026-09-10] показ срабатывания — см. AbilityFacts
             saved.Remove(unit);
         }
     }

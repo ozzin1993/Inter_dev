@@ -129,7 +129,9 @@ namespace StrategyCore
         {
             if (NetworkConnectionHandler.isClient)
             {
-                NetworkCommandSync.Instance.DisembarkCommandSend(thisUnit, unitIndex);
+                // Отправка снята: приёмник закрыт — прямого управления юнитами нет (решение Artsiom 09.09).
+                // Клиент выходит здесь как и раньше; локально команда состояния не меняла, а сервер
+                // те же вызовы делает у себя сам (ConstructionUnit, ResourceUnit и менеджеры матча).
                 return true;
             }
 

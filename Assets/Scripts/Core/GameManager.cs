@@ -736,6 +736,7 @@ namespace StrategyCore
                 if (entry.Value.hpSync) entry.Value.HPSyncFalse();
                 if (entry.Value.mpSync) entry.Value.MPSyncFalse();
                 if (entry.Value.xpSync) entry.Value.XPSyncFalse();
+                if (entry.Value.charSync) entry.Value.CharSyncFalse();
 
                 // Attack data
                 if (entry.Value.attackSoundRef) Destroy(entry.Value.attackSoundRef.gameObject);

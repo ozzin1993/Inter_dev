@@ -125,7 +125,7 @@ MonoBehaviour:
   isWater: 0
   isAir: 0
   unitRadius: 0.5
-  unitHeight: 1
+  unitHeight: 2.05
   crossFadeTime: 0.1
   horizontalPart: {fileID: 9065350649231778226}
   verticalPart: {fileID: 0}
@@ -139,14 +139,14 @@ MonoBehaviour:
   maxHealth: 300
   health: 300
   healthRegen: 0
-  maxMana: 100
+  maxMana: 50
   mana: 0
   manaRegen: 10
   isInvulnerable: 0
   armor: 0
   armorType: {fileID: 0}
   canMove: 1
-  moveSpeed: 4
+  moveSpeed: 6
   acceleration: 100
   turnSpeed: 360
   animationMoveSpeed: 0
@@ -285,12 +285,16 @@ MonoBehaviour:
   levelingUnit: {fileID: 0}
   transportUnit: {fileID: 0}
   lifetimeUnit: {fileID: 0}
+  overlayRoot: {fileID: 0}
+  healthBarRoot: {fileID: 0}
+  minimapIconRoot: {fileID: 0}
   currentDestination: {x: 0, y: 0, z: 0}
   stopDistance: 0
   mainRenderer: {fileID: 0}
   hpSync: 0
   mpSync: 0
   xpSync: 0
+  charSync: 0
   positionsSent: 1
   removeFromPosSync: 0
   spawned: 0

@@ -66,9 +66,13 @@ namespace StrategyCore
         {
             if (startIndex == 0) currentProcessTimer = -1; // Timer Reset
 
-            while (startIndex < GameManager.maxProcessCount - 1)
+            // Цикл доходит до ПОСЛЕДНЕЙ ячейки. Было «< maxProcessCount - 1»: при startIndex == 13 условие ложно
+            // сразу, тело не выполнялось, и ячейка оставалась заполненной — а стоимость возвращается ДО сдвига
+            // (CancelProcess ниже), поэтому повторная отмена того же номера возвращала её второй раз.
+            // У последней ячейки соседа справа нет — чтение activeProcess[startIndex + 1] прикрыто границей.
+            while (startIndex < GameManager.maxProcessCount)
             {
-                if (activeProcess[startIndex + 1] != null)
+                if (startIndex + 1 < GameManager.maxProcessCount && activeProcess[startIndex + 1] != null)
                 {
                     activeProcess[startIndex] = activeProcess[startIndex + 1];
                     activeProcess[startIndex + 1] = null;
@@ -95,6 +99,24 @@ namespace StrategyCore
         /// <returns></returns>
         public bool CancelProcess(int index)
         {
+            // Номер ячейки приходит от клиента (NetworkCommandSync.CancelProcessCommandServerRpc) и уходил
+            // в массив без проверки: мусорное значение роняло сервер исключением там, где он должен был
+            // молча отказать. Проверка стоит до ветки клиента — незачем гнать по сети заведомо негодный номер.
+            // Очередь СОЗДАЁТСЯ только у юнита с canProcess (Unit.Init) — у остальных массив null.
+            // Одной проверки диапазона мало: отмена, присланная на юнит без производства, роняла бы сервер
+            // разыменованием null там же, где мусорный номер. AddProcess от этого прикрыт своим canProcess.
+            if (activeProcess == null)
+            {
+                Debug.LogWarning("Отмена ячейки очереди отклонена: у юнита нет очереди производства. (CancelProcess Unit.Processes)");
+                return false;
+            }
+            if (index < 0 || index >= GameManager.maxProcessCount)
+            {
+                Debug.LogWarning("Отмена ячейки очереди отклонена: номер " + index + " вне диапазона 0.." +
+                                 (GameManager.maxProcessCount - 1) + ". (CancelProcess Unit.Processes)");
+                return false;
+            }
+
             if (NetworkConnectionHandler.isClient)
             {
                 NetworkCommandSync.Instance.CancelProcessCommandSend(this, index);

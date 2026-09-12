@@ -50,20 +50,45 @@ namespace StrategyCore
 
             // Deal damage
             float damageDealt = 0;
-            if (targetUnit != null) targetUnit.GetDamage(in packet, out damageDealt);
+            DamageOutcome outcome = DamageOutcome.Unknown;
+            if (targetUnit != null) targetUnit.GetDamage(in packet, out damageDealt, out outcome);
 
             float amount = packet.TotalAmount;
             DamageType damageType = packet.damageType;
             bool directAttack = packet.directAttack;
 
+            // [Interflow fix 2026-09-09 hit-outcome] СОСТОЯЛСЯ ЛИ УДАР. До правки реакции попадания и разлёт
+            // отрабатывали безусловно: приёмник честно отбивал удар по уклонению или ослеплению, а бьющий
+            // об этом не узнавал и всё равно вешал состояния, добавочный урон, уязвимость, оглушение и отброс
+            // (дефект F14) — то есть «уход от удара» и «ослепление» не работали по назначению.
+            //
+            // Цели нет (атака по земле, targetUnit == null): приёмника не существует, исхода тоже, и поведение
+            // такого удара НЕ МЕНЯЕТСЯ — разлёт по точке работает как раньше. «Цели нет» не читается как
+            // «удар не принят».
+            //
+            // Исход «неизвестен» (пакет ушёл в очередь реакций) реакциями попадания НЕ считается: пакет ещё
+            // не разобран. Такие пакеты приходят из реакций и колбэков бьющего за собой не тянут.
+            bool hitLanded = targetUnit == null || outcome == DamageOutcome.Accepted;
+
             // 3. After damage callbacks
-            foreach (var c in OnAfterDamageDealCallbacks)
+            // Величина колбэкам — ФАКТИЧЕСКИ СНЯТОЕ здоровье (решение Artsiom 09.09.2026, §11.3 промта):
+            // доли «от урона удара» (вампиризм, добавочный урон множителем, коридор по линии) считались
+            // от заявленного номинала пакета и не замечали ни брони, ни щита. У атаки по земле снятого
+            // не существует — там остаётся заявленное, как было.
+            float callbackAmount = targetUnit != null ? damageDealt : amount;
+
+            if (hitLanded)
             {
-                c.Callback(targetUnit, attackPosition, attackEffectors, amount, directAttack, damageType, this, null, owner, c.Level);
+                foreach (var c in OnAfterDamageDealCallbacks)
+                {
+                    c.Callback(targetUnit, attackPosition, attackEffectors, callbackAmount, directAttack, damageType, this, null, owner, c.Level);
+                }
             }
 
             // Splash logic - get all units in radius, damage them accordingly. Only if it is not projectile type attack - it is handled by Projectile.cs
-            if (directAttack && isSplash && (melee || attackType == AttackType.Continuous))
+            // Разлёт остаётся на ЗАЯВЛЕННОЙ величине (amount): доля соседу считается от номинала с ослаблением
+            // по дистанции — это отдельная механика, её база в задание не входит (правило 7).
+            if (hitLanded && directAttack && isSplash && (melee || attackType == AttackType.Continuous))
             {
                 Vector2 splashInitialPosition;
                 Unit[] units;
@@ -152,10 +177,27 @@ namespace StrategyCore
         /// <returns>Погиб ли юнит от этого пакета (для отложенного пакета — false).</returns>
         public bool GetDamage(in DamagePacket packet, out float damageDealt)
         {
+            // [Interflow fix 2026-09-09 hit-outcome] Короткая форма без исхода: её зовут два десятка мест
+            // (умения, состояния, ауры, зоны, реакции, отложенный урон), и всем им «состоялся ли удар»
+            // не нужно — они не вешают реакций попадания. Исход спрашивает только сторона бьющего.
+            return GetDamage(in packet, out damageDealt, out DamageOutcome _);
+        }
+
+        /// <summary>
+        /// [Interflow fix 2026-09-09 hit-outcome] Та же воронка, но с ИСХОДОМ приёма удара
+        /// (<see cref="DamageOutcome"/>): состоялся удар по цели или нет. Нужен стороне бьющего —
+        /// <see cref="DealDamage(Unit, in DamagePacket, Vector3)"/> и снаряду погибшего стрелка:
+        /// до этой правки они запускали реакции попадания и разлёт даже после промаха (дефект F14).
+        /// </summary>
+        /// <param name="outcome">Принят удар, не принят или исход неизвестен (пакет ушёл в очередь).</param>
+        public bool GetDamage(in DamagePacket packet, out float damageDealt, out DamageOutcome outcome)
+        {
             // If unit dies at the same frame multiple times, we only count death once
             if (dead)
             {
                 damageDealt = 0;
+                // Мёртвая цель удар не принимает: реакции попадания по ней не срабатывают.
+                outcome = DamageOutcome.Rejected;
                 return false;
             }
 
@@ -244,7 +286,7 @@ namespace StrategyCore
 
             // Приёмная часть — в UnitReceiver (нулевой шаг), очередь — UnitReceiver.Queue.cs (шаг 4).
             // Провокация выше в приёмник НЕ переносится: решение по ней отложено (Р6, 03.09.2026).
-            return UnitReceiver.Dispatch(this, in packet, out damageDealt);
+            return UnitReceiver.Dispatch(this, in packet, out damageDealt, out outcome);
         }
 
         /// <summary>
@@ -395,6 +437,7 @@ namespace StrategyCore
             if (hpSync) HPSyncFalse();
             if (mpSync) MPSyncFalse();
             if (xpSync) XPSyncFalse();
+            if (charSync) CharSyncFalse();
 
             // Destroy invisibility replicate
             if (invisibilityReplica != null) Destroy(invisibilityReplica.gameObject);
@@ -429,10 +472,9 @@ namespace StrategyCore
                         if (GetComponent<NavMeshObstacle>()) Destroy(GetComponent<NavMeshObstacle>());
                         if (GetComponent<BoxCollider>()) Destroy(GetComponent<BoxCollider>());
                         if (GetComponent<CapsuleCollider>()) Destroy(GetComponent<CapsuleCollider>());
-                        foreach (Transform child in transform)
-                        {
-                            if (child.name == "MiniMapIcon(Clone)" || child.name == "HealthBar(Clone)" || child.name == "VFXHolder") Destroy(child.gameObject);
-                        }
+                        // [Interflow 2026-09-09 unit-overlay] Полоски, иконка миникарты и держатель эффектов
+                        // лежат в контейнере надюнитовых элементов — сносим его целиком, перечисления имён больше нет.
+                        if (overlayRoot != null) Destroy(overlayRoot.gameObject);
                         Utils.DestroyUnitDependents(this); // [Interflow fix 2026-08-01 require-component-die] иначе Destroy(this) отклоняется из-за [RequireComponent(typeof(Unit))] (DeathEffects и др.) и Unit остаётся на трупе
                         Destroy(this);
 

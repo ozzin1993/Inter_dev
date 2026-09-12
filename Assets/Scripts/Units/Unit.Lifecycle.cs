@@ -238,6 +238,15 @@ namespace StrategyCore
             if (NetworkManager.Singleton.IsServer) NetworkDataSync.Instance.onXPCleared -= XPSyncFalse;
         }
 
+        /// <summary>
+        /// Network: after the data is sent we clear the flags.
+        /// </summary>
+        public void CharSyncFalse()
+        {
+            charSync = false;
+            if (NetworkManager.Singleton.IsServer) NetworkDataSync.Instance.onCharCleared -= CharSyncFalse;
+        }
+
         // ============================= OWNERSHIP ==============================================================================
 
         /// <summary>
@@ -270,18 +279,24 @@ namespace StrategyCore
                 // [Interflow 2026-08-01 server-opt] На дедике баров нет — блок пропускаем.
                 if (!Utils.Headless && newTeam != team && unitType != UnitType.StaticDestructible && unitType != UnitType.Item && unitType != UnitType.Tree)
                 {
-                    var healthBar = transform.Find("HealthBar(Clone)");
-                    if (healthBar) { healthBar.SetParent(null); GameManager.Destroy(healthBar.gameObject); }
-                    if (newTeam != SlotManager.Instance.currentTeam && newTeam != (int)Teams.NeutralPassive) Instantiate(ReferenceManager.Instance.healthBarEnemy, this.transform).name = "HealthBar(Clone)";
-                    else Instantiate(ReferenceManager.Instance.healthBar, this.transform);
+                    // [Interflow 2026-09-09 unit-overlay] Обе полоски живут в контейнере надюнитовых
+                    // элементов; сносим прежние по ссылкам и пересоздаём едиными точками Unit.Init.
+                    if (healthBarRoot) { healthBarRoot.SetParent(null); GameManager.Destroy(healthBarRoot.gameObject); }
+                    Transform oldManaBar = overlayRoot != null ? overlayRoot.Find("ManaBar(Clone)") : null;
+                    if (oldManaBar) { oldManaBar.SetParent(null); GameManager.Destroy(oldManaBar.gameObject); }
+
+                    CreateHealthBar(newTeam);
+                    CreateManaBar(newTeam);
                 }
 
                 // Minimap icon
                 // [Interflow 2026-08-01 server-opt] На дедике иконку не создаём (миникарты нет).
                 if (!Utils.Headless)
                 {
-                    var minimapIcon = transform.Find("MiniMapIcon(Clone)");
-                    if (minimapIcon == null) minimapIcon = Instantiate(ReferenceManager.Instance.miniMapIcon, this.transform);
+                    var minimapIcon = minimapIconRoot != null ? minimapIconRoot
+                                    : (overlayRoot != null ? overlayRoot.Find("MiniMapIcon(Clone)") : null);
+                    if (minimapIcon == null) minimapIcon = Instantiate(ReferenceManager.Instance.miniMapIcon, overlayRoot != null ? overlayRoot : this.transform);
+                    minimapIconRoot = minimapIcon;
                     // [Interflow fix 2026-08-01 grid-headless] гейт стрипнутого SpriteRenderer (как в Initialize).
                     SpriteRenderer minimapIconSR = minimapIcon.GetComponent<SpriteRenderer>();
                     if (minimapIconSR != null) minimapIconSR.color = SlotManager.Instance.playerColors[newOwner];
@@ -381,8 +396,9 @@ namespace StrategyCore
                     Presentation.UI?.SubscribeToUnit();
                 }
 
-                // Healthbar child was destroyed and recreated — rebuild the renderers list so
-                // HideRenderers/ShowRenderers don't hold a reference to the destroyed child.
+                // [Interflow 2026-09-09 unit-overlay] Полоски пересоздаются ВНУТРИ контейнера, а в списке
+                // гасимых объектов лежит сам контейнер — он пережил пересоздание. Пересборку оставляем:
+                // она дешёвая и защищает список от прочих изменений состава прямых детей.
                 renderers = new List<Transform>();
                 for (int i = 0; i < transform.childCount; i++)
                 {

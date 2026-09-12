@@ -136,7 +136,7 @@ MonoBehaviour:
   armor: 0
   armorType: {fileID: 0}
   canMove: 1
-  moveSpeed: 5
+  moveSpeed: 6
   acceleration: 100
   turnSpeed: 360
   animationMoveSpeed: 0
@@ -276,12 +276,16 @@ MonoBehaviour:
   levelingUnit: {fileID: 0}
   transportUnit: {fileID: 0}
   lifetimeUnit: {fileID: 0}
+  overlayRoot: {fileID: 0}
+  healthBarRoot: {fileID: 0}
+  minimapIconRoot: {fileID: 0}
   currentDestination: {x: 0, y: 0, z: 0}
   stopDistance: 0
   mainRenderer: {fileID: 0}
   hpSync: 0
   mpSync: 0
   xpSync: 0
+  charSync: 0
   positionsSent: 1
   removeFromPosSync: 0
   spawned: 0

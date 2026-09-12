@@ -13,6 +13,13 @@ namespace StrategyCore
         Hold,
         /// <summary>Манекен: неуязвим и стоит на месте (для замера урона и разглядывания состояний).</summary>
         Dummy,
+        /// <summary>
+        /// В атаку: атака-марш к точке призыва ПРОТИВНИКА. Отличается от «как в бою» тем, что не
+        /// зависит от режима ряда — юнит идёт через всю карту и вступает в бой со всем, что встретит.
+        /// Заведено 10.09.2026: «как в бою» без режима доводит юнита до точки его ряда и там оставляет,
+        /// и две стороны вставали в сотне метров друг от друга, так и не сойдясь.
+        /// </summary>
+        Attack,
     }
 
     // ===== ТЕСТОВЫЙ ПОЛИГОН (партиал MatchManager) =====
@@ -22,6 +29,43 @@ namespace StrategyCore
     // логика призыва повторяет SpawnWave и ConfigureSummonedUnit (правило 5: единые штатные пути).
     public partial class MatchManager
     {
+        // ===== ПРИКАЗ «В АТАКУ»: подтверждение =====
+        // Одной команды мало. Штатная жизнь юнита возвращает его к точке своего ряда: авто-каст зовёт
+        // ReissueCurrentCommand, приход волны и захват башни переотдают команды ряда. На полигоне из-за
+        // этого две стороны доходили до своих точек и вставали в полусотне метров друг от друга.
+        // Поэтому носителей приказа держим списком и раз в тик возвращаем марш тем, кто встал без цели.
+        // Список живёт только в тестовой сцене и чистится смертью, уборкой поля и сменой приказа.
+
+        [NonSerialized] readonly HashSet<Unit> testAttackers = new HashSet<Unit>();
+        [NonSerialized] readonly List<Unit> testAttackersBuffer = new List<Unit>();
+        [NonSerialized] bool testAttackTickWired;
+
+        void TestAttackTick()
+        {
+            if (NetworkConnectionHandler.isClient) return;
+            if (testAttackers.Count == 0) return;
+
+            InterflowTestArena arena = InterflowTestArena.Instance;
+            if (arena == null) return;
+
+            testAttackersBuffer.Clear();
+            testAttackersBuffer.AddRange(testAttackers);
+
+            for (int i = 0; i < testAttackersBuffer.Count; i++)
+            {
+                Unit u = testAttackersBuffer[i];
+                if (u == null || u.dead) { testAttackers.Remove(u); continue; }
+
+                // Идёт, преследует, бьёт или кастует — не мешаем.
+                if (u.target != null) continue;
+                if (u.unitState != UnitStates.Idle && u.unitState != UnitStates.Hold) continue;
+
+                int team = TestTeamOfOwner(u.owner);
+                Vector3 to = arena.SpawnPositionOf(team == 0 ? 1 : 0);
+                u.AttackMove(new Vector2(to.x, to.z), false);
+            }
+        }
+
         /// <summary>Пауза волн полигона: SpawnWave выходит сразу, состав разлочивается. Не сериализуется.</summary>
         [NonSerialized] public bool testWavesPaused;
 
@@ -94,13 +138,35 @@ namespace StrategyCore
             switch (order)
             {
                 case TestArenaOrder.Hold:
+                    testAttackers.Remove(u);   // сменили приказ — подтверждение марша больше не нужно
                     u.Hold();
                     break;
                 case TestArenaOrder.Dummy:
+                    testAttackers.Remove(u);
                     u.isInvulnerable = true;
                     u.Hold();
                     break;
+                case TestArenaOrder.Attack:
+                {
+                    // Цель марша — точка призыва противника. Своего объекта на карте у неё нет,
+                    // поэтому берём её у самой сцены полигона; сцены нет — приказ вырождается в «стоять».
+                    int team = TestTeamOfOwner(u.owner);
+                    InterflowTestArena arena = InterflowTestArena.Instance;
+                    if (arena == null) { u.Hold(false); break; }
+
+                    Vector3 to = arena.SpawnPositionOf(team == 0 ? 1 : 0);
+                    u.AttackMove(new Vector2(to.x, to.z), false);
+
+                    testAttackers.Add(u);
+                    if (!testAttackTickWired && GameManager.Instance != null)
+                    {
+                        GameManager.Instance.Tick += TestAttackTick;
+                        testAttackTickWired = true;
+                    }
+                    break;
+                }
                 default:
+                    testAttackers.Remove(u);
                     ReissueCurrentCommand(u); // штатный путь: режим ряда, а без режима — атака-марш к вражеской точке
                     break;
             }
@@ -116,6 +182,8 @@ namespace StrategyCore
         public int TestClear(int teamIndex)
         {
             if (NetworkConnectionHandler.isClient) return 0;
+
+            testAttackers.Clear();   // поле убрано — подтверждать марш некому
 
             int removed = 0;
             if (teamIndex < 0)

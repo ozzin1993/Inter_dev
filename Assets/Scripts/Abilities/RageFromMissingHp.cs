@@ -53,6 +53,7 @@ namespace StrategyCore
                 appliedArmor[unit] = 0f;
                 appliedAttackSpeed[unit] = 0f;
                 RecalcStats(unit); // разовый начальный пересчёт
+                AbilityFacts.Granted(this, unit, level);   // [2026-09-10] показ срабатывания — см. AbilityFacts
             }
         }
 
@@ -61,6 +62,7 @@ namespace StrategyCore
             if (unit == null) return;
 
             InterflowAbility.CallbackRemove(unit.OnDamageDealModifyCallbacks, this, level);
+            AbilityFacts.Revoked(this, unit, level);   // [2026-09-10] показ срабатывания — см. AbilityFacts
 
             // Снять подписку OnHPChange + вернуть СВОЙ вклад брони (как было).
             if (hpHandlers.TryGetValue(unit, out Action h))

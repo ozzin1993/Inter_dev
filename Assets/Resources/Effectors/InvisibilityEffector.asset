@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   id: 87572
   displayName: Invisibility
-  icon: {fileID: 0}
+  icon: {fileID: 2800000, guid: 3c4ff4e4d0b454444b59dc7274b9b3c0, type: 3}
   description: This unit is invisible for 5 seconds
   VFX: {fileID: 9020495922771364019, guid: f84535013ba7a8d49b7a237152918d54, type: 3}
   aboveHead: 1

@@ -25,6 +25,13 @@ namespace StrategyCore
             else health = (health / (maxHealth - amount)) * maxHealth;
 
             OnHPChange?.Invoke();
+            // [Interflow fix 2026-09-09 characteristics-sync] Смена максимума ПЕРЕСЧИТЫВАЕТ текущее здоровье
+            // строкой выше — значит юнит обязан попасть и в очередь здоровья, иначе клиент получит новый
+            // максимум при старом здоровье и полоска покажет неверную долю (HealthBar, ShieldBarDisplay,
+            // панель юнита). Здесь здоровье писалось полем и мимо очереди — до этого блока клиенту
+            // не ехало ни то, ни другое.
+            HPSyncQueue();
+            CharSyncQueue();
         }
 
         /// <summary>
@@ -48,6 +55,9 @@ namespace StrategyCore
             }
 
             OnHPChange?.Invoke();
+            // Здоровье пересчитано вместе с максимумом — в очередь здоровья тоже (см. перегрузку выше).
+            HPSyncQueue();
+            CharSyncQueue();
         }
 
         /// <summary>
@@ -262,6 +272,67 @@ namespace StrategyCore
             }
         }
 
+        // [Interflow fix 2026-09-09 characteristics-sync] Канал характеристик — четвёртый в семье
+        // hp/mp/xp и устроен так же: юнит один раз встаёт в очередь, сервер раз в период шлёт
+        // ФАКТИЧЕСКОЕ значение, событие сброса снимает флаг. Очередь гасит частоту источника:
+        // аура перевешивает состояние каждые 0,1 с, а в канал юнит попадает один раз за период.
+        /// <summary>
+        /// Network: ставит юнита в очередь отправки характеристик (только сервер).
+        /// </summary>
+        /// <summary>
+        /// Network: ставит юнита в очередь отправки здоровья (только сервер).
+        /// </summary>
+        private void HPSyncQueue()
+        {
+            // Гарды на отсутствие сети — те же, что в CharSyncQueue и InterflowAbility.RequestForceSync.
+            // Зовётся ТОЛЬКО из ChangeMaxHP: сетевые блоки ChangeHP и SetHP оставлены на месте
+            // как были — их поведение «без NetworkManager летит NRE» закреплено EditMode-тестами
+            // (UnitStatArithmeticTests.SetHP_БезNetworkManager_БросаетNRE_НоПолеУжеИзменено),
+            // и менять его этот блок не просили (правило 7).
+            if (NetworkManager.Singleton == null || !NetworkManager.Singleton.IsServer || hpSync) return;
+            if (NetworkDataSync.Instance == null) return;
+
+            NetworkDataSync.Instance.hpChangedUnits.Add(netID);
+            hpSync = true;
+            NetworkDataSync.Instance.onHPCleared += HPSyncFalse;
+        }
+
+        private void CharSyncQueue()
+        {
+            if (NetworkManager.Singleton == null || !NetworkManager.Singleton.IsServer || charSync) return;
+            if (NetworkDataSync.Instance == null) return;
+
+            NetworkDataSync.Instance.charChangedUnits.Add(netID);
+            charSync = true;
+            NetworkDataSync.Instance.onCharCleared += CharSyncFalse;
+        }
+
+        /// <summary>
+        /// Sets the unit`s attack speed to value. Приёмник канала характеристик — клиент значение НЕ считает.
+        /// </summary>
+        /// <param name="value">New attack speed value.</param>
+        public void SetAttackSpeed(float value)
+        {
+            attackSpeed = value;
+
+            ChangeAttackAnimationSpeed();
+
+            OnCharacteristicsChange?.Invoke();
+        }
+
+        /// <summary>
+        /// Sets the unit`s maximum HP to value. Приёмник канала характеристик. Текущее здоровье НЕ трогаем:
+        /// его везёт свой канал абсолютным значением (сервер ставит юнита в обе очереди — см. ChangeMaxHP),
+        /// пересчёт здесь развёл бы два источника истины.
+        /// </summary>
+        /// <param name="value">New maximum HP value.</param>
+        public void SetMaxHP(float value)
+        {
+            maxHealth = value;
+
+            OnHPChange?.Invoke();
+        }
+
         /// <summary>
         /// Changes the unit`s MP regeneration. MP regeneration can go negative.
         /// </summary>
@@ -392,6 +463,7 @@ namespace StrategyCore
             ChangeAttackAnimationSpeed();
 
             OnCharacteristicsChange?.Invoke();
+            CharSyncQueue();
         }
 
         /// <summary>
@@ -416,6 +488,7 @@ namespace StrategyCore
             ChangeAttackAnimationSpeed();
 
             OnCharacteristicsChange?.Invoke();
+            CharSyncQueue();
         }
 
         /// <summary>

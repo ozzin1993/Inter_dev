@@ -95,6 +95,7 @@ namespace StrategyCore
         {
             // Доп. урон через GetDamage (НЕ DealDamage — тот заново вызовет OnAfterDamageDeal → рекурсия). Как Basher.
             // Множитель — общей выборкой по уровням (Б8): раньше уровень выше длины массива молча гасил усиление.
+            AbilityFacts.Proc(this, byUnit);   // [2026-09-10] показ срабатывания — см. AbilityFacts
             float multiplier = InterflowAbility.LevelValue(bonusDamageMultiplier, level);
             if (targetUnit != null && multiplier > 0f)
             {

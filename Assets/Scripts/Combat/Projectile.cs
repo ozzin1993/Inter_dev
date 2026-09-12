@@ -272,12 +272,26 @@ namespace StrategyCore
                 // и вешаются приёмником только при прямой атаке, живому, после урона (решение Artsiom Р7).
                 // Бьющего нет — пробитие и промах в пакете нулевые, состояния вешаются от слота игрока.
                 DamagePacket packet = DamagePacket.Create(amount, damageType, owner, null, directAttack, sourceAbility, attackEffectors);
-                targetUnit.GetDamage(in packet, out float _);
+                targetUnit.GetDamage(in packet, out float damageDealt, out DamageOutcome outcome);
 
                 // After damage callbacks
-                foreach (var c in OnAfterDamageDealCallbacks)
+                // [Interflow fix 2026-09-09 hit-outcome] Тот же дефект F14, что и у живого стрелка
+                // (Unit.DealDamage): реакции попадания шли даже после не достигшего цели удара.
+                // Гейт по исходу приёма; величина колбэкам — фактически снятое здоровье, а не поле
+                // урона снаряда (решение Artsiom 09.09.2026).
+                //
+                // У клиента исход «неизвестен» (приёмник там ничего не считает), поэтому реакции не
+                // запускаются. Раньше они вызывались и у клиента, но до тела не доходили по другой
+                // причине: в этой ветке стрелок мёртв, и колбэк получает byUnit = null (ниже), а
+                // потребители выходят на пустом носителе — ResourceUnit.cs:316, LifestealPassive.cs:41,
+                // CompositePassive.OnHitRuntime.cs:97. Собственной проверки клиента нет только
+                // у ResourceUnit.HitCollectible — рассчитывать на «каждый отсекает себя сам» нельзя.
+                if (outcome == DamageOutcome.Accepted)
                 {
-                    c.Callback(target, targetPosition, attackEffectors, damage, directAttack, damageType, ownerUnit, this, owner, c.Level);
+                    foreach (var c in OnAfterDamageDealCallbacks)
+                    {
+                        c.Callback(target, targetPosition, attackEffectors, damageDealt, directAttack, damageType, ownerUnit, this, owner, c.Level);
+                    }
                 }
             }
             else

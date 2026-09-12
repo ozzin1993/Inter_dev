@@ -327,6 +327,28 @@ namespace StrategyCore
         Transform vfxHolder; // For holding aura, stun and other effects that should be shown or hidden with unit
         Transform selectionCircle; // Selection Circle when unit is selected
 
+        // [Interflow 2026-09-09 unit-overlay] Контейнер надюнитовых элементов: полоски здоровья и маны,
+        // иконка миникарты, держатель эффектов, ряд значков состояний. Заведён, чтобы уничтожение,
+        // гашение и поиск этих объектов шли через один объект, а не через перечисление имён в пяти местах.
+        // Круг выделения и проектор дальности в контейнер НЕ входят (решение Artsiom 09.09): они лежат
+        // на земле под юнитом и живут по логике выделения.
+        /// <summary>Имя объекта-контейнера в иерархии. Константа: по нему контейнер узнают там,
+        /// где компонента Unit уже нет (призрак строящегося здания собирается из копии со снятыми компонентами).</summary>
+        public const string OverlayName = "UnitOverlay";
+
+        // Поля сериализуются намеренно: Instantiate переносит на клон только сериализованные ссылки,
+        // а статическая копия юнита (CreateStaticCopy → Utils.UnitRemoveComponents) сносит контейнер
+        // именно по ссылке. Без пометки у клона тут был бы null, и контейнер оставался бы на копии.
+        // В Inspector поля не показываем: заполняются в Initialize.
+        [HideInInspector, SerializeField] Transform overlayRoot;
+        [HideInInspector, SerializeField] Transform healthBarRoot;    // полоска здоровья — её спрашивают щит, значки и читалка статусов
+        [HideInInspector, SerializeField] Transform minimapIconRoot;  // иконка миникарты — пересоздаётся при смене владельца
+
+        /// <summary>Контейнер надюнитовых элементов. Null у юнита, который ещё не инициализирован.</summary>
+        public Transform OverlayRoot => overlayRoot;
+        /// <summary>Полоска здоровья юнита. Null, пока не создана (выделенный сервер, статика, предметы, деревья).</summary>
+        public Transform HealthBarRoot => healthBarRoot;
+
         // Make unit static or dynamic - Making a unit an agent after turning off obstacle component must wait at least 2 frames to avoid jumping/sudden movement
         int waitTwoUpdates = 0;
         [HideInInspector] public Vector3 currentDestination;
@@ -371,6 +393,8 @@ namespace StrategyCore
         [HideInInspector] public bool hpSync = false; // if this unit`s hp currently to be sent to clients
         [HideInInspector] public bool mpSync = false; // mp
         [HideInInspector] public bool xpSync = false; // xp
+        // [Interflow fix 2026-09-09 characteristics-sync] Флаг канала характеристик — близнец hpSync/mpSync/xpSync.
+        [HideInInspector] public bool charSync = false; // характеристики (скорость атаки, максимум здоровья)
         [HideInInspector] public bool positionsSent = true; // Edge-case. within tick if we add and remove to position sync
         [HideInInspector] public bool removeFromPosSync = false;
 

@@ -3,6 +3,11 @@ Shader "StrategyCore/HealthBar" {
         _MainTex("Texture", 2D) = "black" {}
         _Fill("Fill", float) = 0
         _OutlineThickness("Outline Thickness", Float) = 0.05
+        // Смещение полоски вверх-вниз в единицах меша (высота меша = 2, поэтому 2 = ровно высота полоски).
+        // Считается ЗДЕСЬ, а не сдвигом объекта в мире: полоска — билборд, её высота на экране постоянна,
+        // а мировой сдвиг ужимался бы косинусом наклона камеры (у нас 65 градусов) и зазор пропадал бы.
+        // По умолчанию 0 — полоска здоровья ведёт себя как раньше.
+        _YOffset("Смещение по вертикали (единицы меша)", Float) = 0
     }
         SubShader{
             Tags { "Queue" = "Overlay" }
@@ -41,6 +46,7 @@ Shader "StrategyCore/HealthBar" {
 
             UNITY_INSTANCING_BUFFER_START(Props)
             UNITY_DEFINE_INSTANCED_PROP(float, _Fill)
+            UNITY_DEFINE_INSTANCED_PROP(float, _YOffset)
             UNITY_INSTANCING_BUFFER_END(Props)
 
             v2f vert(appdata v) {
@@ -53,7 +59,8 @@ Shader "StrategyCore/HealthBar" {
 
                 float2 scale = float2(length(unity_ObjectToWorld._m00_m10_m20), length(unity_ObjectToWorld._m01_m11_m21));
                 float4 viewSpaceOrigin = mul( UNITY_MATRIX_MV, float4( 0.0, 0.0, 0.0, 1.0));
-                float4 scaledVertexLocalPos = float4( v.vertex.x * scale.x, v.vertex.y * scale.y, 0.0, 0.0);
+                float yOffset = UNITY_ACCESS_INSTANCED_PROP(Props, _YOffset);
+                float4 scaledVertexLocalPos = float4( v.vertex.x * scale.x, (v.vertex.y + yOffset) * scale.y, 0.0, 0.0);
                 o.vertex = mul( UNITY_MATRIX_P, viewSpaceOrigin + scaledVertexLocalPos);
 
                 // generate UVs from fill level (assumed texture is clamped)

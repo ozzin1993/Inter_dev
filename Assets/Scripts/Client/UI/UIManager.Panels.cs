@@ -14,39 +14,9 @@ namespace StrategyCore
 
         // Buttons ---------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
-        void StopButton()
-        {
-            for (int i = 0; i < pc.selectedUnits.Count; i++)
-            {
-                if (pc.selectedUnits[i].owner == SlotManager.Instance.currentPlayer || SlotManager.Instance.debugMode)
-                {
-                    if (!pc.selectedUnits[i].isBeingBuilt)
-                    {
-                        pc.selectedUnits[i].Idle(true);
-                    }
-                }
-            }
-        }
-
-        void HoldButton()
-        {
-            for (int i = 0; i < pc.selectedUnits.Count; i++)
-            {
-                if (pc.selectedUnits[i].owner == SlotManager.Instance.currentPlayer || SlotManager.Instance.debugMode)
-                {
-                    if (!pc.selectedUnits[i].isBeingBuilt)
-                    {
-                        pc.selectedUnits[i].Hold(true);
-                    }
-                }
-            }
-        }
-
-        void AttackMoveButton()
-        {
-            pc.ChangeMode(PCMode.AttackMove);
-            ShowCancelButton();
-        }
+        // Кнопки «стоп», «удержание» и «атака» СНЯТЫ (решение Artsiom 09.09): прямого управления
+        // юнитами нет, игрок задаёт режим «Атака»/«Защита» и применяет умения. Сами элементы в панели
+        // остались (как и кнопка движения, у которой обработчика не было и раньше) — их вид решается отдельно.
 
         // When you are casting a spell it will cancel that action and go back to the default state
         void CancelButton(ClickEvent evt)
@@ -182,24 +152,7 @@ namespace StrategyCore
             }
         }
 
-        // When process is clicked in processUI, it is canceled
-        private void TransportClick(ClickEvent evt)
-        {
-            VisualElement clickedElement = evt.target as VisualElement;
-
-            // Name is the index of the process
-            if (int.TryParse(clickedElement.name, out int index))
-            {
-                if (pc.activeUnit.owner == SlotManager.Instance.currentPlayer || SlotManager.Instance.debugMode)
-                {
-                    pc.activeUnit.transportUnit.Disembark(index, pc.activeUnit.transform.position);
-                }
-                else
-                {
-                    ShowNotifyMsg("Very funny! This unit is not yours to control!");
-                }
-            }
-        }
+        // Клик по транспорту (высадка) СНЯТ вместе с приёмником DisembarkCommandServerRpc.
 
         public void HideTransport()
         {

@@ -487,28 +487,40 @@ namespace StrategyCore
                             float dist = Vector2.Distance(new Vector2(u.transform.position.x, u.transform.position.z), position);
                             if (dist - u.unitRadius < radius)
                             {
-                                // Find insertion point
-                                int insertIndex = unitCount - 1;
-                                for (int z = unitCount - 2; z >= 0; z--) // Start from second-to-last
+                                // [Interflow fix 2026-09-09 closest-units] Вставка в массив, упорядоченный по
+                                // ВОЗРАСТАНИЮ расстояния (дефект T04).
+                                //
+                                // Как было: место вставки начиналось с последней ячейки, а цикл поиска шёл
+                                // с предпоследней и обрывался break-ом на первой же итерации — у пустого
+                                // массива units[z] == null. Место вставки так и оставалось последним, сдвиг
+                                // не выполнялся (сначала ячейка пуста, потом цикл сдвига без итераций), и
+                                // каждый подходящий юнит ПЕРЕЗАПИСЫВАЛ одну и ту же последнюю ячейку:
+                                // остальные оставались пустыми, порядка по расстоянию не было, а при
+                                // unitCount == 1 возвращался не ближайший, а последний встреченный.
+                                //
+                                // Как стало: ищем первое место, куда юнит годится, — свободную ячейку или
+                                // ячейку с более далёкой целью; хвост сдвигаем вправо (самая дальняя цель
+                                // вытесняется); ближе никого и мест нет — юнит в выборку не попадает.
+                                // Без выделений памяти и без сортировки списка: путь горячий, метод зовётся
+                                // на каждом взмахе мультицели.
+                                int insertIndex = -1;
+                                for (int z = 0; z < unitCount; z++)
                                 {
-                                    if (units[z] != null && distances[z] > dist)
+                                    if (units[z] == null || dist < distances[z])
                                     {
-                                        insertIndex = z; // Found where dist fits
-                                    }
-                                    else
-                                    {
-                                        break; // Stop if we find a smaller distance
+                                        insertIndex = z;
+                                        break;
                                     }
                                 }
 
+                                // Все места заняты более близкими целями — этот юнит дальше всех отобранных.
+                                if (insertIndex < 0) continue;
+
                                 // Shift elements if needed
-                                if (units[insertIndex] != null)
+                                for (int o = unitCount - 1; o > insertIndex; o--)
                                 {
-                                    for (int o = unitCount - 1; o > insertIndex; o--)
-                                    {
-                                        units[o] = units[o - 1];
-                                        distances[o] = distances[o - 1];
-                                    }
+                                    units[o] = units[o - 1];
+                                    distances[o] = distances[o - 1];
                                 }
 
                                 // Insert new unit
@@ -884,12 +896,14 @@ namespace StrategyCore
             foreach (SkillBuff skillBuff in unit.GetComponents<SkillBuff>()) GameManager.Destroy(skillBuff);
             if (unit.GetComponent<SkillVisualStatus>()) GameManager.Destroy(unit.GetComponent<SkillVisualStatus>());
             DestroyUnitDependents(unit); // [Interflow fix 2026-08-01 require-component-die] снять [RequireComponent(Unit)]-компоненты, иначе Unit не удалится
-            if (unit.GetComponent<Unit>()) GameManager.Destroy(unit.GetComponent<Unit>());
 
-            foreach (Transform child in unit.transform)
-            {
-                if (child.name == "MiniMapIcon(Clone)" || child.name == "HealthBar(Clone)" || child.name == "VFXHolder") GameManager.Destroy(child.gameObject);
-            }
+            // [Interflow 2026-09-09 unit-overlay] Полоски, иконка миникарты и держатель эффектов лежат
+            // в контейнере надюнитовых элементов. Ссылку берём ДО снятия компонента Unit — после него
+            // спрашивать поле уже не у кого; перечисления имён больше нет.
+            Unit unitComponent = unit.GetComponent<Unit>();
+            Transform overlay = unitComponent != null ? unitComponent.OverlayRoot : null;
+            if (unitComponent) GameManager.Destroy(unitComponent);
+            if (overlay != null) GameManager.Destroy(overlay.gameObject);
         }
 
     }

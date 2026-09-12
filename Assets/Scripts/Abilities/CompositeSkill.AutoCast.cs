@@ -29,14 +29,27 @@ namespace StrategyCore
         public bool AutoCastReady(Unit castingUnit, int level, out Unit target)
         {
             target = null;
-            if (castingUnit == null || castingUnit.dead) return false;
+            if (castingUnit == null || castingUnit.dead)
+            {
+                if (InterflowDebug.FullOn) LogAutoCastRefused(castingUnit, "носителя нет или он мёртв");
+                return false;
+            }
 
             // Условие по себе: пока носитель здоров, умение придерживается. Проверяем ДО поиска цели —
             // перебирать кандидатов, зная, что каста не будет, значит греть процессор впустую.
             if (autoCastSelfHpBelow > 0f)
             {
-                if (castingUnit.maxHealth <= 0f) return false;
-                if (castingUnit.health / castingUnit.maxHealth >= autoCastSelfHpBelow) return false;
+                if (castingUnit.maxHealth <= 0f)
+                {
+                    if (InterflowDebug.FullOn) LogAutoCastRefused(castingUnit, "у носителя нулевой максимум здоровья");
+                    return false;
+                }
+                if (castingUnit.health / castingUnit.maxHealth >= autoCastSelfHpBelow)
+                {
+                    if (InterflowDebug.FullOn)
+                        LogAutoCastRefused(castingUnit, "здоровье носителя не ниже доли " + N(autoCastSelfHpBelow));
+                    return false;
+                }
             }
 
             switch (targetMode)
@@ -47,10 +60,16 @@ namespace StrategyCore
                     return true;
 
                 case SkillTargetMode.Cone:
+                {
                     // Цель наружу НЕ отдаём: конус бьёт туда, куда юнит смотрит (CollectTargets берёт
                     // LookDirection), а переданная точка на направление не влияет — зато включила бы
                     // штатную проверку дистанции с подходом к цели (Unit.State.cs:176).
-                    return castingUnit.IsAttackTargetInStrikeRange();
+                    bool inStrikeRange = castingUnit.IsAttackTargetInStrikeRange();
+
+                    if (!inStrikeRange && InterflowDebug.FullOn)
+                        LogAutoCastRefused(castingUnit, "цель атаки вне дальности удара");
+                    return inStrikeRange;
+                }
 
                 case SkillTargetMode.SmartUnit:
                 case SkillTargetMode.SmartPoint:
@@ -59,10 +78,31 @@ namespace StrategyCore
                     // что у конуса: юнит должен уже дотягиваться до цели, а не идти к ней.
                     if (targetStrategy == SkillTargetStrategy.CurrentAttackTarget)
                     {
-                        if (!castingUnit.IsAttackTargetInStrikeRange()) return false;
+                        if (!castingUnit.IsAttackTargetInStrikeRange())
+                        {
+                            if (InterflowDebug.FullOn) LogAutoCastRefused(castingUnit, "цель атаки вне дальности удара");
+                            return false;
+                        }
 
                         target = castingUnit.target;
-                        return IsEligibleTarget(target, castingUnit.owner);
+
+                        bool eligible = IsEligibleTarget(target, castingUnit.owner);
+                        if (!eligible && InterflowDebug.FullOn)
+                            LogAutoCastRefused(castingUnit, "текущая цель атаки не проходит отбор умения");
+
+                        // Кандидатов здесь нет — цель выбрана боем, поэтому предпочтение по состоянию
+                        // работает только запретом и только при варианте «не применять умение»
+                        // (решение Artsiom 11.09.2026).
+                        if (eligible && avoidNoFreeTarget == SkillNoFreeTargetFallback.Skip
+                            && SkillTargeting.HasAvoidedState(target, avoidTargetState, avoidTargetEffector))
+                        {
+                            if (InterflowDebug.FullOn)
+                                LogAutoCastRefused(castingUnit, "на текущей цели атаки висит состояние " + avoidTargetState);
+                            target = null;
+                            return false;
+                        }
+
+                        return eligible;
                     }
 
                     // Без дальности умение бьёт по всей карте. Перебирать её каждый тик только чтобы
@@ -72,9 +112,15 @@ namespace StrategyCore
                     if (LevelValue(castRange, level) <= 0f) return true;
 
                     target = PickAutoCastTarget(castingUnit, level);
+
+                    if (target == null && InterflowDebug.FullOn)
+                        LogAutoCastRefused(castingUnit, "стратегия " + targetStrategy + " не нашла цель в дальности каста");
                     return target != null;
             }
 
+            // Сюда не доходит ни один из шести режимов SkillTargetMode — ветка на случай нового значения.
+            if (InterflowDebug.FullOn)
+                LogAutoCastRefused(castingUnit, "режим цели " + targetMode + " автокастом не поддерживается");
             return false;
         }
 
@@ -96,8 +142,31 @@ namespace StrategyCore
             for (int i = 0; i < found.Length; i++)
                 if (!IsEligibleTarget(found[i], castingUnit.owner)) found[i] = null;
 
-            return SkillTargeting.Pick(targetStrategy, found, castingUnit,
-                                       TargetingOptions(level, castingUnit.transform.position));
+            // Предпочтение по состоянию цели (решение Artsiom 11.09.2026): свободные от состояния есть —
+            // занятые зануляются, и стратегия выбирает только среди свободных; свободных нет — набор
+            // не тронут, дальше решает настройка.
+            if (!SkillTargeting.PreferWithoutState(found, avoidTargetState, avoidTargetEffector)
+                && avoidNoFreeTarget == SkillNoFreeTargetFallback.Skip)
+            {
+                if (InterflowDebug.FullOn)
+                    LogAutoCastRefused(castingUnit, "все цели в дальности под состоянием " + avoidTargetState);
+                return null;
+            }
+
+            Unit picked = SkillTargeting.Pick(targetStrategy, found, castingUnit,
+                                              TargetingOptions(level, castingUnit.transform.position));
+
+            // Свободные были, но стратегия среди них никого не признала годным — например «раненый ниже
+            // порога», а свободен только здоровый. Возвращаем убранных и пробуем ещё раз по полному набору,
+            // иначе применение сгорело бы впустую (решение Artsiom 11.09.2026).
+            if (picked == null && avoidNoFreeTarget == SkillNoFreeTargetFallback.PickAnyway)
+            {
+                SkillTargeting.RestoreFiltered(found);
+                picked = SkillTargeting.Pick(targetStrategy, found, castingUnit,
+                                             TargetingOptions(level, castingUnit.transform.position));
+            }
+
+            return picked;
         }
     }
 }

@@ -1,0 +1,194 @@
+=== Interflow server log === start 2026-09-11 00:02:31 ===
+unityVersion=6000.4.7f1 platform=WindowsServer headless=True args=D:\Interflow\Interflow\TESTServer\Interflow.exe -server -port 7777 -logFile D:\Interflow\_logs\srv.log
+00:02:31.278 [Log] [ServerBootstrap] Start: headless=True, gfx=Null, batchmode=True, автозапуск=True, injectMenuButton=True.
+00:02:31.282 [Log] [ServerBootstrap] Порт из аргумента -port: 7777.
+00:02:31.283 [Log] [ServerBootstrap] Порт прослушивания: 0.0.0.0:7777.
+00:02:31.285 [Log] [ServerBootstrap] Лимит кадров сервера: 30 к/с.
+00:02:31.429 [Log] [ServerBootstrap] Сервер запущен (StartServer). Ожидание игроков: 2.
+00:02:31.430 [Log] [NetFlow SERVER] NetworkFlowLogger активен.
+00:02:31.439 [Log] [NetFlow SERVER] Подписка на SceneManager.OnSceneEvent выполнена.
+00:02:31.440 [Log] [NetFlow SERVER] gameStarted: -1 -> Menu
+00:43:36.517 [Log] Approved: joined Player0, 1 at slot 0
+00:43:36.579 [Log] [ДИАГ] СобытиеСцены: тип=Synchronize, сцена=, clientId=1, свой=False, IsServer=True
+00:43:36.580 [Log] [NetFlow SERVER] SceneEvent: Synchronize | сцена='' | clientId=1 | local=0.
+00:43:36.698 [Log] [ДИАГ] СобытиеСцены: тип=LoadComplete, сцена=Menu, clientId=1, свой=False, IsServer=True
+00:43:36.698 [Log] [NetFlow SERVER] SceneEvent: LoadComplete | сцена='Menu' | clientId=1 | local=0.
+00:43:36.699 [Log] [ДИАГ] СобытиеСцены: тип=SynchronizeComplete, сцена=, clientId=1, свой=False, IsServer=True
+00:43:36.700 [Log] [NetFlow SERVER] SceneEvent: SynchronizeComplete | сцена='' | clientId=1 | local=0.
+00:43:36.701 [Log] [NetFlow SERVER] OnClientConnected: clientId=1 (local=0).
+00:43:36.703 [Log] === Дамп владения (SERVER) ===
+LocalClientId=0; мой слот (GetClientSlot)=-1; currentPlayer=0; connectionStage=0 (2=mid-game, RPC игнорятся).
+Я: имя='', слот=-1, currentTeam=0, команда слота=-1. Командовать смогу юнитами с owner==-1 (NetworkCommandSync проверяет слот==owner).
+  slot[0]: type=Player, playerID=1, team=0.
+  slot[1]: type=Empty, playerID=-1, team=1.
+  slot[2]: type=Empty, playerID=-1, team=2.
+  slot[3]: type=Empty, playerID=-1, team=3.
+  slot[4]: type=Empty, playerID=-1, team=4.
+  slot[5]: type=Empty, playerID=-1, team=5.
+  slot[6]: type=Empty, playerID=-1, team=6.
+  slot[7]: type=Empty, playerID=-1, team=7.
+  slot[8]: type=Empty, playerID=-1, team=8.
+  slot[9]: type=Empty, playerID=-1, team=9.
+  slot[10]: type=Empty, playerID=-1, team=10.
+  slot[11]: type=Empty, playerID=-1, team=11.
+  slot[12]: type=Empty, playerID=-1, team=12.
+  slot[13]: type=Empty, playerID=-1, team=13.
+Вывод: команда клиента применится только если 'мой слот' == owner юнита (или debugMode).
+
+00:43:36.703 [Log] [ДИАГ] ClientConnected: clientId=1, свой=False, IsServer=True, IsHost=False, IsClient=False, состояниеИгры=Menu, MenuUI=False, MenuReady=
+00:44:04.363 [Log] Approved: joined Player0, 2 at slot 1
+00:44:04.400 [Log] [ДИАГ] СобытиеСцены: тип=Synchronize, сцена=, clientId=2, свой=False, IsServer=True
+00:44:04.401 [Log] [NetFlow SERVER] SceneEvent: Synchronize | сцена='' | clientId=2 | local=0.
+00:44:04.530 [Log] [ДИАГ] СобытиеСцены: тип=LoadComplete, сцена=Menu, clientId=2, свой=False, IsServer=True
+00:44:04.530 [Log] [NetFlow SERVER] SceneEvent: LoadComplete | сцена='Menu' | clientId=2 | local=0.
+00:44:04.530 [Log] [ДИАГ] СобытиеСцены: тип=SynchronizeComplete, сцена=, clientId=2, свой=False, IsServer=True
+00:44:04.530 [Log] [NetFlow SERVER] SceneEvent: SynchronizeComplete | сцена='' | clientId=2 | local=0.
+00:44:04.530 [Log] [ServerBootstrap] Набралось игроков (2) — отсчёт 15с до старта.
+00:44:04.531 [Log] [NetFlow SERVER] OnClientConnected: clientId=2 (local=0).
+00:44:04.531 [Log] === Дамп владения (SERVER) ===
+LocalClientId=0; мой слот (GetClientSlot)=-1; currentPlayer=0; connectionStage=0 (2=mid-game, RPC игнорятся).
+Я: имя='', слот=-1, currentTeam=0, команда слота=-1. Командовать смогу юнитами с owner==-1 (NetworkCommandSync проверяет слот==owner).
+  slot[0]: type=Player, playerID=1, team=0.
+  slot[1]: type=Player, playerID=2, team=1.
+  slot[2]: type=Empty, playerID=-1, team=2.
+  slot[3]: type=Empty, playerID=-1, team=3.
+  slot[4]: type=Empty, playerID=-1, team=4.
+  slot[5]: type=Empty, playerID=-1, team=5.
+  slot[6]: type=Empty, playerID=-1, team=6.
+  slot[7]: type=Empty, playerID=-1, team=7.
+  slot[8]: type=Empty, playerID=-1, team=8.
+  slot[9]: type=Empty, playerID=-1, team=9.
+  slot[10]: type=Empty, playerID=-1, team=10.
+  slot[11]: type=Empty, playerID=-1, team=11.
+  slot[12]: type=Empty, playerID=-1, team=12.
+  slot[13]: type=Empty, playerID=-1, team=13.
+Вывод: команда клиента применится только если 'мой слот' == owner юнита (или debugMode).
+
+00:44:04.531 [Log] [ДИАГ] ClientConnected: clientId=2, свой=False, IsServer=True, IsHost=False, IsClient=False, состояниеИгры=Menu, MenuUI=False, MenuReady=
+00:44:19.532 [Log] [ServerBootstrap] Отсчёт завершён — старт матча.
+00:44:19.540 [Log] [ДИАГ] СобытиеСцены: тип=Load, сцена=Artsiom, clientId=0, свой=True, IsServer=True
+00:44:19.543 [Log] [NetFlow SERVER] SceneEvent: Load | сцена='Artsiom' | clientId=0 | local=0.
+00:44:19.567 [Log] [NetFlow SERVER] gameStarted: Menu -> Loading
+00:44:19.597 [Warning] The referenced script (StrategyCore.ClientContentRehydrator) on this Behaviour is missing!
+00:44:19.599 [Warning] The referenced script (Unknown) on this Behaviour is missing!
+00:44:19.599 [Warning] The referenced script (Unknown) on this Behaviour is missing!
+00:44:19.605 [Warning] The referenced script (StrategyCore.UIManager) on this Behaviour is missing!
+00:44:19.612 [Warning] The referenced script on this Behaviour (Game Object 'GameManager') is missing!
+00:44:19.616 [Warning] The referenced script on this Behaviour (Game Object 'ClientContent') is missing!
+00:44:19.616 [Warning] The referenced script on this Behaviour (Game Object 'GameManager') is missing!
+00:44:19.617 [Warning] The referenced script on this Behaviour (Game Object 'GameManager') is missing!
+00:44:19.617 [Warning] The referenced script on this Behaviour (Game Object 'CameraRig') is missing!
+00:44:19.617 [Warning] The referenced script on this Behaviour (Game Object 'GameManager') is missing!
+00:44:19.617 [Warning] The referenced script on this Behaviour (Game Object 'CameraRig') is missing!
+00:44:19.681 [Warning] Mesh SM_Prop_Candle_Chandelier_02_Particle requires Read/Write Enabled to be set in the importer to work on the particle system shape module
+00:44:19.684 [Warning] Mesh SM_Prop_Candle_Chandelier_02_Particle requires Read/Write Enabled to be set in the importer to work on the particle system shape module
+00:44:19.684 [Warning] Mesh SM_Prop_Candle_Chandelier_02_Particle requires Read/Write Enabled to be set in the importer to work on the particle system shape module
+00:44:19.684 [Warning] Mesh SM_Prop_Candle_Chandelier_02_Particle requires Read/Write Enabled to be set in the importer to work on the particle system shape module
+00:44:19.719 [Warning] The referenced script (Unknown) on this Behaviour is missing!
+00:44:19.719 [Warning] The referenced script on this Behaviour (Game Object '<null>') is missing!
+00:44:19.719 [Error] A scripted object (script unknown or not yet loaded) has a different serialization layout when loading. (Read 40 bytes but expected 140 bytes)
+Did you #if UNITY_EDITOR a section of your serialized properties in any of your scripts?
+00:44:20.117 [Log] [ServerFactionConfigs] Загружено фракций: 2 (Люди, Орки); неотрезолвленных ссылок: 0.
+00:44:20.129 [Warning] The referenced script (Unknown) on this Behaviour is missing!
+00:44:20.129 [Warning] The referenced script on this Behaviour (Game Object '<null>') is missing!
+00:44:20.298 [Log] [ДИАГ] СобытиеСцены: тип=LoadComplete, сцена=Artsiom, clientId=0, свой=True, IsServer=True
+00:44:20.300 [Log] [NetFlow SERVER] SceneEvent: LoadComplete | сцена='Artsiom' | clientId=0 | local=0.
+00:44:20.301 [Warning] [MatchManager] GameManager.specificUnitsDead не настроен — победа по уничтожению базы не сработает. Задайте NetID баз и winningTeam в Inspector у GameManager.
+00:44:20.302 [Warning] BoxCollider does not support negative scale or size.
+The effective box size has been forced positive and is likely to give unexpected collision geometry.
+If you absolutely need to use negative scaling you can use the convex MeshCollider. Scene hierarchy path "Castle/SM_Env_Wall_Trim_Edge_23 (2)"
+00:44:20.304 [Warning] BoxCollider does not support negative scale or size.
+The effective box size has been forced positive and is likely to give unexpected collision geometry.
+If you absolutely need to use negative scaling you can use the convex MeshCollider. Scene hierarchy path "Castle/SM_Env_Wall_Trim_Edge_23 (2)"
+00:44:20.304 [Warning] BoxCollider does not support negative scale or size.
+The effective box size has been forced positive and is likely to give unexpected collision geometry.
+If you absolutely need to use negative scaling you can use the convex MeshCollider. Scene hierarchy path "Castle/SM_Env_Wall_Trim_Edge_23 (1)"
+00:44:20.304 [Warning] BoxCollider does not support negative scale or size.
+The effective box size has been forced positive and is likely to give unexpected collision geometry.
+If you absolutely need to use negative scaling you can use the convex MeshCollider. Scene hierarchy path "Castle/SM_Env_Wall_Trim_Edge_23"
+00:44:20.304 [Warning] BoxCollider does not support negative scale or size.
+The effective box size has been forced positive and is likely to give unexpected collision geometry.
+If you absolutely need to use negative scaling you can use the convex MeshCollider. Scene hierarchy path "Castle/SM_Env_Wall_Trim_Edge_23"
+00:44:20.304 [Warning] BoxCollider does not support negative scale or size.
+The effective box size has been forced positive and is likely to give unexpected collision geometry.
+If you absolutely need to use negative scaling you can use the convex MeshCollider. Scene hierarchy path "Castle/SM_Env_Wall_Trim_Edge_23 (1)"
+00:44:20.304 [Warning] BoxCollider does not support negative scale or size.
+The effective box size has been forced positive and is likely to give unexpected collision geometry.
+If you absolutely need to use negative scaling you can use the convex MeshCollider. Scene hierarchy path "Castle/SM_Env_Wall_Window_06"
+00:44:20.304 [Warning] BoxCollider does not support negative scale or size.
+The effective box size has been forced positive and is likely to give unexpected collision geometry.
+If you absolutely need to use negative scaling you can use the convex MeshCollider. Scene hierarchy path "Castle/SM_Env_Wall_Window_08"
+00:44:22.373 [Log] [ДИАГ] СобытиеСцены: тип=LoadComplete, сцена=Artsiom, clientId=2, свой=False, IsServer=True
+00:44:22.373 [Log] [NetFlow SERVER] SceneEvent: LoadComplete | сцена='Artsiom' | clientId=2 | local=0.
+00:44:22.539 [Log] [ДИАГ] СобытиеСцены: тип=LoadComplete, сцена=Artsiom, clientId=1, свой=False, IsServer=True
+00:44:22.539 [Log] [NetFlow SERVER] SceneEvent: LoadComplete | сцена='Artsiom' | clientId=1 | local=0.
+00:44:22.552 [Log] [ДИАГ] СобытиеСцены: тип=LoadEventCompleted, сцена=Artsiom, clientId=0, свой=True, IsServer=True
+00:44:22.552 [Log] [ДИАГ] StartTheGame(firstLoad=True): saveFileName='', длинаSaveSceneData=0, clientsLoading=0
+00:44:22.552 [Log] [NetFlow SERVER] === Матч загружен (SlotManager.OnGameStart) ===
+00:44:22.553 [Log] === Дамп владения (SERVER) ===
+LocalClientId=0; мой слот (GetClientSlot)=-1; currentPlayer=0; connectionStage=0 (2=mid-game, RPC игнорятся).
+Я: имя='', слот=-1, currentTeam=0, команда слота=-1. Командовать смогу юнитами с owner==-1 (NetworkCommandSync проверяет слот==owner).
+MatchManager: teamA.ownerPlayer=0; teamB.ownerPlayer=1.
+  slot[0]: type=Player, playerID=1, team=0.
+  slot[1]: type=Player, playerID=2, team=1.
+  slot[2]: type=Empty, playerID=-1, team=2.
+  slot[3]: type=Empty, playerID=-1, team=3.
+  slot[4]: type=Empty, playerID=-1, team=4.
+  slot[5]: type=Empty, playerID=-1, team=5.
+  slot[6]: type=Empty, playerID=-1, team=6.
+  slot[7]: type=Empty, playerID=-1, team=7.
+  slot[8]: type=Empty, playerID=-1, team=8.
+  slot[9]: type=Empty, playerID=-1, team=9.
+  slot[10]: type=Empty, playerID=-1, team=10.
+  slot[11]: type=Empty, playerID=-1, team=11.
+  slot[12]: type=Empty, playerID=-1, team=12.
+  slot[13]: type=Empty, playerID=-1, team=13.
+  юнитов с owner=1: 1.
+  юнитов с owner=0: 1.
+Вывод: команда клиента применится только если 'мой слот' == owner юнита (или debugMode).
+
+00:44:22.672 [Log] [NetFlow SERVER] SceneEvent: LoadEventCompleted | сцена='Artsiom' | clientId=0 | local=0.
+00:44:22.686 [Log] [NetFlow SERVER] gameStarted: Loading -> Started
+00:44:22.688 [Log] === Дамп владения (SERVER) ===
+LocalClientId=0; мой слот (GetClientSlot)=-1; currentPlayer=0; connectionStage=0 (2=mid-game, RPC игнорятся).
+Я: имя='', слот=-1, currentTeam=0, команда слота=-1. Командовать смогу юнитами с owner==-1 (NetworkCommandSync проверяет слот==owner).
+MatchManager: teamA.ownerPlayer=0; teamB.ownerPlayer=1.
+  slot[0]: type=Player, playerID=1, team=0.
+  slot[1]: type=Player, playerID=2, team=1.
+  slot[2]: type=Empty, playerID=-1, team=2.
+  slot[3]: type=Empty, playerID=-1, team=3.
+  slot[4]: type=Empty, playerID=-1, team=4.
+  slot[5]: type=Empty, playerID=-1, team=5.
+  slot[6]: type=Empty, playerID=-1, team=6.
+  slot[7]: type=Empty, playerID=-1, team=7.
+  slot[8]: type=Empty, playerID=-1, team=8.
+  slot[9]: type=Empty, playerID=-1, team=9.
+  slot[10]: type=Empty, playerID=-1, team=10.
+  slot[11]: type=Empty, playerID=-1, team=11.
+  slot[12]: type=Empty, playerID=-1, team=12.
+  slot[13]: type=Empty, playerID=-1, team=13.
+  юнитов с owner=1: 3.
+  юнитов с owner=0: 3.
+  юнитов с owner=13: 1.
+Вывод: команда клиента применится только если 'мой слот' == owner юнита (или debugMode).
+
+00:44:27.640 [Log] [IF] НАБЛЮДАТЕЛЬ включён: Footman_Green(Clone)#-386 (игрок 0) | урон 10, скорость атаки 1,5, дальность 0,5, броня 0, скорость бега 4, способностей в списке 2
+00:44:27.641 [Log] [IF] НАБЛЮДАТЕЛЬ включён: Rifleman_Green(Clone)#-438 (игрок 0) | урон 99, скорость атаки 2, дальность 4, броня 0, скорость бега 3, способностей в списке 0
+00:44:27.641 [Log] [IF] НАБЛЮДАТЕЛЬ включён: Footman_Red(Clone)#-488 (игрок 1) | урон 10, скорость атаки 1,5, дальность 0,5, броня 0, скорость бега 4, способностей в списке 2
+00:44:27.641 [Log] [IF] НАБЛЮДАТЕЛЬ включён: Rifleman_Red(Clone)#-538 (игрок 1) | урон 99, скорость атаки 2, дальность 4, броня 0, скорость бега 3, способностей в списке 0
+00:44:27.650 [Warning] [AutoAbilityUser] У 'Footman_Green' умение 'fireball' не найдено в списке Abilities — авто-применение этого умения отключено.
+00:44:57.620 [Log] [IF] НАБЛЮДАТЕЛЬ включён: Footman_Green(Clone)#-1028 (игрок 0) | урон 10, скорость атаки 1,5, дальность 0,5, броня 0, скорость бега 4, способностей в списке 2
+00:44:57.621 [Log] [IF] НАБЛЮДАТЕЛЬ включён: Rifleman_Green(Clone)#-1080 (игрок 0) | урон 99, скорость атаки 2, дальность 4, броня 0, скорость бега 3, способностей в списке 0
+00:44:57.621 [Log] [IF] НАБЛЮДАТЕЛЬ включён: Footman_Red(Clone)#-1130 (игрок 1) | урон 10, скорость атаки 1,5, дальность 0,5, броня 0, скорость бега 4, способностей в списке 2
+00:44:57.621 [Log] [IF] НАБЛЮДАТЕЛЬ включён: Rifleman_Red(Clone)#-1180 (игрок 1) | урон 99, скорость атаки 2, дальность 4, броня 0, скорость бега 3, способностей в списке 0
+00:44:57.644 [Warning] [AutoAbilityUser] У 'Footman_Green' умение 'fireball' не найдено в списке Abilities — авто-применение этого умения отключено.
+00:45:27.671 [Log] [IF] НАБЛЮДАТЕЛЬ включён: Footman_Green(Clone)#-1230 (игрок 0) | урон 10, скорость атаки 1,5, дальность 0,5, броня 0, скорость бега 4, способностей в списке 2
+00:45:27.671 [Log] [IF] НАБЛЮДАТЕЛЬ включён: Rifleman_Green(Clone)#-1282 (игрок 0) | урон 99, скорость атаки 2, дальность 4, броня 0, скорость бега 3, способностей в списке 0
+00:45:27.671 [Log] [IF] НАБЛЮДАТЕЛЬ включён: Footman_Red(Clone)#-1332 (игрок 1) | урон 10, скорость атаки 1,5, дальность 0,5, броня 0, скорость бега 4, способностей в списке 2
+00:45:27.671 [Log] [IF] НАБЛЮДАТЕЛЬ включён: Rifleman_Red(Clone)#-1382 (игрок 1) | урон 99, скорость атаки 2, дальность 4, броня 0, скорость бега 3, способностей в списке 0
+00:45:27.770 [Warning] [AutoAbilityUser] У 'Footman_Green' умение 'fireball' не найдено в списке Abilities — авто-применение этого умения отключено.
+00:45:57.715 [Log] [IF] НАБЛЮДАТЕЛЬ включён: Footman_Green(Clone)#-1432 (игрок 0) | урон 10, скорость атаки 1,5, дальность 0,5, броня 0, скорость бега 4, способностей в списке 2
+00:45:57.715 [Log] [IF] НАБЛЮДАТЕЛЬ включён: Rifleman_Green(Clone)#-1484 (игрок 0) | урон 99, скорость атаки 2, дальность 4, броня 0, скорость бега 3, способностей в списке 0
+00:45:57.715 [Log] [IF] НАБЛЮДАТЕЛЬ включён: Footman_Red(Clone)#-1534 (игрок 1) | урон 10, скорость атаки 1,5, дальность 0,5, броня 0, скорость бега 4, способностей в списке 2
+00:45:57.715 [Log] [IF] НАБЛЮДАТЕЛЬ включён: Rifleman_Red(Clone)#-1584 (игрок 1) | урон 99, скорость атаки 2, дальность 4, броня 0, скорость бега 3, способностей в списке 0
+00:45:57.772 [Warning] [AutoAbilityUser] У 'Footman_Green' умение 'fireball' не найдено в списке Abilities — авто-применение этого умения отключено.

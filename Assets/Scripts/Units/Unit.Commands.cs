@@ -133,7 +133,9 @@ namespace StrategyCore
         {
             if (NetworkConnectionHandler.isClient)
             {
-                NetworkCommandSync.Instance.IdleCommandSend(this);
+                // Отправка снята: приёмник закрыт — прямого управления юнитами нет (решение Artsiom 09.09).
+                // Клиент выходит здесь как и раньше; локально команда состояния не меняла, а сервер
+                // те же вызовы делает у себя сам (ConstructionUnit, ResourceUnit и менеджеры матча).
                 return;
             }
 
@@ -162,7 +164,9 @@ namespace StrategyCore
         {
             if (NetworkConnectionHandler.isClient)
             {
-                NetworkCommandSync.Instance.HoldCommandSend(this);
+                // Отправка снята: приёмник закрыт — прямого управления юнитами нет (решение Artsiom 09.09).
+                // Клиент выходит здесь как и раньше; локально команда состояния не меняла, а сервер
+                // те же вызовы делает у себя сам (ConstructionUnit, ResourceUnit и менеджеры матча).
                 return;
             }
 
@@ -189,7 +193,9 @@ namespace StrategyCore
 
             if (NetworkConnectionHandler.isClient)
             {
-                NetworkCommandSync.Instance.FollowCommandSend(this, u, stopDist, embark);
+                // Отправка снята: приёмник закрыт — прямого управления юнитами нет (решение Artsiom 09.09).
+                // Клиент выходит здесь как и раньше; локально команда состояния не меняла, а сервер
+                // те же вызовы делает у себя сам (ConstructionUnit, ResourceUnit и менеджеры матча).
                 return false;
             }
 
@@ -241,7 +247,9 @@ namespace StrategyCore
         {
             if (NetworkConnectionHandler.isClient)
             {
-                NetworkCommandSync.Instance.MoveCommandSend(this, position, stopDist);
+                // Отправка снята: приёмник закрыт — прямого управления юнитами нет (решение Artsiom 09.09).
+                // Клиент выходит здесь как и раньше; локально команда состояния не меняла, а сервер
+                // те же вызовы делает у себя сам (ConstructionUnit, ResourceUnit и менеджеры матча).
                 return false;
             }
 
@@ -280,7 +288,9 @@ namespace StrategyCore
         {
             if (NetworkConnectionHandler.isClient)
             {
-                NetworkCommandSync.Instance.MoveCommandSend(this, position, stopDist);
+                // Отправка снята: приёмник закрыт — прямого управления юнитами нет (решение Artsiom 09.09).
+                // Клиент выходит здесь как и раньше; локально команда состояния не меняла, а сервер
+                // те же вызовы делает у себя сам (ConstructionUnit, ResourceUnit и менеджеры матча).
                 return false;
             }
 
@@ -317,7 +327,9 @@ namespace StrategyCore
         {
             if (NetworkConnectionHandler.isClient)
             {
-                NetworkCommandSync.Instance.AttackCommandSend(this, u);
+                // Отправка снята: приёмник закрыт — прямого управления юнитами нет (решение Artsiom 09.09).
+                // Клиент выходит здесь как и раньше; локально команда состояния не меняла, а сервер
+                // те же вызовы делает у себя сам (ConstructionUnit, ResourceUnit и менеджеры матча).
                 return;
             }
 
@@ -344,7 +356,9 @@ namespace StrategyCore
         {
             if (NetworkConnectionHandler.isClient)
             {
-                NetworkCommandSync.Instance.AttackPositionCommandSend(this, targetPosition);
+                // Отправка снята: приёмник закрыт — прямого управления юнитами нет (решение Artsiom 09.09).
+                // Клиент выходит здесь как и раньше; локально команда состояния не меняла, а сервер
+                // те же вызовы делает у себя сам (ConstructionUnit, ResourceUnit и менеджеры матча).
                 return;
             }
 
@@ -392,7 +406,9 @@ namespace StrategyCore
         {
             if (NetworkConnectionHandler.isClient)
             {
-                NetworkCommandSync.Instance.AttackMoveCommandSend(this, position);
+                // Отправка снята: приёмник закрыт — прямого управления юнитами нет (решение Artsiom 09.09).
+                // Клиент выходит здесь как и раньше; локально команда состояния не меняла, а сервер
+                // те же вызовы делает у себя сам (ConstructionUnit, ResourceUnit и менеджеры матча).
                 return;
             }
 

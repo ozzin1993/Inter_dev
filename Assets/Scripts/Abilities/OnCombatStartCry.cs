@@ -98,6 +98,7 @@ namespace StrategyCore
 
             st.cooldownLeft = cryCooldown;
             Cry(byUnit, level);
+            AbilityFacts.Proc(this, byUnit);   // [2026-09-10] показ срабатывания — см. AbilityFacts
         }
 
         void Cry(Unit crier, int level)

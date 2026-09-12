@@ -13,6 +13,18 @@ PrefabInstance:
       value: Lyudi_VFX_ShieldGold
       objectReference: {fileID: 0}
     - target: {fileID: 4631137236932131039, guid: fc9d2d55dc8168c48b7c5483555d92f9, type: 3}
+      propertyPath: m_LocalScale.x
+      value: 0.4
+      objectReference: {fileID: 0}
+    - target: {fileID: 4631137236932131039, guid: fc9d2d55dc8168c48b7c5483555d92f9, type: 3}
+      propertyPath: m_LocalScale.y
+      value: 0.4
+      objectReference: {fileID: 0}
+    - target: {fileID: 4631137236932131039, guid: fc9d2d55dc8168c48b7c5483555d92f9, type: 3}
+      propertyPath: m_LocalScale.z
+      value: 0.4
+      objectReference: {fileID: 0}
+    - target: {fileID: 4631137236932131039, guid: fc9d2d55dc8168c48b7c5483555d92f9, type: 3}
       propertyPath: m_LocalPosition.x
       value: 0
       objectReference: {fileID: 0}

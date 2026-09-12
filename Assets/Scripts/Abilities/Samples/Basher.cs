@@ -46,6 +46,7 @@ namespace StrategyCore
                 if (Random.value < InterflowAbility.LevelValue(bashChance, level))
                 {
                     targetUnit.target.Stun(InterflowAbility.LevelValue(stunTime, level), byUnit, byOwner);
+                    AbilityFacts.Proc(this, byUnit);   // [2026-09-10] показ срабатывания — см. AbilityFacts
 
                     // Apply damage multiplier — общая выборка по уровням (Б8): нет строки — последняя заполненная.
                     float bashMul = InterflowAbility.LevelValue(bashMultiplier, level);

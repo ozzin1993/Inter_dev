@@ -22,6 +22,12 @@ namespace StrategyCore
         void Start()
         {
             if (ServerBootstrap.IsHeadlessServer) return;   // [Interflow fix 2026-06-20] init-гейт: на headless UI не строим (rootVisualElement не запрашиваем)
+            // [Interflow fix 2026-09-09 hud-flash] Гасим штатный HUD ДО построения интерфейса.
+            // Итоговое снятие идёт в конце Start (ApplyHudVisibility из InitBottomTables) и раньше
+            // идти не может — ниже эти же элементы разбираются по именам. Но до конца Start
+            // штатные панели видны, а если Start не дошёл до конца, остаются на экране совсем.
+            PreHideHud(uiDocument != null ? uiDocument.rootVisualElement : null);
+
             // Components
             pc = PlayerControl.Instance;
 
@@ -49,7 +55,6 @@ namespace StrategyCore
             processesUI.RegisterCallback<ClickEvent>(ProcessClick);
 
             transportUI = uiDocument.rootVisualElement.Query("Transport").First();
-            transportUI.RegisterCallback<ClickEvent>(TransportClick);
 
             cancelButton = uiDocument.rootVisualElement.Query("RightArea").First().Query("CancelButton").First();
             cancelButton.RegisterCallback<ClickEvent>(CancelButton);
@@ -128,15 +133,12 @@ namespace StrategyCore
 
             stopCommand.RegisterCallback<MouseEnterEvent, int>(ShowDescriptor, 4);
             stopCommand.RegisterCallback<MouseLeaveEvent>(HideDescriptor);
-            stopCommand.RegisterCallback<ClickEvent>(evt => { StopButton(); });
 
             holdCommand.RegisterCallback<MouseEnterEvent, int>(ShowDescriptor, 5);
             holdCommand.RegisterCallback<MouseLeaveEvent>(HideDescriptor);
-            holdCommand.RegisterCallback<ClickEvent>(evt => { HoldButton(); });
 
             attackCommand.RegisterCallback<MouseEnterEvent, int>(ShowDescriptor, 6);
             attackCommand.RegisterCallback<MouseLeaveEvent>(HideDescriptor);
-            attackCommand.RegisterCallback<ClickEvent>(evt => { AttackMoveButton(); });
 
             // Status
             statusWindow = uiDocument.rootVisualElement.Query("Status").First();

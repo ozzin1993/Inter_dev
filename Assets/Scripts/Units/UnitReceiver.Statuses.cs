@@ -164,6 +164,11 @@ namespace StrategyCore
             newEH.currentTime = p.currentTime;
             unit.effectors.Add(newEH);
 
+            // [Interflow 2026-09-10] Надпись с названием состояния. Только НОВОЕ наложение: ветка
+            // продления выше выходит раньше, поэтому ауры с их тиком 0,1 с ленту не заливают.
+            // Гейт частоты — тот же ShowStatusFact, что у отказов иммунитетом и сопротивлением.
+            float statBefore = StatusStatOf(unit, newEH.effector);
+
             if (log)
                 InterflowDebug.Full("ПРИЁМНИК СОСТОЯНИЕ: наложено | " + InterflowDebug.Name(unit) +
                                     " | состояние=" + newEH.effector.name +
@@ -177,6 +182,11 @@ namespace StrategyCore
 
             // Add passive effects
             if (newEH.effector.passiveEffectsOn) newEH.effector.passiveEffects.AddEffect(unit, power);
+
+            // Надпись поднимаем здесь, а не выше: до применения изменений «стало» ещё не существует.
+            if (ShowStatusFact(in p))
+                RaiseBattleFact(BattleFactReason.StatusApplied, p.effector.id,
+                                statBefore, StatusStatOf(unit, newEH.effector));
 
             // Make Invisible
             if (newEH.effector.makeInvisible) unit.SetInvisibility(true);
@@ -205,6 +215,27 @@ namespace StrategyCore
             if ((newEH.effector.icon != null || newEH.effector.VFX != null) && NetworkDataSync.Instance != null)
                 NetworkDataSync.Instance.UnitStatusEffectorSend(unit, newEH.effector.id, duration);
         }
+        /// <summary>
+        /// [Interflow 2026-09-10] Характеристика, которую меняет состояние, — её и показываем
+        /// в скобке «было → стало». Берём первую затронутую из четырёх ходовых: одно состояние
+        /// обычно меняет что-то одно, а показывать все сразу — это простыня вместо надписи.
+        /// Ничего из них не меняется (чистый урон по времени, невидимость, оглушение) — вернём
+        /// ноль, и презентер скобку не напечатает.
+        /// </summary>
+        static float StatusStatOf(Unit unit, Effector e)
+        {
+            if (unit == null || e == null || !e.passiveEffectsOn || e.passiveEffects == null) return 0f;
+
+            AbilityPassiveEffects pe = e.passiveEffects;
+
+            if (pe.attackSpeedChange != 0f || pe.attackSpeedPercentageChange != 0f) return unit.attackSpeed;
+            if (pe.moveSpeedChange != 0f || pe.moveSpeedPercentageChange != 0f) return unit.moveSpeed;
+            if (pe.armorChange != 0f || pe.armorPercentageChange != 0f) return unit.armor;
+            if (pe.damageChange != 0f || pe.damagePercentageChange != 0f) return unit.attackDamage;
+
+            return 0f;
+        }
+
 
         /// <summary>
         /// Показывать ли факт презентации по этому наложению (§15, точки 5 и 6).

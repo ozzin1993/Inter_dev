@@ -191,6 +191,7 @@ MonoBehaviour:
   allyKillReward: 0
   shopRadius: 3
   sellPriceReduction: 0.5
+  damageQueueMaxDepth: 4
   gameStartCall: 0
   currentDeltaTime: 0
   tickCount: 0
@@ -198,8 +199,6 @@ MonoBehaviour:
   unitCount: 
   buildingCount: 
   agentTypes: 
-  shadowCasters: []
-  shadowCasterIDs: 
   damageToArmor: []
   DTAWidth: 0
   damageInTime: []
@@ -288,6 +287,9 @@ MonoBehaviour:
   cornerTablesSideOffset: 10
   cornerTablesTopOffset: 10
   cornerPanelGap: 6
+  mainBuildingProgressColor: {r: 1, g: 1, b: 1, a: 1}
+  mainBuildingProgressFontSize: 20
+  mainBuildingProgressTopOffset: 48
   slotPanels: []
   techTreeTitle: "\u0422\u0415\u0425\u041D\u041E\u041B\u041E\u0413\u0418\u0418"
   techTreeHeaderResource: {fileID: 0}
@@ -304,6 +306,8 @@ MonoBehaviour:
   techTreeStatusCompleted: "\u0417\u0430\u0432\u0435\u0440\u0448\u0451\u043D"
   techTreeStatusAvailable: "\u0414\u043E\u0441\u0442\u0443\u043F\u0435\u043D"
   techTreeStatusLocked: "\u0417\u0430\u043A\u0440\u044B\u0442"
+  techTreeStatusNeedLevelFormat: "\u041D\u0443\u0436\u0435\u043D \u0423\u0440.\u0413\u0417
+    {0}"
   techTreeLevelRowCaption: "\u0423\u0440."
   techTreeLevelRowEffect: "\u0423\u0440.\u0413\u0417 +1"
   techTreeMarkDone: "\u2713"
@@ -423,6 +427,7 @@ MonoBehaviour:
   itemPrefab: {fileID: 7056980357839920543, guid: e0460a024c7b3944eb06de3794c56197, type: 3}
   healthBar: {fileID: 6818843784988522051, guid: 7313807ae004ba340aae74d4dd8ff4f7, type: 3}
   healthBarEnemy: {fileID: 6818843784988522051, guid: b4b99034a6b9a284d90eb1e8855db9c7, type: 3}
+  manaBar: {fileID: 6818843784988522051, guid: 41c6ea47c00c5b84cb37b61ce9636bbb, type: 3}
   miniMapIcon: {fileID: 5381461418493330548, guid: 14c6b5f394811e0428054401ab0da09e, type: 3}
   takeInTransport: {fileID: 11400000, guid: 63686dd490ef63a4c95b7b11606b24c5, type: 2}
   takeOutTransport: {fileID: 11400000, guid: 7dd6b7407c080dc48ab1bd0e79b7ce98, type: 2}

@@ -55,6 +55,7 @@ namespace StrategyCore
 
             lastPositions[unit] = unit.transform.position;
             levels[unit] = level;
+            AbilityFacts.Granted(this, unit, level);   // [2026-09-10] показ срабатывания — см. AbilityFacts
 
             if (!tickWired && GameManager.Instance != null)
             {
@@ -68,6 +69,7 @@ namespace StrategyCore
             if (unit == null) return;
 
             lastPositions.Remove(unit);
+            AbilityFacts.Revoked(this, unit, level);   // [2026-09-10] показ срабатывания — см. AbilityFacts
             levels.Remove(unit);
 
             if (lastPositions.Count == 0 && tickWired && GameManager.Instance != null)
@@ -125,7 +127,7 @@ namespace StrategyCore
 
                     if (damagePerSecond > 0f && damageType != null)
                     {
-                        DamagePacket packet = DamagePacket.Create(damagePerSecond * dt, damageType, u.owner, u, false, this);   // [Interflow fix 2026-09-04 damage-full-packet] пакет одной записи
+                        DamagePacket packet = DamagePacket.Create(damagePerSecond * dt, damageType, u.owner, u, false, this, null, true);   // [Interflow fix 2026-09-04 damage-full-packet] пакет одной записи   // [Interflow 2026-09-11] periodic: тик по времени — в ленту идёт свёрнутой строкой, не строкой на тик
                         target.GetDamage(in packet, out float _);
                     }
 

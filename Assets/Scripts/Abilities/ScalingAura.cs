@@ -54,6 +54,7 @@ namespace StrategyCore
             if (unit == null || levels.ContainsKey(unit)) return;
 
             levels[unit] = level;
+            AbilityFacts.Granted(this, unit, level);   // [2026-09-10] показ срабатывания — см. AbilityFacts
 
             if (!tickWired && GameManager.Instance != null)
             {
@@ -67,6 +68,7 @@ namespace StrategyCore
             if (unit == null) return;
 
             levels.Remove(unit);
+            AbilityFacts.Revoked(this, unit, level);   // [2026-09-10] показ срабатывания — см. AbilityFacts
 
             if (levels.Count == 0 && tickWired && GameManager.Instance != null)
             {

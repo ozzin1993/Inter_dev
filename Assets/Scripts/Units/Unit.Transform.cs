@@ -58,12 +58,17 @@ namespace StrategyCore
 
             if (lastPos)
             {
-                Vector2 pos2D = oldPos2D + ((endPosition - oldPos2D).normalized * lerpSpeed * Time.deltaTime);
+                // [Interflow fix 2026-09-09 stop-smoothing] Шаг ограничен остатком пути штатным Vector2.MoveTowards
+                // (документация Unity 6000.4: «the function will ensure that the distance never exceeds
+                // maxDistanceDelta») — юнит больше не перескакивает цель. Завершение считается по НОВОЙ позиции,
+                // а не по позиции ДО перемещения: прежняя проверка мерила остаток от точки, которую юнит уже
+                // покинул, поэтому последний шаг всегда «промахивался» мимо порога и юнит дребезжал у цели.
+                Vector2 pos2D = Vector2.MoveTowards(oldPos2D, endPosition, lerpSpeed * Time.deltaTime);
 
                 if (isAir) transform.position = transform.position = new Vector3(pos2D.x, Utils.airUnitElevation, pos2D.y);
                 else transform.position = new Vector3(pos2D.x, Utils.GetTerrainHeight(pos2D), pos2D.y);
 
-                if ((endPosition - oldPos2D).sqrMagnitude < 0.01f)
+                if ((endPosition - pos2D).sqrMagnitude < 0.01f)
                 {
                     reached = true;
                     isMoving = false;

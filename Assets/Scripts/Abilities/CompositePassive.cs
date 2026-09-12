@@ -13,6 +13,7 @@ namespace StrategyCore
     /// ОСЬ 2 — РЕАКЦИИ на события боя (ударили, погиб, добил, здоровье ниже порога) живёт в партиалах
     /// CompositePassive.Reactions.cs (поля) и CompositePassive.ReactionsRuntime.cs (подписки и исполнение);
     /// этот файл только зовёт её три метода жизненного цикла.
+    /// Показ срабатываний на экране — партиал CompositePassive.Facts.cs (2026-09-09).
     ///
     /// Как это работает: пассивка не кастуется. Ядро само считает замки по `requiredTech`
     /// (открытие по уровню юнита снесено Б8), зовёт <see cref="Unlock"/> при открытии и <see cref="Lock"/> при закрытии.
@@ -121,6 +122,12 @@ namespace StrategyCore
             ApplySplash(unit, c);
             ApplyAttackEffectors(unit, c);
             ApplyAura(unit, c);
+
+            if (InterflowDebug.FullOn) LogGranted(unit, c);
+
+            // [Interflow 2026-09-09 passive-facts] Надпись над юнитом по каждому выданному блоку.
+            FactBlocks(unit, c, BattleFactReason.PassiveBlockGranted);
+
             WireReactions(unit, level);
             WireOnHit(unit, level);
 
@@ -136,6 +143,13 @@ namespace StrategyCore
 
             if (unit == null || !carriers.TryGetValue(unit, out Carrier c)) return;
 
+            // Снимок перечня выданного — ДО снятия: методы Remove* гасят флаги в Carrier.
+            string grantedBlocks = InterflowDebug.FullOn ? CarrierBlocks(c, true) : null;
+
+            // [Interflow 2026-09-09 passive-facts] Надписи тоже ДО снятия и по той же причине:
+            // после Remove* перечислять в Carrier было бы уже нечего.
+            FactBlocks(unit, c, BattleFactReason.PassiveBlockRevoked);
+
             RemoveStats(unit, c);
             RemoveControlImmunity(unit, c);
             RemoveResistances(unit, c);
@@ -145,6 +159,12 @@ namespace StrategyCore
             RemoveAttackEffectors(unit, c);
             // Аура своего состояния на юните не оставляет:
             // она живёт тиком, и достаточно убрать носителя из списка.
+
+            if (InterflowDebug.FullOn)
+            {
+                if (c.aura) LogAuraRemoved(unit);
+                LogRevoked(unit, grantedBlocks);
+            }
 
             UnwireReactions(unit);
             UnwireOnHit(unit, level);

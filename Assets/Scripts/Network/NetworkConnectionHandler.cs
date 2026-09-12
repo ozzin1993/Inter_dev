@@ -312,7 +312,17 @@ namespace StrategyCore
                 Debug.Log("Approved: joined " + clientName + ", " + request.ClientNetworkId + " at slot " + slot);
 
                 // If game has started, client is joining midgame. Pause the game. In Connection callback we will send the scene information
-                if (SlotManager.Instance.gameStarted == GameState.Started)
+                // [Interflow fix 2026-09-09 host-self-approval] Гейт «не сам хост»: Netcode прогоняет одобрение
+                // и на собственном подключении хоста, прямо внутри StartHost (NetworkManager.HostServerInitialize,
+                // пакет com.unity.netcode.gameobjects 2.13.0), и отклонить его нельзя. При подъёме хоста на уже
+                // идущей сцене (ветка «hosting without a lobby» ниже, прямой запуск игровой сцены или полигона)
+                // состояние здесь уже Started, и хост попадал в ветку «зашёл в середину матча»: вставал на паузу
+                // ради самого себя, ждал собственной загрузки в clientsLoading (снять её может только клиентское
+                // сообщение ClientFinishedLoadingSaveServerRpc, от себя оно не приходит) и разыменовывал
+                // NetworkDataSync.Instance, которого на этот момент ещё нет — объект спавнится ПОСЛЕ StartHost.
+                // Хост матча из лобби сюда не попадал и раньше: там состояние Menu. Чужие клиенты не затронуты.
+                // StartServer одобрение для себя не вызывает — выделенный сервер не затронут.
+                if (SlotManager.Instance.gameStarted == GameState.Started && request.ClientNetworkId != NetworkManager.ServerClientId)
                 {
                     // [Б11] Слот снова занят — одним отсутствующим меньше. Ниже нуля не уходим: подключиться
                     // в середине матча можно и без предшествующего обрыва (свободный слот с самого начала).
@@ -337,8 +347,24 @@ namespace StrategyCore
             // Game already started, most likely hosting without a lobby.
             if (SlotManager.Instance.gameStarted == GameState.Started)
             {
+                // [Interflow fix 2026-09-09 host-no-lobby] Ветка приведена к образцу ветки лобби (ниже): раньше она
+                // игнорировала имя, не проверяла сеть и не смотрела на результат подъёма.
+                // 1) Гварды сети — как в ветке лобби: второй вызов при живой сети стирал бы слоты идущего матча.
+                if (NetworkManager.Singleton.ShutdownInProgress || NetworkManager.Singleton.IsListening) return;
+                if (m_networkHandler) Destroy(m_networkHandler);
+
                 SlotManager.Instance.InitializeSlotData();
-                NetworkManager.Singleton.StartHost();
+
+                // 2) Имя игрока: без этого параметр name пропадал впустую — одобрение подключения читает
+                //    Payload из NetworkConfig.ConnectionData, а он оставался пустым, и слот занимался пустым именем
+                //    (оно же затирало SlotManager.currentName через SetCurrentPlayer). Кодировка — как в ветке лобби.
+                NetworkManager.Singleton.NetworkConfig.ConnectionData = System.Text.Encoding.ASCII.GetBytes(name);
+
+                // 3) Результат подъёма: при занятом порте транспорт валится, NGO делает Shutdown и обнуляет
+                //    SceneManager — обращение к нему ниже давало NullReferenceException, а вызывающий код
+                //    оставался с уже стёртыми слотами и без своей обработки отказа.
+                if (!NetworkManager.Singleton.StartHost()) return;
+
                 m_networkHandler = Instantiate(networkHandler);
                 m_networkHandler.GetComponent<NetworkObject>().Spawn();
                 NetworkManager.Singleton.SceneManager.OnSceneEvent += SceneHandler.Instance.SceneManager_OnSceneEvent;

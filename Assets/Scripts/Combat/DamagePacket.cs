@@ -60,6 +60,18 @@ namespace StrategyCore
         public bool directAttack;
 
         /// <summary>
+        /// [Interflow 2026-09-11] ПЕРИОДИЧЕСКИЙ ли источник: тик урона в секунду от состояния, тик ауры
+        /// или тик зоны на земле. Ставят только четыре места сборки тиков; у разовых ударов (автоатака,
+        /// снаряд, умение, реакция) — false.
+        ///
+        /// Заведён решением Artsiom 11.09.2026 под показ боя: разовый удар даёт в ленте свою группу строк,
+        /// а периодика копится на сервере и уходит одной свёрнутой строкой. По остальным полям пакета
+        /// эти источники не отличаются: у тика состояния умения нет вовсе, у ауры и зоны оно есть,
+        /// как у обычного каста.
+        /// </summary>
+        public bool periodic;
+
+        /// <summary>
         /// Умение-источник пакета (ассет <see cref="Ability"/>: умение, пассивка с реакцией, старый кирпич).
         /// null — источник без умения: автоатака и её снаряд, урон в секунду от состояния (состояние —
         /// не умение, решение Artsiom 05.09.2026), отложенный урон без умения. Только диагностика:
@@ -118,12 +130,14 @@ namespace StrategyCore
         /// называет умение или пишет null явно, молчаливого пропуска нет (решение Artsiom 05.09.2026).
         /// </summary>
         public static DamagePacket Create(float amount, DamageType damageType, int attackingPlayer, Unit attackingUnit,
-                                          bool directAttack, Ability sourceAbility, Effector[] attackEffectors = null)
+                                          bool directAttack, Ability sourceAbility, Effector[] attackEffectors = null,
+                                          bool periodic = false)
         {
             DamagePacket p;
             p.attackingPlayer = attackingPlayer;
             p.attackingUnit = attackingUnit;
             p.directAttack = directAttack;
+            p.periodic = periodic;
             p.sourceAbility = sourceAbility;
             p.amount = amount;
             p.damageType = damageType;
@@ -141,11 +155,12 @@ namespace StrategyCore
         /// с нулевым уроном, приёмник его ничем не отметит.
         /// </summary>
         public static DamagePacket Create(DamageRecord[] records, int recordCount, int attackingPlayer, Unit attackingUnit,
-                                          bool directAttack, Ability sourceAbility, Effector[] attackEffectors = null)
+                                          bool directAttack, Ability sourceAbility, Effector[] attackEffectors = null,
+                                          bool periodic = false)
         {
             DamagePacket p = Create(recordCount > 0 ? records[0].amount : 0f,
                                     recordCount > 0 ? records[0].damageType : null,
-                                    attackingPlayer, attackingUnit, directAttack, sourceAbility, attackEffectors);
+                                    attackingPlayer, attackingUnit, directAttack, sourceAbility, attackEffectors, periodic);
 
             if (recordCount > 1)
             {

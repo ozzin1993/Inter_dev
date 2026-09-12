@@ -53,19 +53,12 @@ MonoBehaviour:
     includeInvisible: 0
     includeInvulnerable: 0
   dontTurn: 0
-  continuous: 0
-  interruptible: 0
-  requiresCastingUnit: 1
   duration: []
   requiredTech:
   - data:
     - {fileID: 11400000, guid: 26ce306d65ad5a2e6a8b1000acaf0abe, type: 2}
-  requiredLevel: 
-  manaCost: []
-  manaCostPerSecond: []
   cost: []
   editorFactions: []
-  trigger: 0
   targetMode: 4
   buttonCast: 0
   targetStrategy: 2
@@ -84,7 +77,7 @@ MonoBehaviour:
   projectileFollowsTarget: 1
   spawnSocket: 1
   localOffset: {x: 0, y: 0, z: 0}
-  castVFX: {fileID: 0}
+  castVFX: {fileID: 5587211854629263477, guid: a9d026652b41ce9419db1eeda742c825, type: 3}
   castVfxLifetime: 2
   impactVFX: {fileID: 2971798802299167009, guid: de6f1ba29c9eea44dba383042aa32f76, type: 3}
   impactVfxLifetime: 3
@@ -151,6 +144,7 @@ MonoBehaviour:
     selfBurnPerSecond: []
     incomingDamageMultiplier: []
     controlImmunity: 0
+    resistances: []
     buffVFX: {fileID: 0}
     detonateOnDeath: 0
     detonationRadius: []
@@ -258,6 +252,7 @@ MonoBehaviour:
     summonSoundVolume: 1
   groundZone:
     enabled: 0
+    followCaster: 0
     zonePrefab: {fileID: 0}
     zoneCount: 1
     spread: 1.5

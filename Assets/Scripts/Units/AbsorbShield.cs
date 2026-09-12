@@ -68,15 +68,22 @@ namespace StrategyCore
 
             // Компонентов может оказаться два: помеченный на снятие (Destroy отложен до конца кадра) и свежий.
             // Смотрим все, иначе «уже под щитом» и «бонус по целям без щита» читают состояние трупа.
-            AbsorbShield[] all = target.GetComponents<AbsorbShield>();
-            for (int i = 0; i < all.Length; i++)
+            // [2026-09-11] Перегрузка GetComponents со списком памяти НЕ выделяет, в отличие от версии
+            // с массивом: проверка зовётся на каждого кандидата при выборе цели умением, то есть на тике.
+            target.GetComponents(checkBuffer);
+            bool active = false;
+            for (int i = 0; i < checkBuffer.Count; i++)
             {
-                AbsorbShield s = all[i];
-                if (s != null && !s.destroyed && s.remaining > 0f) return true;
+                AbsorbShield s = checkBuffer[i];
+                if (s != null && !s.destroyed && s.remaining > 0f) { active = true; break; }
             }
 
-            return false;
+            checkBuffer.Clear();
+            return active;
         }
+
+        // Буфер только для проверки выше: заполняется и очищается внутри одного вызова, наружу не отдаётся.
+        static readonly System.Collections.Generic.List<AbsorbShield> checkBuffer = new System.Collections.Generic.List<AbsorbShield>();
 
         private void Init(Unit target, float amount, float duration,
                           System.Action<Unit> onShieldDepleted, System.Action<Unit> onShieldEnded)
@@ -116,6 +123,16 @@ namespace StrategyCore
 
             // Сегмент щита на полоске здоровья: новая величина (хосту — напрямую, клиентам — каналом статусов).
             NotifyShieldBar(unit, remaining);
+
+            // [Interflow 2026-09-11] Надпись и строка в ленте «щит выдан» (решение Artsiom): до этого
+            // наложение щита не было видно НИГДЕ, кроме серого сегмента на полоске — по ленте нельзя
+            // было сказать, почему удар вдруг ничего не снял. Только РОСТ объёма: повторный каст поверх
+            // живого щита берёт больший из двух, и обновление тем же числом строки не заслуживает.
+            // Источник наложения здесь неизвестен (в Apply его не передают) — его подставит отправка,
+            // если щит выдан внутри чьего-то удара (реакция на порог здоровья и подобные).
+            if (InterflowDebug.showPassiveFacts && remaining > remainingBefore && NetworkDataSync.Instance != null)
+                NetworkDataSync.Instance.UnitBattleFactSend(unit, BattleFactReason.ShieldGranted,
+                                                            remaining, remainingBefore, remaining);
 
             if (InterflowDebug.FullOn)
                 InterflowDebug.Full("ЩИТ ВКЛЮЧЁН: " + InterflowDebug.Name(unit) +

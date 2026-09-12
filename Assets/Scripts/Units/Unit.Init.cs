@@ -31,12 +31,28 @@ namespace StrategyCore
             // Subsctibe to winning conditions (specific units should die)
             GameManager.Instance.SubscribeToSpecificWinningConditions(this);
 
+            // [Interflow 2026-09-09 unit-overlay] Контейнер надюнитовых элементов. Создаётся ДО них и всегда:
+            // держатель эффектов живёт в нём и заводится без гейтов, в том числе на выделенном сервере.
+            // Позицию и масштаб контейнер не задаёт — каждый элемент по-прежнему считает их сам,
+            // иначе пришлось бы переписывать полоску здоровья и ряд значков состояний (правило 7).
+            // Родителем ставится ПОСЛЕ модели: нулевой ребёнок юнита обязан оставаться моделью
+            // (Unit.Init.CalculateVisuals, Unit.Visuals.ReplaceRenderers/RestoreRenderers).
+            // Ссылка сериализуется, поэтому у клона живого юнита контейнер уже есть — второй не заводим,
+            // иначе первый осиротел бы и его не снял бы никто (сносим мы по ссылке, а не по имени).
+            if (overlayRoot == null)
+            {
+                overlayRoot = new GameObject(OverlayName).transform;
+                overlayRoot.SetParent(this.transform, false);
+            }
+
             // Healthbar
             // [Interflow 2026-08-01 server-opt] На дедике бар не создаём вовсе (раньше спавнилась пустышка).
             if (!Utils.Headless && unitType != UnitType.StaticDestructible && unitType != UnitType.Item && unitType != UnitType.Tree)
             {
-                if (team != SlotManager.Instance.currentTeam && team != (int)Teams.NeutralPassive) Instantiate(ReferenceManager.Instance.healthBarEnemy, this.transform).name = "HealthBar(Clone)";
-                else Instantiate(ReferenceManager.Instance.healthBar, this.transform);
+                CreateHealthBar(team);
+
+                // Полоска маны — рядом с полоской здоровья, внутри контейнера (решение Artsiom 2026-09-09).
+                CreateManaBar(team);
 
                 // [Interflow fix 2026-08-05 unit-status-sync] Шкала статусов (ряд иконок над полоской
                 // здоровья) — та же конвенция, что у бара: только не на дедике и не для статики.
@@ -47,17 +63,20 @@ namespace StrategyCore
             // [Interflow 2026-08-01 server-opt] На дедике иконку не создаём (миникарты нет).
             if (!Utils.Headless)
             {
-                var minimapIcon = transform.Find("MiniMapIcon");
-                if (minimapIcon == null) minimapIcon = Instantiate(ReferenceManager.Instance.miniMapIcon, this.transform);
+                // Иконка может лежать в префабе юнита прямым ребёнком под именем без «(Clone)» — тогда
+                // переносим её в контейнер, чтобы все надюнитовые объекты жили в одном месте.
+                minimapIconRoot = transform.Find("MiniMapIcon");   // контейнер только что создан и пуст — ищем в префабе юнита
+                if (minimapIconRoot == null) minimapIconRoot = Instantiate(ReferenceManager.Instance.miniMapIcon, overlayRoot);
+                else if (minimapIconRoot.parent != overlayRoot) minimapIconRoot.SetParent(overlayRoot, false);
                 // [Interflow fix 2026-08-01 grid-headless] SpriteRenderer может быть вырезан Roles-стрипом — гейт вместо NRE.
-                SpriteRenderer minimapIconSR = minimapIcon.GetComponent<SpriteRenderer>();
+                SpriteRenderer minimapIconSR = minimapIconRoot.GetComponent<SpriteRenderer>();
                 if (minimapIconSR != null) minimapIconSR.color = SlotManager.Instance.playerColors[owner];
             }
 
             // VFX Holder - for auras and stun efects
             vfxHolder = new GameObject().transform;
             vfxHolder.name = "VFXHolder";
-            vfxHolder.parent = this.transform;
+            vfxHolder.parent = overlayRoot;   // [Interflow 2026-09-09 unit-overlay] в контейнер, решение Artsiom
             vfxHolder.localScale = new Vector3(1, 1, 1);
             vfxHolder.localPosition = new Vector3(0, 0.1f, 0);
 
@@ -303,6 +322,58 @@ namespace StrategyCore
 
             initialized = true;
         }
+
+        /// <summary>
+        /// Полоска здоровья юнита — в контейнере надюнитовых элементов. Своим и нейтралам своя,
+        /// остальным — вражеская (ей имя выставляется руками: префаб другой, а имя объекта общее).
+        /// Единая точка: зовётся и при создании юнита, и при смене владельца.
+        /// </summary>
+        /// <param name="unitTeam">Команда юнита. Параметром, а не полем: при смене владельца поле team
+        /// на момент пересоздания полоски ещё хранит прежнюю команду.</param>
+        private void CreateHealthBar(int unitTeam)
+        {
+            if (overlayRoot == null) return;
+
+            if (unitTeam != SlotManager.Instance.currentTeam && unitTeam != (int)Teams.NeutralPassive)
+            {
+                healthBarRoot = Instantiate(ReferenceManager.Instance.healthBarEnemy, overlayRoot);
+                healthBarRoot.name = "HealthBar(Clone)";
+            }
+            else healthBarRoot = Instantiate(ReferenceManager.Instance.healthBar, overlayRoot);
+        }
+
+        /// <summary>
+        /// Полоска маны под полоской здоровья (решения Artsiom 2026-09-09): только своим юнитам.
+        /// Живёт в контейнере надюнитовых элементов рядом с полоской здоровья (решение Artsiom 09.09),
+        /// в той же точке; вниз её сдвигает свойство шейдера _YOffset — полоска-билборд, и мировой сдвиг
+        /// ужимался бы наклоном камеры. Единая точка: зовётся и при создании юнита, и при смене владельца.
+        /// Гейта по мане здесь НЕТ намеренно: максимум маны приходит и позже создания юнита —
+        /// из сейва и от пассивок (Unit.ChangeMaxMP), — а видимостью управляет сам ManaBar
+        /// (нет максимума — рендерер выключен).
+        /// </summary>
+        /// <param name="unitTeam">Команда юнита. Параметром, а не полем: при смене владельца поле team
+        /// на момент пересоздания полоски ещё хранит прежнюю команду.</param>
+        private void CreateManaBar(int unitTeam)
+        {
+            if (overlayRoot == null) return;
+            if (unitTeam != SlotManager.Instance.currentTeam) return;   // только свои: у врагов и нейтралов маны не видно
+
+            if (ReferenceManager.Instance.manaBar == null)
+            {
+                // Одного предупреждения довольно: метод зовётся на каждого своего юнита, иначе зальёт консоль.
+                if (!manaBarMissingWarned)
+                {
+                    manaBarMissingWarned = true;
+                    InterflowDebug.Warn("Полоска маны: в ReferenceManager не задан префаб manaBar — маны над юнитами не будет.");
+                }
+                return;
+            }
+
+            Instantiate(ReferenceManager.Instance.manaBar, overlayRoot);
+        }
+
+        // Предупреждение о незаполненной ссылке на префаб полоски маны — один раз за запуск.
+        private static bool manaBarMissingWarned;
 
         /// <summary>
         /// When visual representation of unit changes this should be called. Assigns renderers, mesh renderers, animation data and other paremeters.

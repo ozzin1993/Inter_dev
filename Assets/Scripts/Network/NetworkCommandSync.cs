@@ -15,6 +15,22 @@ namespace StrategyCore
 
         // For sending commads from clients to server
 
+        /// <summary>
+        /// Прямого управления юнитами в игре НЕТ: игрок задаёт режим «Атака»/«Защита» и применяет умения
+        /// через интерфейс (решение Artsiom 09.09). Индивидуальные команды по сети сервер не исполняет —
+        /// они оставались единственным способом развести юнита с моделью управления.
+        /// Внутренние вызовы Unit.Move/Idle/Hold/Follow/Attack/AttackMove из менеджеров матча этим НЕ затронуты:
+        /// они идут мимо сети. Отладочный режим на этот отказ не влияет.
+        /// </summary>
+        /// <returns>Всегда true — запрос отклонён.</returns>
+        bool DirectCommandClosed(RpcParams rpcParams, UInt16 netID, string method)
+        {
+            int owner = SlotManager.Instance.GetClientSlot(rpcParams.Receive.SenderClientId);
+            Debug.LogWarning("Клиент " + owner + " прислал индивидуальную команду юниту netID:" + netID +
+                             " — прямого управления юнитами нет, отклонено. (" + method + " NetworkCommandSync)");
+            return true;
+        }
+
         // COMMANDS --------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
         // STOP DISTANCE FOR FOLLOW CALCULATE ON UNIT?
@@ -28,6 +44,8 @@ namespace StrategyCore
         [Rpc(SendTo.Server)]
         public void IdleCommandServerRpc(UInt16 netID, RpcParams rpcParams = default)
         {
+            if (DirectCommandClosed(rpcParams, netID, nameof(IdleCommandServerRpc))) return;
+
             int owner = SlotManager.Instance.GetClientSlot(rpcParams.Receive.SenderClientId);
             if (SlotManager.Instance.unitNetID.TryGetValue(netID, out Unit unit) && (owner == unit.owner || SlotManager.Instance.debugMode))
             {
@@ -49,6 +67,8 @@ namespace StrategyCore
         [Rpc(SendTo.Server)]
         public void HoldCommandServerRpc(UInt16 netID, RpcParams rpcParams = default)
         {
+            if (DirectCommandClosed(rpcParams, netID, nameof(HoldCommandServerRpc))) return;
+
             int owner = SlotManager.Instance.GetClientSlot(rpcParams.Receive.SenderClientId);
             if (SlotManager.Instance.unitNetID.TryGetValue(netID, out Unit unit) && (owner == unit.owner || SlotManager.Instance.debugMode))
             {
@@ -70,6 +90,8 @@ namespace StrategyCore
         [Rpc(SendTo.Server)]
         public void FollowCommandServerRpc(UInt16 netID, UInt16 targetUnitID, float stopDistance, bool embark, RpcParams rpcParams = default)
         {
+            if (DirectCommandClosed(rpcParams, netID, nameof(FollowCommandServerRpc))) return;
+
             int owner = SlotManager.Instance.GetClientSlot(rpcParams.Receive.SenderClientId);
             if (SlotManager.Instance.unitNetID.TryGetValue(netID, out Unit unit) && (owner == unit.owner || SlotManager.Instance.debugMode))
             {
@@ -99,6 +121,8 @@ namespace StrategyCore
         [Rpc(SendTo.Server)]
         public void MoveCommandServerRpc(UInt16 netID, Vector2 destination, float stopDistance, RpcParams rpcParams = default)
         {
+            if (DirectCommandClosed(rpcParams, netID, nameof(MoveCommandServerRpc))) return;
+
             int owner = SlotManager.Instance.GetClientSlot(rpcParams.Receive.SenderClientId);
             if (SlotManager.Instance.unitNetID.TryGetValue(netID, out Unit unit) && (owner == unit.owner || SlotManager.Instance.debugMode))
             {
@@ -120,6 +144,8 @@ namespace StrategyCore
         [Rpc(SendTo.Server)]
         public void AttackCommandServerRpc(UInt16 netID, UInt16 targetUnitID, RpcParams rpcParams = default)
         {
+            if (DirectCommandClosed(rpcParams, netID, nameof(AttackCommandServerRpc))) return;
+
             int owner = SlotManager.Instance.GetClientSlot(rpcParams.Receive.SenderClientId);
             if (SlotManager.Instance.unitNetID.TryGetValue(netID, out Unit unit) && (owner == unit.owner || SlotManager.Instance.debugMode))
             {
@@ -148,6 +174,8 @@ namespace StrategyCore
         [Rpc(SendTo.Server)]
         public void AttackPositionCommandServerRpc(UInt16 netID, Vector2 attackPosition, RpcParams rpcParams = default)
         {
+            if (DirectCommandClosed(rpcParams, netID, nameof(AttackPositionCommandServerRpc))) return;
+
             int owner = SlotManager.Instance.GetClientSlot(rpcParams.Receive.SenderClientId);
             if (SlotManager.Instance.unitNetID.TryGetValue(netID, out Unit unit) && (owner == unit.owner || SlotManager.Instance.debugMode))
             {
@@ -169,6 +197,8 @@ namespace StrategyCore
         [Rpc(SendTo.Server)]
         public void AttackMoveCommandServerRpc(UInt16 netID, Vector2 attackPosition, RpcParams rpcParams = default)
         {
+            if (DirectCommandClosed(rpcParams, netID, nameof(AttackMoveCommandServerRpc))) return;
+
             int owner = SlotManager.Instance.GetClientSlot(rpcParams.Receive.SenderClientId);
             if (SlotManager.Instance.unitNetID.TryGetValue(netID, out Unit unit) && (owner == unit.owner || SlotManager.Instance.debugMode))
             {
@@ -272,7 +302,25 @@ namespace StrategyCore
             {
                 if (unit.levelingUnit)
                 {
-                    unit.LevelUpAbilityCommand(GameManager.Instance.gameAbilities[abilityID], abilityIndex);
+                    // Умение берём У ЮНИТА по индексу, а не из общего словаря по присланному id: словарь
+                    // отдавал ЛЮБОЕ умение игры, и прокачивалось не то, на что проверялось право.
+                    // Индексатор словаря вдобавок бросал исключение на неизвестном id.
+                    if (unit.abilities == null || abilityIndex < 0 || abilityIndex >= unit.abilities.Length)
+                    {
+                        Debug.LogWarning("Клиент " + owner + " прислал номер умения " + abilityIndex + " вне пула юнита netID:" + netID +
+                                         " — отклонено. (LevelUpAbility NetworkCommandSync)");
+                        return;
+                    }
+
+                    Ability owned = unit.abilities[abilityIndex];
+                    if (owned == null || owned.id != abilityID)
+                    {
+                        Debug.LogWarning("Клиент " + owner + " прислал умение id:" + abilityID + ", а по номеру " + abilityIndex +
+                                         " у юнита netID:" + netID + " лежит другое — отклонено. (LevelUpAbility NetworkCommandSync)");
+                        return;
+                    }
+
+                    unit.LevelUpAbilityCommand(owned, abilityIndex);
                 }
                 else Debug.LogError("Desync! Client " + owner + " send a command to Unit without component netID:" + netID + "! (LevelUpAbility NetworkCommandSync)");
             }
@@ -318,6 +366,16 @@ namespace StrategyCore
             int owner = SlotManager.Instance.GetClientSlot(rpcParams.Receive.SenderClientId);
             if (SlotManager.Instance.unitNetID.TryGetValue(netID, out Unit unit) && (owner == unit.owner || SlotManager.Instance.debugMode))
             {
+                // Диапазон номера ячейки — до обращения к очереди. Проверка владельца выше отвечает только на вопрос
+                // «чей юнит» и мусорный номер не отсеивает. Отладочный режим на эту проверку не влияет (решение Artsiom 09.09).
+                if (index < 0 || index >= GameManager.maxProcessCount)
+                {
+                    Debug.LogWarning("Клиент " + owner + " прислал номер ячейки очереди " + index + " вне диапазона 0.." +
+                                     (GameManager.maxProcessCount - 1) + " для юнита netID:" + netID +
+                                     " — отклонено. (CancelProcessCommandSend NetworkCommandSync)");
+                    return;
+                }
+
                 unit.CancelProcess(index);
             }
             else
@@ -485,6 +543,8 @@ namespace StrategyCore
             {
                 if (unit.constructionUnit)
                 {
+                    // Гейт стадии постройки живёт в самой ConstructionUnit.CancelConstruction — это единая точка
+                    // отмены, через неё идут и хост из панели, и клиент через этот приёмник (правило 5).
                     unit.constructionUnit.CancelConstruction(false);
                 }
                 else Debug.LogError("Desync! Client " + owner + " send a command to Unit without component netID:" + netID + "! (ConstructionCancelSend NetworkCommandSync)");
@@ -505,6 +565,8 @@ namespace StrategyCore
         [Rpc(SendTo.Server)]
         public void DisembarkCommandServerRpc(UInt16 netID, int index, RpcParams rpcParams = default)
         {
+            if (DirectCommandClosed(rpcParams, netID, nameof(DisembarkCommandServerRpc))) return;
+
             int owner = SlotManager.Instance.GetClientSlot(rpcParams.Receive.SenderClientId);
             if (SlotManager.Instance.unitNetID.TryGetValue(netID, out Unit unit) && (owner == unit.owner || SlotManager.Instance.debugMode))
             {
@@ -533,6 +595,8 @@ namespace StrategyCore
         [Rpc(SendTo.Server)]
         public void SetWaypointCommandServerRpc(UInt16 netID, UInt16 waypointUnitNetID, Vector2 waypointLocation, RpcParams rpcParams = default)
         {
+            if (DirectCommandClosed(rpcParams, netID, nameof(SetWaypointCommandServerRpc))) return;
+
             int owner = SlotManager.Instance.GetClientSlot(rpcParams.Receive.SenderClientId);
             if (SlotManager.Instance.unitNetID.TryGetValue(netID, out Unit unit) && (owner == unit.owner || SlotManager.Instance.debugMode))
             {

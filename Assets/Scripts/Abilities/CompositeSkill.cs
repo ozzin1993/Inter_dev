@@ -86,6 +86,23 @@ namespace StrategyCore
         [Range(0f, 1f)]
         public float autoCastSelfHpBelow;
 
+        [Tooltip("ПРЕДПОЧТЕНИЕ ПРИ ВЫБОРЕ ЦЕЛИ: состояние, которого у цели быть не должно. Есть среди кандидатов " +
+                 "цель без него — умение выберет её, даже если стратегия указала бы на другую. Работает только " +
+                 "в режимах «умный выбор» — и при автоприменении, и при применении с кнопки.\n\n" +
+                 "Со стратегией «текущая цель атаки кастера» кандидатов нет — цель выбрана боем; там настройка " +
+                 "только запрещает применение, и только при варианте «не применять умение». " +
+                 "Выключено — стратегия работает как раньше.")]
+        public SkillTargetAvoidState avoidTargetState = SkillTargetAvoidState.None;
+
+        [Tooltip("Только для варианта «указанное состояние»: какой именно ассет состояния искать на цели.")]
+        public Effector avoidTargetEffector;
+
+        [Tooltip("Когда все кандидаты уже под этим состоянием: выбрать цель как обычно (настройка работает " +
+                 "приоритетом) или не применять умение вовсе.\n\n" +
+                 "ОТКАТ при отказе сохраняется только у автоприменения с НЕНУЛЕВОЙ дальностью: без дальности " +
+                 "и при применении с кнопки цель ищется уже внутри применения, и откат к тому моменту потрачен.")]
+        public SkillNoFreeTargetFallback avoidNoFreeTarget = SkillNoFreeTargetFallback.PickAnyway;
+
         [Header("Селектор ролей")]
         [Tooltip("ВТОРОЙ СЕЛЕКТОР УМЕНИЯ, парный к «свой/союзник/враг». Боевые роли, с которыми умение " +
                  "вообще работает: и при выборе цели стратегией, и при сборе целей в области, и во всех блоках. " +
@@ -274,7 +291,20 @@ namespace StrategyCore
         // ==================================================================== ПРОВЕРКА ==
 
         public override bool Check(Unit castingUnit, int castingPlayer, int level) => CheckCommon(castingUnit, level);
-        public override bool Check(Unit castingUnit, int castingPlayer, int level, Unit unit) => CheckCommon(castingUnit, level);
+        /// <summary>
+        /// Названная цель проходит ПОЛНЫЙ отбор умения: селектор принадлежности плюс боевые роли.
+        /// Раньше явная цель принималась как есть: набор целей применял к ней только роли
+        /// (CompositeSkill.Targets.CollectTargets, режим «умный выбор юнита»), а селектор «свой/союзник/враг»
+        /// не применялся вовсе — лечащее умение ложилось на врага или на здание по присланному номеру.
+        /// Отбор уже написан и работает у автокаста, здесь зовётся тот же IsEligibleTarget.
+        /// На клиенте решение не принимается — штатная конвенция Ability.Check (см. CheckCommon).
+        /// </summary>
+        public override bool Check(Unit castingUnit, int castingPlayer, int level, Unit unit)
+        {
+            if (!IsClientPeer && unit != null && !IsEligibleTarget(unit, castingPlayer)) return false;
+
+            return CheckCommon(castingUnit, level);
+        }
         public override bool Check(Unit castingUnit, int castingPlayer, int level, Vector3 location) => CheckCommon(castingUnit, level);
 
         /// <summary>
@@ -293,384 +323,9 @@ namespace StrategyCore
             return castingUnit.health - cost > 0f; // строго: стоимость не должна добить кастера
         }
 
-        // ======================================================================== КАСТ ==
 
-        public override void Use(Unit castingUnit, int castingPlayer, int level)
-            => Execute(castingUnit, castingPlayer, level, null, Vector3.zero, false);
 
-        public override void Use(Unit castingUnit, int castingPlayer, int level, Unit unit)
-            => Execute(castingUnit, castingPlayer, level, unit,
-                       unit != null ? unit.transform.position
-                                    : (castingUnit != null ? castingUnit.transform.position : Vector3.zero), true);
 
-        public override void Use(Unit castingUnit, int castingPlayer, int level, Vector3 location)
-            => Execute(castingUnit, castingPlayer, level, null, location, true);
-
-        /// <summary>
-        /// Тело каста. Выполняется НА ВСЕХ ПИРАХ (ассет рассылает Use через AbilityUseClientRpc),
-        /// но ВИЗУАЛА ЗДЕСЬ БОЛЬШЕ НЕТ: с 2026-08-06 презентацию исполняет единый клиентский презентер
-        /// по факту SkillFired. Здесь остаются прицел, снаряд, серверный гейт и блоки эффектов.
-        /// </summary>
-        void Execute(Unit castingUnit, int castingPlayer, int level, Unit explicitTarget, Vector3 explicitLocation, bool hasExplicitAim)
-        {
-            // ---- Презентация каста ЗДЕСЬ НЕ ИГРАЕТСЯ (перенесена в презентер, 2026-08-06) ----
-            // Раньше визуал и звук замаха запускались тут на каждом пире. Теперь их исполняет
-            // SkillPresenter по факту SkillFired — иначе на хосте и клиенте получился бы дубль.
-
-            // ---- Прицел ----
-            Vector3 casterPos = castingUnit != null ? castingUnit.transform.position : explicitLocation;
-            Unit aimUnit = null;
-            Vector3 aimPoint = casterPos;
-
-            if (PicksTargetByStrategy)
-            {
-                if (hasExplicitAim)
-                {
-                    // Цель/точку подставил автокаст юнита — она пришла в RPC и одинакова на всех пирах.
-                    aimUnit = explicitTarget;
-                    aimPoint = explicitTarget != null ? explicitTarget.transform.position : explicitLocation;
-                }
-                else
-                {
-                    // Каст с кнопки: цель ищет стратегия. Воспроизвести этот выбор на клиенте нельзя —
-                    // у него другой набор юнитов и свой генератор случайных чисел. Поэтому дальше только сервер.
-                    // Визуал клиент при этом больше не теряет: цель и точку ему привезёт SkillFired (2026-08-06),
-                    // по нему презентер покажет и попадание, и визуальную копию снаряда.
-                    if (IsClientPeer) return;
-
-                    Unit picked = PickByStrategy(castingUnit, castingPlayer, level);
-                    if (picked == null) return; // подходящей цели нет — каст проходит впустую, откат тратится штатно
-
-                    if (targetMode == SkillTargetMode.SmartUnit) aimUnit = picked;
-                    aimPoint = picked.transform.position;
-                }
-            }
-
-            // ---- Снаряд ----
-            // Визуал и звук попадания сюда не входят: их играет презентер по факту SkillFired.
-            // Сам снаряд с 2026-08-06 создаётся ТОЛЬКО на сервере: он несёт урон, а значит геймплей
-            // (правило 6). Чистому клиенту презентер спавнит визуальную копию с нулевым уроном.
-
-            // Доставка снарядом возможна ТОЛЬКО по конкретному юниту и только с самонаведением:
-            // штатный снаряд без цели-юнита наносит урон исключительно по площади, а площадного
-            // режима у снаряда скилла нет (см. Projectile.Update / Projectile.Damage). Остальные
-            // сочетания — ошибка настройки, её ловит валидатор; здесь бьём мгновенно и говорим об этом.
-            bool viaProjectile = delivery == SkillDelivery.Projectile && projectilePrefab != null
-                                 && castingUnit != null && aimUnit != null && projectileFollowsTarget;
-
-            if (delivery == SkillDelivery.Projectile && !viaProjectile && IsServerPeer)
-                Debug.LogWarning($"[{name}] Доставка снарядом невозможна при этих настройках " +
-                                 "(нужны цель-юнит, живой кастер, префаб снаряда и включённое самонаведение) — " +
-                                 "умение сработало мгновенно.");
-
-            if (viaProjectile && IsServerPeer) SpawnProjectile(castingUnit, castingPlayer, level, aimUnit);
-
-            // ---- Серверный гейт: всё, что меняет состояние мира, — ниже (правило 6) ----
-            // Клиент до сюда не доходит: цели он не считает и эффекторов себе не накладывает.
-            // Значки состояний и VFX ему пришлёт сервер отдельным сообщением (SendPresentation).
-            if (IsClientPeer) return;
-
-            // Факт срабатывания для презентации: цель и точка уже ФАКТИЧЕСКИЕ (вычислены выше сервером).
-            // Публикуется до блоков эффектов — визуал не должен зависеть от того, выжила ли цель.
-            // Use зовётся один раз за каст (режим «аура», где он шёл каждый тик, снесён блоком Б7).
-            EmitSkillFired(castingUnit, this, level, aimUnit, aimPoint);
-
-            List<Unit> targets = CollectTargets(castingUnit, castingPlayer, level, aimUnit, aimPoint);
-
-            // Лог срабатывания (сюда доходит только сервер).
-            if (InterflowDebug.VerboseOn)
-            {
-                string skillName = (abilityName != null && abilityName.Length > 0 && !string.IsNullOrEmpty(abilityName[0]))
-                                   ? abilityName[0] : name;
-                string targetText = aimUnit != null
-                    ? " по " + InterflowDebug.Name(aimUnit)
-                    : (targets.Count > 0 ? ", целей: " + targets.Count : ", целей нет");
-                InterflowDebug.Verbose("СКИЛЛ «" + skillName + "»: кастует " +
-                                       (castingUnit != null ? InterflowDebug.Name(castingUnit) : "объект без юнита") + targetText);
-            }
-
-            ApplyEffects(castingUnit, castingPlayer, level, targets, aimPoint, viaProjectile);
-
-            SendPresentation(targets, level);
-            RequestForceSync(); // один раз после всей пачки изменений
-        }
-
-        // =================================================================== ЦЕЛИ ==
-
-        /// <summary>
-        /// Набор целей по режиму. Списки локальные, а не поля ассета: один SO обслуживает всех носителей,
-        /// а блоки внутри каста могут цепочкой спровоцировать чужую реакцию — общий буфер такая вложенность бы испортила.
-        /// </summary>
-        List<Unit> CollectTargets(Unit castingUnit, int castingPlayer, int level, Unit aimUnit, Vector3 aimPoint)
-        {
-            List<Unit> result = new List<Unit>();
-            List<Unit> gathered = new List<Unit>();
-
-            float area = LevelValue(radius, level);
-
-            switch (targetMode)
-            {
-                case SkillTargetMode.Self:
-                    // На себя фильтры и лимит не применяются: цель ровно одна и она задана режимом.
-                    if (castingUnit != null && !castingUnit.dead) result.Add(castingUnit);
-                    return result;
-
-                case SkillTargetMode.SmartUnit:
-                    // Одна цель — лимит не нужен.
-                    if (aimUnit != null && !aimUnit.dead && PassesFilters(aimUnit)) result.Add(aimUnit);
-                    return result;
-
-                case SkillTargetMode.WholeTeam:
-                {
-                    MatchManager mm = MatchManager.Instance;
-                    if (mm == null) return result;
-
-                    List<Unit> team = mm.GetCommandUnitsForPlayer(castingPlayer);
-                    for (int i = 0; i < team.Count; i++) AddCandidate(team[i], castingUnit, gathered);
-                    break;
-                }
-
-                case SkillTargetMode.AreaAroundSelf:
-                case SkillTargetMode.Cone:
-                {
-                    if (castingUnit == null || area <= 0f) return result;
-
-                    Vector3 origin = castingUnit.transform.position;
-                    Unit[] found = Utils.GetUnitsInRadius(new Vector2(origin.x, origin.z), area, castingPlayer,
-                                                          unitSelector, -1, includeSelf ? null : castingUnit);
-                    if (found == null) return result;
-
-                    // Направление берём у юнита, а НЕ из transform.forward: корневой объект юнита
-                    // не вращается, поворот живёт на horizontalPart (см. Unit.LookDirection).
-                    Vector3 forward = castingUnit.LookDirection;
-                    float halfAngle = coneAngle * 0.5f;
-                    bool fullCircle = targetMode != SkillTargetMode.Cone || coneAngle >= 360f;
-
-                    for (int i = 0; i < found.Length; i++)
-                    {
-                        Unit u = found[i];
-                        if (!fullCircle && u != null)
-                        {
-                            Vector3 dir = u.transform.position - origin; dir.y = 0f;
-                            if (dir.sqrMagnitude > 0.0001f && Vector3.Angle(forward, dir) > halfAngle) continue; // вне конуса
-                        }
-                        AddCandidate(u, castingUnit, gathered);
-                    }
-                    break;
-                }
-
-                case SkillTargetMode.SmartPoint:
-                {
-                    if (area <= 0f) return result;
-
-                    Unit[] found = Utils.GetUnitsInRadius(new Vector2(aimPoint.x, aimPoint.z), area, castingPlayer,
-                                                          unitSelector, -1, includeSelf ? null : castingUnit);
-                    if (found == null) return result;
-
-                    for (int i = 0; i < found.Length; i++) AddCandidate(found[i], castingUnit, gathered);
-                    break;
-                }
-            }
-
-            SkillTargeting.TakeTargets(gathered, aimPoint, maxTargets, multiPick, result);
-            return result;
-        }
-
-        void AddCandidate(Unit u, Unit castingUnit, List<Unit> into)
-        {
-            if (u == null || u.dead) return;
-            if (!includeSelf && u == castingUnit) return;
-            if (!PassesFilters(u)) return;
-
-            into.Add(u);
-        }
-
-        /// <summary>
-        /// Может ли этот юнит быть целью скилла: штатный селектор плюс фильтры скилла.
-        /// Нужна автокасту — он ищет кандидатов по своему селектору, а стратегию берёт из скилла,
-        /// поэтому без этой проверки лечащий скилл мог бы выбрать врага.
-        /// </summary>
-        public bool IsEligibleTarget(Unit u, int castingPlayer)
-        {
-            if (u == null || u.dead) return false;
-            if (!UnitSelector.IsUnitCompatible(castingPlayer, u, unitSelector)) return false;
-
-            return PassesFilters(u);
-        }
-
-        /// <summary>Второй селектор умения — боевые роли. Пустой набор ролей пропускает всех.</summary>
-        bool PassesFilters(Unit u)
-        {
-            if (u == null) return false;
-
-            return CategoryAllowed(u, targetCategories);
-        }
-
-        // ============================================================== СТРАТЕГИЯ ==
-
-        /// <summary>Настройки стратегии для общего исполнителя. Точка отсчёта — параметр origin.</summary>
-        public SkillTargeting.Options TargetingOptions(int level, Vector3 origin)
-        {
-            return new SkillTargeting.Options
-            {
-                useCurrentHealth = strategyUseCurrentHealth,
-                hpThreshold = strategyHpThreshold,
-                clusterRadius = LevelValue(radius, level),
-                clusterSelector = unitSelector,
-                origin = origin
-            };
-        }
-
-        /// <summary>Выбор цели стратегией при касте с кнопки. Только сервер.</summary>
-        Unit PickByStrategy(Unit castingUnit, int castingPlayer, int level)
-        {
-            Vector3 origin = SearchOriginPoint(castingUnit, castingPlayer);
-            Unit[] candidates = ButtonCastCandidates(castingUnit, castingPlayer, level);
-
-            return SkillTargeting.Pick(targetStrategy, candidates, castingUnit, TargetingOptions(level, origin));
-        }
-
-        /// <summary>Точка, от которой стратегия отсчитывает «ближайшего».</summary>
-        Vector3 SearchOriginPoint(Unit castingUnit, int castingPlayer)
-        {
-            Vector3 casterPos = castingUnit != null ? castingUnit.transform.position : Vector3.zero;
-            if (searchOrigin == SkillSearchOrigin.Caster || MatchManager.Instance == null) return casterPos;
-
-            Vector2 point = MatchManager.Instance.AttackTarget(castingPlayer);
-            if (point == Vector2.zero) return casterPos; // направления нет — считаем от кастера
-
-            return new Vector3(point.x, casterPos.y, point.y);
-        }
-
-        /// <summary>
-        /// Кандидаты для каста с кнопки: списки команд матча, отфильтрованные штатным предикатом
-        /// селектора. Какие команды брать, решают флаги «свой/союзник/враг» самого селектора.
-        ///
-        /// Дальность задаёт штатный <c>castRange</c> и мерится ВСЕГДА ОТ КАСТЕРА (решение Artsiom
-        /// 2026-08-06), независимо от «точки отсчёта»: та влияет только на то, откуда стратегия считает
-        /// «ближайшего». Пустой или нулевой castRange — без ограничения (так настроены семь из девяти
-        /// живых ассетов, их поведение не меняется).
-        /// </summary>
-        Unit[] ButtonCastCandidates(Unit castingUnit, int castingPlayer, int level)
-        {
-            MatchManager mm = MatchManager.Instance;
-            if (mm == null) return null;
-
-            // Ноль/пусто — дальность не ограничена. Сравниваем квадраты: корень не нужен.
-            float range = LevelValue(castRange, level);
-            float rangeSqr = range > 0f ? range * range : 0f;
-            Vector3 casterPos = castingUnit != null ? castingUnit.transform.position : Vector3.zero;
-
-            List<Unit> pool = new List<Unit>();
-
-            if (unitSelector.isOwn || unitSelector.isAlly)
-                pool.AddRange(mm.GetCommandUnitsForPlayer(castingPlayer));
-
-            if (unitSelector.isEnemy)
-            {
-                int team = TeamIndexOfPlayer(castingPlayer);
-                TeamWaveConfig enemy = team >= 0 ? mm.Team(1 - team) : null;
-                if (enemy != null) pool.AddRange(mm.GetCommandUnitsForPlayer(enemy.ownerPlayer));
-            }
-
-            List<Unit> result = new List<Unit>(pool.Count);
-            for (int i = 0; i < pool.Count; i++)
-            {
-                Unit u = pool[i];
-                if (u == null || u.dead || u == castingUnit) continue;
-                if (!UnitSelector.IsUnitCompatible(castingPlayer, u, unitSelector)) continue;
-                if (!PassesFilters(u)) continue;
-                if (rangeSqr > 0f && castingUnit != null
-                    && (u.transform.position - casterPos).sqrMagnitude > rangeSqr) continue; // вне дальности каста
-
-                result.Add(u);
-            }
-
-            return result.ToArray();
-        }
-
-        // ================================================================== СНАРЯД ==
-
-        // Кэш набора эффекторов «блок + значок состояния»: собирается один раз, дальше переиспользуется.
-        Effector[] cachedEffectorSet;
-        bool effectorSetBuilt;
-
-        /// <summary>Эффекторы, которые получает цель: из блока эффекторов плюс отдельный значок состояния.</summary>
-        public Effector[] EffectorsForTargets()
-        {
-            if (effectorSetBuilt) return cachedEffectorSet;
-
-            List<Effector> list = new List<Effector>();
-            if (effectors != null && effectors.enabled && effectors.records != null)
-                for (int i = 0; i < effectors.records.Length; i++)
-                    if (effectors.records[i] != null && effectors.records[i].effector != null)
-                        list.Add(effectors.records[i].effector);
-
-            if (statusEffector != null) list.Add(statusEffector);
-
-            cachedEffectorSet = list.Count > 0 ? list.ToArray() : null;
-            effectorSetBuilt = true;
-            return cachedEffectorSet;
-        }
-
-        /// <summary>
-        /// Спавн штатного снаряда. Снаряд НЕ сетевой объект — его симулирует каждый пир у себя,
-        /// поэтому спавним до серверного гейта. Снаряд несёт только то, что умеют его штатные поля:
-        /// урон (первая запись блока урона), эффекторы и оглушение.
-        /// </summary>
-        void SpawnProjectile(Unit castingUnit, int castingPlayer, int level, Unit aimUnit)
-        {
-            Transform socket = ResolveSocket(castingUnit, spawnSocket);
-            Vector3 spawnPos = SocketPosition(castingUnit, spawnSocket, localOffset);
-            Quaternion spawnRot = socket != null ? socket.rotation : Quaternion.identity;
-
-            DamageType dmgType;
-            float dmg = FirstProjectileDamage(level, out dmgType);
-
-            Projectile spawned = Projectile.Spawn(castingPlayer, castingUnit, projectilePrefab, spawnPos, spawnRot,
-                                                  aimUnit, false, dmg, dmgType, true, sourceAbility: this);   // умение-источник для диагностики очереди пакетов (решение Artsiom 05.09.2026)
-            if (spawned == null) return;
-
-            // Снаряд уносит только урон и оглушение. Эффекторы ему не отдаём осознанно: ядро применяет
-            // Projectile.attackEffectors лишь когда кастер погиб, а при живом кастере накладывает
-            // эффекторы ЕГО автоатаки — эффекторы скилла так бы просто потерялись. Поэтому их
-            // накладывает сам скилл в момент каста (см. ApplyEffectors).
-            spawned.stunTime = (status != null && status.enabled) ? LevelValue(status.stunSeconds, level) : 0f;
-        }
-
-        /// <summary>
-        /// Урон, который уносит снаряд: первая непустая запись блока урона. У штатного снаряда одно поле
-        /// урона и один тип — остальные записи снарядом не переносятся (валидатор предупреждает).
-        /// </summary>
-        /// <summary>
-        /// Тип урона, который уносит снаряд. Нужен клиентской презентации: визуальная копия снаряда
-        /// летит с нулевым уроном, но штатный снаряд по прилёте всё равно обращается к типу урона.
-        /// </summary>
-        public DamageType ProjectileDamageType(int level)
-        {
-            FirstProjectileDamage(level, out DamageType damageType);
-            return damageType;
-        }
-
-        float FirstProjectileDamage(int level, out DamageType damageType)
-        {
-            damageType = null;
-            if (damage == null || !damage.enabled || damage.entries == null) return 0f;
-
-            for (int i = 0; i < damage.entries.Length; i++)
-            {
-                SkillDamageEntry e = damage.entries[i];
-                if (e == null || e.damageType == null) continue;
-
-                float amount = LevelValue(e.amount, level);
-                if (amount <= 0f) continue;
-
-                damageType = e.damageType;
-                return amount;
-            }
-
-            return 0f;
-        }
 
         // ========================================================== СБРОС СОСТОЯНИЯ ==
 
@@ -681,187 +336,6 @@ namespace StrategyCore
             effectorSetBuilt = false;
         }
 
-        // ============================================================ ПРЕЗЕНТАЦИЯ ЦЕЛЕЙ ==
 
-        /// <summary>
-        /// На сколько растягивать визуал бафа. Ноль — аура не настроена, значит визуал остаётся
-        /// авторского размера. Считается и на сервере, и на клиенте (по уровню из сообщения).
-        /// </summary>
-        public float BuffVfxScaleRadius(int level)
-        {
-            if (buff == null || !buff.enabled) return 0f;
-
-            float aura = LevelValue(buff.auraRadius, level);
-            bool hasAura = aura > 0f || LevelValue(buff.auraDamagePerSecond, level) > 0f;
-
-            return hasAura ? aura : 0f;
-        }
-
-        /// <summary>
-        /// Сервер: показать VFX длящегося бафа задетым целям. Хосту рисуем напрямую (сообщение
-        /// до него не доходит), клиентам уходит ОДНО сообщение на весь каст. Значки и VFX
-        /// ЭФФЕКТОРОВ с 2026-08-05 шлёт ядро в точке наложения (единый канал статусов) —
-        /// здесь только баф. Геймплейное состояние клиенту не передаётся.
-        /// </summary>
-        void SendPresentation(List<Unit> targets, int level)
-        {
-            if (targets == null || targets.Count == 0) return;
-
-            float buffDuration = (buff != null && buff.enabled) ? LevelValue(buff.duration, level) : 0f;
-            bool hasBuffVfx = buff != null && buff.enabled && buff.buffVFX != null && buffDuration > 0f;
-
-            if (!hasBuffVfx) return;
-
-            float auraRadius = BuffVfxScaleRadius(level);
-
-            List<UInt16> netIDs = new List<UInt16>(targets.Count);
-            for (int i = 0; i < targets.Count; i++)
-            {
-                Unit t = targets[i];
-                if (t == null || t.dead) continue;
-
-                // Хост своего же сообщения не получает, но эффекторы у него УЖЕ настоящие (их наложил
-                // сервер), поэтому значок и VFX эффектора он видит штатно — дублировать нельзя.
-                // Не хватает ему только визуала бафа: SkillBuff теперь чисто геймплейный и ничего не рисует.
-                if (hasBuffVfx) SkillVisualStatus.ShowBuffVfx(t, id, buff.buffVFX, buffDuration, auraRadius);
-
-                netIDs.Add(t.netID);
-            }
-
-            if (netIDs.Count == 0 || NetworkDataSync.Instance == null) return;
-
-            // [2026-08-05 единый канал статусов] Значки и VFX эффекторов скилл больше НЕ шлёт сам:
-            // их отправляет ядро в момент наложения (Effector.EffectorAdd → UnitStatusEffectorSend) —
-            // одинаково для атак, аур и скиллов (решение Artsiom 2026-08-05). Здесь остался только
-            // VFX длящегося бафа — он не эффектор и в ядре точки наложения не имеет.
-            if (hasBuffVfx) NetworkDataSync.Instance.SkillBuffVfxSend(netIDs.ToArray(), id, level, buffDuration);
-        }
-
-        // ================================================================== СВОДКА ==
-
-        /// <summary>
-        /// Человекочитаемая строка «что делает этот скилл» — её показывает вкладка «Умения»
-        /// над полями, чтобы геймдизайнер понимал скилл, не раскрывая все блоки.
-        /// </summary>
-        public string BuildSummary()
-        {
-            StringBuilder sb = new StringBuilder();
-
-            sb.Append("Цель: ").Append(TargetModeText());
-            if (PicksTargetByStrategy) sb.Append(" (").Append(StrategyText()).Append(')');
-            if (maxTargets > 0) sb.Append(", не больше ").Append(maxTargets);
-            if (buttonCast) sb.Append(" • по кнопке");
-
-            if (delivery == SkillDelivery.Projectile) sb.Append(" • снарядом");
-            if (spawnSocket != SkillSocketType.None) sb.Append(" из точки «").Append(SocketText()).Append('»');
-
-            if (damage != null && damage.enabled && damage.entries != null && damage.entries.Length > 0)
-            {
-                sb.Append(" • урон");
-                for (int i = 0; i < damage.entries.Length; i++)
-                {
-                    SkillDamageEntry e = damage.entries[i];
-                    if (e == null) continue;
-                    sb.Append(i == 0 ? " " : ", ").Append(LevelValue(e.amount, 0).ToString("0.#"));
-                    if (e.damageType != null) sb.Append(' ').Append(e.damageType.name);
-                }
-            }
-
-            if (status != null && status.enabled)
-            {
-                float stun = LevelValue(status.stunSeconds, 0);
-                float disarm = LevelValue(status.disarmSeconds, 0);
-                float mute = LevelValue(status.muteSeconds, 0);
-                if (stun > 0f) sb.Append(" • оглушение ").Append(stun.ToString("0.#")).Append(" с");
-                if (disarm > 0f) sb.Append(" • обезоруживание ").Append(disarm.ToString("0.#")).Append(" с");
-                if (mute > 0f) sb.Append(" • немота ").Append(mute.ToString("0.#")).Append(" с");
-            }
-
-            if (heal != null && heal.enabled)
-            {
-                float flat = LevelValue(heal.flat, 0);
-                float pct = LevelValue(heal.percentOfMaxHp, 0);
-                if (flat > 0f) sb.Append(" • лечение ").Append(flat.ToString("0.#"));
-                if (pct > 0f) sb.Append(" • лечение ").Append(pct.ToString("0.#")).Append("% макс. ХП");
-            }
-
-            if (effectors != null && effectors.enabled && effectors.records != null)
-            {
-                int liveRecords = 0;
-                for (int i = 0; i < effectors.records.Length; i++)
-                    if (effectors.records[i] != null && effectors.records[i].effector != null) liveRecords++;
-
-                if (liveRecords > 0) sb.Append(" • состояний: ").Append(liveRecords);
-            }
-
-            if (buff != null && buff.enabled)
-                sb.Append(" • баф ").Append(LevelValue(buff.duration, 0).ToString("0.#")).Append(" с");
-
-            if (shield != null && shield.enabled) sb.Append(" • щит");
-            if (blind != null && blind.enabled) sb.Append(" • ослепление");
-            if (selfCost != null && selfCost.enabled) sb.Append(" • стоит здоровья кастеру");
-            if (summon != null && summon.enabled) sb.Append(" • призыв");
-            if (groundZone != null && groundZone.enabled) sb.Append(" • зона на земле");
-            if (delegateService != null && delegateService.enabled && delegateService.service != SkillServerService.None)
-                sb.Append(" • сервис: ").Append(ServiceText());
-
-            if (statusEffector != null) sb.Append(" • значок: ").Append(statusEffector.name);
-
-            return sb.ToString();
-        }
-
-        string TargetModeText()
-        {
-            switch (targetMode)
-            {
-                case SkillTargetMode.Self:           return "на себя";
-                case SkillTargetMode.WholeTeam:      return "вся команда";
-                case SkillTargetMode.AreaAroundSelf: return "область вокруг кастера";
-                case SkillTargetMode.Cone:           return $"конус {coneAngle:0}°";
-                case SkillTargetMode.SmartUnit:      return "юнит";
-                case SkillTargetMode.SmartPoint:     return "точка";
-            }
-            return targetMode.ToString();
-        }
-
-        string StrategyText()
-        {
-            switch (targetStrategy)
-            {
-                case SkillTargetStrategy.Nearest:               return "ближайший";
-                case SkillTargetStrategy.MostWounded:           return "самый раненый";
-                case SkillTargetStrategy.WoundedBelowThreshold: return "раненый ниже порога";
-                case SkillTargetStrategy.Strongest:             return "наибольший запас ХП";
-                case SkillTargetStrategy.RandomOne:             return "случайный";
-                case SkillTargetStrategy.Cluster:               return "скопление";
-                case SkillTargetStrategy.CurrentAttackTarget:   return "текущая цель атаки";
-            }
-            return targetStrategy.ToString();
-        }
-
-        string SocketText()
-        {
-            switch (spawnSocket)
-            {
-                case SkillSocketType.RightHand: return "правая рука";
-                case SkillSocketType.LeftHand:  return "левая рука";
-                case SkillSocketType.Weapon:    return "оружие";
-                case SkillSocketType.Chest:     return "грудь";
-                case SkillSocketType.Center:    return "центр";
-                case SkillSocketType.Head:      return "голова";
-                case SkillSocketType.Ground:    return "под ногами";
-            }
-            return "центр объекта";
-        }
-
-        string ServiceText()
-        {
-            switch (delegateService.service)
-            {
-                case SkillServerService.MeteorStorm:         return "метеоритный дождь";
-                case SkillServerService.ResurrectFromGraves: return "подъём павших";
-            }
-            return "нет";
-        }
     }
 }

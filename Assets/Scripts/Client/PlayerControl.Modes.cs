@@ -142,6 +142,18 @@ namespace StrategyCore
             }
         }
 
+        /// <summary>
+        /// Лежит ли объект внутри контейнера надюнитовых элементов (полоски, иконка миникарты, эффекты).
+        /// Ищем по имени, а не по ссылке на юнита: у копии для призрака компоненты уже сняты
+        /// (Utils.UnitRemoveComponents), спрашивать поле не у кого.
+        /// </summary>
+        private static bool IsUnderUnitOverlay(Transform target)
+        {
+            for (Transform current = target; current != null; current = current.parent)
+                if (current.name == Unit.OverlayName) return true;
+            return false;
+        }
+
         // Creates building that is visible to current player only. Deletes components except renderers
         private Transform CreateShadowBuilding(Unit building)
         {
@@ -175,12 +187,14 @@ namespace StrategyCore
 
             foreach (var renderer in renderers)
             {
-                if (renderer.name != "HealthBar(Clone)" &&
-                    renderer.name != "MiniMapIcon(Clone)" &&
+                // [Interflow 2026-09-09 unit-overlay] Надюнитовые элементы (полоски, иконка миникарты,
+                // держатель эффектов) собраны в контейнере — отсекаем всё, что лежит под ним, одним условием.
+                // Круг выделения и проектор дальности в контейнер не входят (решение Artsiom 09.09) и
+                // отсекаются по именам, как раньше.
+                if (!IsUnderUnitOverlay(renderer.transform) &&
                     renderer.name != "SelectionQuad(Clone)" &&
                     renderer.name != "RangeProjector(Clone)" &&
-                    renderer.name != "VFXHolder" &&
-                    renderer.name != "MiniMapIcon")
+                    renderer.name != "MiniMapIcon")   // иконка, положенная прямым ребёнком в префаб юнита: контейнера на копии префаба нет
                 {
                     // Turn off shadows and change material
                     shadowBuildingRenderers.Add(renderer);

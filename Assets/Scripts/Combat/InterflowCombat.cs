@@ -269,7 +269,11 @@ namespace StrategyCore
         /// Бросков промаха и ухода здесь с шага 4 НЕТ — они сведены в один бросок приёмника
         /// (<see cref="HitAvoidChance"/>, решение Р3).
         /// </summary>
-        public static float ModifyIncomingDamage(Unit victim, Unit attacker, DamageType damageType, float amount, bool directAttack)
+        /// <param name="periodic">Тик периодического источника (состояние, аура, зона): надписи и строки
+        /// показа по нему не поднимаются — их поток шёл бы десять раз в секунду на жертву
+        /// (решение Artsiom 11.09.2026, свёртка периодики).</param>
+        public static float ModifyIncomingDamage(Unit victim, Unit attacker, DamageType damageType, float amount, bool directAttack,
+                                                 bool periodic = false)
         {
             if (victim == null || incomingByVictim.Count == 0) return amount;
             if (!incomingByVictim.TryGetValue(victim, out var list)) return amount;
@@ -303,6 +307,23 @@ namespace StrategyCore
                                            beforeRule.ToString("0.#") + " → " + amount.ToString("0.#") +
                                            (r.multiplier != 1f ? " (×" + r.multiplier.ToString("0.##") + ")" : "") +
                                            " | правило=" + (r.source != null ? r.source.name : "без ассета"));
+
+                // [Interflow 2026-09-09 passive-facts] Надпись «Снижен N» над жертвой. Только СНИЖЕНИЕ:
+                // рост урона от уязвимости и так виден большим числом урона, а вторая надпись рядом
+                // с ним читаемости не добавит. Порог в четверть единицы отсекает дробную мелочь —
+                // «Снижен 0» на экране выглядел бы поломкой.
+                // Отправка серверная (гейт внутри канала), поэтому на чистом клиенте вызов пустой,
+                // хотя сам расчёт идёт на обоих пирах.
+                if (!periodic && InterflowDebug.showPassiveFacts && beforeRule - amount > 0.25f && NetworkDataSync.Instance != null)
+                    NetworkDataSync.Instance.UnitBattleFactSend(victim, BattleFactReason.IncomingDamageReduced,
+                                                                beforeRule - amount, beforeRule, amount);
+
+                // [Interflow 2026-09-10] Зеркальная надпись «Уязвим N»: правило подняло входящий урон.
+                // Прежнее решение (показывать только снижение) отменено — по одному числу урона нельзя
+                // отличить сработавшую уязвимость от просто сильного удара.
+                else if (!periodic && InterflowDebug.showPassiveFacts && amount - beforeRule > 0.25f && NetworkDataSync.Instance != null)
+                    NetworkDataSync.Instance.UnitBattleFactSend(victim, BattleFactReason.IncomingDamageIncreased,
+                                                                amount - beforeRule, beforeRule, amount);
             }
 
             return amount;

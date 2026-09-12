@@ -116,7 +116,7 @@ namespace StrategyCore
 
                         if (damagePerSecond != 0f)
                         {
-                            DamagePacket packet = DamagePacket.Create(damagePerSecond * dt, damageType, ownerPlayer, null, false, sourceAbility);   // [Interflow fix 2026-09-04 damage-full-packet] пакет одной записи
+                            DamagePacket packet = DamagePacket.Create(damagePerSecond * dt, damageType, ownerPlayer, null, false, sourceAbility, null, true);   // [Interflow fix 2026-09-04 damage-full-packet] пакет одной записи   // [Interflow 2026-09-11] periodic: тик по времени — в ленту идёт свёрнутой строкой, не строкой на тик
                             t.GetDamage(in packet, out _);
                         }
                         if (t.dead) continue; // цель могла погибнуть от этого же урона — по трупу не работаем

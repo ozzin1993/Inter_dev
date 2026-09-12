@@ -41,7 +41,7 @@ namespace StrategyCore
         bool includeBuildings;
         string countText = "1";
         string spreadText = "6";
-        TestArenaOrder order = TestArenaOrder.AsInGame;
+        TestArenaOrder order = TestArenaOrder.Attack;   // [2026-09-10] умолчание: призванные сразу идут драться
         int spawnAt;                       // 0 — база стороны призыва, 1 — центр
         Vector2 unitsScroll;
 
@@ -178,6 +178,7 @@ namespace StrategyCore
             GUILayout.Label("Разброс", GUILayout.Width(55));
             spreadText = GUILayout.TextField(spreadText, GUILayout.Width(40));
             GUILayout.Label("Приказ", GUILayout.Width(45));
+            if (GUILayout.Toggle(order == TestArenaOrder.Attack, "В атаку", GUI.skin.button)) order = TestArenaOrder.Attack;
             if (GUILayout.Toggle(order == TestArenaOrder.AsInGame, "Как в бою", GUI.skin.button)) order = TestArenaOrder.AsInGame;
             if (GUILayout.Toggle(order == TestArenaOrder.Hold, "Стоять", GUI.skin.button)) order = TestArenaOrder.Hold;
             if (GUILayout.Toggle(order == TestArenaOrder.Dummy, "Манекен", GUI.skin.button)) order = TestArenaOrder.Dummy;

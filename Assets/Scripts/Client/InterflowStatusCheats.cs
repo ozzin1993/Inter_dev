@@ -131,7 +131,8 @@ namespace StrategyCore
             int shown = 0;
             foreach (Unit u in Alive().OrderBy(u => u.team).ThenBy(u => u.name))
             {
-                Transform row = u.transform.Find("StatusIconsBar");
+                // [Interflow 2026-09-09 unit-overlay] Ряд значков живёт в контейнере надюнитовых элементов.
+                Transform row = u.OverlayRoot != null ? u.OverlayRoot.Find("StatusIconsBar") : null;
                 if (row == null) continue;
 
                 int icons = 0;
@@ -139,10 +140,10 @@ namespace StrategyCore
                 if (icons == 0 && !row.gameObject.activeSelf) continue;
 
                 shown++;
-                Transform healthBar = u.transform.Find("HealthBar(Clone)");
+                Transform healthBar = u.HealthBarRoot;   // [Interflow 2026-09-09 unit-overlay] по ссылке, не поиском по имени
                 sb.Append("  " + u.name + " (команда " + u.team + "): значков " + icons +
                           ", ряд " + (row.gameObject.activeSelf ? "виден" : "СКРЫТ") +
-                          ", полоска " + (healthBar == null ? "нет" : healthBar.gameObject.activeSelf ? "видна" : "СКРЫТА") + "\n");
+                          ", полоска " + (healthBar == null ? "нет" : healthBar.gameObject.activeInHierarchy ? "видна" : "СКРЫТА") + "\n");
             }
             if (shown == 0) sb.Append("  (активных рядов нет — набери «status» на выделенном юните)");
             else sb.Append("Ряд и полоска должны быть в ОДНОМ состоянии: оба видны либо оба скрыты (туман войны).");
@@ -201,7 +202,8 @@ namespace StrategyCore
             int expected = UnitStatusIcons.Collect(unit, buffer);
             string names = expected == 0 ? "пусто" : string.Join(", ", buffer.Select(e => e.icon != null ? e.icon.name : "без текстуры"));
 
-            Transform row = unit.transform.Find("StatusIconsBar");
+            // [Interflow 2026-09-09 unit-overlay] Ряд значков живёт в контейнере надюнитовых элементов.
+            Transform row = unit.OverlayRoot != null ? unit.OverlayRoot.Find("StatusIconsBar") : null;
             bool rowShown = row != null && row.gameObject.activeSelf;
             int quads = 0;
             if (rowShown) foreach (Transform quad in row) if (quad.gameObject.activeSelf) quads++;

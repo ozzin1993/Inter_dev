@@ -81,9 +81,12 @@ namespace StrategyCore
         /// <summary>Показывает ли ядро юнита локальному игроку (по активности штатной полоски).</summary>
         bool UnitShownByCore()
         {
-            if (coreHealthBar == null) coreHealthBar = transform.Find("HealthBar(Clone)");
+            // [Interflow 2026-09-09 unit-overlay] Полоска — по ссылке юнита, а не поиском по имени:
+            // она переехала в контейнер. Смотрим ФАКТИЧЕСКУЮ видимость: ядро гасит теперь контейнер
+            // целиком, и собственный флаг активности полоски при этом остаётся поднятым.
+            if (coreHealthBar == null && unit != null) coreHealthBar = unit.HealthBarRoot;
             // Полоски нет (момент пересоздания/особый юнит) — считаем видимым, как до этой правки.
-            return coreHealthBar == null || coreHealthBar.gameObject.activeSelf;
+            return coreHealthBar == null || coreHealthBar.gameObject.activeInHierarchy;
         }
 
         void OnUnitDie(Unit unitThatDies, int playerKiller, Unit unitKiller, bool rewards)
@@ -168,9 +171,11 @@ namespace StrategyCore
             if (root != null) return;
 
             root = new GameObject("StatusIconsBar").transform;
-            root.SetParent(transform, false);
-            // Та же высота, что у полоски здоровья (HealthBar.Start), плюс отступ ряда над ней.
-            root.localPosition = new Vector3(0f, unit.unitHeight * 1.3f + offsetY, 0f);
+            // [Interflow 2026-09-09 unit-overlay] Ряд живёт в контейнере надюнитовых элементов рядом
+            // с полосками; контейнера нет (юнит не инициализирован) — падаем на сам юнит, как раньше.
+            root.SetParent(unit != null && unit.OverlayRoot != null ? unit.OverlayRoot : transform, false);
+            // Та же высота, что у полоски здоровья, плюс отступ ряда над ней — подъём берём её константой.
+            root.localPosition = new Vector3(0f, unit.unitHeight * HealthBar.LiftInUnitHeights + offsetY, 0f);
         }
 
         void EnsureMaterial(StatusIconCatalog cat)

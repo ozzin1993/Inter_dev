@@ -41,9 +41,16 @@ namespace StrategyCore
             float fraction = FractionAt(level);
             applied[unit] = fraction;
             InterflowCombat.ArmorPierceAdd(unit, fraction);
+            AbilityFacts.Granted(this, unit, level);   // [2026-09-10] показ срабатывания — см. AbilityFacts
 
             InterflowDebug.Event("ПРОБИТИЕ БРОНИ включено у " + InterflowDebug.Name(unit) +
                                  ": игнорирует " + (fraction * 100f).ToString("0.#") + "% брони цели");
+
+            if (InterflowDebug.FullOn)
+                InterflowDebug.Full("ПРОБИТИЕ БРОНИ («" + name + "»): выдано | носитель=" + InterflowDebug.Name(unit) +
+                                    " | доля умения=" + fraction.ToString("0.##") +
+                                    " | уровень=" + level +
+                                    " | у носителя стало=" + InterflowCombat.ArmorPierceOf(unit).ToString("0.##"));
         }
 
         public override void Lock(Unit unit, int castingPlayer, int level)
@@ -52,9 +59,15 @@ namespace StrategyCore
             if (!applied.TryGetValue(unit, out float fraction)) return;
 
             InterflowCombat.ArmorPierceRemove(unit, fraction);
+            AbilityFacts.Revoked(this, unit, level);   // [2026-09-10] показ срабатывания — см. AbilityFacts
             applied.Remove(unit);
 
             InterflowDebug.Event("ПРОБИТИЕ БРОНИ снято у " + InterflowDebug.Name(unit));
+
+            if (InterflowDebug.FullOn)
+                InterflowDebug.Full("ПРОБИТИЕ БРОНИ («" + name + "»): снято | носитель=" + InterflowDebug.Name(unit) +
+                                    " | доля умения=" + fraction.ToString("0.##") +
+                                    " | у носителя осталось=" + InterflowCombat.ArmorPierceOf(unit).ToString("0.##"));
         }
 
         /// <summary>Доля пробития для уровня — общая выборка по уровням (Б8): массив короче — последний заполненный.</summary>

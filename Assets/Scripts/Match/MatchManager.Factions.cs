@@ -169,6 +169,18 @@ namespace StrategyCore
         public void CastCentralAbilityById(int teamIndex, int abilityId)
         {
             if (NetworkConnectionHandler.isClient) return;
+
+            // Матч должен ИДТИ. Признак — SlotManager.gameOn: именно он гаснет в PauseTheGame, а gameStarted
+            // паузой не меняется. Без этого каст, присланный во время паузы, исполнялся бы, а догоняющий клиент
+            // его не увидел бы никогда: слепок сцены уже снят, а досылка состояния матча юнитов не везёт.
+            // Гейт стоит здесь, а не в приёмнике: это единая точка каста центральной таблицы — через неё идут
+            // и хост напрямую, и клиент через NetworkDataSync.CastCentralAbilityServerRpc.
+            if (SlotManager.Instance == null || !SlotManager.Instance.gameOn)
+            {
+                Debug.LogWarning($"[MatchManager] CastCentralAbilityById: матч не идёт (пауза или не начат) — каст команды {teamIndex} отклонён.");
+                return;
+            }
+
             TeamWaveConfig cfg = Team(teamIndex);
             Unit caster = cfg != null ? cfg.abilityCaster : null;
             if (caster == null || caster.dead || caster.abilities == null)

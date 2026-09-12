@@ -9,6 +9,13 @@ namespace StrategyCore
     {
         public Unit unit;
 
+        // Геометрия полоски — одно место истины на проект: её читают полоска маны (ManaBar)
+        // и ряд значков состояний (UnitStatusIconsBar), иначе числа разъезжаются по трём файлам.
+        /// <summary>Высота полоски в мире.</summary>
+        public const float BarHeight = 0.1f;
+        /// <summary>Подъём полоски над юнитом в долях его высоты.</summary>
+        public const float LiftInUnitHeights = 1.3f;
+
         MaterialPropertyBlock matBlock;
         MeshRenderer meshRenderer;
 
@@ -22,9 +29,12 @@ namespace StrategyCore
             if (meshRenderer == null) { enabled = false; return; }
             matBlock = new MaterialPropertyBlock();
 
-            unit = transform.parent.GetComponent<Unit>();
-            transform.localScale = new Vector3(unit.unitRadius / transform.lossyScale.x, 0.1f / transform.lossyScale.y, 1);
-            transform.localPosition += new Vector3(0, unit.unitHeight * 1.3f, 0);
+            // [Interflow 2026-09-09 unit-overlay] Не transform.parent: полоска лежит в контейнере
+            // надюнитовых элементов, а юнит — на уровень выше него.
+            unit = GetComponentInParent<Unit>();
+            if (unit == null) { enabled = false; return; }
+            transform.localScale = new Vector3(unit.unitRadius / transform.lossyScale.x, BarHeight / transform.lossyScale.y, 1);
+            transform.localPosition += new Vector3(0, unit.unitHeight * LiftInUnitHeights, 0);
 
             unit.OnHPChange += UpdateHealthBar;
             unit.OnDie += Unsub;

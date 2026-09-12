@@ -235,6 +235,7 @@ namespace StrategyCore
 
             StopCharge(byUnit, st);
             st.cooldownLeft = LevelValue(cooldown, level, 0f);
+            AbilityFacts.Proc(this, byUnit);   // [2026-09-10] показ срабатывания — см. AbilityFacts
 
             RequestForceSync();
         }

@@ -23,6 +23,7 @@ namespace StrategyCore
             if (NetworkConnectionHandler.isClient) return;      // урон — только сервер (правило 6)
             if (dealer == null || radius <= 0f) return;
             int owner = dealer.owner;
+            AbilityFacts.ProcAt(sourceAbility, new Vector3(center.x, dealer.transform.position.y, center.y));   // [2026-09-10] показ срабатывания — см. AbilityFacts
 
             // По врагам (чистый «Скверна»: тип с множителями ко всем броням = 1, задаётся в .asset).
             if (enemyDamage > 0f && enemyDamageType != null)

@@ -77,6 +77,7 @@ namespace StrategyCore
                 applied++;
             }
 
+            if (applied > 0) AbilityFacts.Proc(this, byUnit);   // [2026-09-10] показ срабатывания — см. AbilityFacts
             if (applied > 0) RequestForceSync();
         }
 

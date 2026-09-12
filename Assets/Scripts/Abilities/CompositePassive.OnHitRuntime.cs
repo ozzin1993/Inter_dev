@@ -91,16 +91,55 @@ namespace StrategyCore
         void OnHitApply(Unit targetUnit, Vector3 targetPosition, Effector[] effectors, float dmg, bool directAttack,
                         DamageType damageType, Unit byUnit, Projectile byProjectile, int byOwner, int level)
         {
-            if (IsClientPeer) return;                                        // правило 6
-            if (onHit == null || !onHit.enabled) return;
-            if (byUnit == null || byUnit.dead) return;
-            if (targetUnit == null || targetUnit.dead) return;
+            if (IsClientPeer) return;                                        // правило 6; не игровой отказ — молчим
+            if (onHit == null || !onHit.enabled) return;                     // выключенный блок молчит
 
-            if (onHit.onlyDirectAttack && !directAttack) return;
-            if (onHit.onlyDamageType != null && damageType != onHit.onlyDamageType) return;
-            if (!OnHitTypeAllowed(targetUnit)) return;
-            if (!CategoryAllowed(targetUnit, onHit.onlyTargetCategories)) return;
-            if (!OnHitConditionMet(targetUnit)) return;
+            if (byUnit == null || byUnit.dead)
+            {
+                if (InterflowDebug.FullOn && byUnit != null) LogOnHitSkipped(byUnit, targetUnit, "носитель мёртв");
+                return;
+            }
+
+            if (targetUnit == null || targetUnit.dead)
+            {
+                if (InterflowDebug.FullOn) LogOnHitSkipped(byUnit, targetUnit, "цель мертва или её уже нет");
+                return;
+            }
+
+            if (onHit.onlyDirectAttack && !directAttack)
+            {
+                if (InterflowDebug.FullOn) LogOnHitSkipped(byUnit, targetUnit, "удар не прямая атака, а блок ждёт только прямой");
+                return;
+            }
+
+            if (onHit.onlyDamageType != null && damageType != onHit.onlyDamageType)
+            {
+                if (InterflowDebug.FullOn)
+                    LogOnHitSkipped(byUnit, targetUnit, "тип урона " + TypeName(damageType) +
+                                                        " не совпал с требуемым " + TypeName(onHit.onlyDamageType));
+                return;
+            }
+
+            if (!OnHitTypeAllowed(targetUnit))
+            {
+                if (InterflowDebug.FullOn)
+                    LogOnHitSkipped(byUnit, targetUnit, "тип цели " + targetUnit.unitType + " не в списке разрешённых");
+                return;
+            }
+
+            if (!CategoryAllowed(targetUnit, onHit.onlyTargetCategories))
+            {
+                if (InterflowDebug.FullOn) LogOnHitSkipped(byUnit, targetUnit, "боевая роль цели не в списке разрешённых");
+                return;
+            }
+
+            if (!OnHitConditionMet(targetUnit))
+            {
+                if (InterflowDebug.FullOn)
+                    LogOnHitSkipped(byUnit, targetUnit, "состояние цели не подходит под условие «" +
+                                                        OnHitConditionName(onHit.onlyTargetCondition) + "»");
+                return;
+            }
 
             OnHitState state;
             if (!onHitStates.TryGet(byUnit, out state))
@@ -109,25 +148,48 @@ namespace StrategyCore
                 onHitStates.Set(byUnit, state);
             }
 
-            if (state.cooldownLeft > 0f) return;
+            if (state.cooldownLeft > 0f)
+            {
+                if (InterflowDebug.FullOn)
+                    LogOnHitSkipped(byUnit, targetUnit, "идёт откат блока, осталось " + state.cooldownLeft.ToString("0.#") + " сек");
+                return;
+            }
 
             // «Каждый N-й» считает удары, ПРОШЕДШИЕ условия выше: иначе фильтр по типу или состоянию
             // цели сбивал бы счёт ударами, к которым блок отношения не имеет.
             if (onHit.everyNthHit > 1)
             {
                 state.hits++;
+
+                if (InterflowDebug.FullOn) LogOnHitCounter(byUnit, state.hits, onHit.everyNthHit, false);
+
                 if (state.hits < onHit.everyNthHit) return;
+
+                if (InterflowDebug.FullOn) LogOnHitCounter(byUnit, state.hits, onHit.everyNthHit, true);
+
                 state.hits = 0;
             }
 
             // Порядок фиксирован: сначала счёт «каждый N-й», потом бросок шанса. Не сработавший бросок
             // счёт НЕ возвращает — иначе при N=3 и шансе 0.5 блок ждал бы шестого удара вместо третьего.
-            if (onHit.chance < 1f && Random.value >= onHit.chance) return;   // бросок только на сервере
+            // Бросок делается ровно при тех же условиях, что и раньше (только когда шанс меньше единицы):
+            // лишний вызов Random сдвинул бы поток случайных чисел сервера.
+            if (onHit.chance < 1f)
+            {
+                float roll = Random.value;                                   // бросок только на сервере
+                bool passed = roll < onHit.chance;
+
+                if (InterflowDebug.FullOn) LogOnHitChance(byUnit, roll, onHit.chance, passed);
+
+                if (!passed) return;
+            }
 
             if (onHit.cooldown > 0f)
             {
                 state.cooldownLeft = onHit.cooldown;
                 OnHitTick.Wire();
+
+                if (InterflowDebug.FullOn) LogOnHitCooldown(byUnit, onHit.cooldown);
             }
 
             ApplyOnHitEffects(targetUnit, targetPosition, effectors, dmg, damageType, byUnit, byOwner);
@@ -141,6 +203,20 @@ namespace StrategyCore
                 if (onHit.onlyTargetTypes[i] == target.unitType) return true;
 
             return false;
+        }
+
+        /// <summary>Русское название условия по цели — для строки отказа.</summary>
+        static string OnHitConditionName(PassiveOnHitBlock.TargetCondition condition)
+        {
+            switch (condition)
+            {
+                case PassiveOnHitBlock.TargetCondition.NoAbsorbShield: return "у цели нет поглощающего щита";
+                case PassiveOnHitBlock.TargetCondition.HasAbsorbShield: return "у цели есть поглощающий щит";
+                case PassiveOnHitBlock.TargetCondition.Stunned: return "цель оглушена";
+                case PassiveOnHitBlock.TargetCondition.BelowHpFraction: return "цель ранена ниже порога ХП";
+            }
+
+            return "без условия";
         }
 
         bool OnHitConditionMet(Unit target)
@@ -160,6 +236,11 @@ namespace StrategyCore
 
         // ================================================================== ЭФФЕКТЫ ==
 
+        // [Interflow 2026-09-10 passive-facts-2] Каждый сработавший кирпич пишет надпись над НОСИТЕЛЕМ:
+        // до этого реакция 5 не показывала ничего вовсе, и проверить её в бою было нечем. Носитель, а не
+        // цель, — потому что умение принадлежит ему, и так же устроены реакции 1–4. Номер кирпича едет
+        // числом факта, слово берёт клиент из ассета настроек (правило 3). Кирпичи 7–9 пишут ЗАПУСК:
+        // сколько целей реально задето, знают сами методы, и это их строки уровня «Подробно».
         /// <summary>Порядок фиксирован кодом; добавка урона идёт первой, потому что может добить цель.</summary>
         void ApplyOnHitEffects(Unit target, Vector3 targetPosition, Effector[] attackEffectors, float dmg,
                                DamageType damageType, Unit byUnit, int byOwner)
@@ -176,6 +257,13 @@ namespace StrategyCore
                 {
                     DamagePacket packet = DamagePacket.Create(extra, dt, byOwner, byUnit, false, this);   // [Interflow fix 2026-09-04 damage-full-packet] пакет одной записи
                     target.GetDamage(in packet, out float _);
+                    Fact(byUnit, BattleFactReason.PassiveOnHitBrick, 1);
+
+                    if (InterflowDebug.FullOn)
+                        LogOnHitEffect(byUnit, target, "1 добавочный урон",
+                                       "урон=" + extra.ToString("0.#") + " | тип=" + TypeName(dt) +
+                                       " | доля от удара=" + onHit.extraDamageMultiplier.ToString("0.##") +
+                                       " | числом=" + onHit.extraDamageFlat.ToString("0.#"));
                 }
                 else Debug.LogWarning("[Реакция «попал по цели»] Добавочный урон задан, но тип урона неизвестен — урон не нанесён.");
             }
@@ -184,51 +272,139 @@ namespace StrategyCore
 
             // 2) Состояния на цель.
             if (alive && onHit.targetEffectors != null && onHit.targetEffectors.Length > 0)
+            {
                 Effector.EffectorAdd(byUnit, target, onHit.targetEffectors);
+                Fact(byUnit, BattleFactReason.PassiveOnHitBrick, 2);
+
+                if (InterflowDebug.FullOn)
+                    LogOnHitEffect(byUnit, target, "2 состояния на цель", "состояния=" + EffectorNames(onHit.targetEffectors));
+            }
 
             // 3) Уязвимость — обёртка над готовым правилом входящего урона.
             if (alive && onHit.vulnerabilityDuration > 0f && onHit.vulnerabilityMultiplier > 0f
                 && !Mathf.Approximately(onHit.vulnerabilityMultiplier, 1f))
+            {
                 IncomingDamageModifier.Apply(target, onHit.vulnerabilityMultiplier, onHit.vulnerabilityDuration, this,
                                              onHit.vulnerabilityOnlyDamageType, onHit.vulnerabilityOnlyDirectIncoming);
+                                             Fact(byUnit, BattleFactReason.PassiveOnHitBrick, 3);
 
-            // 4) Вампиризм. Считаем от урона ДО брони цели — семантика прежнего вампиризма (LifestealPassive),
-            //    иначе поедет баланс на бронированных целях.
+                if (InterflowDebug.FullOn)
+                    LogOnHitEffect(byUnit, target, "3 уязвимость",
+                                   "множитель=" + onHit.vulnerabilityMultiplier.ToString("0.##") +
+                                   " | длительность=" + onHit.vulnerabilityDuration.ToString("0.#") + " сек" +
+                                   " | тип урона=" + TypeName(onHit.vulnerabilityOnlyDamageType) +
+                                   " | только прямой входящий=" + Yes(onHit.vulnerabilityOnlyDirectIncoming));
+            }
+
+            // 4) Вампиризм. [Interflow fix 2026-09-09 hit-outcome] Считаем от ФАКТИЧЕСКИ СНЯТОГО здоровья:
+            //    с 09.09.2026 бьющий передаёт колбэкам снятое, а не заявленный номинал пакета
+            //    (Unit.DealDamage, решение Artsiom по §11.3 промта «Боевой конвейер» — принцип «доли
+            //    считаются от снятого» главнее прежней семантики «от урона ДО брони»). ПРИНЯТАЯ ЦЕНА:
+            //    возврат здоровья на бронированных целях стал меньше, чем был у LifestealPassive.
             //    Носитель мог погибнуть прямо здесь: добавка урона выше способна вызвать ответный удар цели.
             if (onHit.healFromDamagePercent > 0f && byUnit != null && !byUnit.dead)
             {
                 float heal = dmg * onHit.healFromDamagePercent;
-                if (heal > 0f) byUnit.ChangeHP(heal);
+                if (heal > 0f)
+                {
+                    byUnit.ChangeHP(heal);
+                    Fact(byUnit, BattleFactReason.PassiveOnHitBrick, 4);
+
+                    if (InterflowDebug.FullOn)
+                        LogOnHitEffect(byUnit, target, "4 вампиризм",
+                                       "возвращено=" + heal.ToString("0.#") +
+                                       " | доля от урона=" + onHit.healFromDamagePercent.ToString("0.##") +
+                                       " | урон удара=" + dmg.ToString("0.#"));
+                }
             }
 
             // 5) Оглушение. Штатный Unit.Stun сам уважает иммунитет к контролю.
             //    Бьём ЦЕЛЬ. Класс Basher оглушал targetUnit.target — цель цели; это его дефект,
             //    здесь он намеренно не воспроизводится.
-            if (alive && onHit.stunSeconds > 0f) target.Stun(onHit.stunSeconds, byUnit, byOwner);
+            if (alive && onHit.stunSeconds > 0f)
+            {
+                target.Stun(onHit.stunSeconds, byUnit, byOwner);
+                Fact(byUnit, BattleFactReason.PassiveOnHitBrick, 5);
+
+                if (InterflowDebug.FullOn)
+                    LogOnHitEffect(byUnit, target, "5 оглушение", "длительность=" + onHit.stunSeconds.ToString("0.#") + " сек");
+            }
 
             // 6) Отброс от носителя.
             if (alive && onHit.knockbackDistance > 0f)
+            {
                 Knockback.Apply(target, byUnit.transform.position, onHit.knockbackDistance,
                                 onHit.knockbackStunSeconds, onHit.knockbackRespectControlImmunity, byUnit, byOwner);
+                                Fact(byUnit, BattleFactReason.PassiveOnHitBrick, 6);
+
+                if (InterflowDebug.FullOn)
+                    LogOnHitEffect(byUnit, target, "6 отброс",
+                                   "дальность=" + onHit.knockbackDistance.ToString("0.#") +
+                                   " | заморозка=" + onHit.knockbackStunSeconds.ToString("0.#") + " сек" +
+                                   " | уважает иммунитет=" + Yes(onHit.knockbackRespectControlImmunity));
+            }
 
             // 7) Коридор по линии удара.
+            // Строки эффектов 7–9 пишутся ДО вызова и означают ЗАПУСК блока с этими числами:
+            // сколько целей реально задето (и прошёл ли бросок переноса), знают сами методы —
+            // это их существующие строки уровня «Подробно».
             if (onHit.lineWidth > 0f)
+            {
+                if (InterflowDebug.FullOn)
+                    LogOnHitEffect(byUnit, target, "7 коридор по линии удара запущен",
+                                   "ширина=" + onHit.lineWidth.ToString("0.#") +
+                                   " | продолжение за цель=" + onHit.lineExtraDistance.ToString("0.#") +
+                                   " | доля урона=" + onHit.lineDamagePercent.ToString("0.##") +
+                                   " | максимум целей=" + (onHit.lineMaxTargets > 0 ? onHit.lineMaxTargets.ToString() : "без ограничения"));
+
                 ApplyOnHitLine(target, targetPosition, attackEffectors, dmg, damageType, byUnit, byOwner);
+                Fact(byUnit, BattleFactReason.PassiveOnHitBrick, 7);
+            }
 
             // 8) Перенос состояний на соседа поражённой цели.
             if (onHit.spreadChance > 0f && onHit.spreadRadius > 0f)
+            {
+                if (InterflowDebug.FullOn)
+                    LogOnHitEffect(byUnit, target, "8 перенос состояний на соседей запущен",
+                                   "шанс=" + onHit.spreadChance.ToString("0.##") +
+                                   " | радиус=" + onHit.spreadRadius.ToString("0.#") +
+                                   " | соседей=" + onHit.spreadNeighbourCount +
+                                   " | состояния атаки=" + Yes(onHit.spreadAttackEffectors) +
+                                   " | дополнительно=" + EffectorNames(onHit.spreadExtraEffectors));
+
                 ApplyOnHitSpread(target, attackEffectors, byUnit);
+                Fact(byUnit, BattleFactReason.PassiveOnHitBrick, 8);
+            }
 
             // 9) Клич союзникам вокруг носителя.
             if (onHit.cryRadius > 0f && onHit.cryEffectors != null && onHit.cryEffectors.Length > 0)
+            {
+                if (InterflowDebug.FullOn)
+                    LogOnHitEffect(byUnit, target, "9 клич союзникам запущен",
+                                   "радиус=" + onHit.cryRadius.ToString("0.#") +
+                                   " | состояния=" + EffectorNames(onHit.cryEffectors) +
+                                   " | тиры " + onHit.cryMinAllyTier + "–" + onHit.cryMaxAllyTier +
+                                   " | себе тоже=" + Yes(onHit.cryIncludeSelf));
+
                 ApplyOnHitCry(byUnit);
+                Fact(byUnit, BattleFactReason.PassiveOnHitBrick, 9);
+            }
 
             // 10) Глубокая рана — урон за передвижение, готовый механизм BleedOnMove.
             if (alive && onHit.bleedEnabled && onHit.bleedDuration > 0f)
             {
                 DamageType bleedType = onHit.bleedDamageType != null ? onHit.bleedDamageType : damageType;
                 if (bleedType != null)
+                {
                     BleedOnMove.Apply(target, byUnit, byOwner, bleedType, onHit.bleedDamagePerMeter, onHit.bleedDuration, this);
+                    Fact(byUnit, BattleFactReason.PassiveOnHitBrick, 10);
+
+                    if (InterflowDebug.FullOn)
+                        LogOnHitEffect(byUnit, target, "10 глубокая рана",
+                                       "урон за метр=" + onHit.bleedDamagePerMeter.ToString("0.#") +
+                                       " | длительность=" + onHit.bleedDuration.ToString("0.#") + " сек" +
+                                       " | тип=" + TypeName(bleedType));
+                }
             }
 
             RequestForceSync();

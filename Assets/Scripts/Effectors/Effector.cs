@@ -142,7 +142,7 @@ namespace StrategyCore
             {
                 // [Interflow fix 2026-08-02 effector-unify] Урон в секунду масштабируется множителем силы наложения.
                 // Умение-источник: null — урон в секунду идёт от состояния, а не от умения (решение Artsiom 05.09.2026).
-                DamagePacket packet = DamagePacket.Create(EH.effector.damageAmount * EH.powerMultiplier * GameManager.Instance.currentDeltaTime, EH.effector.damageType, EH.owner, EH.unitOwner, false, null);   // [Interflow fix 2026-09-04 damage-full-packet] пакет одной записи
+                DamagePacket packet = DamagePacket.Create(EH.effector.damageAmount * EH.powerMultiplier * GameManager.Instance.currentDeltaTime, EH.effector.damageType, EH.owner, EH.unitOwner, false, null, null, true);   // [Interflow fix 2026-09-04 damage-full-packet] пакет одной записи   // [Interflow 2026-09-11] periodic: тик по времени — в ленту идёт свёрнутой строкой, не строкой на тик
                 unitHolder.GetDamage(in packet, out float _);
             }
 

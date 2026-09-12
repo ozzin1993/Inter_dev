@@ -340,7 +340,10 @@ namespace StrategyCore
             // Стратегия и её параметры читаются ТОЛЬКО в режимах «умный выбор» (предикат — из самого умения).
             AddField(box, so, "autoCastSelfHpBelow");   // условие по своему здоровью — работает во всех режимах цели
 
-            var strategyFields = new[] { "targetStrategy", "searchOrigin", "strategyUseCurrentHealth", "strategyHpThreshold" };
+            // Предпочтение по состоянию цели (2026-09-11) читается там же, где стратегия, — в режимах
+            // «умный выбор», поэтому живёт в той же группе и вместе с ней уходит в скрытые.
+            var strategyFields = new[] { "targetStrategy", "searchOrigin", "strategyUseCurrentHealth", "strategyHpThreshold",
+                                         "avoidTargetState", "avoidTargetEffector", "avoidNoFreeTarget" };
             if (selected.PicksTargetByStrategy) foreach (var f in strategyFields) AddField(box, so, f);
             else hidden.AddRange(strategyFields);
 

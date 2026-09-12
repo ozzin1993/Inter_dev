@@ -1,0 +1,283 @@
+=== Interflow server log === start 2026-09-11 00:46:07 ===
+unityVersion=6000.4.7f1 platform=WindowsServer headless=True args=D:\Interflow\Interflow\TESTServer\Interflow.exe -server -port 7777 -logFile D:\Interflow\_logs\srv.log
+00:46:07.154 [Log] [ServerBootstrap] Start: headless=True, gfx=Null, batchmode=True, автозапуск=True, injectMenuButton=True.
+00:46:07.159 [Log] [ServerBootstrap] Порт из аргумента -port: 7777.
+00:46:07.161 [Log] [ServerBootstrap] Порт прослушивания: 0.0.0.0:7777.
+00:46:07.161 [Log] [ServerBootstrap] Лимит кадров сервера: 30 к/с.
+00:46:07.317 [Log] [ServerBootstrap] Сервер запущен (StartServer). Ожидание игроков: 2.
+00:46:07.317 [Log] [NetFlow SERVER] NetworkFlowLogger активен.
+00:46:07.322 [Log] [NetFlow SERVER] Подписка на SceneManager.OnSceneEvent выполнена.
+00:46:07.322 [Log] [NetFlow SERVER] gameStarted: -1 -> Menu
+00:47:48.327 [Log] Approved: joined Player0, 1 at slot 0
+00:47:48.380 [Log] [ДИАГ] СобытиеСцены: тип=Synchronize, сцена=, clientId=1, свой=False, IsServer=True
+00:47:48.380 [Log] [NetFlow SERVER] SceneEvent: Synchronize | сцена='' | clientId=1 | local=0.
+00:47:48.530 [Log] [ДИАГ] СобытиеСцены: тип=LoadComplete, сцена=Menu, clientId=1, свой=False, IsServer=True
+00:47:48.530 [Log] [NetFlow SERVER] SceneEvent: LoadComplete | сцена='Menu' | clientId=1 | local=0.
+00:47:48.532 [Log] [ДИАГ] СобытиеСцены: тип=SynchronizeComplete, сцена=, clientId=1, свой=False, IsServer=True
+00:47:48.533 [Log] [NetFlow SERVER] SceneEvent: SynchronizeComplete | сцена='' | clientId=1 | local=0.
+00:47:48.534 [Log] [NetFlow SERVER] OnClientConnected: clientId=1 (local=0).
+00:47:48.536 [Log] === Дамп владения (SERVER) ===
+LocalClientId=0; мой слот (GetClientSlot)=-1; currentPlayer=0; connectionStage=0 (2=mid-game, RPC игнорятся).
+Я: имя='', слот=-1, currentTeam=0, команда слота=-1. Командовать смогу юнитами с owner==-1 (NetworkCommandSync проверяет слот==owner).
+  slot[0]: type=Player, playerID=1, team=0.
+  slot[1]: type=Empty, playerID=-1, team=1.
+  slot[2]: type=Empty, playerID=-1, team=2.
+  slot[3]: type=Empty, playerID=-1, team=3.
+  slot[4]: type=Empty, playerID=-1, team=4.
+  slot[5]: type=Empty, playerID=-1, team=5.
+  slot[6]: type=Empty, playerID=-1, team=6.
+  slot[7]: type=Empty, playerID=-1, team=7.
+  slot[8]: type=Empty, playerID=-1, team=8.
+  slot[9]: type=Empty, playerID=-1, team=9.
+  slot[10]: type=Empty, playerID=-1, team=10.
+  slot[11]: type=Empty, playerID=-1, team=11.
+  slot[12]: type=Empty, playerID=-1, team=12.
+  slot[13]: type=Empty, playerID=-1, team=13.
+Вывод: команда клиента применится только если 'мой слот' == owner юнита (или debugMode).
+
+00:47:48.537 [Log] [ДИАГ] ClientConnected: clientId=1, свой=False, IsServer=True, IsHost=False, IsClient=False, состояниеИгры=Menu, MenuUI=False, MenuReady=
+00:48:10.569 [Log] Approved: joined Player0, 2 at slot 1
+00:48:10.607 [Log] [ДИАГ] СобытиеСцены: тип=Synchronize, сцена=, clientId=2, свой=False, IsServer=True
+00:48:10.607 [Log] [NetFlow SERVER] SceneEvent: Synchronize | сцена='' | clientId=2 | local=0.
+00:48:10.736 [Log] [ДИАГ] СобытиеСцены: тип=LoadComplete, сцена=Menu, clientId=2, свой=False, IsServer=True
+00:48:10.736 [Log] [NetFlow SERVER] SceneEvent: LoadComplete | сцена='Menu' | clientId=2 | local=0.
+00:48:10.736 [Log] [ДИАГ] СобытиеСцены: тип=SynchronizeComplete, сцена=, clientId=2, свой=False, IsServer=True
+00:48:10.736 [Log] [NetFlow SERVER] SceneEvent: SynchronizeComplete | сцена='' | clientId=2 | local=0.
+00:48:10.736 [Log] [ServerBootstrap] Набралось игроков (2) — отсчёт 15с до старта.
+00:48:10.739 [Log] [NetFlow SERVER] OnClientConnected: clientId=2 (local=0).
+00:48:10.739 [Log] === Дамп владения (SERVER) ===
+LocalClientId=0; мой слот (GetClientSlot)=-1; currentPlayer=0; connectionStage=0 (2=mid-game, RPC игнорятся).
+Я: имя='', слот=-1, currentTeam=0, команда слота=-1. Командовать смогу юнитами с owner==-1 (NetworkCommandSync проверяет слот==owner).
+  slot[0]: type=Player, playerID=1, team=0.
+  slot[1]: type=Player, playerID=2, team=1.
+  slot[2]: type=Empty, playerID=-1, team=2.
+  slot[3]: type=Empty, playerID=-1, team=3.
+  slot[4]: type=Empty, playerID=-1, team=4.
+  slot[5]: type=Empty, playerID=-1, team=5.
+  slot[6]: type=Empty, playerID=-1, team=6.
+  slot[7]: type=Empty, playerID=-1, team=7.
+  slot[8]: type=Empty, playerID=-1, team=8.
+  slot[9]: type=Empty, playerID=-1, team=9.
+  slot[10]: type=Empty, playerID=-1, team=10.
+  slot[11]: type=Empty, playerID=-1, team=11.
+  slot[12]: type=Empty, playerID=-1, team=12.
+  slot[13]: type=Empty, playerID=-1, team=13.
+Вывод: команда клиента применится только если 'мой слот' == owner юнита (или debugMode).
+
+00:48:10.739 [Log] [ДИАГ] ClientConnected: clientId=2, свой=False, IsServer=True, IsHost=False, IsClient=False, состояниеИгры=Menu, MenuUI=False, MenuReady=
+00:48:25.749 [Log] [ServerBootstrap] Отсчёт завершён — старт матча.
+00:48:25.760 [Log] [ДИАГ] СобытиеСцены: тип=Load, сцена=Artsiom, clientId=0, свой=True, IsServer=True
+00:48:25.760 [Log] [NetFlow SERVER] SceneEvent: Load | сцена='Artsiom' | clientId=0 | local=0.
+00:48:25.784 [Log] [NetFlow SERVER] gameStarted: Menu -> Loading
+00:48:25.792 [Warning] The referenced script (StrategyCore.ClientContentRehydrator) on this Behaviour is missing!
+00:48:25.794 [Warning] The referenced script (Unknown) on this Behaviour is missing!
+00:48:25.795 [Warning] The referenced script (Unknown) on this Behaviour is missing!
+00:48:25.799 [Warning] The referenced script (Unknown) on this Behaviour is missing!
+00:48:25.802 [Warning] The referenced script on this Behaviour (Game Object 'GameManager') is missing!
+00:48:25.811 [Warning] The referenced script on this Behaviour (Game Object 'ClientContent') is missing!
+00:48:25.811 [Warning] The referenced script on this Behaviour (Game Object 'GameManager') is missing!
+00:48:25.812 [Warning] The referenced script on this Behaviour (Game Object 'GameManager') is missing!
+00:48:25.812 [Warning] The referenced script on this Behaviour (Game Object 'CameraRig') is missing!
+00:48:25.812 [Warning] The referenced script on this Behaviour (Game Object 'GameManager') is missing!
+00:48:25.812 [Warning] The referenced script on this Behaviour (Game Object 'CameraRig') is missing!
+00:48:25.900 [Warning] Mesh SM_Prop_Candle_Chandelier_02_Particle requires Read/Write Enabled to be set in the importer to work on the particle system shape module
+00:48:25.915 [Warning] Mesh SM_Prop_Candle_Chandelier_02_Particle requires Read/Write Enabled to be set in the importer to work on the particle system shape module
+00:48:25.915 [Warning] Mesh SM_Prop_Candle_Chandelier_02_Particle requires Read/Write Enabled to be set in the importer to work on the particle system shape module
+00:48:25.915 [Warning] Mesh SM_Prop_Candle_Chandelier_02_Particle requires Read/Write Enabled to be set in the importer to work on the particle system shape module
+00:48:25.971 [Warning] The referenced script (Unknown) on this Behaviour is missing!
+00:48:25.971 [Warning] The referenced script on this Behaviour (Game Object '<null>') is missing!
+00:48:25.971 [Error] A scripted object (script unknown or not yet loaded) has a different serialization layout when loading. (Read 40 bytes but expected 140 bytes)
+Did you #if UNITY_EDITOR a section of your serialized properties in any of your scripts?
+00:48:26.429 [Log] [ServerFactionConfigs] Загружено фракций: 2 (Люди, Орки); неотрезолвленных ссылок: 0.
+00:48:26.442 [Warning] The referenced script (Unknown) on this Behaviour is missing!
+00:48:26.442 [Warning] The referenced script on this Behaviour (Game Object '<null>') is missing!
+00:48:26.576 [Log] [ДИАГ] СобытиеСцены: тип=LoadComplete, сцена=Artsiom, clientId=0, свой=True, IsServer=True
+00:48:26.576 [Log] [NetFlow SERVER] SceneEvent: LoadComplete | сцена='Artsiom' | clientId=0 | local=0.
+00:48:26.578 [Warning] [MatchManager] GameManager.specificUnitsDead не настроен — победа по уничтожению базы не сработает. Задайте NetID баз и winningTeam в Inspector у GameManager.
+00:48:26.581 [Warning] BoxCollider does not support negative scale or size.
+The effective box size has been forced positive and is likely to give unexpected collision geometry.
+If you absolutely need to use negative scaling you can use the convex MeshCollider. Scene hierarchy path "Castle/SM_Env_Wall_Trim_Edge_23 (2)"
+00:48:26.581 [Warning] BoxCollider does not support negative scale or size.
+The effective box size has been forced positive and is likely to give unexpected collision geometry.
+If you absolutely need to use negative scaling you can use the convex MeshCollider. Scene hierarchy path "Castle/SM_Env_Wall_Trim_Edge_23 (2)"
+00:48:26.581 [Warning] BoxCollider does not support negative scale or size.
+The effective box size has been forced positive and is likely to give unexpected collision geometry.
+If you absolutely need to use negative scaling you can use the convex MeshCollider. Scene hierarchy path "Castle/SM_Env_Wall_Trim_Edge_23 (1)"
+00:48:26.581 [Warning] BoxCollider does not support negative scale or size.
+The effective box size has been forced positive and is likely to give unexpected collision geometry.
+If you absolutely need to use negative scaling you can use the convex MeshCollider. Scene hierarchy path "Castle/SM_Env_Wall_Trim_Edge_23"
+00:48:26.581 [Warning] BoxCollider does not support negative scale or size.
+The effective box size has been forced positive and is likely to give unexpected collision geometry.
+If you absolutely need to use negative scaling you can use the convex MeshCollider. Scene hierarchy path "Castle/SM_Env_Wall_Trim_Edge_23"
+00:48:26.581 [Warning] BoxCollider does not support negative scale or size.
+The effective box size has been forced positive and is likely to give unexpected collision geometry.
+If you absolutely need to use negative scaling you can use the convex MeshCollider. Scene hierarchy path "Castle/SM_Env_Wall_Trim_Edge_23 (1)"
+00:48:26.581 [Warning] BoxCollider does not support negative scale or size.
+The effective box size has been forced positive and is likely to give unexpected collision geometry.
+If you absolutely need to use negative scaling you can use the convex MeshCollider. Scene hierarchy path "Castle/SM_Env_Wall_Window_06"
+00:48:26.581 [Warning] BoxCollider does not support negative scale or size.
+The effective box size has been forced positive and is likely to give unexpected collision geometry.
+If you absolutely need to use negative scaling you can use the convex MeshCollider. Scene hierarchy path "Castle/SM_Env_Wall_Window_08"
+00:48:28.181 [Log] [ДИАГ] СобытиеСцены: тип=LoadComplete, сцена=Artsiom, clientId=2, свой=False, IsServer=True
+00:48:28.181 [Log] [NetFlow SERVER] SceneEvent: LoadComplete | сцена='Artsiom' | clientId=2 | local=0.
+00:48:28.482 [Log] [ДИАГ] СобытиеСцены: тип=LoadComplete, сцена=Artsiom, clientId=1, свой=False, IsServer=True
+00:48:28.483 [Log] [NetFlow SERVER] SceneEvent: LoadComplete | сцена='Artsiom' | clientId=1 | local=0.
+00:48:28.494 [Log] [ДИАГ] СобытиеСцены: тип=LoadEventCompleted, сцена=Artsiom, clientId=0, свой=True, IsServer=True
+00:48:28.496 [Log] [ДИАГ] StartTheGame(firstLoad=True): saveFileName='', длинаSaveSceneData=0, clientsLoading=0
+00:48:28.498 [Log] [NetFlow SERVER] === Матч загружен (SlotManager.OnGameStart) ===
+00:48:28.499 [Log] === Дамп владения (SERVER) ===
+LocalClientId=0; мой слот (GetClientSlot)=-1; currentPlayer=0; connectionStage=0 (2=mid-game, RPC игнорятся).
+Я: имя='', слот=-1, currentTeam=0, команда слота=-1. Командовать смогу юнитами с owner==-1 (NetworkCommandSync проверяет слот==owner).
+MatchManager: teamA.ownerPlayer=0; teamB.ownerPlayer=1.
+  slot[0]: type=Player, playerID=1, team=0.
+  slot[1]: type=Player, playerID=2, team=1.
+  slot[2]: type=Empty, playerID=-1, team=2.
+  slot[3]: type=Empty, playerID=-1, team=3.
+  slot[4]: type=Empty, playerID=-1, team=4.
+  slot[5]: type=Empty, playerID=-1, team=5.
+  slot[6]: type=Empty, playerID=-1, team=6.
+  slot[7]: type=Empty, playerID=-1, team=7.
+  slot[8]: type=Empty, playerID=-1, team=8.
+  slot[9]: type=Empty, playerID=-1, team=9.
+  slot[10]: type=Empty, playerID=-1, team=10.
+  slot[11]: type=Empty, playerID=-1, team=11.
+  slot[12]: type=Empty, playerID=-1, team=12.
+  slot[13]: type=Empty, playerID=-1, team=13.
+  юнитов с owner=0: 1.
+  юнитов с owner=1: 1.
+Вывод: команда клиента применится только если 'мой слот' == owner юнита (или debugMode).
+
+00:48:28.600 [Log] [NetFlow SERVER] SceneEvent: LoadEventCompleted | сцена='Artsiom' | clientId=0 | local=0.
+00:48:28.602 [Log] [NetFlow SERVER] gameStarted: Loading -> Started
+00:48:28.609 [Log] === Дамп владения (SERVER) ===
+LocalClientId=0; мой слот (GetClientSlot)=-1; currentPlayer=0; connectionStage=0 (2=mid-game, RPC игнорятся).
+Я: имя='', слот=-1, currentTeam=0, команда слота=-1. Командовать смогу юнитами с owner==-1 (NetworkCommandSync проверяет слот==owner).
+MatchManager: teamA.ownerPlayer=0; teamB.ownerPlayer=1.
+  slot[0]: type=Player, playerID=1, team=0.
+  slot[1]: type=Player, playerID=2, team=1.
+  slot[2]: type=Empty, playerID=-1, team=2.
+  slot[3]: type=Empty, playerID=-1, team=3.
+  slot[4]: type=Empty, playerID=-1, team=4.
+  slot[5]: type=Empty, playerID=-1, team=5.
+  slot[6]: type=Empty, playerID=-1, team=6.
+  slot[7]: type=Empty, playerID=-1, team=7.
+  slot[8]: type=Empty, playerID=-1, team=8.
+  slot[9]: type=Empty, playerID=-1, team=9.
+  slot[10]: type=Empty, playerID=-1, team=10.
+  slot[11]: type=Empty, playerID=-1, team=11.
+  slot[12]: type=Empty, playerID=-1, team=12.
+  slot[13]: type=Empty, playerID=-1, team=13.
+  юнитов с owner=13: 1.
+  юнитов с owner=0: 3.
+  юнитов с owner=1: 3.
+Вывод: команда клиента применится только если 'мой слот' == owner юнита (или debugMode).
+
+00:48:33.563 [Log] [IF] НАБЛЮДАТЕЛЬ включён: Footman_Red(Clone)#-386 (игрок 0) | урон 10, скорость атаки 1,5, дальность 0,5, броня 0, скорость бега 4, способностей в списке 2
+00:48:33.564 [Log] [IF] НАБЛЮДАТЕЛЬ включён: Rifleman_Red(Clone)#-436 (игрок 0) | урон 99, скорость атаки 2, дальность 4, броня 0, скорость бега 3, способностей в списке 0
+00:48:33.564 [Log] [IF] НАБЛЮДАТЕЛЬ включён: Footman_Green(Clone)#-926 (игрок 1) | урон 10, скорость атаки 1,5, дальность 0,5, броня 0, скорость бега 4, способностей в списке 2
+00:48:33.565 [Log] [IF] НАБЛЮДАТЕЛЬ включён: Rifleman_Green(Clone)#-978 (игрок 1) | урон 99, скорость атаки 2, дальность 4, броня 0, скорость бега 3, способностей в списке 0
+00:48:33.566 [Warning] [AutoAbilityUser] У 'Footman_Green' умение 'fireball' не найдено в списке Abilities — авто-применение этого умения отключено.
+00:49:03.543 [Log] [IF] НАБЛЮДАТЕЛЬ включён: Footman_Red(Clone)#-1028 (игрок 0) | урон 10, скорость атаки 1,5, дальность 0,5, броня 0, скорость бега 4, способностей в списке 2
+00:49:03.544 [Log] [IF] НАБЛЮДАТЕЛЬ включён: Rifleman_Red(Clone)#-1078 (игрок 0) | урон 99, скорость атаки 2, дальность 4, броня 0, скорость бега 3, способностей в списке 0
+00:49:03.544 [Log] [IF] НАБЛЮДАТЕЛЬ включён: Footman_Green(Clone)#-1128 (игрок 1) | урон 10, скорость атаки 1,5, дальность 0,5, броня 0, скорость бега 4, способностей в списке 2
+00:49:03.544 [Log] [IF] НАБЛЮДАТЕЛЬ включён: Rifleman_Green(Clone)#-1180 (игрок 1) | урон 99, скорость атаки 2, дальность 4, броня 0, скорость бега 3, способностей в списке 0
+00:49:03.583 [Warning] [AutoAbilityUser] У 'Footman_Green' умение 'fireball' не найдено в списке Abilities — авто-применение этого умения отключено.
+00:49:33.580 [Log] [IF] НАБЛЮДАТЕЛЬ включён: Footman_Red(Clone)#-1230 (игрок 0) | урон 10, скорость атаки 1,5, дальность 0,5, броня 0, скорость бега 4, способностей в списке 2
+00:49:33.582 [Log] [IF] НАБЛЮДАТЕЛЬ включён: Rifleman_Red(Clone)#-1280 (игрок 0) | урон 99, скорость атаки 2, дальность 4, броня 0, скорость бега 3, способностей в списке 0
+00:49:33.582 [Log] [IF] НАБЛЮДАТЕЛЬ включён: Footman_Green(Clone)#-1330 (игрок 1) | урон 10, скорость атаки 1,5, дальность 0,5, броня 0, скорость бега 4, способностей в списке 2
+00:49:33.585 [Log] [IF] НАБЛЮДАТЕЛЬ включён: Rifleman_Green(Clone)#-1382 (игрок 1) | урон 99, скорость атаки 2, дальность 4, броня 0, скорость бега 3, способностей в списке 0
+00:49:33.665 [Warning] [AutoAbilityUser] У 'Footman_Green' умение 'fireball' не найдено в списке Abilities — авто-применение этого умения отключено.
+00:50:03.642 [Log] [IF] НАБЛЮДАТЕЛЬ включён: Footman_Red(Clone)#-1432 (игрок 0) | урон 10, скорость атаки 1,5, дальность 0,5, броня 0, скорость бега 4, способностей в списке 2
+00:50:03.642 [Log] [IF] НАБЛЮДАТЕЛЬ включён: Rifleman_Red(Clone)#-1482 (игрок 0) | урон 99, скорость атаки 2, дальность 4, броня 0, скорость бега 3, способностей в списке 0
+00:50:03.642 [Log] [IF] НАБЛЮДАТЕЛЬ включён: Footman_Green(Clone)#-1532 (игрок 1) | урон 10, скорость атаки 1,5, дальность 0,5, броня 0, скорость бега 4, способностей в списке 2
+00:50:03.642 [Log] [IF] НАБЛЮДАТЕЛЬ включён: Rifleman_Green(Clone)#-1584 (игрок 1) | урон 99, скорость атаки 2, дальность 4, броня 0, скорость бега 3, способностей в списке 0
+00:50:03.700 [Warning] [AutoAbilityUser] У 'Footman_Green' умение 'fireball' не найдено в списке Abilities — авто-применение этого умения отключено.
+00:50:33.663 [Log] [IF] НАБЛЮДАТЕЛЬ включён: Footman_Red(Clone)#-1634 (игрок 0) | урон 10, скорость атаки 1,5, дальность 0,5, броня 0, скорость бега 4, способностей в списке 2
+00:50:33.663 [Log] [IF] НАБЛЮДАТЕЛЬ включён: Rifleman_Red(Clone)#-1684 (игрок 0) | урон 99, скорость атаки 2, дальность 4, броня 0, скорость бега 3, способностей в списке 0
+00:50:33.663 [Log] [IF] НАБЛЮДАТЕЛЬ включён: Footman_Green(Clone)#-1734 (игрок 1) | урон 10, скорость атаки 1,5, дальность 0,5, броня 0, скорость бега 4, способностей в списке 2
+00:50:33.663 [Log] [IF] НАБЛЮДАТЕЛЬ включён: Rifleman_Green(Clone)#-1786 (игрок 1) | урон 99, скорость атаки 2, дальность 4, броня 0, скорость бега 3, способностей в списке 0
+00:50:33.684 [Warning] [AutoAbilityUser] У 'Footman_Green' умение 'fireball' не найдено в списке Abilities — авто-применение этого умения отключено.
+00:51:03.666 [Log] [IF] НАБЛЮДАТЕЛЬ включён: Footman_Red(Clone)#-1836 (игрок 0) | урон 10, скорость атаки 1,5, дальность 0,5, броня 0, скорость бега 4, способностей в списке 2
+00:51:03.666 [Log] [IF] НАБЛЮДАТЕЛЬ включён: Rifleman_Red(Clone)#-1886 (игрок 0) | урон 99, скорость атаки 2, дальность 4, броня 0, скорость бега 3, способностей в списке 0
+00:51:03.666 [Log] [IF] НАБЛЮДАТЕЛЬ включён: Footman_Green(Clone)#-1936 (игрок 1) | урон 10, скорость атаки 1,5, дальность 0,5, броня 0, скорость бега 4, способностей в списке 2
+00:51:03.666 [Log] [IF] НАБЛЮДАТЕЛЬ включён: Rifleman_Green(Clone)#-1988 (игрок 1) | урон 99, скорость атаки 2, дальность 4, броня 0, скорость бега 3, способностей в списке 0
+00:51:03.699 [Warning] [AutoAbilityUser] У 'Footman_Green' умение 'fireball' не найдено в списке Abilities — авто-применение этого умения отключено.
+00:51:33.677 [Log] [IF] НАБЛЮДАТЕЛЬ включён: Footman_Red(Clone)#-2038 (игрок 0) | урон 10, скорость атаки 1,5, дальность 0,5, броня 0, скорость бега 4, способностей в списке 2
+00:51:33.677 [Log] [IF] НАБЛЮДАТЕЛЬ включён: Rifleman_Red(Clone)#-2088 (игрок 0) | урон 99, скорость атаки 2, дальность 4, броня 0, скорость бега 3, способностей в списке 0
+00:51:33.678 [Log] [IF] НАБЛЮДАТЕЛЬ включён: Footman_Green(Clone)#-2138 (игрок 1) | урон 10, скорость атаки 1,5, дальность 0,5, броня 0, скорость бега 4, способностей в списке 2
+00:51:33.678 [Log] [IF] НАБЛЮДАТЕЛЬ включён: Rifleman_Green(Clone)#-2190 (игрок 1) | урон 99, скорость атаки 2, дальность 4, броня 0, скорость бега 3, способностей в списке 0
+00:51:33.709 [Warning] [AutoAbilityUser] У 'Footman_Green' умение 'fireball' не найдено в списке Abilities — авто-применение этого умения отключено.
+00:52:03.685 [Log] [IF] НАБЛЮДАТЕЛЬ включён: Footman_Red(Clone)#-2240 (игрок 0) | урон 10, скорость атаки 1,5, дальность 0,5, броня 0, скорость бега 4, способностей в списке 2
+00:52:03.685 [Log] [IF] НАБЛЮДАТЕЛЬ включён: Rifleman_Red(Clone)#-2290 (игрок 0) | урон 99, скорость атаки 2, дальность 4, броня 0, скорость бега 3, способностей в списке 0
+00:52:03.685 [Log] [IF] НАБЛЮДАТЕЛЬ включён: Footman_Green(Clone)#-2340 (игрок 1) | урон 10, скорость атаки 1,5, дальность 0,5, броня 0, скорость бега 4, способностей в списке 2
+00:52:03.686 [Log] [IF] НАБЛЮДАТЕЛЬ включён: Rifleman_Green(Clone)#-2392 (игрок 1) | урон 99, скорость атаки 2, дальность 4, броня 0, скорость бега 3, способностей в списке 0
+00:52:03.748 [Warning] [AutoAbilityUser] У 'Footman_Green' умение 'fireball' не найдено в списке Abilities — авто-применение этого умения отключено.
+00:52:33.695 [Log] [IF] НАБЛЮДАТЕЛЬ включён: Footman_Red(Clone)#-2442 (игрок 0) | урон 10, скорость атаки 1,5, дальность 0,5, броня 0, скорость бега 4, способностей в списке 2
+00:52:33.695 [Log] [IF] НАБЛЮДАТЕЛЬ включён: Rifleman_Red(Clone)#-2492 (игрок 0) | урон 99, скорость атаки 2, дальность 4, броня 0, скорость бега 3, способностей в списке 0
+00:52:33.695 [Log] [IF] НАБЛЮДАТЕЛЬ включён: Footman_Green(Clone)#-2542 (игрок 1) | урон 10, скорость атаки 1,5, дальность 0,5, броня 0, скорость бега 4, способностей в списке 2
+00:52:33.695 [Log] [IF] НАБЛЮДАТЕЛЬ включён: Rifleman_Green(Clone)#-2594 (игрок 1) | урон 99, скорость атаки 2, дальность 4, броня 0, скорость бега 3, способностей в списке 0
+00:52:33.760 [Warning] [AutoAbilityUser] У 'Footman_Green' умение 'fireball' не найдено в списке Abilities — авто-применение этого умения отключено.
+00:53:03.713 [Log] [IF] НАБЛЮДАТЕЛЬ включён: Footman_Red(Clone)#-2644 (игрок 0) | урон 10, скорость атаки 1,5, дальность 0,5, броня 0, скорость бега 4, способностей в списке 2
+00:53:03.713 [Log] [IF] НАБЛЮДАТЕЛЬ включён: Rifleman_Red(Clone)#-2694 (игрок 0) | урон 99, скорость атаки 2, дальность 4, броня 0, скорость бега 3, способностей в списке 0
+00:53:03.713 [Log] [IF] НАБЛЮДАТЕЛЬ включён: Footman_Green(Clone)#-2744 (игрок 1) | урон 10, скорость атаки 1,5, дальность 0,5, броня 0, скорость бега 4, способностей в списке 2
+00:53:03.713 [Log] [IF] НАБЛЮДАТЕЛЬ включён: Rifleman_Green(Clone)#-2796 (игрок 1) | урон 99, скорость атаки 2, дальность 4, броня 0, скорость бега 3, способностей в списке 0
+00:53:03.744 [Warning] [AutoAbilityUser] У 'Footman_Green' умение 'fireball' не найдено в списке Abilities — авто-применение этого умения отключено.
+00:53:33.716 [Log] [IF] НАБЛЮДАТЕЛЬ включён: Footman_Red(Clone)#-2846 (игрок 0) | урон 10, скорость атаки 1,5, дальность 0,5, броня 0, скорость бега 4, способностей в списке 2
+00:53:33.716 [Log] [IF] НАБЛЮДАТЕЛЬ включён: Rifleman_Red(Clone)#-2896 (игрок 0) | урон 99, скорость атаки 2, дальность 4, броня 0, скорость бега 3, способностей в списке 0
+00:53:33.716 [Log] [IF] НАБЛЮДАТЕЛЬ включён: Footman_Green(Clone)#-2946 (игрок 1) | урон 10, скорость атаки 1,5, дальность 0,5, броня 0, скорость бега 4, способностей в списке 2
+00:53:33.716 [Log] [IF] НАБЛЮДАТЕЛЬ включён: Rifleman_Green(Clone)#-2998 (игрок 1) | урон 99, скорость атаки 2, дальность 4, броня 0, скорость бега 3, способностей в списке 0
+00:53:33.746 [Warning] [AutoAbilityUser] У 'Footman_Green' умение 'fireball' не найдено в списке Abilities — авто-применение этого умения отключено.
+00:54:03.717 [Log] [IF] НАБЛЮДАТЕЛЬ включён: Footman_Red(Clone)#-3048 (игрок 0) | урон 10, скорость атаки 1,5, дальность 0,5, броня 0, скорость бега 4, способностей в списке 2
+00:54:03.717 [Log] [IF] НАБЛЮДАТЕЛЬ включён: Rifleman_Red(Clone)#-3098 (игрок 0) | урон 99, скорость атаки 2, дальность 4, броня 0, скорость бега 3, способностей в списке 0
+00:54:03.717 [Log] [IF] НАБЛЮДАТЕЛЬ включён: Footman_Green(Clone)#-3148 (игрок 1) | урон 10, скорость атаки 1,5, дальность 0,5, броня 0, скорость бега 4, способностей в списке 2
+00:54:03.717 [Log] [IF] НАБЛЮДАТЕЛЬ включён: Rifleman_Green(Clone)#-3200 (игрок 1) | урон 99, скорость атаки 2, дальность 4, броня 0, скорость бега 3, способностей в списке 0
+00:54:03.749 [Warning] [AutoAbilityUser] У 'Footman_Green' умение 'fireball' не найдено в списке Abilities — авто-применение этого умения отключено.
+00:54:33.731 [Log] [IF] НАБЛЮДАТЕЛЬ включён: Footman_Red(Clone)#-3250 (игрок 0) | урон 10, скорость атаки 1,5, дальность 0,5, броня 0, скорость бега 4, способностей в списке 2
+00:54:33.731 [Log] [IF] НАБЛЮДАТЕЛЬ включён: Rifleman_Red(Clone)#-3300 (игрок 0) | урон 99, скорость атаки 2, дальность 4, броня 0, скорость бега 3, способностей в списке 0
+00:54:33.731 [Log] [IF] НАБЛЮДАТЕЛЬ включён: Footman_Green(Clone)#-3350 (игрок 1) | урон 10, скорость атаки 1,5, дальность 0,5, броня 0, скорость бега 4, способностей в списке 2
+00:54:33.731 [Log] [IF] НАБЛЮДАТЕЛЬ включён: Rifleman_Green(Clone)#-3402 (игрок 1) | урон 99, скорость атаки 2, дальность 4, броня 0, скорость бега 3, способностей в списке 0
+00:54:33.763 [Warning] [AutoAbilityUser] У 'Footman_Green' умение 'fireball' не найдено в списке Abilities — авто-применение этого умения отключено.
+00:55:03.744 [Log] [IF] НАБЛЮДАТЕЛЬ включён: Footman_Red(Clone)#-3452 (игрок 0) | урон 10, скорость атаки 1,5, дальность 0,5, броня 0, скорость бега 4, способностей в списке 2
+00:55:03.744 [Log] [IF] НАБЛЮДАТЕЛЬ включён: Rifleman_Red(Clone)#-3502 (игрок 0) | урон 99, скорость атаки 2, дальность 4, броня 0, скорость бега 3, способностей в списке 0
+00:55:03.744 [Log] [IF] НАБЛЮДАТЕЛЬ включён: Footman_Green(Clone)#-3552 (игрок 1) | урон 10, скорость атаки 1,5, дальность 0,5, броня 0, скорость бега 4, способностей в списке 2
+00:55:03.744 [Log] [IF] НАБЛЮДАТЕЛЬ включён: Rifleman_Green(Clone)#-3604 (игрок 1) | урон 99, скорость атаки 2, дальность 4, броня 0, скорость бега 3, способностей в списке 0
+00:55:03.775 [Warning] [AutoAbilityUser] У 'Footman_Green' умение 'fireball' не найдено в списке Abilities — авто-применение этого умения отключено.
+00:55:33.777 [Log] [IF] НАБЛЮДАТЕЛЬ включён: Footman_Red(Clone)#-3654 (игрок 0) | урон 10, скорость атаки 1,5, дальность 0,5, броня 0, скорость бега 4, способностей в списке 2
+00:55:33.777 [Log] [IF] НАБЛЮДАТЕЛЬ включён: Rifleman_Red(Clone)#-3704 (игрок 0) | урон 99, скорость атаки 2, дальность 4, броня 0, скорость бега 3, способностей в списке 0
+00:55:33.777 [Log] [IF] НАБЛЮДАТЕЛЬ включён: Footman_Green(Clone)#-3754 (игрок 1) | урон 10, скорость атаки 1,5, дальность 0,5, броня 0, скорость бега 4, способностей в списке 2
+00:55:33.777 [Log] [IF] НАБЛЮДАТЕЛЬ включён: Rifleman_Green(Clone)#-3806 (игрок 1) | урон 99, скорость атаки 2, дальность 4, броня 0, скорость бега 3, способностей в списке 0
+00:55:33.841 [Warning] [AutoAbilityUser] У 'Footman_Green' умение 'fireball' не найдено в списке Abilities — авто-применение этого умения отключено.
+00:56:03.827 [Log] [IF] НАБЛЮДАТЕЛЬ включён: Footman_Red(Clone)#-3856 (игрок 0) | урон 10, скорость атаки 1,5, дальность 0,5, броня 0, скорость бега 4, способностей в списке 2
+00:56:03.827 [Log] [IF] НАБЛЮДАТЕЛЬ включён: Rifleman_Red(Clone)#-3906 (игрок 0) | урон 99, скорость атаки 2, дальность 4, броня 0, скорость бега 3, способностей в списке 0
+00:56:03.827 [Log] [IF] НАБЛЮДАТЕЛЬ включён: Footman_Green(Clone)#-3956 (игрок 1) | урон 10, скорость атаки 1,5, дальность 0,5, броня 0, скорость бега 4, способностей в списке 2
+00:56:03.827 [Log] [IF] НАБЛЮДАТЕЛЬ включён: Rifleman_Green(Clone)#-4008 (игрок 1) | урон 99, скорость атаки 2, дальность 4, броня 0, скорость бега 3, способностей в списке 0
+00:56:03.923 [Warning] [AutoAbilityUser] У 'Footman_Green' умение 'fireball' не найдено в списке Abilities — авто-применение этого умения отключено.
+00:56:33.849 [Log] [IF] НАБЛЮДАТЕЛЬ включён: Footman_Red(Clone)#-4058 (игрок 0) | урон 10, скорость атаки 1,5, дальность 0,5, броня 0, скорость бега 4, способностей в списке 2
+00:56:33.849 [Log] [IF] НАБЛЮДАТЕЛЬ включён: Rifleman_Red(Clone)#-4108 (игрок 0) | урон 99, скорость атаки 2, дальность 4, броня 0, скорость бега 3, способностей в списке 0
+00:56:33.849 [Log] [IF] НАБЛЮДАТЕЛЬ включён: Footman_Green(Clone)#-4158 (игрок 1) | урон 10, скорость атаки 1,5, дальность 0,5, броня 0, скорость бега 4, способностей в списке 2
+00:56:33.849 [Log] [IF] НАБЛЮДАТЕЛЬ включён: Rifleman_Green(Clone)#-4210 (игрок 1) | урон 99, скорость атаки 2, дальность 4, броня 0, скорость бега 3, способностей в списке 0
+00:56:33.880 [Warning] [AutoAbilityUser] У 'Footman_Green' умение 'fireball' не найдено в списке Abilities — авто-применение этого умения отключено.
+00:57:03.898 [Log] [IF] НАБЛЮДАТЕЛЬ включён: Footman_Red(Clone)#-4260 (игрок 0) | урон 10, скорость атаки 1,5, дальность 0,5, броня 0, скорость бега 4, способностей в списке 2
+00:57:03.898 [Log] [IF] НАБЛЮДАТЕЛЬ включён: Rifleman_Red(Clone)#-4310 (игрок 0) | урон 99, скорость атаки 2, дальность 4, броня 0, скорость бега 3, способностей в списке 0
+00:57:03.898 [Log] [IF] НАБЛЮДАТЕЛЬ включён: Footman_Green(Clone)#-4360 (игрок 1) | урон 10, скорость атаки 1,5, дальность 0,5, броня 0, скорость бега 4, способностей в списке 2
+00:57:03.898 [Log] [IF] НАБЛЮДАТЕЛЬ включён: Rifleman_Green(Clone)#-4412 (игрок 1) | урон 99, скорость атаки 2, дальность 4, броня 0, скорость бега 3, способностей в списке 0
+00:57:03.972 [Warning] [AutoAbilityUser] У 'Footman_Green' умение 'fireball' не найдено в списке Abilities — авто-применение этого умения отключено.
+00:57:33.959 [Log] [IF] НАБЛЮДАТЕЛЬ включён: Footman_Red(Clone)#-4462 (игрок 0) | урон 10, скорость атаки 1,5, дальность 0,5, броня 0, скорость бега 4, способностей в списке 2
+00:57:33.959 [Log] [IF] НАБЛЮДАТЕЛЬ включён: Rifleman_Red(Clone)#-4512 (игрок 0) | урон 99, скорость атаки 2, дальность 4, броня 0, скорость бега 3, способностей в списке 0
+00:57:33.959 [Log] [IF] НАБЛЮДАТЕЛЬ включён: Footman_Green(Clone)#-4562 (игрок 1) | урон 10, скорость атаки 1,5, дальность 0,5, броня 0, скорость бега 4, способностей в списке 2
+00:57:33.959 [Log] [IF] НАБЛЮДАТЕЛЬ включён: Rifleman_Green(Clone)#-4614 (игрок 1) | урон 99, скорость атаки 2, дальность 4, броня 0, скорость бега 3, способностей в списке 0
+00:57:34.024 [Warning] [AutoAbilityUser] У 'Footman_Green' умение 'fireball' не найдено в списке Abilities — авто-применение этого умения отключено.
+00:58:04.012 [Log] [IF] НАБЛЮДАТЕЛЬ включён: Footman_Red(Clone)#-4664 (игрок 0) | урон 10, скорость атаки 1,5, дальность 0,5, броня 0, скорость бега 4, способностей в списке 2
+00:58:04.012 [Log] [IF] НАБЛЮДАТЕЛЬ включён: Rifleman_Red(Clone)#-4714 (игрок 0) | урон 99, скорость атаки 2, дальность 4, броня 0, скорость бега 3, способностей в списке 0
+00:58:04.012 [Log] [IF] НАБЛЮДАТЕЛЬ включён: Footman_Green(Clone)#-4764 (игрок 1) | урон 10, скорость атаки 1,5, дальность 0,5, броня 0, скорость бега 4, способностей в списке 2
+00:58:04.012 [Log] [IF] НАБЛЮДАТЕЛЬ включён: Rifleman_Green(Clone)#-4816 (игрок 1) | урон 99, скорость атаки 2, дальность 4, броня 0, скорость бега 3, способностей в списке 0
+00:58:04.042 [Warning] [AutoAbilityUser] У 'Footman_Green' умение 'fireball' не найдено в списке Abilities — авто-применение этого умения отключено.
+00:58:34.073 [Log] [IF] НАБЛЮДАТЕЛЬ включён: Footman_Red(Clone)#-4866 (игрок 0) | урон 10, скорость атаки 1,5, дальность 0,5, броня 0, скорость бега 4, способностей в списке 2
+00:58:34.073 [Log] [IF] НАБЛЮДАТЕЛЬ включён: Rifleman_Red(Clone)#-4916 (игрок 0) | урон 99, скорость атаки 2, дальность 4, броня 0, скорость бега 3, способностей в списке 0
+00:58:34.073 [Log] [IF] НАБЛЮДАТЕЛЬ включён: Footman_Green(Clone)#-4966 (игрок 1) | урон 10, скорость атаки 1,5, дальность 0,5, броня 0, скорость бега 4, способностей в списке 2
+00:58:34.073 [Log] [IF] НАБЛЮДАТЕЛЬ включён: Rifleman_Green(Clone)#-5018 (игрок 1) | урон 99, скорость атаки 2, дальность 4, броня 0, скорость бега 3, способностей в списке 0
+00:58:34.172 [Warning] [AutoAbilityUser] У 'Footman_Green' умение 'fireball' не найдено в списке Abilities — авто-применение этого умения отключено.
+15:04:18.543 [Log] [NetFlow SERVER] OnClientDisconnect: clientId=1.
+15:04:18.545 [Log] [ДИАГ] PauseTheGame вызвана. IsServer=True, состояниеИгры=Started
+15:04:18.545 [Log] [NetFlow SERVER] OnClientDisconnect: clientId=2.
+15:04:18.545 [Log] [ДИАГ] PauseTheGame вызвана. IsServer=True, состояниеИгры=Started

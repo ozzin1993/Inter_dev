@@ -157,18 +157,39 @@ namespace StrategyCore
 
         void ApplyStats(Unit unit, Carrier c)
         {
-            if (stats == null || !stats.enabled || stats.effects == null) return;
+            if (stats == null || !stats.enabled) return;   // выключенный блок молчит
+
+            if (stats.effects == null)
+            {
+                if (InterflowDebug.FullOn) LogBlockSkipped(1, unit, "выдача", "набор характеристик не заполнен");
+                return;
+            }
 
             stats.effects.AddEffect(unit);
             c.stats = true;
+
+            if (InterflowDebug.FullOn) LogStats(unit, stats.effects, true);
         }
 
         void RemoveStats(Unit unit, Carrier c)
         {
-            if (!c.stats || stats == null || stats.effects == null) return;
+            if (!c.stats)
+            {
+                if (InterflowDebug.FullOn && stats != null && stats.enabled)
+                    LogBlockSkipped(1, unit, "снятие", "при открытии не выдавалось");
+                return;
+            }
+
+            if (stats == null || stats.effects == null)
+            {
+                if (InterflowDebug.FullOn) LogBlockSkipped(1, unit, "снятие", "набор характеристик пропал из ассета");
+                return;
+            }
 
             stats.effects.RemoveEffect(unit);
             c.stats = false;
+
+            if (InterflowDebug.FullOn) LogStats(unit, stats.effects, false);
         }
 
         // ========================================================= 2. ИММУНИТЕТ К КОНТРОЛЮ ==
@@ -182,15 +203,25 @@ namespace StrategyCore
 
             ci.Add();                 // рефкаунт: снимаем ровно столько, сколько выдали
             c.controlImmunity = true;
+
+            // Счётчик источников в ядре закрыт (ControlImmunity.refs приватное) — пишем признак.
+            if (InterflowDebug.FullOn) LogControlImmunity(unit, true, ci.Active);
         }
 
         void RemoveControlImmunity(Unit unit, Carrier c)
         {
-            if (!c.controlImmunity) return;
+            if (!c.controlImmunity)
+            {
+                if (InterflowDebug.FullOn && controlImmunity != null && controlImmunity.enabled)
+                    LogBlockSkipped(2, unit, "снятие", "при открытии не выдавалось");
+                return;
+            }
 
             ControlImmunity ci = unit.GetComponent<ControlImmunity>();
             if (ci != null) ci.Remove();
             c.controlImmunity = false;
+
+            if (InterflowDebug.FullOn) LogControlImmunity(unit, false, ci != null && ci.Active);
         }
 
         // ================================================= 3. СОПРОТИВЛЕНИЯ И СЛАБОСТИ ==
@@ -201,7 +232,12 @@ namespace StrategyCore
         void ApplyResistances(Unit unit, Carrier c)
         {
             if (resistances == null || !resistances.enabled) return;
-            if (resistances.entries == null || resistances.entries.Length == 0) return;
+
+            if (resistances.entries == null || resistances.entries.Length == 0)
+            {
+                if (InterflowDebug.FullOn) LogBlockSkipped(3, unit, "выдача", "список строк пуст");
+                return;
+            }
 
             UnitResistances holder = unit.GetComponent<UnitResistances>();
             if (holder == null) holder = unit.gameObject.AddComponent<UnitResistances>();
@@ -215,15 +251,24 @@ namespace StrategyCore
             }
 
             c.resistances = true;
+
+            if (InterflowDebug.FullOn) LogResistances(unit, resistances.entries, true);
         }
 
         void RemoveResistances(Unit unit, Carrier c)
         {
-            if (!c.resistances) return;
+            if (!c.resistances)
+            {
+                if (InterflowDebug.FullOn && resistances != null && resistances.enabled)
+                    LogBlockSkipped(3, unit, "снятие", "при открытии не выдавалось");
+                return;
+            }
 
             UnitResistances holder = unit.GetComponent<UnitResistances>();
             if (holder != null) holder.Remove(this);   // снимает все вклады этого ассета разом
             c.resistances = false;
+
+            if (InterflowDebug.FullOn) LogResistances(unit, resistances != null ? resistances.entries : null, false);
         }
 
         // ============================================================== 4. НЕВИДИМОСТЬ ==
@@ -234,6 +279,8 @@ namespace StrategyCore
 
             unit.SetInvisibility(true);
             c.invisibility = true;
+
+            if (InterflowDebug.FullOn) LogInvisibility(unit, true);
         }
 
         void RemoveInvisibility(Unit unit, Carrier c)
@@ -241,7 +288,10 @@ namespace StrategyCore
             // Намеренно НИЧЕГО не делаем — см. тултип блока: в ядре нет рефкаунта невидимости,
             // и снятие погасило бы невидимость от эффектора или другого умения. Поведение
             // повторяет штатный PassiveInvisibility (его Lock тоже пуст).
+            bool had = c.invisibility;
             c.invisibility = false;
+
+            if (InterflowDebug.FullOn && had) LogInvisibility(unit, false);
         }
 
         // ============================================================ 5. ПРОБИТИЕ БРОНИ ==
@@ -251,18 +301,34 @@ namespace StrategyCore
             if (armorPierce == null || !armorPierce.enabled) return;
 
             float fraction = LevelValue(armorPierce.fraction, level, 0f);
-            if (fraction <= 0f) return;
+            if (fraction <= 0f)
+            {
+                if (InterflowDebug.FullOn)
+                    LogBlockSkipped(5, unit, "выдача", "доля пробития на уровне " + level + " равна нулю");
+                return;
+            }
 
             InterflowCombat.ArmorPierceAdd(unit, fraction);
             c.armorPierceFraction = fraction;   // снимаем ТЕМ ЖЕ числом, иначе доля уплывёт
+
+            if (InterflowDebug.FullOn) LogArmorPierce(unit, fraction, InterflowCombat.ArmorPierceOf(unit), true);
         }
 
         void RemoveArmorPierce(Unit unit, Carrier c)
         {
-            if (c.armorPierceFraction <= 0f) return;
+            if (c.armorPierceFraction <= 0f)
+            {
+                if (InterflowDebug.FullOn && armorPierce != null && armorPierce.enabled)
+                    LogBlockSkipped(5, unit, "снятие", "при открытии не выдавалось");
+                return;
+            }
+
+            float fraction = c.armorPierceFraction;   // локальная только ради строки лога
 
             InterflowCombat.ArmorPierceRemove(unit, c.armorPierceFraction);
             c.armorPierceFraction = 0f;
+
+            if (InterflowDebug.FullOn) LogArmorPierce(unit, fraction, InterflowCombat.ArmorPierceOf(unit), false);
         }
 
         // =================================================================== 6. СПЛЕШ ==
@@ -279,7 +345,13 @@ namespace StrategyCore
         void ApplySplash(Unit unit, Carrier c)
         {
             if (splash == null || !splash.enabled) return;
-            if (!unit.isSplash && !splash.enableSplashIfDisabled) return;
+
+            if (!unit.isSplash && !splash.enableSplashIfDisabled)
+            {
+                if (InterflowDebug.FullOn)
+                    LogBlockSkipped(6, unit, "выдача", "у юнита нет сплеша, а включение сплеша в блоке выключено");
+                return;
+            }
 
             c.splash = new SplashState
             {
@@ -295,14 +367,25 @@ namespace StrategyCore
             float reduction = splash.newSplashReduction >= 0f ? splash.newSplashReduction : unit.splashReduction;
 
             unit.ChangeSplash(true, newRadius, reduction, unit.projectileFollowTarget);
+
+            if (InterflowDebug.FullOn) LogSplashApplied(unit, c.splash, true, newRadius, reduction);
         }
 
         void RemoveSplash(Unit unit, Carrier c)
         {
-            if (c.splash == null) return;
+            if (c.splash == null)
+            {
+                if (InterflowDebug.FullOn && splash != null && splash.enabled)
+                    LogBlockSkipped(6, unit, "снятие", "при открытии не выдавалось");
+                return;
+            }
+
+            SplashState restored = c.splash;   // локальная только ради строки лога
 
             unit.ChangeSplash(c.splash.isSplash, c.splash.radius, c.splash.reduction, c.splash.followTarget);
             c.splash = null;
+
+            if (InterflowDebug.FullOn) LogSplashRemoved(unit, restored);
         }
 
         // ================================================== 7. ЭФФЕКТОРЫ К СВОИМ АТАКАМ ==
@@ -310,7 +393,12 @@ namespace StrategyCore
         void ApplyAttackEffectors(Unit unit, Carrier c)
         {
             if (attackEffectors == null || !attackEffectors.enabled) return;
-            if (attackEffectors.effectors == null || attackEffectors.effectors.Length == 0) return;
+
+            if (attackEffectors.effectors == null || attackEffectors.effectors.Length == 0)
+            {
+                if (InterflowDebug.FullOn) LogBlockSkipped(7, unit, "выдача", "список состояний пуст");
+                return;
+            }
 
             Effector[] current = unit.attackEffectors != null ? unit.attackEffectors : new Effector[0];
             c.originalAttackEffectors = current;
@@ -325,14 +413,25 @@ namespace StrategyCore
             }
 
             unit.attackEffectors = merged.ToArray();
+
+            if (InterflowDebug.FullOn) LogAttackEffectors(unit, current, unit.attackEffectors, true);
         }
 
         void RemoveAttackEffectors(Unit unit, Carrier c)
         {
-            if (c.originalAttackEffectors == null) return;
+            if (c.originalAttackEffectors == null)
+            {
+                if (InterflowDebug.FullOn && attackEffectors != null && attackEffectors.enabled)
+                    LogBlockSkipped(7, unit, "снятие", "при открытии не выдавалось");
+                return;
+            }
+
+            Effector[] before = unit.attackEffectors;   // локальная только ради строки лога
 
             unit.attackEffectors = c.originalAttackEffectors;
             c.originalAttackEffectors = null;
+
+            if (InterflowDebug.FullOn) LogAttackEffectors(unit, before, unit.attackEffectors, false);
         }
 
         // ==================================================================== 8. АУРА ==
@@ -342,6 +441,10 @@ namespace StrategyCore
             if (aura == null || !aura.enabled) return;
 
             c.aura = true;            // работает тиком
+
+            if (InterflowDebug.FullOn)
+                LogAuraApplied(unit, LevelValue(radius, c.level, 0f), aura.condition,
+                               aura.damagePerSecond, aura.damageType, aura.effectors);
         }
 
         /// <summary>Один тик ауры. Только сервер.</summary>
@@ -375,6 +478,8 @@ namespace StrategyCore
             Unit[] targets = Utils.GetUnitsInRadius(new Vector2(now.x, now.z), r, unit.owner, unitSelector, -1, unit);
             if (targets == null) return;
 
+            int affected = 0;   // локальная только ради строки лога: скольким целям что-то досталось
+
             for (int t = 0; t < targets.Length; t++)
             {
                 Unit target = targets[t];
@@ -383,14 +488,26 @@ namespace StrategyCore
 
                 if (dealsDamage)
                 {
-                    DamagePacket packet = DamagePacket.Create(aura.damagePerSecond * dt, aura.damageType, unit.owner, unit, false, this);   // [Interflow fix 2026-09-04 damage-full-packet] пакет одной записи
+                    DamagePacket packet = DamagePacket.Create(aura.damagePerSecond * dt, aura.damageType, unit.owner, unit, false, this, null, true);   // [Interflow fix 2026-09-04 damage-full-packet] пакет одной записи   // [Interflow 2026-09-11] periodic: тик по времени — в ленту идёт свёрнутой строкой, не строкой на тик
                     target.GetDamage(in packet, out float _);
+                    affected++;
                 }
 
                 if (target.dead) continue;   // погибла от этого же урона — эффекторы на труп не вешаем
 
-                if (hasEffectors) Effector.EffectorAdd(unit, target, aura.effectors);
+                if (hasEffectors)
+                {
+                    Effector.EffectorAdd(unit, target, aura.effectors);
+                    if (!dealsDamage) affected++;   // урона нет — цель задета одними состояниями
+                }
             }
+
+            // Строка ТОЛЬКО когда аура фактически сработала: условие выполнено и хотя бы одной цели
+            // что-то досталось. Тик без срабатывания молчит — он идёт десять раз в секунду у каждого
+            // носителя, и строка «условие не выполнено» забила бы весь лог (решение Artsiom 08.09.2026).
+            if (InterflowDebug.FullOn && affected > 0)
+                LogAuraTick(unit, affected, dealsDamage ? aura.damagePerSecond * dt : 0f,
+                            aura.effectors, aura.includeSelf && hasEffectors);
         }
 
         bool auraDamageTypeWarned;

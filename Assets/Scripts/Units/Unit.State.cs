@@ -507,10 +507,7 @@ namespace StrategyCore
                         if (invisibleAgent.ReachedDestination(currentDestination, stopDistance, out bool successfulReach))
                         {
                             if (successfulReach)
-                            {
-                                OnPositionReach?.Invoke();
-                                Idle();
-                            }
+                                PositionReachedThenIdle();
                         }
                     }
                     else
@@ -518,10 +515,7 @@ namespace StrategyCore
                         if (agent.ReachedDestination(currentDestination, stopDistance, out bool successfulReach))
                         {
                             if (successfulReach)
-                            {
-                                OnPositionReach?.Invoke();
-                                Idle();
-                            }
+                                PositionReachedThenIdle();
                         }
                     }
                 }
@@ -719,10 +713,7 @@ namespace StrategyCore
                             if (invisibleAgent.ReachedDestination(currentDestination, stopDistance, out successfulReach))
                             {
                                 if (successfulReach)
-                                {
-                                    OnPositionReach?.Invoke();
-                                    Idle();
-                                }
+                                    PositionReachedThenIdle();
                             }
                         }
                         else
@@ -741,15 +732,28 @@ namespace StrategyCore
                             if (agent.ReachedDestination(currentDestination, stopDistance, out successfulReach))
                             {
                                 if (successfulReach)
-                                {
-                                    OnPositionReach?.Invoke();
-                                    Idle();
-                                }
+                                    PositionReachedThenIdle();
                             }
                         }
                     }
                 }
             }
+        }
+
+        /// <summary>
+        /// Достижение точки: сообщить подписчикам и перейти в покой. Состояние, назначенное подписчиком
+        /// (удержание слота обороны — MatchManager.DefenceSlots.HoldOnReach), переживает переход:
+        /// базовый Idle() зовётся, только если подписчик состояние не менял.
+        /// Порядок «событие → переход» намеренно НЕ меняется: Idle() дёргает OnCommand, а подписчики
+        /// достижения позиции парно подписаны на OnCommand отменяющим обработчиком (Construction.cs:67,
+        /// TransportTakeOut.cs:28, Unit.Inventory.cs:191) — при обратном порядке отмена сработала бы раньше
+        /// события: стройка не началась бы (с возвратом ресурсов), высадка и сброс предмета не прошли бы.
+        /// </summary>
+        private void PositionReachedThenIdle()
+        {
+            UnitStates stateBeforeReach = unitState;
+            OnPositionReach?.Invoke();
+            if (unitState == stateBeforeReach) Idle();
         }
 
         /// <summary>
@@ -1412,6 +1416,12 @@ namespace StrategyCore
                 else if (finalDamage <= amount && damageChanged < finalDamage) finalDamage = damageChanged; // For negative dmg change
             }
             amount = finalDamage;
+
+            // [Interflow 2026-09-10] Надпись «Усилен N» над бьющим: модификаторы носителя подняли его удар
+            // (ярость от нехватки здоровья, крит). Раньше это было видно только по числу урона на ЦЕЛИ,
+            // и понять, сработала пассивка или нет, было нельзя. Порог в четверть единицы отсекает дробную мелочь.
+            if (finalDamage - attackDamage > 0.25f)
+                AbilityFacts.Number(this, BattleFactReason.OutgoingDamageIncreased, finalDamage - attackDamage, attackDamage, finalDamage);
 
             // 2. Before damage deal callbacks
             foreach (var c in OnBeforeDamageDealCallbacks)

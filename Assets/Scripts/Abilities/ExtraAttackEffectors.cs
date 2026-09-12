@@ -66,10 +66,17 @@ namespace StrategyCore
             }
 
             unit.attackEffectors = merged.ToArray();
+            AbilityFacts.Granted(this, unit, level);   // [2026-09-10] показ срабатывания — см. AbilityFacts
 
             InterflowDebug.Event("ЭФФЕКТЫ АТАКИ расширены у " + InterflowDebug.Name(unit) + ": было " +
                                  current.Length + ", стало " + unit.attackEffectors.Length +
                                  " (способность " + name + ")");
+
+            if (InterflowDebug.FullOn)
+                InterflowDebug.Full("ЭФФЕКТЫ АТАКИ («" + name + "»): выдано | носитель=" + InterflowDebug.Name(unit) +
+                                    " | добавляем=" + Names(effectors) +
+                                    " | было=" + Names(current) +
+                                    " | стало=" + Names(unit.attackEffectors));
         }
 
         public override void Lock(Unit unit, int castingPlayer, int level)
@@ -77,11 +84,37 @@ namespace StrategyCore
             if (unit == null) return;
             if (!originalEffectors.TryGetValue(unit, out Effector[] original)) return;
 
+            Effector[] before = unit.attackEffectors;   // локальная только ради строки лога
+
             unit.attackEffectors = original;
+            AbilityFacts.Revoked(this, unit, level);   // [2026-09-10] показ срабатывания — см. AbilityFacts
 
             InterflowDebug.Event("ЭФФЕКТЫ АТАКИ возвращены к исходным у " + InterflowDebug.Name(unit) +
                                  " (способность " + name + " выключена)");
+
+            if (InterflowDebug.FullOn)
+                InterflowDebug.Full("ЭФФЕКТЫ АТАКИ («" + name + "»): снято | носитель=" + InterflowDebug.Name(unit) +
+                                    " | было=" + Names(before) +
+                                    " | стало=" + Names(original) +
+                                    " | наш набор=" + Names(effectors) +
+                                    " (совпавшие с исходными остаются: возвращается сохранённый набор)");
+
             originalEffectors.Remove(unit);
+        }
+
+        /// <summary>Имена состояний через запятую — для строки уровня «Полный».</summary>
+        static string Names(Effector[] effectors)
+        {
+            if (effectors == null || effectors.Length == 0) return "нет";
+
+            System.Text.StringBuilder sb = new System.Text.StringBuilder();
+            for (int i = 0; i < effectors.Length; i++)
+            {
+                if (sb.Length > 0) sb.Append(", ");
+                sb.Append(effectors[i] != null ? effectors[i].name : "пусто");
+            }
+
+            return sb.ToString();
         }
     }
 }

@@ -62,6 +62,7 @@ namespace StrategyCore
             float extra = dmg * (mult - 1f);
             DamagePacket packet = DamagePacket.Create(extra, damageType, byOwner, byUnit, false, this);   // [Interflow fix 2026-09-04 damage-full-packet] пакет одной записи
             targetUnit.GetDamage(in packet, out float _);
+            AbilityFacts.Proc(this, byUnit);   // [2026-09-10] показ срабатывания — см. AbilityFacts
 
             RequestForceSync();
         }

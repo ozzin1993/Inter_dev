@@ -39,23 +39,23 @@ Material:
     serializedVersion: 3
     m_TexEnvs:
     - _SampleTexture2D_2aa8b3596abf42fda3e2c88159cc7ced_Texture_1_Texture2D:
-        m_Texture: {fileID: 0}
+        m_Texture: {fileID: 2800000, guid: 24b7fe3ac6774f445a118f057e3eaaae, type: 3}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _SampleTexture2D_6013eccf569e4443961e63ea2a8dc544_Texture_1_Texture2D:
-        m_Texture: {fileID: 0}
+        m_Texture: {fileID: 2800000, guid: 4d2aa66f9d16bf644aeced5c66a39109, type: 3}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _SampleTexture2D_7ae9c54ca1574ff885ecd94221878829_Texture_1_Texture2D:
-        m_Texture: {fileID: 0}
+        m_Texture: {fileID: 2800000, guid: 49123ea06040fdb4e86c6fb0b4288c09, type: 3}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _SampleTexture2D_f07f80f7c1e04eb8bb57317bc58c0712_Texture_1_Texture2D:
-        m_Texture: {fileID: 0}
+        m_Texture: {fileID: 2800000, guid: f8e518b469cb2bd4c92100e04b7d4ab3, type: 3}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _SampleTexture2D_f8afdc8be8f74c48b2f1592c467bbad5_Texture_1_Texture2D:
-        m_Texture: {fileID: 0}
+        m_Texture: {fileID: 2800000, guid: 83c8563e287501f4997504c772dd2387, type: 3}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     m_Ints: []

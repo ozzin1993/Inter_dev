@@ -12,6 +12,7 @@ namespace StrategyCore
         public override void Unlock(Unit unit, int castingPlayer, int level)
         {
             unit.SetInvisibility(true);
+            AbilityFacts.Granted(this, unit, level);   // [2026-09-10] показ срабатывания — см. AbilityFacts
         }
 
         public override void Lock(Unit unit, int castingPlayer, int level)

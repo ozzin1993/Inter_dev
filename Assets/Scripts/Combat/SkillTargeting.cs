@@ -28,6 +28,37 @@ namespace StrategyCore
     }
 
     /// <summary>
+    /// Состояние, которого умение ИЗБЕГАЕТ при выборе цели: есть среди кандидатов цель без него —
+    /// выбирается она, даже если стратегия указала бы на другую (решение Artsiom 11.09.2026:
+    /// щит технологии T3_B1, оглушение ледяной стрелы).
+    ///
+    /// Проверяется только при одиночном выборе цели — режимы «умный выбор юнита» и «умный выбор точки»,
+    /// и при автоприменении, и при применении с кнопки. Набора целей по области, конусу и команде
+    /// не касается: там цель не выбирается, а собирается (решение Artsiom 11.09.2026).
+    ///
+    /// Щит состоянием НЕ является (отдельный компонент <see cref="AbsorbShield"/>), контроль живёт
+    /// флагами юнита, слепота — реестром шанса промаха. Поэтому это перечисление условий, а не список
+    /// ассетов состояний; образец — TargetCondition в BonusDamageVsCondition.
+    /// </summary>
+    public enum SkillTargetAvoidState
+    {
+        [InspectorName("Выключено")]            None,
+        [InspectorName("Поглощающий щит")]      Shielded,
+        [InspectorName("Оглушение")]            Stunned,
+        [InspectorName("Обезоруживание")]       Disarmed,
+        [InspectorName("Немота")]               Muted,
+        [InspectorName("Слепота")]              Blinded,
+        [InspectorName("Указанное состояние")]  NamedEffector
+    }
+
+    /// <summary>Что делать, когда все кандидаты уже под избегаемым состоянием.</summary>
+    public enum SkillNoFreeTargetFallback
+    {
+        [InspectorName("Выбрать цель как обычно")] PickAnyway,
+        [InspectorName("Не применять умение")]     Skip
+    }
+
+    /// <summary>
     /// ЕДИНЫЙ исполнитель стратегий выбора цели (правило 5). Раньше алгоритмы жили приватно
     /// внутри AutoAbilityUser — теперь и он, и конструктор скиллов зовут отсюда.
     /// Выбор по плотности перенесён сюда из механики метеоритного дождя, НО сам MatchManager.MeteorStorm
@@ -69,6 +100,114 @@ namespace StrategyCore
             if (searchRadius <= 0f) return null;
 
             return Utils.GetUnitsInRadius(new Vector2(center.x, center.z), searchRadius, playerID, selector, -1, exclude);
+        }
+
+        // ================================================================ ИЗБЕГАЕМОЕ СОСТОЯНИЕ ==
+
+        /// <summary>
+        /// Висит ли на юните состояние, которого умение избегает при выборе цели.
+        /// Каждое условие читает свой штатный источник: щит — компонент поглощения, контроль — флаги
+        /// юнита (их держит пересчёт по висящим состояниям), слепота — реестр шанса промаха.
+        /// Реестр промаха заполняет только сервер, но и выбор цели серверный — расхождения нет.
+        /// </summary>
+        public static bool HasAvoidedState(Unit u, SkillTargetAvoidState avoided, Effector namedEffector)
+        {
+            if (u == null || avoided == SkillTargetAvoidState.None) return false;
+
+            switch (avoided)
+            {
+                case SkillTargetAvoidState.Shielded: return AbsorbShield.IsActiveOn(u);
+                case SkillTargetAvoidState.Stunned:  return u.stunned;
+                case SkillTargetAvoidState.Disarmed: return u.disarmed;
+                case SkillTargetAvoidState.Muted:    return u.muted;
+                case SkillTargetAvoidState.Blinded:  return InterflowCombat.IsBlinded(u);
+
+                case SkillTargetAvoidState.NamedEffector:
+                    if (namedEffector == null) return false;
+
+                    // Сравнение по номеру ассета — так же, как это делает ядро состояний (Effector.cs).
+                    for (int i = 0; i < u.effectors.Count; i++)
+                    {
+                        EffectorHolder eh = u.effectors[i];
+                        if (eh != null && eh.effector != null && eh.effector.id == namedEffector.id) return true;
+                    }
+                    return false;
+            }
+
+            return false;
+        }
+
+        // Кандидаты, убранные предпочтением: индекс в наборе и сам юнит. Списки переиспользуются между
+        // вызовами — на тике автоприменения новый список был бы мусором каждые 0,1 секунды.
+        // ИНВАРИАНТ: буфер живёт от PreferWithoutState до RestoreFiltered в одном и том же вызове;
+        // вложенных вызовов по другому набору между ними быть не должно.
+        static readonly List<int> filteredIndices = new List<int>();
+        static readonly List<Unit> filteredUnits = new List<Unit>();
+
+        /// <summary>
+        /// Оставить в наборе только кандидатов БЕЗ избегаемого состояния. Набор правится НА МЕСТЕ,
+        /// нового массива не создаётся: метод зовётся на тике у каждого носителя, а дырки все стратегии
+        /// пропускают штатно — тем же приёмом отсеивает непригодных PickAutoCastTarget.
+        ///
+        /// Убранные складываются в буфер, чтобы их можно было вернуть: стратегия среди свободных может
+        /// никого не признать годным (решение Artsiom 11.09.2026 — см. RestoreFiltered).
+        ///
+        /// Свободных нет — набор восстанавливается целиком и возвращается false: выбирать ли цель
+        /// как обычно или не применять умение, решает вызывающая сторона по настройке умения.
+        ///
+        /// Мёртвые за свободную цель не считаются: иначе труп без состояния сошёл бы за свободную цель,
+        /// стратегия его всё равно отбросила бы, и умение молча не сработало.
+        /// </summary>
+        public static bool PreferWithoutState(Unit[] candidates, SkillTargetAvoidState avoided, Effector namedEffector)
+        {
+            filteredIndices.Clear();
+            filteredUnits.Clear();
+
+            if (candidates == null || avoided == SkillTargetAvoidState.None) return true;
+
+            // Один проход: признак считается по разу на кандидата, занятые сразу уходят в буфер.
+            bool anyFree = false;
+            for (int i = 0; i < candidates.Length; i++)
+            {
+                Unit c = candidates[i];
+                if (c == null) continue;
+
+                if (HasAvoidedState(c, avoided, namedEffector))
+                {
+                    filteredIndices.Add(i);
+                    filteredUnits.Add(c);
+                    candidates[i] = null;
+                    continue;
+                }
+
+                if (!c.dead) anyFree = true;
+            }
+
+            if (!anyFree)
+            {
+                RestoreFiltered(candidates);
+                return false;
+            }
+
+            return true;
+        }
+
+        /// <summary>
+        /// Вернуть в набор кандидатов, убранных предпочтением. Нужно, когда стратегия среди свободных
+        /// никого не признала годным, а умение настроено выбирать цель как обычно: без возврата
+        /// применение сгорело бы впустую (решение Artsiom 11.09.2026).
+        /// </summary>
+        public static void RestoreFiltered(Unit[] candidates)
+        {
+            if (candidates != null)
+                for (int i = 0; i < filteredIndices.Count; i++)
+                {
+                    int idx = filteredIndices[i];
+                    if (idx >= 0 && idx < candidates.Length) candidates[idx] = filteredUnits[i];
+                }
+
+            filteredIndices.Clear();
+            filteredUnits.Clear();
         }
 
         // ========================================================================= СТРАТЕГИИ ==

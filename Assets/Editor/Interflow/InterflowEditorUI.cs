@@ -70,6 +70,9 @@ namespace StrategyCore
             { "searchOrigin",             "Откуда считать «ближайшего»" },
             { "strategyUseCurrentHealth", "Мерить текущее ХП, не максимальное" },
             { "strategyHpThreshold",      "Порог ХП (доля от максимума)" },
+            { "avoidTargetState",         "Избегать цель с состоянием" },
+            { "avoidTargetEffector",      "Какое состояние искать (для варианта «указанное»)" },
+            { "avoidNoFreeTarget",        "Если свободных целей нет" },
             // Селекторы: принадлежность и роли
             { "targetCategories",         "Селектор ролей (пусто — любые)" },
             { "maxTargets",               "Максимум целей (0 — без лимита)" },

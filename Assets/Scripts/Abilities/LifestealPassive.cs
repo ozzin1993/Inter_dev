@@ -29,8 +29,10 @@ namespace StrategyCore
             InterflowAbility.CallbackRemove(unit.OnAfterDamageDealCallbacks, this, level);
         }
 
-        // Лечение носителя (byUnit) на долю нанесённого урона. dmg — величина атаки (до брони; актуально для баланса,
-        // пост-броневой урон в колбэк не приходит). ChangeHP клампит до maxHealth и синкает клиентам.
+        // Лечение носителя (byUnit) на долю нанесённого урона. [Interflow fix 2026-09-09 hit-outcome] dmg —
+        // ФАКТИЧЕСКИ СНЯТОЕ здоровье: с 09.09.2026 бьющий передаёт колбэкам снятое, а не заявленную величину
+        // атаки (Units/Unit.Combat.cs, решение Artsiom по §11.3 промта «Боевой конвейер»). ПРИНЯТАЯ ЦЕНА:
+        // возврат здоровья на бронированных целях стал меньше. ChangeHP клампит до maxHealth и синкает клиентам.
         void LifestealApply(Unit targetUnit, Vector3 targetPosition, Effector[] effectors, float dmg, bool directAttack,
                             DamageType damageType, Unit byUnit, Projectile byProjectile, int byOwner, int level)
         {
@@ -42,6 +44,7 @@ namespace StrategyCore
             float heal = dmg * InterflowAbility.LevelValue(healPercent, level);
             if (heal <= 0f) return;
             byUnit.ChangeHP(heal);
+            AbilityFacts.Proc(this, byUnit);   // [2026-09-10] показ срабатывания — см. AbilityFacts
         }
     }
 }
