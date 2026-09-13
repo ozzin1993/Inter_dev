@@ -1023,6 +1023,11 @@ namespace StrategyCore
 
             LookAt(attackPosition);
 
+            // Развёртывание оружия: пока подготовка не закончена, выстрела в этом кадре нет.
+            // Возвращаем true — «цель в зоне, стоим на месте»: с false юнит поехал бы догонять цель
+            // или сбросил бы её. Серверный гейт (правило 6) живёт внутри самого компонента.
+            if (weaponDeployment != null && !weaponDeployment.ReadyToFire()) return true;
+
             if (currentAttackCount == 0)
             {
                 if (attackType != AttackType.Continuous)

@@ -323,6 +323,7 @@ namespace StrategyCore
         [HideInInspector] public LevelingUnit levelingUnit; // If this unit has levels
         [HideInInspector] public TransportUnit transportUnit; // If this unit can transport units
         [HideInInspector] public LifetimeUnit lifetimeUnit; // If this unit has limited lifespan
+        [HideInInspector] public WeaponDeployment weaponDeployment; // Если на юните есть развёртывание оружия перед стрельбой
 
         Transform vfxHolder; // For holding aura, stun and other effects that should be shown or hidden with unit
         Transform selectionCircle; // Selection Circle when unit is selected
