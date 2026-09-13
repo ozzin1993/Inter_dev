@@ -29,11 +29,17 @@ namespace StrategyCore
     public partial class UnitReceiver
     {
         /// <summary>
-        /// Принять пакет наложения состояния. Ничего не возвращает — сегодняшняя
-        /// <c>Effector.EffectorAdd</c> тоже не возвращает ничего, а шаг 2 переносит поведение
-        /// один в один.
+        /// Принять пакет наложения состояния. Возвращает ДЕРЖАТЕЛЬ наложения — новый либо продлённый
+        /// существующий (ветка слипания), — или <c>null</c>, если наложение не состоялось: отбито
+        /// иммунитетом к контролю или сопротивлением от 100 %.
+        ///
+        /// Возврат завёден 13.09.2026 (решение Artsiom): источнику наложения нужен штатный путь снять
+        /// СВОЁ наложение досрочно — <c>Effector.EffectorRemove</c> принимает именно держатель, а искать
+        /// его в общем списке <c>unit.effectors</c> по ссылке на ассет нельзя: там лежат наложения всех
+        /// источников и обеих команд, и снялось бы чужое. Результат можно игнорировать — ни одно
+        /// из прежних мест вызова его не читает, поведение их не изменилось.
         /// </summary>
-        public void Receive(in EffectorPacket p)
+        public EffectorHolder Receive(in EffectorPacket p)
         {
             // Лог полного уровня. Загрузка сохранения молчит (решение Artsiom 07.09.2026).
             bool log = InterflowDebug.FullOn && !p.restoring;
@@ -55,7 +61,7 @@ namespace StrategyCore
                 if (log)
                     InterflowDebug.Full("ПРИЁМНИК СОСТОЯНИЕ: отбито иммунитетом к контролю | " + InterflowDebug.Name(unit) +
                                         " | состояние=" + p.effector.name);
-                return;
+                return null;
             }
 
             // [Interflow fix 2026-08-02 effector-unify]
@@ -93,7 +99,7 @@ namespace StrategyCore
                                             " | состояние=" + p.effector.name +
                                             " | категория=" + p.effector.category +
                                             " | доля=" + r.ToString("0.##"));
-                    return;
+                    return null;
                 }
 
                 bool cutsTime = UnitResistances.CutsTime(p.effector.category);
@@ -155,7 +161,13 @@ namespace StrategyCore
                     // (единый канал статусов; внутри гейт «только сервер» — локальные ауры клиента не шлют).
                     if ((p.effector.icon != null || p.effector.VFX != null) && NetworkDataSync.Instance != null)
                         NetworkDataSync.Instance.UnitStatusEffectorSend(unit, p.effector.id, duration);
-                    return;
+
+                    // Продление — то же самое наложение: второго держателя нет, отдаём уже висящий.
+                    // ВАЖНО про владение: слипание сверяет id, КОМАНДУ, силу и длительность, но не источник
+                    // (условия выше). Значит держатель, отданный здесь, может быть общим для наложений разных
+                    // источников одной команды — досрочное снятие по нему уберёт и чужое наложение тоже.
+                    // Сужать слипание до источника здесь нельзя: это смена правил слипания, решение за Artsiom.
+                    return existing;
                 }
             }
 
@@ -214,6 +226,8 @@ namespace StrategyCore
 
             if ((newEH.effector.icon != null || newEH.effector.VFX != null) && NetworkDataSync.Instance != null)
                 NetworkDataSync.Instance.UnitStatusEffectorSend(unit, newEH.effector.id, duration);
+
+            return newEH;
         }
         /// <summary>
         /// [Interflow 2026-09-10] Характеристика, которую меняет состояние, — её и показываем

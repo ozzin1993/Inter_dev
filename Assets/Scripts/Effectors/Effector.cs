@@ -217,13 +217,18 @@ namespace StrategyCore
         /// У бессрочных эффекторов игнорируется.</param>
         /// <param name="restoring">Восстановление сохранённого состояния: приёмник пропустит проверку
         /// иммунитета к контролю. Боевой код это НЕ ставит — только загрузка сохранения.</param>
-        public static void EffectorAdd(Unit unit, Effector effector, Unit unitOwner, int owner, float currentTime = 0,
-                                       float powerMultiplier = 1f, float durationOverride = -1f, bool restoring = false)
+        /// <returns>Держатель наложения (новый или продлённый) либо <c>null</c>, если наложение
+        /// не состоялось: адресата нет (здание, труп) или отказал приёмник (иммунитет, сопротивление).
+        /// Возврат завёден 13.09.2026 (решение Artsiom) ради источников, снимающих СВОЁ наложение
+        /// досрочно (<c>WeaponDeployment</c>). Результат можно игнорировать — так и делают все
+        /// нынешние места вызова.</returns>
+        public static EffectorHolder EffectorAdd(Unit unit, Effector effector, Unit unitOwner, int owner, float currentTime = 0,
+                                                 float powerMultiplier = 1f, float durationOverride = -1f, bool restoring = false)
         {
             // [Interflow fix 2026-08-06 no-effectors-on-buildings] Решение Artsiom: на здания эффекты
             // не вешаются. Заодно закрывает краш ядра: slow-эффектор звал ChangeMoveSpeed, а у зданий
             // нет NavMeshAgent — EffectorAdd обрывался исключением на полпути (воспроизведено 2026-08-06).
-            if (unit.unitType == UnitType.Building) return;
+            if (unit.unitType == UnitType.Building) return null;
 
             // [Interflow fix 2026-08-23 no-effectors-on-dead] Решение Artsiom: на мёртвых эффекты
             // не вешаются. Удар, убивший цель, тут же вешал на неё эффекторы атаки (GetDamage убивает
@@ -231,7 +236,7 @@ namespace StrategyCore
             // канала статусов по снятому netID: «Desync! Unit netID… should exist on client».
             // Одна точка покрывает все боевые вызовы, включая будущие.
             // Разбор: Документы/Аудиты/Анализ_Рассинхрон_Состояние_На_Трупе.md.
-            if (unit.dead) return;
+            if (unit.dead) return null;
 
             // Шаг 2 схемы «пакет и приёмник» (§11.2, §12): воронка собирает пакет и отдаёт его
             // приёмнику. Вся приёмная часть — расчёт длительности и стакинга, слипание одинаковых
@@ -241,8 +246,10 @@ namespace StrategyCore
             // адресовать пакет», и он обязан отработать ДО обращения к приёмнику — дойти до приёмника
             // значит тронуть игровой объект (TryGetComponent, при первом обращении AddComponent),
             // а на трупе и на здании этого делать нельзя. Так же устроены шаг 0 (Unit.Combat.cs:127)
-            // и шаг 1 (Unit.State.cs). Сигнатура и значения по умолчанию не изменились — ни одно
-            // из мест вызова не трогается, включая массивные перегрузки ниже.
+            // и шаг 1 (Unit.State.cs). Список параметров и значения по умолчанию не изменились — ни одно
+            // из мест вызова не трогается, включая массивные перегрузки ниже. С 13.09.2026 метод ОТДАЁТ
+            // держатель наложения (см. <returns>): для мест вызова это ничего не меняет — результат
+            // игнорируется, читает его только источник, снимающий своё наложение досрочно.
             EffectorPacket packet = new EffectorPacket(effector, unitOwner, owner, currentTime, powerMultiplier, durationOverride, restoring);
 
             // Загрузка сохранения молчит (решение Artsiom 07.09.2026): она возвращает уже посчитанные
@@ -255,7 +262,7 @@ namespace StrategyCore
                                     " | сила=" + powerMultiplier.ToString("0.##") +
                                     " | длительность=" + (durationOverride > 0f ? durationOverride.ToString("0.#") + " сек" : "из ассета"));
 
-            unit.ReceiverEnsure().Receive(in packet);
+            return unit.ReceiverEnsure().Receive(in packet);
         }
 
         // Add Effector[] by unitOwner
