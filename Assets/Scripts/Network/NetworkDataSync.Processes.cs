@@ -31,7 +31,11 @@ namespace StrategyCore
             if (tech != null)
             {
                 TechnologyManager.Instance.TechTree[player][tech] = unlocked;
-                TechnologyManager.Instance.OnTechUnlock[player]?.Invoke();
+                // [Interflow fix 2026-09-12 закрытие-технологии] Событие по знаку `unlocked`, как на сервере
+                // (TechnologyManager.UnlockTech/LockTech). Почему: при закрытии клиент поднимал OnTechUnlock —
+                // подписчики закрытия (UIManager.UnitPanel) сообщения не получали, подписчики открытия получали ложное.
+                if (unlocked) TechnologyManager.Instance.OnTechUnlock[player]?.Invoke();
+                else TechnologyManager.Instance.OnTechLock[player]?.Invoke();
 
                 if (tech.shared)
                 {
@@ -39,18 +43,25 @@ namespace StrategyCore
 
                     for (int i = 0; i < allies.Length; i++)
                     {
-                        if (!TechnologyManager.Instance.TechTree[allies[i]][tech])
+                        // [Interflow fix 2026-09-12 закрытие-технологии] Сравнение с НОВЫМ значением, а не с «закрыто».
+                        // Почему: при закрытии условие работало наоборот — до союзника с открытой технологией
+                        // закрытие не доходило, а союзнику с закрытой летел лишний OnTechUnlock.
+                        if (TechnologyManager.Instance.TechTree[allies[i]][tech] != unlocked)
                         {
                             TechnologyManager.Instance.TechTree[allies[i]][tech] = unlocked;
-                            // Send a message previously unknown tech was unlocked
-                            TechnologyManager.Instance.OnTechUnlock[allies[i]]?.Invoke();
+                            // Send a message tech state has changed for this ally
+                            if (unlocked) TechnologyManager.Instance.OnTechUnlock[allies[i]]?.Invoke();
+                            else TechnologyManager.Instance.OnTechLock[allies[i]]?.Invoke();
                         }
                     }
                 }
             }
             else
             {
-                Debug.LogWarning("Desync on technology with an id " + techID + " (" + tech.displayName + "). It does not exist on player " + SlotManager.Instance.currentPlayer);
+                // [Interflow fix 2026-09-12 закрытие-технологии] Сообщение без обращения к `tech`.
+                // Почему: ветка достижима только при tech == null, и tech.displayName давал
+                // NullReferenceException вместо предупреждения о рассинхроне.
+                Debug.LogWarning("Desync on technology with an id " + techID + ". It does not exist on player " + SlotManager.Instance.currentPlayer);
             }
         }
 

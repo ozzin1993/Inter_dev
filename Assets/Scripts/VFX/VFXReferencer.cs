@@ -10,6 +10,11 @@ namespace StrategyCore
     {
         [HideInInspector] public int id;
 
+        // [Interflow fix 2026-09-13 vfx-remove-by-prefab] Префаб-источник этого экземпляра: несколько VFX
+        // умений на одном юните делят id == 0 (id присваивает только реестр Resources/VFX), RemoveVFX
+        // раньше находил «первый попавшийся» вместо нужного. Заполняется в Unit.AddVFX после Instantiate.
+        [HideInInspector] public VFXReferencer source;
+
         [Tooltip("If this VFX element is using line renderer or line particle system for continuous ability, add VFXLine component and assign this variable")]
         public VFXLine vfxLine;
     }

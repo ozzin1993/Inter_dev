@@ -482,6 +482,15 @@ namespace StrategyCore
 
                 GameManager.Instance.Tick += p.VisibilityCheck;
             }
+            else
+            {
+                // [Interflow fix 2026-09-12 impactVFX-без-тумана] Без проверки видимости снаряд считается видимым.
+                // Почему: признак поднимался ТОЛЬКО в ветке выше, поэтому при выключенном тумане (или при
+                // FoWVisibilityCheck = false) поле оставалось со значением по умолчанию — false, и проверка
+                // `if (impactVFX && renderersEnabled)` не создавала визуал попадания ни разу за матч.
+                // renderObject здесь не трогаем: гасит его только DisableRenderers из ветки выше.
+                p.renderersEnabled = true;
+            }
 
             p.searchUnitSelector = searchUnitSelector;
             p.splashUnitSelector = splashUnitSelector;

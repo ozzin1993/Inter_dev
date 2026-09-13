@@ -31,10 +31,29 @@ namespace StrategyCore
         public VFXReferencer AddVFX(VFXReferencer vfx, bool aboveHead = false, bool unitCentre = false)
         {
             VFXReferencer temp = Instantiate(vfx, vfxHolder);
+            // [Interflow fix 2026-09-13 vfx-remove-by-prefab] Экземпляр помнит свой префаб — RemoveVFX
+            // снимает именно его, а не первый элемент с тем же id.
+            temp.source = vfx;
             if (unitCentre) temp.transform.localPosition += new Vector3(0, unitHeight * 0.5f, 0);
             else if (aboveHead) temp.transform.localPosition += new Vector3(0, unitHeight + 0.1f, 0);
 
             return temp;
+        }
+
+        /// <summary>
+        /// Какой из экземпляров на держателе снимать по префабу-источнику; null — нет такого.
+        /// </summary>
+        /// <param name="elements">Экземпляры VFX на держателе (GetComponentsInChildren).</param>
+        /// <param name="prefab">Префаб-источник, который нужно найти.</param>
+        public static VFXReferencer FindVfxInstance(VFXReferencer[] elements, VFXReferencer prefab)
+        {
+            for (int i = 0; i < elements.Length; i++)
+            {
+                // [Interflow fix 2026-09-13 vfx-remove-by-prefab] Сравнение по префабу-источнику вместо id:
+                // несколько VFX умений на одном юните делят id == 0 и совпадали бы друг с другом.
+                if (elements[i].source == prefab) return elements[i];
+            }
+            return null;
         }
 
         /// <summary>
@@ -44,14 +63,8 @@ namespace StrategyCore
         public void RemoveVFX(VFXReferencer vfx)
         {
             VFXReferencer[] elements = vfxHolder.GetComponentsInChildren<VFXReferencer>();
-            for (int i = 0; i < elements.Length; i++)
-            {
-                if (elements[i].id == vfx.id)
-                {
-                    Destroy(elements[i].gameObject);
-                    return;
-                }
-            }
+            VFXReferencer instance = FindVfxInstance(elements, vfx);
+            if (instance != null) Destroy(instance.gameObject);
         }
 
         // ============================= MATERIALS AND RENDERERS ==============================================================================

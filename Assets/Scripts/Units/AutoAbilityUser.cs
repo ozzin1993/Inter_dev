@@ -105,6 +105,68 @@ namespace StrategyCore
             if (!subscribed) return;
             if (GameManager.Instance != null) GameManager.Instance.Tick -= OnTick;
             subscribed = false;
+            UnsubscribeTechEvents();
+        }
+
+        // [Interflow fix 2026-09-12 автокаст-перерезолв] Слот игрока, на чьи события технологий подписаны
+        // (−1 — не подписаны). Хранится отдельно от unit.owner: отписываться надо от ТОГО слота, на который подписались.
+        private int techSubscribedOwner = -1;
+
+        /// <summary>
+        /// [Interflow fix 2026-09-12 автокаст-перерезолв] Подписка на изменение пула умений носителя.
+        /// Почему: вердикт «умение не найдено» кэшировался навсегда, и умение, появившееся в пуле позже
+        /// (открытие технологией), авто-применением больше не подхватывалось. Своего события пул не поднимает
+        /// (Unit.AllAbilityLockLevelsCalculate молчит), поэтому берём тот же источник, что и ядро (Unit.Init).
+        ///
+        /// Зовётся из тика, а НЕ из OnEnable: владельца юниту проставляют после Instantiate, и в OnEnable
+        /// подписка ушла бы в слот 0. Тот же вызов перевешивает подписку при смене владельца (Unit.SetOwnership).
+        /// </summary>
+        private void SubscribeTechEvents()
+        {
+            if (unit == null) return;
+
+            int owner = unit.owner;
+            if (owner == techSubscribedOwner) return;
+
+            // Снимаем старую подписку ДО любых проверок: иначе при недоступном менеджере или слоте вне границ
+            // делегат остался бы висеть на прежнем владельце, а тик звал бы этот метод заново каждый раз.
+            UnsubscribeTechEvents();
+
+            TechnologyManager tm = TechnologyManager.Instance;
+            if (tm == null || tm.OnTechUnlock == null) return;
+            if (owner < 0 || owner >= tm.OnTechUnlock.Length) return;
+
+            tm.OnTechUnlock[owner] += InvalidateResolved;
+            if (tm.OnTechLock != null && owner < tm.OnTechLock.Length) tm.OnTechLock[owner] += InvalidateResolved;
+            techSubscribedOwner = owner;
+
+            InvalidateResolved();      // у нового владельца пул и замки свои — перерешать заново
+        }
+
+        private void UnsubscribeTechEvents()
+        {
+            if (techSubscribedOwner < 0) return;
+
+            TechnologyManager tm = TechnologyManager.Instance;
+            if (tm != null && tm.OnTechUnlock != null && techSubscribedOwner < tm.OnTechUnlock.Length)
+            {
+                tm.OnTechUnlock[techSubscribedOwner] -= InvalidateResolved;
+                if (tm.OnTechLock != null && techSubscribedOwner < tm.OnTechLock.Length)
+                    tm.OnTechLock[techSubscribedOwner] -= InvalidateResolved;
+            }
+
+            techSubscribedOwner = -1;
+        }
+
+        /// <summary>
+        /// [Interflow fix 2026-09-12 автокаст-перерезолв] Пул умений мог измениться — перерешать заново.
+        /// Сами номера не трогаем: их проверит и перезапишет ResolveAbilityIndex. Предупреждение в лог
+        /// остаётся «раз на попытку», а не на тик: сброс приходит по событию технологии.
+        /// </summary>
+        private void InvalidateResolved()
+        {
+            if (resolved == null) return;
+            for (int i = 0; i < resolved.Length; i++) resolved[i] = false;
         }
 
         // Штатный тик ассета (0.1 с). Решение о касте — только на сервере (правило 6).
@@ -112,6 +174,10 @@ namespace StrategyCore
         {
             if (NetworkConnectionHandler.isClient) return;
             if (unit == null || unit.dead) return;
+
+            // [Interflow fix 2026-09-12 автокаст-перерезолв] Держим подписку на событиях технологий ТЕКУЩЕГО
+            // владельца: к первому тику он уже проставлен, а сравнение одного int на тик дешевле любой другой точки.
+            if (techSubscribedOwner != unit.owner) SubscribeTechEvents();
 
             // 1) Возврат к команде после завершения каста (переход AbilityCasting → не-каст).
             //    Мгновенные умения (без castRange/castTime) в AbilityCasting не входят,

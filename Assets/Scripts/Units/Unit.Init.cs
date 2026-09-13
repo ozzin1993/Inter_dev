@@ -240,6 +240,10 @@ namespace StrategyCore
                 lifetimeUnit.Initialize();
             }
 
+            // Развёртывание оружия. Компонент необязательный: на большинстве юнитов его нет, null здесь норма.
+            // Своего Initialize() у него нет, поэтому, в отличие от соседей, только кэшируем ссылку.
+            weaponDeployment = GetComponent<WeaponDeployment>();
+
             // Transport unit
             if (transportWeight == 0) transportWeight = 1;
             if (GetComponent<TransportUnit>())
@@ -319,6 +323,8 @@ namespace StrategyCore
 
             // TechTree subscribe to it
             if (!staticObject) TechnologyManager.Instance.OnTechUnlock[owner] += AllAbilityLockLevelsCalculate; // When new tech is unlocked, check if there are any abilities to unlock
+            // [Interflow fix 2026-09-13 tech-lock-on-unit] Без этой подписки закрытие технологии не пересчитывало замки умений.
+            if (!staticObject) TechnologyManager.Instance.OnTechLock[owner] += AllAbilityLockLevelsCalculate;
 
             initialized = true;
         }

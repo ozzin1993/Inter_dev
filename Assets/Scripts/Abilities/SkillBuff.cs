@@ -149,7 +149,12 @@ namespace StrategyCore
             // иначе баф завис бы навсегда: таймер стоит ниже по коду.
             if (source == null || source.buff == null) { Cleanup(); return; }
 
-            float dt = GameManager.Instance.currentDeltaTime;
+            // [Interflow fix 2026-09-12 остаток-тика] Последний тик длится не дольше остатка бафа.
+            // Почему: полный dt применялся к ауре, лечению и самосожжению даже когда бафу оставалось меньше
+            // (при dt 0,1 и остатке 0,03 — лишние 70 % тика сверх оплаченной длительности).
+            if (remaining <= 0f) { Cleanup(); return; }
+
+            float dt = TickDelta(GameManager.Instance.currentDeltaTime, remaining);
             SkillBuffBlock cfg = source.buff;
 
             // Аура урона вокруг носителя (наносит сам носитель — как у огненного плаща).
@@ -184,6 +189,13 @@ namespace StrategyCore
             remaining -= dt;
             if (remaining <= 0f) Cleanup();
         }
+
+        /// <summary>
+        /// [Interflow fix 2026-09-12 остаток-тика] Шаг тика: не длиннее остатка бафа.
+        /// Вынесена статикой намеренно — единственный способ проверить арифметику последнего тика
+        /// в EditMode: сам OnTick приватен и без GameManager.Instance не считает.
+        /// </summary>
+        public static float TickDelta(float delta, float remaining) => Mathf.Min(delta, remaining);
 
         // Гибель носителя под бафом → детонация. Одноразово.
         void HandleDie(Unit u, int playerThatKills, Unit unitThatKills, bool rewards)

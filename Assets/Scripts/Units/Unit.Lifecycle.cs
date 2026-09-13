@@ -182,6 +182,8 @@ namespace StrategyCore
             GameManager.Instance.Tick -= CommandSoundTimerUpdate;
 
             TechnologyManager.Instance.OnTechUnlock[owner] -= AllAbilityLockLevelsCalculate;
+            // [Interflow fix 2026-09-13 tech-lock-on-unit] Без этой подписки закрытие технологии не пересчитывало замки умений.
+            TechnologyManager.Instance.OnTechLock[owner] -= AllAbilityLockLevelsCalculate;
 
             if (idleRandomTime != 0) GameManager.Instance.Tick -= RandomIdleAnimation;
             GameManager.Instance.Tick -= HandleEffectors;
@@ -196,6 +198,8 @@ namespace StrategyCore
         private void Subscribe()
         {
             TechnologyManager.Instance.OnTechUnlock[owner] += AllAbilityLockLevelsCalculate;
+            // [Interflow fix 2026-09-13 tech-lock-on-unit] Без этой подписки закрытие технологии не пересчитывало замки умений.
+            TechnologyManager.Instance.OnTechLock[owner] += AllAbilityLockLevelsCalculate;
 
             if (idleRandomTime != 0) GameManager.Instance.Tick += RandomIdleAnimation;
             GameManager.Instance.Tick += HandleEffectors;
@@ -350,6 +354,9 @@ namespace StrategyCore
                 // TechTree subscribe to it
                 TechnologyManager.Instance.OnTechUnlock[owner] -= AllAbilityLockLevelsCalculate; // When new tech is unlocked, check if there are any abilities to unlock
                 TechnologyManager.Instance.OnTechUnlock[newOwner] += AllAbilityLockLevelsCalculate;
+                // [Interflow fix 2026-09-13 tech-lock-on-unit] Без этой подписки закрытие технологии не пересчитывало замки умений.
+                TechnologyManager.Instance.OnTechLock[owner] -= AllAbilityLockLevelsCalculate;
+                TechnologyManager.Instance.OnTechLock[newOwner] += AllAbilityLockLevelsCalculate;
 
                 // Below data for new ownership
                 owner = newOwner;
