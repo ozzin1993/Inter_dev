@@ -135,10 +135,14 @@ namespace Unity.Pipeline
             switch (token.Type)
             {
                 case JTokenType.Integer:
+                    // ToObject, а не Value<T>: на 6000.4 instanceId — это ulong-EntityId около максимума
+                    // (> Int64.MaxValue). По проводу Newtonsoft хранит такое число как BigInteger, а
+                    // JValue.Value<ulong>()/Value<long>() падает на нём с "Object must implement IConvertible"
+                    // (BigInteger не реализует IConvertible). ToObject<T>() конвертирует BigInteger штатно.
 #if UNITY_6000_4_OR_NEWER
-                    return ObjectId.FromRaw(token.Value<ulong>());
+                    return ObjectId.FromRaw(token.ToObject<ulong>());
 #else
-                    return ObjectId.FromRaw(token.Value<long>());
+                    return ObjectId.FromRaw(token.ToObject<long>());
 #endif
                 case JTokenType.String:
                     return ObjectId.Parse((string)token);

@@ -50,14 +50,17 @@ namespace Unity.Pipeline.Runtime.Commands
             var previousScale = Time.timeScale;
             Time.timeScale = scale;
 
+            // InvariantCulture: ответ — машинная строка протокола, разделитель дробной части
+            // не должен зависеть от локали ОС (иначе на ru-RU выходит "0,5x").
+            var inv = System.Globalization.CultureInfo.InvariantCulture;
             var scaleDescription = scale switch
             {
                 0f => "paused",
                 1f => "normal speed",
-                _ => $"{scale}x speed"
+                _ => $"{scale.ToString(inv)}x speed"
             };
 
-            return $"Time scale set to {scaleDescription} (was {previousScale}x)";
+            return $"Time scale set to {scaleDescription} (was {previousScale.ToString(inv)}x)";
         }
 
         /// <summary>
