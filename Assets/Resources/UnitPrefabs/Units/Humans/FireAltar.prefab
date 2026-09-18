@@ -81,6 +81,8 @@ MonoBehaviour:
   abilities:
   - {fileID: 11400000, guid: 11ff0a22942c7cb4ebb23f0d4937c93e, type: 2}
   - {fileID: 11400000, guid: f7f43490b7ea247498427398747641b8, type: 2}
+  - {fileID: 11400000, guid: d8483359b6a3c6547997e5691e4d6c63, type: 2}
+  - {fileID: 11400000, guid: 923f1bce0dfd44940a0dcd767766e8e4, type: 2}
   abilityLevel: 
   abilityLocked: 
   cooldownAbility: []

@@ -1,0 +1,559 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7e4e62b425a51ad40a0252b2c65f29c4, type: 3}
+  m_Name: Lyudi_Ab_Inquisition_FallenBlessing
+  m_EditorClassIdentifier: Interflow.Game::StrategyCore.CompositePassive
+  id: 22
+  abilityName:
+  - "\u0411\u043B\u0430\u0433\u043E\u0441\u043B\u043E\u0432\u0435\u043D\u0438\u0435
+    \u041F\u0430\u0434\u0448\u0435\u0433\u043E"
+  description:
+  - "\u041F\u0440\u0438 \u0441\u043C\u0435\u0440\u0442\u0438 \u0438\u0441\u0446\u0435\u043B\u044F\u0435\u0442
+    \u0431\u043B\u0438\u0436\u0430\u0439\u0448\u0435\u0433\u043E \u0441\u043E\u044E\u0437\u043D\u0438\u043A\u0430
+    \u043D\u0430 25% \u0435\u0433\u043E \u043C\u0430\u043A\u0441\u0438\u043C\u0430\u043B\u044C\u043D\u043E\u0433\u043E
+    \u0437\u0434\u043E\u0440\u043E\u0432\u044C\u044F."
+  icon: []
+  slotNumber: -1
+  isItem: 0
+  useUponPickUp: 0
+  dropOnDeath: 0
+  charges: 0
+  maxLevels: 1
+  heroLevelable: 0
+  cooldown:
+  - 0
+  castRange:
+  - 0
+  castTime:
+  - 0
+  radius:
+  - 0
+  showRadiusCircle: 0
+  unitSelector:
+    isOwn: 0
+    isAlly: 0
+    isEnemy: 0
+    isUnit: 0
+    isBuilding: 0
+    isStaticDestructible: 0
+    isTree: 0
+    isGround: 0
+    isWater: 0
+    isAir: 0
+    includeInvisible: 0
+    includeInvulnerable: 0
+  dontTurn: 0
+  duration: []
+  requiredTech:
+  - data:
+    - {fileID: 11400000, guid: e966318b77ff642ab1899fce1050fc20, type: 2}
+  cost: []
+  editorFactions: []
+  cleave:
+    enabled: 0
+    centerOnCaster: 0
+    radius: 0
+    damageFraction: 0
+    selector:
+      isOwn: 0
+      isAlly: 0
+      isEnemy: 0
+      isUnit: 0
+      isBuilding: 0
+      isStaticDestructible: 0
+      isTree: 0
+      isGround: 0
+      isWater: 0
+      isAir: 0
+      includeInvisible: 0
+      includeInvulnerable: 0
+    requiredCasterEffector: {fileID: 0}
+    carrierCondition: 0
+    carrierHpBelow: 0
+    upgradeTechnology: {fileID: 0}
+    upgradedRadius: 0
+    upgradedDamageFraction: 0
+    presentation:
+      animationState: 
+      socket: 1
+      localOffset: {x: 0, y: 0, z: 0}
+      carrierVFX: {fileID: 0}
+      carrierVfxLifetime: 2
+      pointVFX: {fileID: 0}
+      pointVfxLifetime: 2
+      carrierSound: {fileID: 0}
+      pointSound: {fileID: 0}
+      soundVolume: 1
+  gaugeBlock:
+    enabled: 0
+    maxGauge: 0
+    hitGain: 0
+    killGain: 0
+    tickGain: 0
+    combatMemory: 0
+    onlyRanged: 0
+    notWhileMorphed: 0
+  missingHpStats:
+    enabled: 0
+    damageByMissingHp:
+      serializedVersion: 2
+      m_Curve:
+      - serializedVersion: 3
+        time: 0
+        value: 1
+        inSlope: 0
+        outSlope: 0
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
+      - serializedVersion: 3
+        time: 1
+        value: 1
+        inSlope: 0
+        outSlope: 0
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
+      m_PreInfinity: 2
+      m_PostInfinity: 2
+      m_RotationOrder: 4
+    armorByMissingHp:
+      serializedVersion: 2
+      m_Curve:
+      - serializedVersion: 3
+        time: 0
+        value: 0
+        inSlope: 0
+        outSlope: 0
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
+      - serializedVersion: 3
+        time: 1
+        value: 0
+        inSlope: 0
+        outSlope: 0
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
+      m_PreInfinity: 2
+      m_PostInfinity: 2
+      m_RotationOrder: 4
+    attackSpeedByMissingHp:
+      serializedVersion: 2
+      m_Curve:
+      - serializedVersion: 3
+        time: 0
+        value: 0
+        inSlope: 0
+        outSlope: 0
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
+      - serializedVersion: 3
+        time: 1
+        value: 0
+        inSlope: 0
+        outSlope: 0
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
+      m_PreInfinity: 2
+      m_PostInfinity: 2
+      m_RotationOrder: 4
+    missingHpStep: 0
+    presentationMissingHpThreshold: 0
+    visualEffector: {fileID: 0}
+  onAllyDeath:
+    enabled: 0
+    victimPrefabs: []
+    victimSelector:
+      isOwn: 0
+      isAlly: 0
+      isEnemy: 0
+      isUnit: 0
+      isBuilding: 0
+      isStaticDestructible: 0
+      isTree: 0
+      isGround: 0
+      isWater: 0
+      isAir: 0
+      includeInvisible: 0
+      includeInvulnerable: 0
+    radius: []
+    healFlat: []
+    healPercentOfMaxHp: []
+    presentation:
+      animationState: 
+      socket: 1
+      localOffset: {x: 0, y: 0, z: 0}
+      carrierVFX: {fileID: 0}
+      carrierVfxLifetime: 2
+      pointVFX: {fileID: 0}
+      pointVfxLifetime: 2
+      carrierSound: {fileID: 0}
+      pointSound: {fileID: 0}
+      soundVolume: 1
+  onAttackStart:
+    enabled: 0
+    presentation:
+      animationState: 
+      socket: 1
+      localOffset: {x: 0, y: 0, z: 0}
+      carrierVFX: {fileID: 0}
+      carrierVfxLifetime: 2
+      pointVFX: {fileID: 0}
+      pointVfxLifetime: 2
+      carrierSound: {fileID: 0}
+      pointSound: {fileID: 0}
+      soundVolume: 1
+  onHit:
+    enabled: 0
+    onlyDirectAttack: 1
+    everyNthHit: 0
+    chance: 1
+    cooldown: 0
+    onlyTargetTypes: 
+    onlyTargetCategories: 
+    onlyTargetCondition: 0
+    conditionHpFraction: 0.5
+    onlyDamageType: {fileID: 0}
+    procAtProjectileImpact: 0
+    extraDamageMultiplier: 0
+    extraDamageFlat: 0
+    extraDamageType: {fileID: 0}
+    targetEffectors: []
+    vulnerabilityMultiplier: 1
+    vulnerabilityDuration: 0
+    vulnerabilityOnlyDamageType: {fileID: 0}
+    vulnerabilityOnlyDirectIncoming: 0
+    healFromDamagePercent: 0
+    healCondition: 0
+    healCarrierHpBelow: 0
+    healUpgradeTechnology: {fileID: 0}
+    healFromDamagePercentUpgraded: 0
+    spreadChance: 0
+    spreadRadius: 0
+    spreadNeighbourCount: 1
+    spreadAttackEffectors: 1
+    spreadExtraEffectors: []
+    spreadSelector:
+      isOwn: 0
+      isAlly: 0
+      isEnemy: 0
+      isUnit: 0
+      isBuilding: 0
+      isStaticDestructible: 0
+      isTree: 0
+      isGround: 0
+      isWater: 0
+      isAir: 0
+      includeInvisible: 0
+      includeInvulnerable: 0
+    stunSeconds: 0
+    knockbackDistance: 0
+    knockbackStunSeconds: 0
+    knockbackRespectControlImmunity: 1
+    lineWidth: 0
+    lineExtraDistance: 0
+    lineDamagePercent: 1
+    lineMaxTargets: 0
+    lineApplyAttackEffectors: 1
+    lineSelector:
+      isOwn: 0
+      isAlly: 0
+      isEnemy: 0
+      isUnit: 0
+      isBuilding: 0
+      isStaticDestructible: 0
+      isTree: 0
+      isGround: 0
+      isWater: 0
+      isAir: 0
+      includeInvisible: 0
+      includeInvulnerable: 0
+    cryEffectors: []
+    cryRadius: 0
+    cryMinAllyTier: 1
+    cryMaxAllyTier: 6
+    cryIncludeSelf: 0
+    crySelector:
+      isOwn: 0
+      isAlly: 0
+      isEnemy: 0
+      isUnit: 0
+      isBuilding: 0
+      isStaticDestructible: 0
+      isTree: 0
+      isGround: 0
+      isWater: 0
+      isAir: 0
+      includeInvisible: 0
+      includeInvulnerable: 0
+    bleedEnabled: 0
+    bleedDamagePerMeter: 2
+    bleedDuration: 4
+    bleedDamageType: {fileID: 0}
+    procSkill: {fileID: 0}
+    presentation:
+      animationState: 
+      socket: 1
+      localOffset: {x: 0, y: 0, z: 0}
+      carrierVFX: {fileID: 0}
+      carrierVfxLifetime: 2
+      pointVFX: {fileID: 0}
+      pointVfxLifetime: 2
+      carrierSound: {fileID: 0}
+      pointSound: {fileID: 0}
+      soundVolume: 1
+  onDamaged:
+    enabled: 0
+    onlyDirectAttack: 1
+    onlyDamageType: {fileID: 0}
+    onlyFromFront: 0
+    frontAngle: 90
+    evadeChance: []
+    incomingMultiplier: []
+    flatBlock: []
+    minDamage: 1
+    doubleBlockBelowHp: 0
+    counterEnabled: 0
+    counterPercentOfAttack: []
+    counterFlatDamage: []
+    counterDamageType: {fileID: 0}
+    counterRadius: []
+    counterMaxTargets: 0
+    counterSelector:
+      isOwn: 0
+      isAlly: 0
+      isEnemy: 0
+      isUnit: 0
+      isBuilding: 0
+      isStaticDestructible: 0
+      isTree: 0
+      isGround: 0
+      isWater: 0
+      isAir: 0
+      includeInvisible: 0
+      includeInvulnerable: 0
+    counterEffectors: []
+    counterCooldown: 1
+    counterOnlyOnEvade: 0
+    presentation:
+      animationState: 
+      socket: 1
+      localOffset: {x: 0, y: 0, z: 0}
+      carrierVFX: {fileID: 0}
+      carrierVfxLifetime: 2
+      pointVFX: {fileID: 0}
+      pointVfxLifetime: 2
+      carrierSound: {fileID: 0}
+      pointSound: {fileID: 0}
+      soundVolume: 1
+  onDeath:
+    enabled: 1
+    radius:
+    - 3
+    allyHealRadius: []
+    enemyDamage: []
+    enemyDamageType: {fileID: 0}
+    enemySelector:
+      isOwn: 0
+      isAlly: 0
+      isEnemy: 1
+      isUnit: 1
+      isBuilding: 0
+      isStaticDestructible: 0
+      isTree: 0
+      isGround: 1
+      isWater: 1
+      isAir: 1
+      includeInvisible: 1
+      includeInvulnerable: 0
+    allyHealFlat: []
+    allyHealPercentOfMaxHp:
+    - 0.25
+    healOnlyNearest: 1
+    allySelector:
+      isOwn: 1
+      isAlly: 1
+      isEnemy: 0
+      isUnit: 1
+      isBuilding: 0
+      isStaticDestructible: 0
+      isTree: 0
+      isGround: 1
+      isWater: 1
+      isAir: 1
+      includeInvisible: 1
+      includeInvulnerable: 1
+    zonePrefab: {fileID: 0}
+    summonPrefab: {fileID: 0}
+    summonCount: 1
+    summonLifetime: 0
+    summonObeyCommands: 1
+    summonCommand: 1
+    summonSpawnSpread: 1
+    presentation:
+      animationState: 
+      socket: 1
+      localOffset: {x: 0, y: 0, z: 0}
+      carrierVFX: {fileID: 0}
+      carrierVfxLifetime: 2
+      pointVFX: {fileID: 0}
+      pointVfxLifetime: 2
+      carrierSound: {fileID: 0}
+      pointSound: {fileID: 0}
+      soundVolume: 1
+    healPresentation:
+      animationState: 
+      socket: 1
+      localOffset: {x: 0, y: 0, z: 0}
+      carrierVFX: {fileID: 0}
+      carrierVfxLifetime: 2
+      pointVFX: {fileID: 6566446480863485702, guid: 763429aac2c40054e95645c160bba0b5, type: 3}
+      pointVfxLifetime: 3
+      carrierSound: {fileID: 0}
+      pointSound: {fileID: 0}
+      soundVolume: 1
+  onKill:
+    enabled: 0
+    cryEffectors: []
+    cryRadius: []
+    crySelector:
+      isOwn: 0
+      isAlly: 0
+      isEnemy: 0
+      isUnit: 0
+      isBuilding: 0
+      isStaticDestructible: 0
+      isTree: 0
+      isGround: 0
+      isWater: 0
+      isAir: 0
+      includeInvisible: 0
+      includeInvulnerable: 0
+    includeSelf: 0
+    killerHealFlat: []
+    killerHealPercentOfMaxHp: []
+    damagePercentPerKill: []
+    damagePerKillMaxStacks: 0
+    presentation:
+      animationState: 
+      socket: 1
+      localOffset: {x: 0, y: 0, z: 0}
+      carrierVFX: {fileID: 0}
+      carrierVfxLifetime: 2
+      pointVFX: {fileID: 0}
+      pointVfxLifetime: 2
+      carrierSound: {fileID: 0}
+      pointSound: {fileID: 0}
+      soundVolume: 1
+  onHpBelow:
+    enabled: 0
+    threshold: 0.3
+    selfEffectors: []
+    allyEffectors: []
+    allyRadius: []
+    allySelector:
+      isOwn: 0
+      isAlly: 0
+      isEnemy: 0
+      isUnit: 0
+      isBuilding: 0
+      isStaticDestructible: 0
+      isTree: 0
+      isGround: 0
+      isWater: 0
+      isAir: 0
+      includeInvisible: 0
+      includeInvulnerable: 0
+    cooldown: 0
+    presentation:
+      animationState: 
+      socket: 1
+      localOffset: {x: 0, y: 0, z: 0}
+      carrierVFX: {fileID: 0}
+      carrierVfxLifetime: 2
+      pointVFX: {fileID: 0}
+      pointVfxLifetime: 2
+      carrierSound: {fileID: 0}
+      pointSound: {fileID: 0}
+      soundVolume: 1
+  stats:
+    enabled: 0
+    effects:
+      damageChange: 0
+      damagePercentageChange: 0
+      attackSpeedChange: 0
+      attackSpeedPercentageChange: 0
+      attackRangeChange: 0
+      attackRangePercentageChange: 0
+      armorChange: 0
+      armorPercentageChange: 0
+      moveSpeedChange: 0
+      moveSpeedPercentageChange: 0
+      healthChange: 0
+      healthPercentageChange: 0
+      healthRegenChange: 0
+      healthRegenPercentageChange: 0
+      manaChange: 0
+      manaPercentageChange: 0
+      manaRegenChange: 0
+      manaRegenPercentageChange: 0
+      visionChange: 0
+      xpRewardChange: 0
+      xpRewardPercentageChange: 0
+      attributeChanges: []
+      attributePercentageChange: []
+  controlImmunity:
+    enabled: 0
+    carrierCondition: 0
+    carrierHpBelow: 0
+    visualEffector: {fileID: 0}
+  resistances:
+    enabled: 0
+    entries: []
+    carrierCondition: 0
+    carrierHpBelow: 0
+    visualEffector: {fileID: 0}
+  invisibility:
+    enabled: 0
+  armorPierce:
+    enabled: 0
+    fraction:
+    - 0.2
+  splash:
+    enabled: 0
+    radiusPercentChange: 0.4
+    radiusFlatChange: 0
+    newSplashReduction: -1
+    enableSplashIfDisabled: 0
+  attackEffectors:
+    enabled: 0
+    effectors: []
+  aura:
+    enabled: 0
+    condition: 0
+    damagePerSecond: 0
+    damageType: {fileID: 0}
+    effectors: []
+    onlyMeleeUnits: 0
+    movementEpsilon: 0.02
+    missingHpFrom: 0.25
+    includeSelf: 0

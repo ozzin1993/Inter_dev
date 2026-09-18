@@ -70,8 +70,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::StrategyCore.Unit
   abilities:
-  - {fileID: 11400000, guid: a71c4e0f93b64d2e8f5a6c1d47b90e33, type: 2}
-  - {fileID: 11400000, guid: 825e0f5733b44f843837577e9e10ecf7, type: 2}
+  - {fileID: 11400000, guid: 3595bd4ecc76d7944a4eaa2cbe52d07b, type: 2}
+  - {fileID: 11400000, guid: 0b626b4b7cbb6c246a043ff79ff86b5a, type: 2}
   abilityLevel: 0000000000000000
   abilityLocked: 
   cooldownAbility: []

@@ -80,8 +80,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   abilities:
-  - {fileID: 11400000, guid: f75a7c51fa33892429e9d980620edd38, type: 2}
-  - {fileID: 11400000, guid: 367d41a9792827049a3bbcfcf9ae4bc8, type: 2}
+  - {fileID: 11400000, guid: 2c353dd9307b9784cacf94dc082012ef, type: 2}
+  - {fileID: 11400000, guid: 39638b7594d2066479fe639027f64837, type: 2}
   abilityLevel: 0000000000000000
   abilityLocked: 
   cooldownAbility: []
