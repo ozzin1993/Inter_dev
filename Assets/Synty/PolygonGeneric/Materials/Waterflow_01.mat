@@ -30,13 +30,13 @@ Material:
   - _BUILTIN_AlphaClip
   - _OVERLAY_UV_CHANNEL_UV0
   m_InvalidKeywords:
-  - _ALPHABLEND_ON
   - _EMISSION
   m_LightmapFlags: 2
   m_EnableInstancingVariants: 0
   m_DoubleSidedGI: 0
   m_CustomRenderQueue: -1
-  stringTagMap: {}
+  stringTagMap:
+    RenderType: TransparentCutout
   disabledShaderPasses:
   - MOTIONVECTORS
   m_LockedProperties: 
@@ -144,13 +144,13 @@ Material:
     - _Metallic: 0.158
     - _Normal_Intensity: 1
     - _OVERLAY_UV_CHANNEL: 0
-    - _Overlay_Intensity: 0.52
+    - _Overlay_Intensity: 0.468
     - _QueueControl: 0
     - _QueueOffset: 0
     - _ReceiveShadows: 1
     - _Side_Metallic: 0
     - _Side_Smoothness: 0
-    - _Smoothness: 0.623
+    - _Smoothness: 0.486
     - _Snow_Level: 0
     - _Snow_Metallic: 0.1
     - _Snow_Smoothness: 0.5

@@ -274,7 +274,7 @@
                 "m_Node": {
                     "m_Id": "faaeaad3e48e4a54b894441fecf019bb"
                 },
-                "m_SlotId": 1
+                "m_SlotId": 0
             }
         },
         {
@@ -974,7 +974,7 @@
                 "m_Node": {
                     "m_Id": "faaeaad3e48e4a54b894441fecf019bb"
                 },
-                "m_SlotId": 0
+                "m_SlotId": 1
             }
         },
         {
@@ -7013,7 +7013,7 @@
     "m_ObjectId": "dc8291510ffe4b60bcb627301d2aeb9d",
     "m_Title": "View Edge Compensation",
     "m_Position": {
-        "x": -3088.000732421875,
+        "x": -3088.000244140625,
         "y": -140.00003051757813
     }
 }

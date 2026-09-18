@@ -17,7 +17,11 @@ public class polygonShaderTransparent_UI : ShaderGUI
 
     void CheckRenderPipeline()
     {
+        #if UNITY_2022_2_OR_NEWER
         var pipelineAsset = GraphicsSettings.defaultRenderPipeline;
+        #else
+        var pipelineAsset = GraphicsSettings.renderPipelineAsset;
+        #endif
 
         if (pipelineAsset == null)
         {
