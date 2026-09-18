@@ -92,7 +92,7 @@ Material:
     - _DstBlend: 10
     - _DstBlendAlpha: 10
     - _EmissionScaleUI: 0
-    - _Enable_Emission: 1
+    - _Enable_Emission: 0
     - _GlossMapScale: 1
     - _Glossiness: 0.5
     - _GlossyReflections: 1
