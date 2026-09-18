@@ -245,8 +245,13 @@ namespace StrategyCore.Tests
                 codes.Add(code);
             }
 
-            Assert.AreEqual(5, seen.Count,
-                "у умения пять наборов: каст, лечение (блок 7), прилёт снаряда (блок 22) и ДВА у вторичных целей (блок 14)");
+            Assert.AreEqual(10, seen.Count,
+                "пять исходных наборов и пять наборов движения: начало/конец перемещения, отброс, включение/снятие облика");
+            Assert.AreSame(skill.casterMove.startPresentation, skill.PresentationFor((int)AbilityEventCode.SkillCasterMoveStart));
+            Assert.AreSame(skill.casterMove.arrivePresentation, skill.PresentationFor((int)AbilityEventCode.SkillCasterMoveArrive));
+            Assert.AreSame(skill.knockback.presentation, skill.PresentationFor((int)AbilityEventCode.SkillKnockbackTarget));
+            Assert.AreSame(skill.morph.onPresentation, skill.PresentationFor((int)AbilityEventCode.SkillMorphOn));
+            Assert.AreSame(skill.morph.offPresentation, skill.PresentationFor((int)AbilityEventCode.SkillMorphOff));
         }
 
         // ================================== СЕРВЕРНЫЙ И ЛОКАЛЬНЫЙ ПОКАЗ ==

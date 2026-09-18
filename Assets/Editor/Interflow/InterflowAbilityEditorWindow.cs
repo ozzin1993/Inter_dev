@@ -31,6 +31,10 @@ namespace StrategyCore
 
         void CreateGUI()
         {
+            // Повторное создание после перезагрузки домена не должно оставлять пустую активную вкладку.
+            rootVisualElement.Clear();
+            tabToggles.Clear();
+            activeTab = -1;
             tabs = new List<(string, Func<VisualElement>)>
             {
                 ("Боевые умения",    InterflowSkillBuilderTab.CreateTabUI),

@@ -45,7 +45,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b166e7a81d9bcf940a22cc4c185f0e45, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Interflow.Game::StrategyCore.Unit
-  abilities: []
+  abilities:
+  - {fileID: 11400000, guid: a8721123e371516409f25830b96211ed, type: 2}
+  - {fileID: 11400000, guid: 04de48c3270072143bb8f74eb2d670bb, type: 2}
+  - {fileID: 11400000, guid: b81376866a091cd4087b80b4d9e6d985, type: 2}
   abilityLevel: 
   abilityLocked: 
   cooldownAbility: []

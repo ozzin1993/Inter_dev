@@ -185,6 +185,8 @@ namespace StrategyCore
             switch (targetStrategy)
             {
                 case SkillTargetStrategy.Nearest:               return "ближайший";
+                case SkillTargetStrategy.NearestBelowThreshold: return "ближайший ниже порога";
+                case SkillTargetStrategy.HighestDps: return "наибольший урон в секунду";
                 case SkillTargetStrategy.MostWounded:           return "самый раненый";
                 case SkillTargetStrategy.WoundedBelowThreshold: return "раненый ниже порога";
                 case SkillTargetStrategy.Strongest:             return "наибольший запас ХП";

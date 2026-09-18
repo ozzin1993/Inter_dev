@@ -73,6 +73,12 @@ namespace StrategyCore
         [Tooltip("Damage type that is used in damage over time")]
         public DamageType damageType;
 
+        [Header("Получаемый урон")]
+        [Tooltip("Множитель входящего урона: 1 — без изменения, 1.15 — на 15% больше. Как у лечения, берётся сильнейшее снижение, иначе сильнейшее усиление активных состояний.")]
+        [Min(0f)] public float incomingDamageMultiplier = 1f;
+        [Tooltip("Тип входящего урона, на который влияет множитель. Пусто — любой тип. Снятие состояния сразу снимает его вклад.")]
+        public DamageType incomingDamageType;
+
         [Header("Invisibility")]
         [Tooltip("Should this unit upon acquiring this effector become invisible")]
         public bool makeInvisible;

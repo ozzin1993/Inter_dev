@@ -51,6 +51,7 @@ namespace StrategyCore
             ValidateAbilities(issues, units, factions);
             ValidateCompositeSkills(issues, units, factions);
             ValidateEventPresentations(issues);
+            ValidateAdditionalDamageTypes(issues);
             ValidatePassiveReactions(issues);
             ValidatePassiveHealth(issues, units);
             ValidatePassiveCleave(issues, factions);   // [Interflow 2026-09-18] Р52–Р55: блок 11 «рассечение»
@@ -79,6 +80,7 @@ namespace StrategyCore
             ValidateAbilities(issues, units, factions);
             ValidateCompositeSkills(issues, units, factions);
             ValidateEventPresentations(issues);
+            ValidateAdditionalDamageTypes(issues);
             ValidatePassiveReactions(issues);
             ValidatePassiveHealth(issues, units);
             ValidatePassiveCleave(issues, factions);   // [Interflow 2026-09-18] Р52–Р55: блок 11 «рассечение»

@@ -927,7 +927,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Interflow.Game::StrategyCore.GroundDamageZone
   radius: 3
   damagePerSecond: 15
-  damageType: {fileID: 11400000, guid: 34c3e86db64a5014f82747cbad9eadb3, type: 2}
+  damageType: {fileID: 11400000, guid: bf106a8f09b32e44eb1bca4c318dd6e2, type: 2}
   targetSelector:
     isOwn: 0
     isAlly: 0
@@ -943,25 +943,7 @@ MonoBehaviour:
     includeInvulnerable: 0
   duration: 7
   ownerPlayer: 0
-  zoneEffectors:
-  - {fileID: 11400000, guid: 9f268ca8f0cfae54dae9aece20050739, type: 2}
-  effectorInterval: 1
-  allyEffectors:
-  - {fileID: 11400000, guid: 5745b8838e4f33647988e4eed072fbad, type: 2}
-  allySelector:
-    isOwn: 1
-    isAlly: 1
-    isEnemy: 0
-    isUnit: 1
-    isBuilding: 0
-    isStaticDestructible: 0
-    isTree: 0
-    isGround: 1
-    isWater: 1
-    isAir: 1
-    includeInvisible: 0
-    includeInvulnerable: 0
-  conditionalEffectors: []
+  zoneEffectors: []
   stunOnEnterSeconds: 0
   stunOnlyCategory: 0
   stunOnlySelectedCategory: 0

@@ -160,6 +160,7 @@ namespace StrategyCore
                 // [Interflow fix 2026-07-24 combat-hub] Правила входящего жертвы: множители и вычеты числом.
                 // Считаем ДО штатных колбэков, чтобы щит поглощал уже итоговую величину.
                 amount = InterflowCombat.ModifyIncomingDamage(unit, p.attackingUnit, record.damageType, amount, p.directAttack, p.periodic);
+                amount *= EffectorDamageMultiplier(unit, record.damageType);
                 float afterRules = amount;                 // для лога: после правил входящего урона жертвы
 
                 // Перебор подписок скопирован дословно с нулевого шага, включая вторую ветку: она допускает

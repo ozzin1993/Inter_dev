@@ -256,7 +256,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Interflow.Game::StrategyCore.GroundDamageZone
   radius: 2.5
   damagePerSecond: 12
-  damageType: {fileID: 11400000, guid: 34c3e86db64a5014f82747cbad9eadb3, type: 2}
+  damageType: {fileID: 11400000, guid: bf106a8f09b32e44eb1bca4c318dd6e2, type: 2}
   targetSelector:
     isOwn: 0
     isAlly: 0
@@ -273,12 +273,7 @@ MonoBehaviour:
   duration: 6
   ownerPlayer: 0
   zoneEffectors:
-  - {fileID: 11400000, guid: 04ed77813b5b3ec4ba5c41140742638c, type: 2}
-  conditionalEffectors:
-  - requiredTechnology: {fileID: 11400000, guid: cec3efed53b610f42848b9bf53554f9f, type: 2}
-    effector: {fileID: 11400000, guid: 6d58c1710fc839c4e8627470ffd8a42d, type: 2}
-    power: []
-    duration: []
+  - {fileID: 11400000, guid: 41bca870b297cbe4d89cb3c17757e1e1, type: 2}
   stunOnEnterSeconds: 0
   stunOnlyCategory: 0
   stunOnlySelectedCategory: 0

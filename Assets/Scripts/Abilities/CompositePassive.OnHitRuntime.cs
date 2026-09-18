@@ -391,7 +391,8 @@ namespace StrategyCore
 
             // [Interflow 2026-09-17] Хозяин набора «носитель попал по цели». Публикуется ДО кирпичей
             // по той же причине, что у каста умения: визуал не должен зависеть от того, выжила ли цель.
-            EmitEventPresentation(this, (int)AbilityEventCode.PassiveOnHit, onHit.presentation,
+            if (!onHit.presentationOnlyOnHeal)
+                EmitEventPresentation(this, (int)AbilityEventCode.PassiveOnHit, onHit.presentation,
                                   byUnit, level, target, targetPosition);
 
             // 1) Добавочный урон. Через GetDamage, а НЕ DealDamage: второй заново поднял бы это же
@@ -464,7 +465,11 @@ namespace StrategyCore
                     float heal = dmg * healPercent;
                     if (heal > 0f)
                     {
+                        float healthBeforeHeal = byUnit.health;
                         byUnit.ChangeHP(heal);
+                        if (onHit.presentationOnlyOnHeal && byUnit != null && byUnit.health > healthBeforeHeal)
+                            EmitEventPresentation(this, (int)AbilityEventCode.PassiveOnHit, onHit.presentation,
+                                                  byUnit, level, target, targetPosition);
                         Fact(byUnit, BattleFactReason.PassiveOnHitBrick, 4);
 
                         if (InterflowDebug.FullOn)

@@ -331,8 +331,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Interflow.Game::StrategyCore.AutoAbilityUser
   autoAbilities:
-  - {fileID: 11400000, guid: e208a0ec55abde448b13bc12667037b8, type: 2}
-  - {fileID: 11400000, guid: 3ee34f7b41af71d40b84fd687c10dd12, type: 2}
+  - {fileID: 11400000, guid: 67ba3df3ff2bef34eadd2fbed5a71f62, type: 2}
+  - {fileID: 11400000, guid: 8feeec0ee7230cc42bfcc7f55dfa11db, type: 2}
 --- !u!114 &4744492155109504443
 MonoBehaviour:
   m_ObjectHideFlags: 0

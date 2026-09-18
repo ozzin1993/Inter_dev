@@ -139,9 +139,9 @@ MonoBehaviour:
   maxHealth: 150
   health: 150
   healthRegen: 0
-  maxMana: 0
+  maxMana: 50
   mana: 0
-  manaRegen: 0
+  manaRegen: 10
   isInvulnerable: 0
   armor: 0
   armorType: {fileID: 0}
@@ -331,8 +331,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Interflow.Game::StrategyCore.AutoAbilityUser
   autoAbilities:
-  - {fileID: 11400000, guid: 364a956fb59687f43a6542196f423dda, type: 2}
-  - {fileID: 11400000, guid: 65f2591e0d4b390489ef149982a21e48, type: 2}
+  - {fileID: 11400000, guid: 2c353dd9307b9784cacf94dc082012ef, type: 2}
+  - {fileID: 11400000, guid: 39638b7594d2066479fe639027f64837, type: 2}
 --- !u!114 &6603955973545488471
 MonoBehaviour:
   m_ObjectHideFlags: 0

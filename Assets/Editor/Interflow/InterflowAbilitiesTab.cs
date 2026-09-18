@@ -193,8 +193,8 @@ namespace StrategyCore
 
             rightPanel.Add(new Label("Поля состояния:")
                 { style = { unityFontStyleAndWeight = FontStyle.Bold, marginTop = 4, marginBottom = 2 },
-                  tooltip = "Сила и длительность наложения задаются НЕ здесь, а в блоке «Состояния» " +
-                            "того умения, которое его вешает. Ассет состояния отвечает только за то, ЧТО происходит." });
+                  tooltip = "В блоке «Состояния» умения можно переопределить силу и длительность наложения. " +
+                            "Для состояний атаки (attackEffectors) длительность берётся из самого состояния." });
             rightPanel.Add(InterflowEditorUI.BuildGroupedFields(new SerializedObject(selected)));
         }
 

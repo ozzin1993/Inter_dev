@@ -24,7 +24,9 @@ namespace StrategyCore
         [InspectorName("С наибольшим запасом ХП")]     Strongest,
         [InspectorName("Случайный")]                   RandomOne,
         [InspectorName("Скопление")]                   Cluster,
-        [InspectorName("Текущая цель атаки кастера")]  CurrentAttackTarget
+        [InspectorName("Текущая цель атаки кастера")]  CurrentAttackTarget,
+        [InspectorName("Наибольший урон в секунду")] HighestDps,
+        [InspectorName("Ближайший ниже порога ХП")] NearestBelowThreshold
     }
 
     /// <summary>
@@ -71,7 +73,7 @@ namespace StrategyCore
     ///
     /// Все методы — чистый выбор, без побочных эффектов; решение о касте принимает вызывающая сторона.
     /// </summary>
-    public static class SkillTargeting
+    public static partial class SkillTargeting
     {
         /// <summary>Как отбирать нескольких из найденных, когда целей больше лимита.</summary>
         public enum MultiPick
@@ -497,6 +499,12 @@ namespace StrategyCore
 
                 case SkillTargetStrategy.MostWounded:
                     return MostWounded(candidates, self);
+
+                case SkillTargetStrategy.HighestDps:
+                    return HighestDps(candidates, self);
+
+                case SkillTargetStrategy.NearestBelowThreshold:
+                    return NearestBelowThreshold(candidates, self, options.origin, options.hpThreshold);
 
                 case SkillTargetStrategy.WoundedBelowThreshold:
                     return MostWoundedBelowThreshold(candidates, self, options.hpThreshold);

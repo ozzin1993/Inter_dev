@@ -46,7 +46,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b166e7a81d9bcf940a22cc4c185f0e45, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  abilities: []
+  abilities:
+  - {fileID: 11400000, guid: d7678afc668e7164ab5795af02ca37fe, type: 2}
+  - {fileID: 11400000, guid: 08fc01e8b6f94994a83417fc15783437, type: 2}
+  - {fileID: 11400000, guid: 989be491b20c71549b82233a5dc1076f, type: 2}
   abilityLevel: 
   abilityLocked: 
   cooldownAbility: []

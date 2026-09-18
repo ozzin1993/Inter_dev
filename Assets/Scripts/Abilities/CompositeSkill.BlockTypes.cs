@@ -545,7 +545,9 @@ namespace StrategyCore
             if (below <= 0f) return true;
             if (maxHealth <= 0f) return false;
 
-            return health / maxHealth < below;
+            // Сравнение хранится во float и исключает погрешность на точном пороге (30 из 100).
+            float ratio = health / maxHealth;
+            return ratio < below && !Mathf.Approximately(ratio, below);
         }
     }
 

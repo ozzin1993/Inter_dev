@@ -51,7 +51,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Interflow.Game::StrategyCore.GroundDamageZone
   radius: 2
   damagePerSecond: 12
-  damageType: {fileID: 11400000, guid: 34c3e86db64a5014f82747cbad9eadb3, type: 2}
+  damageType: {fileID: 11400000, guid: bf106a8f09b32e44eb1bca4c318dd6e2, type: 2}
   targetSelector:
     isOwn: 0
     isAlly: 0

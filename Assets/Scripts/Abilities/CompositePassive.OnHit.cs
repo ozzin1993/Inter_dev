@@ -253,6 +253,9 @@ namespace StrategyCore
         [Tooltip("Визуал события «носитель попал по цели»: играется в момент срабатывания реакции — " +
                  "и на удар, и на прилёт снаряда. Пусто — без визуала.")]
         public EventPresentation presentation = new EventPresentation();
+
+        [Tooltip("Играть презентацию только при возврате здоровья этим попаданием. Остальные блоки реакции не ограничиваются.")]
+        public bool presentationOnlyOnHeal;
     }
 
     public partial class CompositePassive

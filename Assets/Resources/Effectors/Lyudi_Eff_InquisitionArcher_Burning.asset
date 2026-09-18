@@ -23,7 +23,9 @@ MonoBehaviour:
   duration: 3
   stacks: 0
   damageAmount: 10
-  damageType: {fileID: 0}
+  damageType: {fileID: 11400000, guid: bf106a8f09b32e44eb1bca4c318dd6e2, type: 2}
+  incomingDamageMultiplier: 1
+  incomingDamageType: {fileID: 0}
   makeInvisible: 0
   revealInvisible: 0
   passiveEffectsOn: 0
