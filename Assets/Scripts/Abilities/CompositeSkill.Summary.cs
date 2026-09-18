@@ -28,8 +28,18 @@ namespace StrategyCore
             if (maxTargets > 0) sb.Append(", не больше ").Append(maxTargets);
             if (buttonCast) sb.Append(" • по кнопке");
 
+            if (PicksTargetByStrategy && targetFrontAngle > 0f && targetFrontAngle < 360f)
+                sb.Append(" • впереди ").Append(targetFrontAngle.ToString("0")).Append('°');
+
+            if (targetPrefabs != null && targetPrefabs.Length > 0)
+                sb.Append(" • префабов: ").Append(targetPrefabs.Length);
+
+            if (targetMode == SkillTargetMode.SmartPoint && independentAreaTargets)
+                sb.Append(" • область: свой селектор");
+
             if (delivery == SkillDelivery.Projectile) sb.Append(" • снарядом");
-            if (spawnSocket != SkillSocketType.None) sb.Append(" из точки «").Append(SocketText()).Append('»');
+            if (delivery == SkillDelivery.Projectile && projectileDirectAttack) sb.Append(" • снаряд — атака");
+            if (presentation.socket != SkillSocketType.None) sb.Append(" из точки «").Append(SocketText()).Append('»');
 
             if (damage != null && damage.enabled && damage.entries != null && damage.entries.Length > 0)
             {
@@ -80,8 +90,78 @@ namespace StrategyCore
             if (groundZone != null && groundZone.enabled) sb.Append(" • зона на земле");
             if (delegateService != null && delegateService.enabled && delegateService.service != SkillServerService.None)
                 sb.Append(" • сервис: ").Append(ServiceText());
+            if (gaugeBlock != null && gaugeBlock.enabled)
+                sb.Append(" • шкала: ").Append(gaugeBlock.requireFull ? "полная" : "есть").Append(gaugeBlock.spendAll ? ", в ноль" : "");
+            if (castConditions != null && castConditions.enabled)
+            {
+                string conditions = CastConditionsText();
+                if (conditions.Length > 0) sb.Append(" • условия: ").Append(conditions);
+            }
+            if (projectileImpact != null && projectileImpact.enabled)
+                sb.Append(" • при прилёте: ")
+                  .Append(projectileImpact.skill != null ? projectileImpact.skill.name : "умение не задано");
 
             if (statusEffector != null) sb.Append(" • значок: ").Append(statusEffector.name);
+
+            // [Interflow 2026-09-17] Наборы визуала СОБЫТИЙ (не каста): по строке на каждый заполненный.
+            // Набор самого каста в сводку не идёт — про него уже говорит строка «из точки «…»».
+            string eventSets = EventPresentationText();
+            if (eventSets.Length > 0) sb.Append(" • визуал события: ").Append(eventSets);
+
+            return sb.ToString();
+        }
+
+        /// <summary>
+        /// Блоки умения, у которых заполнен НАБОР визуала события, через запятую. Пусто — ни одного.
+        /// Читается по тому же признаку, по которому сервер решает слать факт (EventPresentation.Any).
+        /// </summary>
+        string EventPresentationText()
+        {
+            StringBuilder sb = new StringBuilder();
+
+            if (heal != null && heal.presentation != null && heal.presentation.Any) sb.Append("лечение");
+            // У блока 14 ДВА набора (решение Artsiom 33 от 17.09.2026): «каст» на кастере и «цель»
+            // на каждой задетой цели. В сводке блок назван один раз — заполнен любой из двух.
+            if (secondary != null
+                && ((secondary.castPresentation != null && secondary.castPresentation.Any)
+                 || (secondary.presentation != null && secondary.presentation.Any)))
+            {
+                if (sb.Length > 0) sb.Append(", ");
+                sb.Append("вторичные цели");
+            }
+            if (projectileImpact != null && projectileImpact.presentation != null && projectileImpact.presentation.Any)
+            {
+                if (sb.Length > 0) sb.Append(", ");
+                sb.Append("прилёт снаряда");
+            }
+
+            return sb.ToString();
+        }
+
+        /// <summary>Условия каста блока 21 через косую черту: «облик/цель в области/ХП &lt; 30%».</summary>
+        string CastConditionsText()
+        {
+            StringBuilder sb = new StringBuilder();
+
+            if (castConditions.requireOriginalForm) sb.Append("исходный облик");
+
+            if (castConditions.requiredShape != null)
+            {
+                if (sb.Length > 0) sb.Append('/');
+                sb.Append("облик: ").Append(castConditions.requiredShape.name);
+            }
+
+            if (castConditions.requireAreaTarget)
+            {
+                if (sb.Length > 0) sb.Append('/');
+                sb.Append("цель в области");
+            }
+
+            if (castConditions.casterHpBelow > 0f)
+            {
+                if (sb.Length > 0) sb.Append('/');
+                sb.Append("ХП < ").Append((castConditions.casterHpBelow * 100f).ToString("0")).Append('%');
+            }
 
             return sb.ToString();
         }
@@ -133,7 +213,7 @@ namespace StrategyCore
 
         string SocketText()
         {
-            switch (spawnSocket)
+            switch (presentation.socket)
             {
                 case SkillSocketType.RightHand: return "правая рука";
                 case SkillSocketType.LeftHand:  return "левая рука";

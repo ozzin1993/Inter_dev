@@ -29,6 +29,33 @@ namespace StrategyCore
             effectorSetBuilt = true;
             return cachedEffectorSet;
         }
+        // ==================================================== НАБОРЫ ВИЗУАЛА СОБЫТИЙ ==
+
+        /// <summary>
+        /// Наборы визуала этого умения по кодам событий. Клиентский презентер спрашивает НАБОР, а не блок:
+        /// про устройство блоков он не знает (правило 5). Кода нет в списке — набора нет, показывать нечего.
+        /// </summary>
+        public override EventPresentation PresentationFor(int eventCode)
+        {
+            switch ((AbilityEventCode)eventCode)
+            {
+                case AbilityEventCode.SkillCast:             return presentation;
+                case AbilityEventCode.SkillHeal:             return heal != null ? heal.presentation : null;
+                case AbilityEventCode.SkillProjectileImpact: return projectileImpact != null ? projectileImpact.presentation : null;
+                case AbilityEventCode.SkillSecondaryHit:     return secondary != null ? secondary.presentation : null;
+                case AbilityEventCode.SkillSecondaryCast:    return secondary != null ? secondary.castPresentation : null;
+
+                // [Interflow 2026-09-18, решение Artsiom 57] Пять наборов семьи «движение, отброс, облик».
+                case AbilityEventCode.SkillCasterMoveStart:  return casterMove != null ? casterMove.startPresentation : null;
+                case AbilityEventCode.SkillCasterMoveArrive: return casterMove != null ? casterMove.arrivePresentation : null;
+                case AbilityEventCode.SkillKnockbackTarget:  return knockback != null ? knockback.presentation : null;
+                case AbilityEventCode.SkillMorphOn:          return morph != null ? morph.onPresentation : null;
+                case AbilityEventCode.SkillMorphOff:         return morph != null ? morph.offPresentation : null;
+            }
+
+            return null;
+        }
+
         // ============================================================ ПРЕЗЕНТАЦИЯ ЦЕЛЕЙ ==
 
         /// <summary>

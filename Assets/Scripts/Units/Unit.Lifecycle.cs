@@ -251,6 +251,8 @@ namespace StrategyCore
             if (NetworkManager.Singleton.IsServer) NetworkDataSync.Instance.onCharCleared -= CharSyncFalse;
         }
 
+        // GaugeSyncFalse — в Unit.Gauge.cs (партиал по фиче, правило 22)
+
         // ============================= OWNERSHIP ==============================================================================
 
         /// <summary>
@@ -288,9 +290,12 @@ namespace StrategyCore
                     if (healthBarRoot) { healthBarRoot.SetParent(null); GameManager.Destroy(healthBarRoot.gameObject); }
                     Transform oldManaBar = overlayRoot != null ? overlayRoot.Find("ManaBar(Clone)") : null;
                     if (oldManaBar) { oldManaBar.SetParent(null); GameManager.Destroy(oldManaBar.gameObject); }
+                    Transform oldGaugeBar = overlayRoot != null ? overlayRoot.Find("GaugeBar(Clone)") : null;
+                    if (oldGaugeBar) { oldGaugeBar.SetParent(null); GameManager.Destroy(oldGaugeBar.gameObject); }
 
                     CreateHealthBar(newTeam);
                     CreateManaBar(newTeam);
+                    CreateGaugeBar(newTeam);
                 }
 
                 // Minimap icon

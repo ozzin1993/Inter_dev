@@ -142,6 +142,30 @@ namespace StrategyCore
                         }
                     }
                 }
+
+                if (currentAbility is CompositeSkill cs && cs.gaugeBlock != null
+                    && !SkillGaugeBlock.Ready(this, cs.gaugeBlock))
+                {
+                    Presentation.NotifyMsg("Шкала не готова", owner, true);
+                    return true;
+                }
+
+                // Условия каста (блок 21 умения): облик носителя, «есть цель в области», порог здоровья.
+                // Точка та же, что у шкалы выше, — единственный гейт каста (правило 5): сюда приходят
+                // и кнопка, и автокаст, и сетевые приёмники. Повтор в момент удара (Unit.State.cs) идёт
+                // через этот же метод сам: условие, отпавшее за время замаха, снимает каст в Idle,
+                // мана и откат при этом не тратятся (выход до списания).
+                // На КЛИЕНТЕ решения не принимаются (правило 6) — сюда клиент не доходит: команда уходит
+                // на сервер ещё в Unit.UseAbilityItem. Кнопка сереет отдельно, оверлеем в UIManager.
+                if (currentAbility is CompositeSkill csCond)
+                {
+                    string castRefusal;
+                    if (!csCond.CastConditionsMet(this, player, abilityLevel[abilityIndex], out castRefusal))
+                    {
+                        Presentation.NotifyMsg(castRefusal, owner, true);
+                        return true;
+                    }
+                }
             }
             return false;
         }
@@ -179,6 +203,10 @@ namespace StrategyCore
                 // На клиенте SetMP только локальный (без синка), сервер пришлёт своё значение штатным каналом маны.
                 if (TryGetComponent(out AutoAbilityUser autoUser) && autoUser.IsAutoAbility(currentAbility))
                     SetMP(0f);
+
+                if (currentAbility is CompositeSkill cs2 && cs2.gaugeBlock != null
+                    && cs2.gaugeBlock.enabled && cs2.gaugeBlock.spendAll)
+                    SetGauge(0f);
 
                 // Subtract resources — та же выборка по уровню, что в проверке (Б8).
                 var levelCost = InterflowAbility.LevelItem(currentAbility.cost, abilityLevel[abilityIndex]);

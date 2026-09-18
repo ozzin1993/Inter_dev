@@ -264,6 +264,11 @@ namespace StrategyCore
         // Disarmed - can attack used as bool to know if disarmed
         [HideInInspector] public bool disarmed; // If this unit is currently disarmed
         Transform disarmedVFX; // Disarmed VFX reference
+        // [Interflow 2026-09-18, решение Artsiom 50] «В полёте»: цель отброшена и её модель на клиенте
+        // ещё летит, хотя геймплейно юнит уже в конечной точке (решение 49). Флаг производный — его
+        // выставляет только RecalculateControl по служебной категории состояния; руками не присваивать.
+        // VFX у состояния нет (значка тоже) — гасить нечего, поэтому поля визуала здесь нет.
+        [HideInInspector] public bool inFlight;
         // Polymorph
         [HideInInspector] public bool polymorphed; // If this unit is currently polymorphed.
         [HideInInspector] public float polymorphTime; // Current remaining time of the polymorph.
@@ -361,6 +366,10 @@ namespace StrategyCore
         public List<DamageModifyCallback> OnDamageDealModifyCallbacks = new();
         public List<BeforeDamageDealCallback> OnBeforeDamageDealCallbacks = new();
         public List<AfterDamageDealCallback> OnAfterDamageDealCallbacks = new();
+        // [Interflow 2026-09-16 семья Б] Второй список: «снаряд долетел» — в том числе в землю и без
+        // принятого урона. Копируется снаряду АТАКИ так же, как список выше (Projectile.InternalSpawn);
+        // снаряд умения его не получает — там подписку вешает сам блок 22.
+        public List<ProjectileImpactCallback> OnProjectileImpactCallbacks = new();
 
         public List<DamageModifyCallback> OnBeforeGetDamageCallbacks = new();
 

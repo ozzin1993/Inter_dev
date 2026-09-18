@@ -45,42 +45,27 @@ namespace StrategyCore
 
                 case SkillTargetMode.AreaAroundSelf:
                 case SkillTargetMode.Cone:
-                {
-                    if (castingUnit == null || area <= 0f) return result;
-
-                    Vector3 origin = castingUnit.transform.position;
-                    Unit[] found = Utils.GetUnitsInRadius(new Vector2(origin.x, origin.z), area, castingPlayer,
-                                                          unitSelector, -1, includeSelf ? null : castingUnit);
-                    if (found == null) return result;
-
-                    // Направление берём у юнита, а НЕ из transform.forward: корневой объект юнита
-                    // не вращается, поворот живёт на horizontalPart (см. Unit.LookDirection).
-                    Vector3 forward = castingUnit.LookDirection;
-                    float halfAngle = coneAngle * 0.5f;
-                    bool fullCircle = targetMode != SkillTargetMode.Cone || coneAngle >= 360f;
-
-                    for (int i = 0; i < found.Length; i++)
-                    {
-                        Unit u = found[i];
-                        if (!fullCircle && u != null)
-                        {
-                            Vector3 dir = u.transform.position - origin; dir.y = 0f;
-                            if (dir.sqrMagnitude > 0.0001f && Vector3.Angle(forward, dir) > halfAngle) continue; // вне конуса
-                        }
-                        AddCandidate(u, castingUnit, gathered);
-                    }
+                    // Выборка вынесена целиком: её же зовёт условие «есть цель в области» (блок 21).
+                    GatherAroundCaster(castingUnit, castingPlayer, level, gathered);
                     break;
-                }
 
                 case SkillTargetMode.SmartPoint:
                 {
                     if (area <= 0f) return result;
 
+                    // Область со своим селектором (А4): центр уже выбран обычным путём (селектор,
+                    // роли, заготовки), а КОГО задевает область вокруг него — решает areaSelector,
+                    // и роли с заготовками к этому набору НЕ применяются. Лимит, «кого оставить»
+                    // и «включать кастера» работают как раньше.
+                    bool ownAreaSelector = independentAreaTargets;
+                    UnitSelector selector = ownAreaSelector ? areaSelector : unitSelector;
+
                     Unit[] found = Utils.GetUnitsInRadius(new Vector2(aimPoint.x, aimPoint.z), area, castingPlayer,
-                                                          unitSelector, -1, includeSelf ? null : castingUnit);
+                                                          selector, -1, includeSelf ? null : castingUnit);
                     if (found == null) return result;
 
-                    for (int i = 0; i < found.Length; i++) AddCandidate(found[i], castingUnit, gathered);
+                    for (int i = 0; i < found.Length; i++)
+                        AddCandidate(found[i], castingUnit, gathered, !ownAreaSelector);
                     break;
                 }
             }
@@ -89,34 +74,105 @@ namespace StrategyCore
             return result;
         }
 
-        void AddCandidate(Unit u, Unit castingUnit, List<Unit> into)
+        /// <param name="applyFilters">
+        /// Применять ли роли и заготовки. Ложь — только у набора области со своим селектором (А4):
+        /// там фильтры остались у выбора ЦЕНТРА, а не у тех, кого область задевает.
+        /// </param>
+        void AddCandidate(Unit u, Unit castingUnit, List<Unit> into, bool applyFilters = true)
         {
-            if (u == null || u.dead) return;
-            if (!includeSelf && u == castingUnit) return;
-            if (!PassesFilters(u)) return;
+            if (!CandidateAllowed(u, castingUnit, applyFilters)) return;
 
             into.Add(u);
         }
 
+        /// <summary>Годится ли юнит в набор целей. Вынесено из AddCandidate ради проверки «есть ли кому».</summary>
+        bool CandidateAllowed(Unit u, Unit castingUnit, bool applyFilters = true)
+        {
+            if (u == null || u.dead) return false;
+            if (!includeSelf && u == castingUnit) return false;
+            if (applyFilters && !PassesFilters(u)) return false;
+
+            return true;
+        }
+
         /// <summary>
-        /// Может ли этот юнит быть целью скилла: штатный селектор плюс фильтры скилла.
+        /// ЕДИНСТВЕННАЯ выборка области и конуса вокруг кастера: её зовёт и набор целей
+        /// (CollectTargets), и условие «есть цель в области» блока 21 (CompositeSkill.Conditions.cs).
+        /// Две копии выборки неизбежно разъехались бы, и условие перестало бы совпадать с кастом.
+        ///
+        /// Направление конуса — текущий взгляд юнита (Unit.LookDirection), отсечение — общая
+        /// формула SkillTargeting.InFront, та же, что у фильтра targetFrontAngle.
+        /// </summary>
+        /// <param name="into">Куда складывать прошедших. null — нужен только ФАКТ наличия цели.</param>
+        /// <returns>Есть ли хотя бы один прошедший кандидат.</returns>
+        bool GatherAroundCaster(Unit castingUnit, int castingPlayer, int level, List<Unit> into)
+        {
+            float area = LevelValue(radius, level);
+            if (castingUnit == null || area <= 0f) return false;
+
+            Vector3 origin = castingUnit.transform.position;
+            Unit[] found = Utils.GetUnitsInRadius(new Vector2(origin.x, origin.z), area, castingPlayer,
+                                                  unitSelector, -1, includeSelf ? null : castingUnit);
+            if (found == null) return false;
+
+            bool any = false;
+            for (int i = 0; i < found.Length; i++)
+            {
+                Unit u = found[i];
+                if (targetMode == SkillTargetMode.Cone && !SkillTargeting.InFront(castingUnit, u, coneAngle)) continue;
+                if (!CandidateAllowed(u, castingUnit)) continue;
+
+                any = true;
+                if (into == null) return true;   // спрашивали только факт — дальше перебирать незачем
+                into.Add(u);
+            }
+
+            return any;
+        }
+
+        /// <summary>
+        /// Может ли этот юнит быть целью скилла: штатный селектор, фильтры скилла и сектор «впереди».
         /// Нужна автокасту — он ищет кандидатов по своему селектору, а стратегию берёт из скилла,
         /// поэтому без этой проверки лечащий скилл мог бы выбрать врага.
+        ///
+        /// ЕДИНСТВЕННАЯ точка отсева по ролям, заготовкам и «впереди» на всех трёх путях выбора цели:
+        /// автокаст по текущей цели боя, автокаст стратегией и каст с кнопки. Кастер нужен для сектора
+        /// «впереди» — без него угол считать не от чего.
         /// </summary>
-        public bool IsEligibleTarget(Unit u, int castingPlayer)
+        public bool IsEligibleTarget(Unit u, int castingPlayer, Unit caster)
         {
             if (u == null || u.dead) return false;
             if (!UnitSelector.IsUnitCompatible(castingPlayer, u, unitSelector)) return false;
+            if (!PassesFilters(u)) return false;
 
-            return PassesFilters(u);
+            return SkillTargeting.InFront(caster, u, targetFrontAngle);
         }
 
-        /// <summary>Второй селектор умения — боевые роли. Пустой набор ролей пропускает всех.</summary>
+        /// <summary>
+        /// Второй и третий селекторы умения — боевые роли и конкретные заготовки. Работают по «И»,
+        /// каждый пустой список пропускает всех.
+        /// </summary>
         bool PassesFilters(Unit u)
         {
             if (u == null) return false;
 
-            return CategoryAllowed(u, targetCategories);
+            return CategoryAllowed(u, targetCategories) && PrefabAllowed(u, targetPrefabs);
+        }
+
+        /// <summary>
+        /// Проходит ли юнит по фильтру заготовок. Сравнение по unitTypeID, а не по ссылке на префаб:
+        /// в бою живёт экземпляр, а в поле лежит заготовка. Пустой список — фильтра нет, проходят все
+        /// (та же семантика, что у CategoryAllowed). Пустые элементы списка пропускаются.
+        /// </summary>
+        public static bool PrefabAllowed(Unit unit, Unit[] prefabs)
+        {
+            if (prefabs == null || prefabs.Length == 0) return true;
+            if (unit == null) return false;
+
+            for (int i = 0; i < prefabs.Length; i++)
+                if (prefabs[i] != null && prefabs[i].unitTypeID == unit.unitTypeID) return true;
+
+            return false;
         }
 
         // ============================================================== СТРАТЕГИЯ ==
@@ -212,9 +268,8 @@ namespace StrategyCore
             for (int i = 0; i < pool.Count; i++)
             {
                 Unit u = pool[i];
-                if (u == null || u.dead || u == castingUnit) continue;
-                if (!UnitSelector.IsUnitCompatible(castingPlayer, u, unitSelector)) continue;
-                if (!PassesFilters(u)) continue;
+                if (u == castingUnit) continue;
+                if (!IsEligibleTarget(u, castingPlayer, castingUnit)) continue;   // один отбор на все три пути
                 if (rangeSqr > 0f && castingUnit != null
                     && (u.transform.position - casterPos).sqrMagnitude > rangeSqr) continue; // вне дальности каста
 

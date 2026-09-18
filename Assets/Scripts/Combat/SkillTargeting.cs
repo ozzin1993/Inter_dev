@@ -102,6 +102,29 @@ namespace StrategyCore
             return Utils.GetUnitsInRadius(new Vector2(center.x, center.z), searchRadius, playerID, selector, -1, exclude);
         }
 
+        // ======================================================================= «ВПЕРЕДИ» ==
+
+        /// <summary>
+        /// Стоит ли юнит в секторе перед кастером. ЕДИНСТВЕННАЯ формула «впереди» в умениях:
+        /// её же зовёт отсечение конуса в CompositeSkill.CollectTargets — две копии неизбежно
+        /// разъехались бы, и конус перестал бы совпадать с фильтром кандидатов.
+        ///
+        /// Взгляд берём у юнита (Unit.LookDirection), а не у корневого объекта: корень юнита
+        /// не вращается, поворот живёт на horizontalPart.
+        /// </summary>
+        /// <param name="fullAngle">ПОЛНЫЙ угол сектора (120 — это ±60°). 0 или ≥ 360 — фильтра нет.</param>
+        public static bool InFront(Unit self, Unit u, float fullAngle)
+        {
+            if (fullAngle <= 0f || fullAngle >= 360f) return true;   // фильтр выключен
+            if (self == null || u == null) return true;              // считать нечем — не отсеиваем
+
+            Vector3 dir = u.transform.position - self.transform.position;
+            dir.y = 0f;
+            if (dir.sqrMagnitude <= 0.0001f) return true;            // стоят в одной точке
+
+            return Vector3.Angle(self.LookDirection, dir) <= fullAngle * 0.5f;
+        }
+
         // ================================================================ ИЗБЕГАЕМОЕ СОСТОЯНИЕ ==
 
         /// <summary>

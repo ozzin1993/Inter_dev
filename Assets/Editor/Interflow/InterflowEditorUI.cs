@@ -47,7 +47,7 @@ namespace StrategyCore
 
                 // suppressDecorators=true для поля-носителя [Header]: заголовок уже вынесен в шапку фолда,
                 // иначе PropertyField нарисовал бы его повторно.
-                currentBody.Add(MakeField(it, translate ? FieldLabel(it.name) : null, header != null));
+                currentBody.Add(MakeField(it, translate ? FieldLabel(it) : null, header != null));
             }
 
             container.Bind(so);
@@ -75,6 +75,10 @@ namespace StrategyCore
             { "avoidNoFreeTarget",        "Если свободных целей нет" },
             // Селекторы: принадлежность и роли
             { "targetCategories",         "Селектор ролей (пусто — любые)" },
+            { "targetPrefabs",            "Селектор заготовок (пусто — любые)" },
+            { "targetFrontAngle",         "Цель только впереди: угол сектора, градусы (0 — выкл.)" },
+            { "independentAreaTargets",   "Область набирается своим селектором" },
+            { "areaSelector",             "Кого задевает область (свой селектор)" },
             { "maxTargets",               "Максимум целей (0 — без лимита)" },
             { "multiPick",                "Кого оставить при лимите" },
             { "includeSelf",              "Включать самого кастера" },
@@ -87,20 +91,49 @@ namespace StrategyCore
             { "delivery",                 "Доставка" },
             { "projectilePrefab",         "Префаб снаряда" },
             { "projectileFollowsTarget",  "Снаряд самонаводится" },
+            { "projectileDirectAttack",   "Снаряд считается прямой атакой" },
+            // Реакция 5 пассивки. ВНИМАНИЕ: вложенный блок onHit рисуется штатным PropertyField целиком,
+            // поэтому подписи его полей берёт сам Unity — эти строки сработают только там, где поле
+            // попадает в LabelOf (блоки с массивами по уровням). Оставлены как единый словарь подписей.
+            { "procSkill",                "Прок исполняет умение" },
+            { "procAtProjectileImpact",   "Срабатывать при прилёте снаряда, а не при ударе" },
             // Шкала каста и презентация
             { "castTime",                 "Время каста, с" },
             { "cooldown",                 "Откат, с" },
             // «manaCost» снят вместе с полем (Б5, 2026-09-04): цены в мане у умений нет.
             { "duration",                 "Длительность, с" },
-            { "spawnSocket",              "Точка на модели кастера" },
+            // [Interflow 2026-09-17] Десять плоских полей презентации сведены в набор EventPresentation.
+            // Сам набор рисуется штатным PropertyField целиком, поэтому подписи его полей берёт Unity
+            // из [Tooltip]; строки ниже нужны там, где имя поля попадает в LabelOf.
+            // ВНИМАНИЕ: «presentation» — имя поля не только у самого умения, но и у блоков-хозяев.
+            // Подпись «Визуал каста» верна ТОЛЬКО для набора самого умения, у блоков подпись берётся
+            // по паре «блок + поле» из FIELD_LABELS_BY_PARENT (решение Artsiom 34 от 17.09.2026);
+            // эта строка осталась запасным вариантом для поля на самом ассете.
+            { "presentation",             "Визуал каста" },
+            { "animationState",           "Стейт анимации" },
+            { "socket",                   "Точка на модели носителя" },
             { "localOffset",              "Смещение от точки, м" },
-            { "castVFX",                  "Визуал замаха" },
-            { "castVfxLifetime",          "Время жизни визуала замаха, с" },
-            { "impactVFX",                "Визуал попадания" },
-            { "impactVfxLifetime",        "Время жизни визуала попадания, с" },
-            { "castSound",                "Звук каста" },
-            { "impactSound",              "Звук попадания" },
+            { "carrierVFX",               "Визуал у носителя" },
+            { "carrierVfxLifetime",       "Время жизни визуала у носителя, с" },
+            { "pointVFX",                 "Визуал в точке события" },
+            { "pointVfxLifetime",         "Время жизни визуала в точке, с" },
+            { "carrierSound",             "Звук у носителя" },
+            { "pointSound",               "Звук в точке события" },
             { "soundVolume",              "Громкость звуков, 0..1" },
+            { "visualEffector",           "Состояние-визуал на время щита" },
+            { "onAttackStart",            "Реакция 6 — носитель начал атаку" },
+            { "onAllyDeath",              "Реакция 7 — погиб союзник" },
+            { "healPresentation",         "Визуал лечения союзника" },
+            // Реакция 2: второй радиус (решение Artsiom 36 от 17.09.2026)
+            { "allyHealRadius",           "Радиус лечения союзников (пусто — как радиус урона)" },
+            // Реакция 3: прибавка к урону за убийство (решения Artsiom 37 и 38 от 17.09.2026)
+            { "damagePercentPerKill",     "Прибавка к урону за убийство (доля, складывается)" },
+            { "damagePerKillMaxStacks",   "Предел: сколько убийств в счёт (0 — без предела)" },
+            // Реакция 7: погиб союзник (решение Artsiom 40 от 17.09.2026)
+            { "victimPrefabs",            "Чьи смерти считаются (пусто — любые)" },
+            { "victimSelector",           "Кого считать союзником" },
+            // «healFlat» и «healPercentOfMaxHp» сюда НЕ кладутся: первое имя занято блоком 14 умения
+            // (secondary.healFlat), и общая подпись уехала бы в чужую карточку. Оба — в FIELD_LABELS_BY_PARENT.
 
             // Базовые поля Ability. Перевод сделан ПО АНГЛИЙСКИМ [Tooltip] самого ядра,
             // а не по догадке о смысле имени поля. Сами тултипы не трогаем — это была бы правка ядра.
@@ -134,13 +167,137 @@ namespace StrategyCore
             { "transformSound",           "Звук превращения" },
             { "transformVFX",             "Визуал превращения" },
             { "passiveEffects",           "Пассивные эффекты на время превращения" },
+            // Блок 20 — шкала (CompositeSkill.SkillGaugeBlock)
+            { "requireFull",              "Требовать полную шкалу" },
+            { "spendAll",                 "Потратить всю в ноль" },
+            // Блок 21 — условия каста (CompositeSkill.SkillCastConditionsBlock)
+            { "requireOriginalForm",      "Только в исходном облике" },
+            { "requiredShape",            "Нужен облик заготовки" },
+            { "requireAreaTarget",        "Нужна цель в области" },
+            { "casterHpBelow",            "Здоровье кастера ниже доли" },
+            // Блок 9 пассивки — шкала (PassiveGaugeBlock)
+            { "maxGauge",                 "Максимальная шкала" },
+            { "hitGain",                  "Прирост за попадание" },
+            { "killGain",                 "Прирост за убийство" },
+            { "tickGain",                 "Прирост в секунду (в бою)" },
+            { "combatMemory",             "Память боя, с" },
+            { "onlyRanged",               "Только дальним юнитам" },
+            { "notWhileMorphed",          "Не копить в облике" },
+            // Семья «здоровье носителя и иммунитеты» (решения Artsiom 41–46 от 17.09.2026).
+            // Имена уникальны по проекту, поэтому хватает одиночного ключа; исключение —
+            // «visualEffector», оно занято визуалом щита и разведено по паре «блок + поле» ниже.
+            { "carrierCondition",             "Когда блок работает" },
+            { "carrierHpBelow",               "Порог: здоровье носителя ниже доли" },
+            { "healCondition",                "Вампиризм: когда работает" },
+            { "healCarrierHpBelow",           "Вампиризм: порог здоровья носителя" },
+            { "healUpgradeTechnology",        "Вампиризм: технология улучшения" },
+            { "healFromDamagePercentUpgraded","Вампиризм: улучшенная доля возврата" },
+            // Блок 10 — характеристики от нехватки здоровья (PassiveMissingHpStatsBlock)
+            { "missingHpStats",               "Блок 10 — характеристики от нехватки здоровья" },
+            { "damageByMissingHp",            "Кривая: нехватка здоровья → множитель урона" },
+            { "armorByMissingHp",             "Кривая: нехватка здоровья → прибавка брони числом" },
+            { "attackSpeedByMissingHp",       "Кривая: нехватка здоровья → прибавка скорости атаки долей" },
+            { "missingHpStep",                "Шаг ступени по нехватке здоровья (0 — плавно)" },
+            { "presentationMissingHpThreshold","Порог показа длящегося визуала" },
+            // Блок 11 — рассечение (PassiveCleaveBlock, решения Artsiom 59–62 от 18.09.2026).
+            // Имена уникальны по проекту, поэтому хватает одиночного ключа; исключения —
+            // «radius», «selector» и «presentation»: они заняты полями умения и разведены
+            // по паре «блок + поле» ниже.
+            { "cleave",                       "Блок 11 — рассечение" },
+            { "centerOnCaster",               "Центр круга — носитель, а не цель удара" },
+            { "damageFraction",               "Доля от урона основного удара" },
+            { "requiredCasterEffector",       "Требуемое состояние НА НОСИТЕЛЕ (пусто — условия нет)" },
+            { "upgradeTechnology",            "Рассечение: технология улучшения" },
+            { "upgradedRadius",               "Рассечение: улучшенный радиус (полным числом)" },
+            { "upgradedDamageFraction",       "Рассечение: улучшенная доля урона (полным числом)" },
+
             // Организация контента (не игровое поле)
             { "editorFactions",           "Фракции (ручная метка)" }
         };
 
-        /// <summary>Русская подпись поля; null — перевода нет, пусть Unity рисует свою.</summary>
+        // Подписи по паре «БЛОК + ПОЛЕ» (решение Artsiom 34 от 17.09.2026). Одного имени поля не хватает:
+        // «presentation» лежит и у самого умения, и у двенадцати блоков-хозяев, и подпись «Визуал каста»
+        // расползалась по карточкам всех блоков. Переименовать сами поля нельзя — значения уже лежат
+        // в ассетах, а смена имени поля рвёт сериализацию. Ключ — «имя блока.имя поля», ровно так, как
+        // это звучит в propertyPath сериализованного свойства.
+        //
+        // Ключ отсюда ПЕРЕБИВАЕТ одиночное имя; нет пары — работает запасной словарь FIELD_LABELS,
+        // поэтому ни одна существующая подпись не теряется.
+        static readonly Dictionary<string, string> FIELD_LABELS_BY_PARENT = new Dictionary<string, string>
+        {
+            // Умение (CompositeSkill): блоки 7, 14, 22
+            { "heal.presentation",              "Визуал лечения цели" },
+            { "secondary.castPresentation",     "Визуал блока: один раз на кастере" },
+            { "secondary.presentation",         "Визуал попадания по вторичной цели" },
+            { "projectileImpact.presentation",  "Визуал прилёта снаряда" },
+
+            // Пассивка (CompositePassive): реакции 1–6. У реакции 2 наборов два.
+            { "onDamaged.presentation",         "Визуал ответа на удар" },
+            { "onDeath.presentation",           "Визуал гибели — в точке гибели" },
+            { "onDeath.healPresentation",       "Визуал лечения союзника при гибели" },
+            { "onKill.presentation",            "Визуал добивания" },
+            { "onHpBelow.presentation",         "Визуал падения здоровья ниже порога" },
+            { "onHit.presentation",             "Визуал попадания по цели" },
+            { "onAttackStart.presentation",     "Визуал начала атаки" },
+            { "onAllyDeath.presentation",       "Визуал гибели союзника — на носителе" },
+
+            // У реакции 7 свои «радиус» и «лечение»: одиночные имена заняты полями умения
+            // («Радиус» у области каста) и полями реакции 2, и без пары подпись уехала бы не туда.
+            { "onAllyDeath.radius",             "Радиус засчёта гибели (0 — вся карта)" },
+            { "onAllyDeath.healFlat",           "Лечение носителю числом" },
+            { "onAllyDeath.healPercentOfMaxHp", "Лечение носителю долей его максимума" },
+
+            // Семья «здоровье носителя»: длящийся визуал у трёх хозяев (решение Artsiom 46).
+            // Одиночное имя «visualEffector» занято визуалом щита умения — без пары подпись
+            // уехала бы в карточки блоков пассивки.
+            { "controlImmunity.visualEffector", "Визуал иммунитета к контролю (пока условие выполнено)" },
+            { "resistances.visualEffector",     "Визуал сопротивлений (пока условие выполнено)" },
+            { "missingHpStats.visualEffector",  "Визуал ярости (пока нехватка выше порога)" },
+
+            // Блок 11 «рассечение»: три имени заняты полями самого умения, и без пары подпись
+            // уехала бы не туда — «presentation» дала бы «Визуал каста», «radius» — радиус области каста.
+            { "cleave.presentation",            "Визуал рассечения (один раз за срабатывание)" },
+            { "cleave.radius",                  "Радиус рассечения, м" },
+            { "cleave.selector",                "Кого задевает рассечение" }
+        };
+
+        /// <summary>Русская подпись поля ПО ИМЕНИ; null — перевода нет, пусть Unity рисует свою.</summary>
+        /// <remarks>Запасной вариант: родителя здесь не видно, см. перегрузку со свойством.</remarks>
         public static string FieldLabel(string fieldName)
             => fieldName != null && FIELD_LABELS.TryGetValue(fieldName, out var s) ? s : null;
+
+        /// <summary>
+        /// Русская подпись поля С УЧЁТОМ БЛОКА-РОДИТЕЛЯ (решение Artsiom 34 от 17.09.2026):
+        /// сперва пара «блок + поле», потом одиночное имя. null — перевода нет, пусть Unity рисует свою.
+        /// </summary>
+        public static string FieldLabel(SerializedProperty prop)
+        {
+            if (prop == null) return null;
+
+            string parent = ParentFieldName(prop.propertyPath);
+            if (parent != null && FIELD_LABELS_BY_PARENT.TryGetValue(parent + "." + prop.name, out var byParent))
+                return byParent;
+
+            return FieldLabel(prop.name);
+        }
+
+        /// <summary>
+        /// Имя блока-родителя из пути свойства: «secondary.presentation» → «secondary».
+        /// Служебные звенья массива («Array», «data[i]») пропускаются — родителем записи списка
+        /// считается сам список. Поле лежит на самом ассете (точки в пути нет) — родителя нет, null.
+        /// </summary>
+        static string ParentFieldName(string propertyPath)
+        {
+            if (string.IsNullOrEmpty(propertyPath)) return null;
+
+            string[] parts = propertyPath.Split('.');
+            for (int i = parts.Length - 2; i >= 0; i--)
+            {
+                if (parts[i] == "Array" || parts[i].StartsWith("data[")) continue;
+                return parts[i];
+            }
+            return null;
+        }
 
         /// <summary>
         /// Поле с явной подписью и необязательным подавлением декораторов ([Header]/[Space]).
@@ -220,8 +377,10 @@ namespace StrategyCore
             }
         }
 
+        // Подпись берётся по паре «блок + поле» (решение 34): именно здесь набор внутри карточки блока
+        // получает подпись СВОЕГО хозяина, а не общую «Визуал каста».
         static string LabelOf(SerializedProperty prop, string label)
-            => label ?? FieldLabel(prop.name) ?? ObjectNames.NicifyVariableName(prop.name);
+            => label ?? FieldLabel(prop) ?? ObjectNames.NicifyVariableName(prop.name);
 
         /// <summary>
         /// Числовой массив по уровням: элемент 0 — поле «базовое», элементы 1..N — свёрнутый блок «по уровням»

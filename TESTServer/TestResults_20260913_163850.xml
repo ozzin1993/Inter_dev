@@ -1,0 +1,777 @@
+<?xml version="1.0" encoding="utf-8"?>
+<test-run id="2" testcasecount="119" result="Passed" total="119" passed="119" failed="0" inconclusive="0" skipped="0" asserts="0" engine-version="3.5.0.0" clr-version="4.0.30319.42000" start-time="2026-09-13 13:38:47Z" end-time="2026-09-13 13:38:47Z" duration="0,5418429">
+  <test-suite type="TestSuite" id="2636" name="Interflow" fullname="Interflow" runstate="Runnable" testcasecount="1429" result="Passed" start-time="2026-09-13 13:38:47Z" end-time="2026-09-13 13:38:47Z" duration="0.541843" total="119" passed="119" failed="0" inconclusive="0" skipped="0" asserts="0">
+    <properties>
+      <property name="platform" value="EditMode" />
+    </properties>
+    <test-suite type="Assembly" id="1129" name="Interflow.Tests.EditMode.dll" fullname="D:/Interflow/Interflow/Library/ScriptAssemblies/Interflow.Tests.EditMode.dll" runstate="Runnable" testcasecount="119" result="Passed" start-time="2026-09-13 13:38:47Z" end-time="2026-09-13 13:38:47Z" duration="0.474042" total="119" passed="119" failed="0" inconclusive="0" skipped="0" asserts="0">
+      <properties>
+        <property name="_PID" value="9204" />
+        <property name="_APPDOMAIN" value="Unity Child Domain" />
+        <property name="platform" value="EditMode" />
+        <property name="EditorOnly" value="True" />
+      </properties>
+      <test-suite type="TestSuite" id="1130" name="Interflow" fullname="Interflow" runstate="Runnable" testcasecount="12" result="Passed" start-time="2026-09-13 13:38:47Z" end-time="2026-09-13 13:38:47Z" duration="0.102437" total="12" passed="12" failed="0" inconclusive="0" skipped="0" asserts="0">
+        <properties />
+        <test-suite type="TestSuite" id="1131" name="Tests" fullname="Interflow.Tests" runstate="Runnable" testcasecount="12" result="Passed" start-time="2026-09-13 13:38:47Z" end-time="2026-09-13 13:38:47Z" duration="0.102084" total="12" passed="12" failed="0" inconclusive="0" skipped="0" asserts="0">
+          <properties />
+          <test-suite type="TestSuite" id="1132" name="EditMode" fullname="Interflow.Tests.EditMode" runstate="Runnable" testcasecount="12" result="Passed" start-time="2026-09-13 13:38:47Z" end-time="2026-09-13 13:38:47Z" duration="0.101690" total="12" passed="12" failed="0" inconclusive="0" skipped="0" asserts="0">
+            <properties />
+            <test-suite type="TestFixture" id="1003" name="EffectorRecordTests" fullname="Interflow.Tests.EditMode.EffectorRecordTests" classname="Interflow.Tests.EditMode.EffectorRecordTests" runstate="Runnable" testcasecount="12" result="Passed" start-time="2026-09-13 13:38:47Z" end-time="2026-09-13 13:38:47Z" duration="0.099411" total="12" passed="12" failed="0" inconclusive="0" skipped="0" asserts="0">
+              <properties />
+              <test-case id="1013" name="Длительность_БерётсяПоУровню" fullname="Interflow.Tests.EditMode.EffectorRecordTests.Длительность_БерётсяПоУровню" methodname="Длительность_БерётсяПоУровню" classname="Interflow.Tests.EditMode.EffectorRecordTests" runstate="Runnable" seed="1795199585" result="Passed" start-time="2026-09-13 13:38:47Z" end-time="2026-09-13 13:38:47Z" duration="0.022832" asserts="0">
+                <properties>
+                  <property name="retryIteration" value="0" />
+                  <property name="repeatIteration" value="0" />
+                </properties>
+              </test-case>
+              <test-case id="1010" name="Длительность_ЗаписьNull_ДаётМинусЕдиницу" fullname="Interflow.Tests.EditMode.EffectorRecordTests.Длительность_ЗаписьNull_ДаётМинусЕдиницу" methodname="Длительность_ЗаписьNull_ДаётМинусЕдиницу" classname="Interflow.Tests.EditMode.EffectorRecordTests" runstate="Runnable" seed="771512574" result="Passed" start-time="2026-09-13 13:38:47Z" end-time="2026-09-13 13:38:47Z" duration="0.000384" asserts="0">
+                <properties>
+                  <property name="retryIteration" value="0" />
+                  <property name="repeatIteration" value="0" />
+                </properties>
+              </test-case>
+              <test-case id="1014" name="Длительность_МассивКороче_КлампКПоследнему" fullname="Interflow.Tests.EditMode.EffectorRecordTests.Длительность_МассивКороче_КлампКПоследнему" methodname="Длительность_МассивКороче_КлампКПоследнему" classname="Interflow.Tests.EditMode.EffectorRecordTests" runstate="Runnable" seed="1877259971" result="Passed" start-time="2026-09-13 13:38:47Z" end-time="2026-09-13 13:38:47Z" duration="0.000315" asserts="0">
+                <properties>
+                  <property name="retryIteration" value="0" />
+                  <property name="repeatIteration" value="0" />
+                </properties>
+              </test-case>
+              <test-case id="1012" name="Длительность_Ноль_ЗначитБратьИзАссета" fullname="Interflow.Tests.EditMode.EffectorRecordTests.Длительность_Ноль_ЗначитБратьИзАссета" methodname="Длительность_Ноль_ЗначитБратьИзАссета" classname="Interflow.Tests.EditMode.EffectorRecordTests" runstate="Runnable" seed="1459060939" result="Passed" start-time="2026-09-13 13:38:47Z" end-time="2026-09-13 13:38:47Z" duration="0.000424" asserts="0">
+                <properties>
+                  <property name="retryIteration" value="0" />
+                  <property name="repeatIteration" value="0" />
+                </properties>
+              </test-case>
+              <test-case id="1011" name="Длительность_ПустойМассив_ЗначитБратьИзАссета" fullname="Interflow.Tests.EditMode.EffectorRecordTests.Длительность_ПустойМассив_ЗначитБратьИзАссета" methodname="Длительность_ПустойМассив_ЗначитБратьИзАссета" classname="Interflow.Tests.EditMode.EffectorRecordTests" runstate="Runnable" seed="1126309630" result="Passed" start-time="2026-09-13 13:38:47Z" end-time="2026-09-13 13:38:47Z" duration="0.000251" asserts="0">
+                <properties>
+                  <property name="retryIteration" value="0" />
+                  <property name="repeatIteration" value="0" />
+                </properties>
+              </test-case>
+              <test-case id="1007" name="Сила_БерётсяПоУровню" fullname="Interflow.Tests.EditMode.EffectorRecordTests.Сила_БерётсяПоУровню" methodname="Сила_БерётсяПоУровню" classname="Interflow.Tests.EditMode.EffectorRecordTests" runstate="Runnable" seed="180632511" result="Passed" start-time="2026-09-13 13:38:47Z" end-time="2026-09-13 13:38:47Z" duration="0.000297" asserts="0">
+                <properties>
+                  <property name="retryIteration" value="0" />
+                  <property name="repeatIteration" value="0" />
+                </properties>
+              </test-case>
+              <test-case id="1004" name="Сила_ЗаписьNull_ДаётЕдиницу" fullname="Interflow.Tests.EditMode.EffectorRecordTests.Сила_ЗаписьNull_ДаётЕдиницу" methodname="Сила_ЗаписьNull_ДаётЕдиницу" classname="Interflow.Tests.EditMode.EffectorRecordTests" runstate="Runnable" seed="1843528357" result="Passed" start-time="2026-09-13 13:38:47Z" end-time="2026-09-13 13:38:47Z" duration="0.000207" asserts="0">
+                <properties>
+                  <property name="retryIteration" value="0" />
+                  <property name="repeatIteration" value="0" />
+                </properties>
+              </test-case>
+              <test-case id="1008" name="Сила_МассивКороче_КлампКПоследнему" fullname="Interflow.Tests.EditMode.EffectorRecordTests.Сила_МассивКороче_КлампКПоследнему" methodname="Сила_МассивКороче_КлампКПоследнему" classname="Interflow.Tests.EditMode.EffectorRecordTests" runstate="Runnable" seed="1634373828" result="Passed" start-time="2026-09-13 13:38:47Z" end-time="2026-09-13 13:38:47Z" duration="0.000662" asserts="0">
+                <properties>
+                  <property name="retryIteration" value="0" />
+                  <property name="repeatIteration" value="0" />
+                </properties>
+              </test-case>
+              <test-case id="1006" name="Сила_Ноль_ЗначитБратьИзАссета" fullname="Interflow.Tests.EditMode.EffectorRecordTests.Сила_Ноль_ЗначитБратьИзАссета" methodname="Сила_Ноль_ЗначитБратьИзАссета" classname="Interflow.Tests.EditMode.EffectorRecordTests" runstate="Runnable" seed="1259734972" result="Passed" start-time="2026-09-13 13:38:47Z" end-time="2026-09-13 13:38:47Z" duration="0.000274" asserts="0">
+                <properties>
+                  <property name="retryIteration" value="0" />
+                  <property name="repeatIteration" value="0" />
+                </properties>
+              </test-case>
+              <test-case id="1009" name="Сила_ОтрицательныйУровень_БерётПервый" fullname="Interflow.Tests.EditMode.EffectorRecordTests.Сила_ОтрицательныйУровень_БерётПервый" methodname="Сила_ОтрицательныйУровень_БерётПервый" classname="Interflow.Tests.EditMode.EffectorRecordTests" runstate="Runnable" seed="750136675" result="Passed" start-time="2026-09-13 13:38:47Z" end-time="2026-09-13 13:38:47Z" duration="0.000317" asserts="0">
+                <properties>
+                  <property name="retryIteration" value="0" />
+                  <property name="repeatIteration" value="0" />
+                </properties>
+              </test-case>
+              <test-case id="1005" name="Сила_ПустойМассив_ДаётЕдиницу" fullname="Interflow.Tests.EditMode.EffectorRecordTests.Сила_ПустойМассив_ДаётЕдиницу" methodname="Сила_ПустойМассив_ДаётЕдиницу" classname="Interflow.Tests.EditMode.EffectorRecordTests" runstate="Runnable" seed="581730727" result="Passed" start-time="2026-09-13 13:38:47Z" end-time="2026-09-13 13:38:47Z" duration="0.000291" asserts="0">
+                <properties>
+                  <property name="retryIteration" value="0" />
+                  <property name="repeatIteration" value="0" />
+                </properties>
+              </test-case>
+              <test-case id="1015" name="СилаИДлительность_Независимы" fullname="Interflow.Tests.EditMode.EffectorRecordTests.СилаИДлительность_Независимы" methodname="СилаИДлительность_Независимы" classname="Interflow.Tests.EditMode.EffectorRecordTests" runstate="Runnable" seed="408922490" result="Passed" start-time="2026-09-13 13:38:47Z" end-time="2026-09-13 13:38:47Z" duration="0.000361" asserts="0">
+                <properties>
+                  <property name="retryIteration" value="0" />
+                  <property name="repeatIteration" value="0" />
+                </properties>
+              </test-case>
+            </test-suite>
+          </test-suite>
+        </test-suite>
+      </test-suite>
+      <test-suite type="TestSuite" id="1133" name="StrategyCore" fullname="StrategyCore" runstate="Runnable" testcasecount="107" result="Passed" start-time="2026-09-13 13:38:47Z" end-time="2026-09-13 13:38:47Z" duration="0.370678" total="107" passed="107" failed="0" inconclusive="0" skipped="0" asserts="0">
+        <properties />
+        <test-suite type="TestSuite" id="1134" name="Tests" fullname="StrategyCore.Tests" runstate="Runnable" testcasecount="107" result="Passed" start-time="2026-09-13 13:38:47Z" end-time="2026-09-13 13:38:47Z" duration="0.353196" total="107" passed="107" failed="0" inconclusive="0" skipped="0" asserts="0">
+          <properties />
+          <test-suite type="TestFixture" id="1016" name="BaseFixes2026_09_12Tests" fullname="StrategyCore.Tests.BaseFixes2026_09_12Tests" classname="StrategyCore.Tests.BaseFixes2026_09_12Tests" runstate="Runnable" testcasecount="3" result="Passed" start-time="2026-09-13 13:38:47Z" end-time="2026-09-13 13:38:47Z" duration="0.015563" total="3" passed="3" failed="0" inconclusive="0" skipped="0" asserts="0">
+            <properties />
+            <test-case id="1019" name="FindVfxInstance_ДваЭлементаСОдинаковымId_НаходитПоПрефабуИсточнику" fullname="StrategyCore.Tests.BaseFixes2026_09_12Tests.FindVfxInstance_ДваЭлементаСОдинаковымId_НаходитПоПрефабуИсточнику" methodname="FindVfxInstance_ДваЭлементаСОдинаковымId_НаходитПоПрефабуИсточнику" classname="StrategyCore.Tests.BaseFixes2026_09_12Tests" runstate="Runnable" seed="1887097163" result="Passed" start-time="2026-09-13 13:38:47Z" end-time="2026-09-13 13:38:47Z" duration="0.005544" asserts="0">
+              <properties>
+                <property name="retryIteration" value="0" />
+                <property name="repeatIteration" value="0" />
+              </properties>
+            </test-case>
+            <test-case id="1018" name="ОбычныйТик_ОстаткаХватает_ШагНеУрезается" fullname="StrategyCore.Tests.BaseFixes2026_09_12Tests.ОбычныйТик_ОстаткаХватает_ШагНеУрезается" methodname="ОбычныйТик_ОстаткаХватает_ШагНеУрезается" classname="StrategyCore.Tests.BaseFixes2026_09_12Tests" runstate="Runnable" seed="519062465" result="Passed" start-time="2026-09-13 13:38:47Z" end-time="2026-09-13 13:38:47Z" duration="0.001650" asserts="0">
+              <properties>
+                <property name="retryIteration" value="0" />
+                <property name="repeatIteration" value="0" />
+              </properties>
+            </test-case>
+            <test-case id="1017" name="ПоследнийТик_ОстатокМеньшеШага_ЛечитРовноНаОстаток" fullname="StrategyCore.Tests.BaseFixes2026_09_12Tests.ПоследнийТик_ОстатокМеньшеШага_ЛечитРовноНаОстаток" methodname="ПоследнийТик_ОстатокМеньшеШага_ЛечитРовноНаОстаток" classname="StrategyCore.Tests.BaseFixes2026_09_12Tests" runstate="Runnable" seed="1742426512" result="Passed" start-time="2026-09-13 13:38:47Z" end-time="2026-09-13 13:38:47Z" duration="0.005315" asserts="0">
+              <properties>
+                <property name="retryIteration" value="0" />
+                <property name="repeatIteration" value="0" />
+              </properties>
+            </test-case>
+          </test-suite>
+          <test-suite type="TestFixture" id="1020" name="ClosestUnitsTests" fullname="StrategyCore.Tests.ClosestUnitsTests" classname="StrategyCore.Tests.ClosestUnitsTests" runstate="Runnable" testcasecount="4" result="Passed" start-time="2026-09-13 13:38:47Z" end-time="2026-09-13 13:38:47Z" duration="0.041352" total="4" passed="4" failed="0" inconclusive="0" skipped="0" asserts="0">
+            <properties />
+            <test-case id="1023" name="Выборка_БолееБлизкийЧетвёртый_ВытесняетСамогоДальнего" fullname="StrategyCore.Tests.ClosestUnitsTests.Выборка_БолееБлизкийЧетвёртый_ВытесняетСамогоДальнего" methodname="Выборка_БолееБлизкийЧетвёртый_ВытесняетСамогоДальнего" classname="StrategyCore.Tests.ClosestUnitsTests" runstate="Runnable" seed="626954777" result="Passed" start-time="2026-09-13 13:38:47Z" end-time="2026-09-13 13:38:47Z" duration="0.016486" asserts="0">
+              <properties>
+                <property name="retryIteration" value="0" />
+                <property name="repeatIteration" value="0" />
+              </properties>
+            </test-case>
+            <test-case id="1024" name="Выборка_БолееДальнийЧетвёртый_НеВытесняетНикого" fullname="StrategyCore.Tests.ClosestUnitsTests.Выборка_БолееДальнийЧетвёртый_НеВытесняетНикого" methodname="Выборка_БолееДальнийЧетвёртый_НеВытесняетНикого" classname="StrategyCore.Tests.ClosestUnitsTests" runstate="Runnable" seed="1620826447" result="Passed" start-time="2026-09-13 13:38:47Z" end-time="2026-09-13 13:38:47Z" duration="0.001194" asserts="0">
+              <properties>
+                <property name="retryIteration" value="0" />
+                <property name="repeatIteration" value="0" />
+              </properties>
+            </test-case>
+            <test-case id="1021" name="Выборка_ОднаЯчейка_ВозвращаетБлижайшегоАНеПоследнегоВстреченного" fullname="StrategyCore.Tests.ClosestUnitsTests.Выборка_ОднаЯчейка_ВозвращаетБлижайшегоАНеПоследнегоВстреченного" methodname="Выборка_ОднаЯчейка_ВозвращаетБлижайшегоАНеПоследнегоВстреченного" classname="StrategyCore.Tests.ClosestUnitsTests" runstate="Runnable" seed="1920909283" result="Passed" start-time="2026-09-13 13:38:47Z" end-time="2026-09-13 13:38:47Z" duration="0.001277" asserts="0">
+              <properties>
+                <property name="retryIteration" value="0" />
+                <property name="repeatIteration" value="0" />
+              </properties>
+            </test-case>
+            <test-case id="1022" name="Выборка_ТриЯчейки_ЗаполняютсяВсеИПоВозрастаниюРасстояния" fullname="StrategyCore.Tests.ClosestUnitsTests.Выборка_ТриЯчейки_ЗаполняютсяВсеИПоВозрастаниюРасстояния" methodname="Выборка_ТриЯчейки_ЗаполняютсяВсеИПоВозрастаниюРасстояния" classname="StrategyCore.Tests.ClosestUnitsTests" runstate="Runnable" seed="1994346830" result="Passed" start-time="2026-09-13 13:38:47Z" end-time="2026-09-13 13:38:47Z" duration="0.005955" asserts="0">
+              <properties>
+                <property name="retryIteration" value="0" />
+                <property name="repeatIteration" value="0" />
+              </properties>
+            </test-case>
+          </test-suite>
+          <test-suite type="TestFixture" id="1025" name="LevelValueTests" fullname="StrategyCore.Tests.LevelValueTests" classname="StrategyCore.Tests.LevelValueTests" runstate="Runnable" testcasecount="12" result="Passed" start-time="2026-09-13 13:38:47Z" end-time="2026-09-13 13:38:47Z" duration="0.021977" total="12" passed="12" failed="0" inconclusive="0" skipped="0" asserts="0">
+            <properties />
+            <test-case id="1034" name="LevelItem_ВДиапазоне_БерётСвойЭлемент" fullname="StrategyCore.Tests.LevelValueTests.LevelItem_ВДиапазоне_БерётСвойЭлемент" methodname="LevelItem_ВДиапазоне_БерётСвойЭлемент" classname="StrategyCore.Tests.LevelValueTests" runstate="Runnable" seed="20940711" result="Passed" start-time="2026-09-13 13:38:47Z" end-time="2026-09-13 13:38:47Z" duration="0.000465" asserts="0">
+              <properties>
+                <property name="retryIteration" value="0" />
+                <property name="repeatIteration" value="0" />
+              </properties>
+            </test-case>
+            <test-case id="1033" name="LevelItem_МассивNullИлиПустой_Null" fullname="StrategyCore.Tests.LevelValueTests.LevelItem_МассивNullИлиПустой_Null" methodname="LevelItem_МассивNullИлиПустой_Null" classname="StrategyCore.Tests.LevelValueTests" runstate="Runnable" seed="1051701111" result="Passed" start-time="2026-09-13 13:38:47Z" end-time="2026-09-13 13:38:47Z" duration="0.000409" asserts="0">
+              <properties>
+                <property name="retryIteration" value="0" />
+                <property name="repeatIteration" value="0" />
+              </properties>
+            </test-case>
+            <test-case id="1035" name="LevelItem_НетСтрокиДляУровня_БерётПоследнюю" fullname="StrategyCore.Tests.LevelValueTests.LevelItem_НетСтрокиДляУровня_БерётПоследнюю" methodname="LevelItem_НетСтрокиДляУровня_БерётПоследнюю" classname="StrategyCore.Tests.LevelValueTests" runstate="Runnable" seed="1533591208" result="Passed" start-time="2026-09-13 13:38:47Z" end-time="2026-09-13 13:38:47Z" duration="0.000213" asserts="0">
+              <properties>
+                <property name="retryIteration" value="0" />
+                <property name="repeatIteration" value="0" />
+              </properties>
+            </test-case>
+            <test-case id="1036" name="LevelItem_ОтрицательныйУровень_БерётБазовое" fullname="StrategyCore.Tests.LevelValueTests.LevelItem_ОтрицательныйУровень_БерётБазовое" methodname="LevelItem_ОтрицательныйУровень_БерётБазовое" classname="StrategyCore.Tests.LevelValueTests" runstate="Runnable" seed="1517862531" result="Passed" start-time="2026-09-13 13:38:47Z" end-time="2026-09-13 13:38:47Z" duration="0.000155" asserts="0">
+              <properties>
+                <property name="retryIteration" value="0" />
+                <property name="repeatIteration" value="0" />
+              </properties>
+            </test-case>
+            <test-case id="1031" name="LevelValue_БлокПоУровнямПуст_ВсегдаБазовое" fullname="StrategyCore.Tests.LevelValueTests.LevelValue_БлокПоУровнямПуст_ВсегдаБазовое" methodname="LevelValue_БлокПоУровнямПуст_ВсегдаБазовое" classname="StrategyCore.Tests.LevelValueTests" runstate="Runnable" seed="424044329" result="Passed" start-time="2026-09-13 13:38:47Z" end-time="2026-09-13 13:38:47Z" duration="0.000449" asserts="0">
+              <properties>
+                <property name="retryIteration" value="0" />
+                <property name="repeatIteration" value="0" />
+              </properties>
+            </test-case>
+            <test-case id="1029" name="LevelValue_ВДиапазоне_БерётСвойЭлемент" fullname="StrategyCore.Tests.LevelValueTests.LevelValue_ВДиапазоне_БерётСвойЭлемент" methodname="LevelValue_ВДиапазоне_БерётСвойЭлемент" classname="StrategyCore.Tests.LevelValueTests" runstate="Runnable" seed="1956689840" result="Passed" start-time="2026-09-13 13:38:47Z" end-time="2026-09-13 13:38:47Z" duration="0.000408" asserts="0">
+              <properties>
+                <property name="retryIteration" value="0" />
+                <property name="repeatIteration" value="0" />
+              </properties>
+            </test-case>
+            <test-case id="1026" name="LevelValue_МассивNull_ВозвращаетFallback" fullname="StrategyCore.Tests.LevelValueTests.LevelValue_МассивNull_ВозвращаетFallback" methodname="LevelValue_МассивNull_ВозвращаетFallback" classname="StrategyCore.Tests.LevelValueTests" runstate="Runnable" seed="833654151" result="Passed" start-time="2026-09-13 13:38:47Z" end-time="2026-09-13 13:38:47Z" duration="0.000231" asserts="0">
+              <properties>
+                <property name="retryIteration" value="0" />
+                <property name="repeatIteration" value="0" />
+              </properties>
+            </test-case>
+            <test-case id="1027" name="LevelValue_МассивПустой_ВозвращаетFallback" fullname="StrategyCore.Tests.LevelValueTests.LevelValue_МассивПустой_ВозвращаетFallback" methodname="LevelValue_МассивПустой_ВозвращаетFallback" classname="StrategyCore.Tests.LevelValueTests" runstate="Runnable" seed="1142978427" result="Passed" start-time="2026-09-13 13:38:47Z" end-time="2026-09-13 13:38:47Z" duration="0.000190" asserts="0">
+              <properties>
+                <property name="retryIteration" value="0" />
+                <property name="repeatIteration" value="0" />
+              </properties>
+            </test-case>
+            <test-case id="1030" name="LevelValue_НетСтрокиДляУровня_БерётПоследнююЗаполненную_АНеНоль" fullname="StrategyCore.Tests.LevelValueTests.LevelValue_НетСтрокиДляУровня_БерётПоследнююЗаполненную_АНеНоль" methodname="LevelValue_НетСтрокиДляУровня_БерётПоследнююЗаполненную_АНеНоль" classname="StrategyCore.Tests.LevelValueTests" runstate="Runnable" seed="281012364" result="Passed" start-time="2026-09-13 13:38:47Z" end-time="2026-09-13 13:38:47Z" duration="0.000613" asserts="0">
+              <properties>
+                <property name="retryIteration" value="0" />
+                <property name="repeatIteration" value="0" />
+              </properties>
+            </test-case>
+            <test-case id="1032" name="LevelValue_ОтрицательныйУровень_БерётБазовое" fullname="StrategyCore.Tests.LevelValueTests.LevelValue_ОтрицательныйУровень_БерётБазовое" methodname="LevelValue_ОтрицательныйУровень_БерётБазовое" classname="StrategyCore.Tests.LevelValueTests" runstate="Runnable" seed="170936131" result="Passed" start-time="2026-09-13 13:38:47Z" end-time="2026-09-13 13:38:47Z" duration="0.000258" asserts="0">
+              <properties>
+                <property name="retryIteration" value="0" />
+                <property name="repeatIteration" value="0" />
+              </properties>
+            </test-case>
+            <test-case id="1028" name="LevelValue_ПоУмолчаниюFallbackНоль" fullname="StrategyCore.Tests.LevelValueTests.LevelValue_ПоУмолчаниюFallbackНоль" methodname="LevelValue_ПоУмолчаниюFallbackНоль" classname="StrategyCore.Tests.LevelValueTests" runstate="Runnable" seed="1920090156" result="Passed" start-time="2026-09-13 13:38:47Z" end-time="2026-09-13 13:38:47Z" duration="0.000376" asserts="0">
+              <properties>
+                <property name="retryIteration" value="0" />
+                <property name="repeatIteration" value="0" />
+              </properties>
+            </test-case>
+            <test-case id="1037" name="ЧислаИОбъектыВыбираютсяОднимПравилом" fullname="StrategyCore.Tests.LevelValueTests.ЧислаИОбъектыВыбираютсяОднимПравилом" methodname="ЧислаИОбъектыВыбираютсяОднимПравилом" classname="StrategyCore.Tests.LevelValueTests" runstate="Runnable" seed="831875145" result="Passed" start-time="2026-09-13 13:38:47Z" end-time="2026-09-13 13:38:47Z" duration="0.000450" asserts="0">
+              <properties>
+                <property name="retryIteration" value="0" />
+                <property name="repeatIteration" value="0" />
+              </properties>
+            </test-case>
+          </test-suite>
+          <test-suite type="TestFixture" id="1038" name="ReceiverStatusHolderTests" fullname="StrategyCore.Tests.ReceiverStatusHolderTests" classname="StrategyCore.Tests.ReceiverStatusHolderTests" runstate="Runnable" testcasecount="8" result="Passed" start-time="2026-09-13 13:38:47Z" end-time="2026-09-13 13:38:47Z" duration="0.031159" total="8" passed="8" failed="0" inconclusive="0" skipped="0" asserts="0">
+            <properties />
+            <test-case id="1044" name="Воронка_ЖивойЮнит_ПробрасываетДержательПриёмника" fullname="StrategyCore.Tests.ReceiverStatusHolderTests.Воронка_ЖивойЮнит_ПробрасываетДержательПриёмника" methodname="Воронка_ЖивойЮнит_ПробрасываетДержательПриёмника" classname="StrategyCore.Tests.ReceiverStatusHolderTests" runstate="Runnable" seed="379420818" result="Passed" start-time="2026-09-13 13:38:47Z" end-time="2026-09-13 13:38:47Z" duration="0.007710" asserts="0">
+              <properties>
+                <property name="retryIteration" value="0" />
+                <property name="repeatIteration" value="0" />
+              </properties>
+            </test-case>
+            <test-case id="1045" name="Воронка_Здание_ОтдаётNull_ИНичегоНеНакладывает" fullname="StrategyCore.Tests.ReceiverStatusHolderTests.Воронка_Здание_ОтдаётNull_ИНичегоНеНакладывает" methodname="Воронка_Здание_ОтдаётNull_ИНичегоНеНакладывает" classname="StrategyCore.Tests.ReceiverStatusHolderTests" runstate="Runnable" seed="1071984699" result="Passed" start-time="2026-09-13 13:38:47Z" end-time="2026-09-13 13:38:47Z" duration="0.000694" asserts="0">
+              <properties>
+                <property name="retryIteration" value="0" />
+                <property name="repeatIteration" value="0" />
+              </properties>
+            </test-case>
+            <test-case id="1039" name="Приёмник_НовоеНаложение_ОтдаётТотЖеДержатель_ЧтоЛёгВСписок" fullname="StrategyCore.Tests.ReceiverStatusHolderTests.Приёмник_НовоеНаложение_ОтдаётТотЖеДержатель_ЧтоЛёгВСписок" methodname="Приёмник_НовоеНаложение_ОтдаётТотЖеДержатель_ЧтоЛёгВСписок" classname="StrategyCore.Tests.ReceiverStatusHolderTests" runstate="Runnable" seed="110105474" result="Passed" start-time="2026-09-13 13:38:47Z" end-time="2026-09-13 13:38:47Z" duration="0.000946" asserts="0">
+              <properties>
+                <property name="retryIteration" value="0" />
+                <property name="repeatIteration" value="0" />
+              </properties>
+            </test-case>
+            <test-case id="1042" name="Приёмник_ОтбитоИммунитетомККонтролю_ОтдаётNull" fullname="StrategyCore.Tests.ReceiverStatusHolderTests.Приёмник_ОтбитоИммунитетомККонтролю_ОтдаётNull" methodname="Приёмник_ОтбитоИммунитетомККонтролю_ОтдаётNull" classname="StrategyCore.Tests.ReceiverStatusHolderTests" runstate="Runnable" seed="829628655" result="Passed" start-time="2026-09-13 13:38:47Z" end-time="2026-09-13 13:38:47Z" duration="0.000957" asserts="0">
+              <properties>
+                <property name="retryIteration" value="0" />
+                <property name="repeatIteration" value="0" />
+              </properties>
+            </test-case>
+            <test-case id="1043" name="Приёмник_ОтбитоСопротивлениемОт100Процентов_ОтдаётNull" fullname="StrategyCore.Tests.ReceiverStatusHolderTests.Приёмник_ОтбитоСопротивлениемОт100Процентов_ОтдаётNull" methodname="Приёмник_ОтбитоСопротивлениемОт100Процентов_ОтдаётNull" classname="StrategyCore.Tests.ReceiverStatusHolderTests" runstate="Runnable" seed="1119129400" result="Passed" start-time="2026-09-13 13:38:47Z" end-time="2026-09-13 13:38:47Z" duration="0.002565" asserts="0">
+              <properties>
+                <property name="retryIteration" value="0" />
+                <property name="repeatIteration" value="0" />
+              </properties>
+            </test-case>
+            <test-case id="1041" name="Приёмник_ПовторноеНаложение_ДругойДлительности_ОтдаётВторойДержатель" fullname="StrategyCore.Tests.ReceiverStatusHolderTests.Приёмник_ПовторноеНаложение_ДругойДлительности_ОтдаётВторойДержатель" methodname="Приёмник_ПовторноеНаложение_ДругойДлительности_ОтдаётВторойДержатель" classname="StrategyCore.Tests.ReceiverStatusHolderTests" runstate="Runnable" seed="241142752" result="Passed" start-time="2026-09-13 13:38:47Z" end-time="2026-09-13 13:38:47Z" duration="0.005527" asserts="0">
+              <properties>
+                <property name="retryIteration" value="0" />
+                <property name="repeatIteration" value="0" />
+              </properties>
+              <output><![CDATA[Are you sure you have EventSystem in your scene?
+]]></output>
+            </test-case>
+            <test-case id="1040" name="Приёмник_ПовторноеНаложение_ТойЖеСилыИДлительности_ОтдаётТотЖеДержатель" fullname="StrategyCore.Tests.ReceiverStatusHolderTests.Приёмник_ПовторноеНаложение_ТойЖеСилыИДлительности_ОтдаётТотЖеДержатель" methodname="Приёмник_ПовторноеНаложение_ТойЖеСилыИДлительности_ОтдаётТотЖеДержатель" classname="StrategyCore.Tests.ReceiverStatusHolderTests" runstate="Runnable" seed="2125185987" result="Passed" start-time="2026-09-13 13:38:47Z" end-time="2026-09-13 13:38:47Z" duration="0.001724" asserts="0">
+              <properties>
+                <property name="retryIteration" value="0" />
+                <property name="repeatIteration" value="0" />
+              </properties>
+              <output><![CDATA[Are you sure you have EventSystem in your scene?
+]]></output>
+            </test-case>
+            <test-case id="1046" name="Снятие_ПоДержателю_УбираетТолькоСвоёНаложение" fullname="StrategyCore.Tests.ReceiverStatusHolderTests.Снятие_ПоДержателю_УбираетТолькоСвоёНаложение" methodname="Снятие_ПоДержателю_УбираетТолькоСвоёНаложение" classname="StrategyCore.Tests.ReceiverStatusHolderTests" runstate="Runnable" seed="1816295341" result="Passed" start-time="2026-09-13 13:38:47Z" end-time="2026-09-13 13:38:47Z" duration="0.002459" asserts="0">
+              <properties>
+                <property name="retryIteration" value="0" />
+                <property name="repeatIteration" value="0" />
+              </properties>
+              <output><![CDATA[Are you sure you have EventSystem in your scene?
+]]></output>
+            </test-case>
+          </test-suite>
+          <test-suite type="TestFixture" id="1047" name="SkillTargetingTests" fullname="StrategyCore.Tests.SkillTargetingTests" classname="StrategyCore.Tests.SkillTargetingTests" runstate="Runnable" testcasecount="41" result="Passed" start-time="2026-09-13 13:38:47Z" end-time="2026-09-13 13:38:47Z" duration="0.105668" total="41" passed="41" failed="0" inconclusive="0" skipped="0" asserts="0">
+            <properties />
+            <test-case id="1067" name="AnyRandom_БерётТолькоИзНабораКандидатов" fullname="StrategyCore.Tests.SkillTargetingTests.AnyRandom_БерётТолькоИзНабораКандидатов" methodname="AnyRandom_БерётТолькоИзНабораКандидатов" classname="StrategyCore.Tests.SkillTargetingTests" runstate="Runnable" seed="1307923015" result="Passed" start-time="2026-09-13 13:38:47Z" end-time="2026-09-13 13:38:47Z" duration="0.003073" asserts="0">
+              <properties>
+                <property name="retryIteration" value="0" />
+                <property name="repeatIteration" value="0" />
+              </properties>
+            </test-case>
+            <test-case id="1069" name="AnyRandom_НетЖивыхКандидатов_Null" fullname="StrategyCore.Tests.SkillTargetingTests.AnyRandom_НетЖивыхКандидатов_Null" methodname="AnyRandom_НетЖивыхКандидатов_Null" classname="StrategyCore.Tests.SkillTargetingTests" runstate="Runnable" seed="170555200" result="Passed" start-time="2026-09-13 13:38:47Z" end-time="2026-09-13 13:38:47Z" duration="0.000794" asserts="0">
+              <properties>
+                <property name="retryIteration" value="0" />
+                <property name="repeatIteration" value="0" />
+              </properties>
+            </test-case>
+            <test-case id="1068" name="AnyRandom_РолиБольшеНеПриоритезируются" fullname="StrategyCore.Tests.SkillTargetingTests.AnyRandom_РолиБольшеНеПриоритезируются" methodname="AnyRandom_РолиБольшеНеПриоритезируются" classname="StrategyCore.Tests.SkillTargetingTests" runstate="Runnable" seed="726806241" result="Passed" start-time="2026-09-13 13:38:47Z" end-time="2026-09-13 13:38:47Z" duration="0.000925" asserts="0">
+              <properties>
+                <property name="retryIteration" value="0" />
+                <property name="repeatIteration" value="0" />
+              </properties>
+            </test-case>
+            <test-case id="1064" name="CurrentAttackTarget_БерётЦельАтакиКастера_АНеКандидатов" fullname="StrategyCore.Tests.SkillTargetingTests.CurrentAttackTarget_БерётЦельАтакиКастера_АНеКандидатов" methodname="CurrentAttackTarget_БерётЦельАтакиКастера_АНеКандидатов" classname="StrategyCore.Tests.SkillTargetingTests" runstate="Runnable" seed="605231623" result="Passed" start-time="2026-09-13 13:38:47Z" end-time="2026-09-13 13:38:47Z" duration="0.000939" asserts="0">
+              <properties>
+                <property name="retryIteration" value="0" />
+                <property name="repeatIteration" value="0" />
+              </properties>
+            </test-case>
+            <test-case id="1065" name="CurrentAttackTarget_ЦелиНет_Null" fullname="StrategyCore.Tests.SkillTargetingTests.CurrentAttackTarget_ЦелиНет_Null" methodname="CurrentAttackTarget_ЦелиНет_Null" classname="StrategyCore.Tests.SkillTargetingTests" runstate="Runnable" seed="1215895199" result="Passed" start-time="2026-09-13 13:38:47Z" end-time="2026-09-13 13:38:47Z" duration="0.000641" asserts="0">
+              <properties>
+                <property name="retryIteration" value="0" />
+                <property name="repeatIteration" value="0" />
+              </properties>
+            </test-case>
+            <test-case id="1066" name="CurrentAttackTarget_ЦельУничтожена_Null" fullname="StrategyCore.Tests.SkillTargetingTests.CurrentAttackTarget_ЦельУничтожена_Null" methodname="CurrentAttackTarget_ЦельУничтожена_Null" classname="StrategyCore.Tests.SkillTargetingTests" runstate="Runnable" seed="1273098693" result="Passed" start-time="2026-09-13 13:38:47Z" end-time="2026-09-13 13:38:47Z" duration="0.000769" asserts="0">
+              <properties>
+                <property name="retryIteration" value="0" />
+                <property name="repeatIteration" value="0" />
+              </properties>
+            </test-case>
+            <test-case id="1070" name="DensestCluster_НулевойРадиус_БерётКогоТоИзНабора" fullname="StrategyCore.Tests.SkillTargetingTests.DensestCluster_НулевойРадиус_БерётКогоТоИзНабора" methodname="DensestCluster_НулевойРадиус_БерётКогоТоИзНабора" classname="StrategyCore.Tests.SkillTargetingTests" runstate="Runnable" seed="865690332" result="Passed" start-time="2026-09-13 13:38:47Z" end-time="2026-09-13 13:38:47Z" duration="0.001680" asserts="0">
+              <properties>
+                <property name="retryIteration" value="0" />
+                <property name="repeatIteration" value="0" />
+              </properties>
+            </test-case>
+            <test-case id="1071" name="DensestCluster_ПустойНабор_Null" fullname="StrategyCore.Tests.SkillTargetingTests.DensestCluster_ПустойНабор_Null" methodname="DensestCluster_ПустойНабор_Null" classname="StrategyCore.Tests.SkillTargetingTests" runstate="Runnable" seed="1685394827" result="Passed" start-time="2026-09-13 13:38:47Z" end-time="2026-09-13 13:38:47Z" duration="0.003724" asserts="0">
+              <properties>
+                <property name="retryIteration" value="0" />
+                <property name="repeatIteration" value="0" />
+              </properties>
+            </test-case>
+            <test-case id="1055" name="FilterByCategories_НужнойРолиНет_ПустойНабор" fullname="StrategyCore.Tests.SkillTargetingTests.FilterByCategories_НужнойРолиНет_ПустойНабор" methodname="FilterByCategories_НужнойРолиНет_ПустойНабор" classname="StrategyCore.Tests.SkillTargetingTests" runstate="Runnable" seed="160949711" result="Passed" start-time="2026-09-13 13:38:47Z" end-time="2026-09-13 13:38:47Z" duration="0.040224" asserts="0">
+              <properties>
+                <property name="retryIteration" value="0" />
+                <property name="repeatIteration" value="0" />
+              </properties>
+            </test-case>
+            <test-case id="1053" name="FilterByCategories_ОставляетТолькоПеречисленныеРоли" fullname="StrategyCore.Tests.SkillTargetingTests.FilterByCategories_ОставляетТолькоПеречисленныеРоли" methodname="FilterByCategories_ОставляетТолькоПеречисленныеРоли" classname="StrategyCore.Tests.SkillTargetingTests" runstate="Runnable" seed="1281263648" result="Passed" start-time="2026-09-13 13:38:47Z" end-time="2026-09-13 13:38:47Z" duration="0.002586" asserts="0">
+              <properties>
+                <property name="retryIteration" value="0" />
+                <property name="repeatIteration" value="0" />
+              </properties>
+            </test-case>
+            <test-case id="1054" name="FilterByCategories_ПустойНаборРолей_ПропускаетВсех" fullname="StrategyCore.Tests.SkillTargetingTests.FilterByCategories_ПустойНаборРолей_ПропускаетВсех" methodname="FilterByCategories_ПустойНаборРолей_ПропускаетВсех" classname="StrategyCore.Tests.SkillTargetingTests" runstate="Runnable" seed="1884088929" result="Passed" start-time="2026-09-13 13:38:47Z" end-time="2026-09-13 13:38:47Z" duration="0.000657" asserts="0">
+              <properties>
+                <property name="retryIteration" value="0" />
+                <property name="repeatIteration" value="0" />
+              </properties>
+            </test-case>
+            <test-case id="1058" name="MostWounded_НетКандидатов_Null" fullname="StrategyCore.Tests.SkillTargetingTests.MostWounded_НетКандидатов_Null" methodname="MostWounded_НетКандидатов_Null" classname="StrategyCore.Tests.SkillTargetingTests" runstate="Runnable" seed="553227842" result="Passed" start-time="2026-09-13 13:38:47Z" end-time="2026-09-13 13:38:47Z" duration="0.000554" asserts="0">
+              <properties>
+                <property name="retryIteration" value="0" />
+                <property name="repeatIteration" value="0" />
+              </properties>
+            </test-case>
+            <test-case id="1057" name="MostWounded_ПропускаетСНулевымМаксимумом" fullname="StrategyCore.Tests.SkillTargetingTests.MostWounded_ПропускаетСНулевымМаксимумом" methodname="MostWounded_ПропускаетСНулевымМаксимумом" classname="StrategyCore.Tests.SkillTargetingTests" runstate="Runnable" seed="253696717" result="Passed" start-time="2026-09-13 13:38:47Z" end-time="2026-09-13 13:38:47Z" duration="0.000587" asserts="0">
+              <properties>
+                <property name="retryIteration" value="0" />
+                <property name="repeatIteration" value="0" />
+              </properties>
+            </test-case>
+            <test-case id="1056" name="MostWounded_СчитаетДолюЗдоровья_АНеАбсолютнуюПотерю" fullname="StrategyCore.Tests.SkillTargetingTests.MostWounded_СчитаетДолюЗдоровья_АНеАбсолютнуюПотерю" methodname="MostWounded_СчитаетДолюЗдоровья_АНеАбсолютнуюПотерю" classname="StrategyCore.Tests.SkillTargetingTests" runstate="Runnable" seed="2013578458" result="Passed" start-time="2026-09-13 13:38:47Z" end-time="2026-09-13 13:38:47Z" duration="0.000462" asserts="0">
+              <properties>
+                <property name="retryIteration" value="0" />
+                <property name="repeatIteration" value="0" />
+              </properties>
+            </test-case>
+            <test-case id="1060" name="MostWoundedBelowThreshold_БерётСамогоРаненогоИзТехКтоНижеПорога" fullname="StrategyCore.Tests.SkillTargetingTests.MostWoundedBelowThreshold_БерётСамогоРаненогоИзТехКтоНижеПорога" methodname="MostWoundedBelowThreshold_БерётСамогоРаненогоИзТехКтоНижеПорога" classname="StrategyCore.Tests.SkillTargetingTests" runstate="Runnable" seed="140968697" result="Passed" start-time="2026-09-13 13:38:47Z" end-time="2026-09-13 13:38:47Z" duration="0.001005" asserts="0">
+              <properties>
+                <property name="retryIteration" value="0" />
+                <property name="repeatIteration" value="0" />
+              </properties>
+            </test-case>
+            <test-case id="1059" name="MostWoundedBelowThreshold_ВсеВышеПорога_Null" fullname="StrategyCore.Tests.SkillTargetingTests.MostWoundedBelowThreshold_ВсеВышеПорога_Null" methodname="MostWoundedBelowThreshold_ВсеВышеПорога_Null" classname="StrategyCore.Tests.SkillTargetingTests" runstate="Runnable" seed="626564497" result="Passed" start-time="2026-09-13 13:38:47Z" end-time="2026-09-13 13:38:47Z" duration="0.000591" asserts="0">
+              <properties>
+                <property name="retryIteration" value="0" />
+                <property name="repeatIteration" value="0" />
+              </properties>
+            </test-case>
+            <test-case id="1061" name="MostWoundedBelowThreshold_ПорогСтрогий_РовноНаПорогеНеБерётся" fullname="StrategyCore.Tests.SkillTargetingTests.MostWoundedBelowThreshold_ПорогСтрогий_РовноНаПорогеНеБерётся" methodname="MostWoundedBelowThreshold_ПорогСтрогий_РовноНаПорогеНеБерётся" classname="StrategyCore.Tests.SkillTargetingTests" runstate="Runnable" seed="696709887" result="Passed" start-time="2026-09-13 13:38:47Z" end-time="2026-09-13 13:38:47Z" duration="0.000556" asserts="0">
+              <properties>
+                <property name="retryIteration" value="0" />
+                <property name="repeatIteration" value="0" />
+              </properties>
+            </test-case>
+            <test-case id="1048" name="Nearest_БерётБлижайшегоКТочкеОтсчёта" fullname="StrategyCore.Tests.SkillTargetingTests.Nearest_БерётБлижайшегоКТочкеОтсчёта" methodname="Nearest_БерётБлижайшегоКТочкеОтсчёта" classname="StrategyCore.Tests.SkillTargetingTests" runstate="Runnable" seed="1241990691" result="Passed" start-time="2026-09-13 13:38:47Z" end-time="2026-09-13 13:38:47Z" duration="0.001244" asserts="0">
+              <properties>
+                <property name="retryIteration" value="0" />
+                <property name="repeatIteration" value="0" />
+              </properties>
+            </test-case>
+            <test-case id="1052" name="Nearest_НетКандидатов_ВозвращаетNull" fullname="StrategyCore.Tests.SkillTargetingTests.Nearest_НетКандидатов_ВозвращаетNull" methodname="Nearest_НетКандидатов_ВозвращаетNull" classname="StrategyCore.Tests.SkillTargetingTests" runstate="Runnable" seed="892238804" result="Passed" start-time="2026-09-13 13:38:47Z" end-time="2026-09-13 13:38:47Z" duration="0.000355" asserts="0">
+              <properties>
+                <property name="retryIteration" value="0" />
+                <property name="repeatIteration" value="0" />
+              </properties>
+            </test-case>
+            <test-case id="1050" name="Nearest_ПропускаетСамогоКастера" fullname="StrategyCore.Tests.SkillTargetingTests.Nearest_ПропускаетСамогоКастера" methodname="Nearest_ПропускаетСамогоКастера" classname="StrategyCore.Tests.SkillTargetingTests" runstate="Runnable" seed="1275911954" result="Passed" start-time="2026-09-13 13:38:47Z" end-time="2026-09-13 13:38:47Z" duration="0.000643" asserts="0">
+              <properties>
+                <property name="retryIteration" value="0" />
+                <property name="repeatIteration" value="0" />
+              </properties>
+            </test-case>
+            <test-case id="1051" name="Nearest_ПропускаетУничтоженных" fullname="StrategyCore.Tests.SkillTargetingTests.Nearest_ПропускаетУничтоженных" methodname="Nearest_ПропускаетУничтоженных" classname="StrategyCore.Tests.SkillTargetingTests" runstate="Runnable" seed="1799328" result="Passed" start-time="2026-09-13 13:38:47Z" end-time="2026-09-13 13:38:47Z" duration="0.000688" asserts="0">
+              <properties>
+                <property name="retryIteration" value="0" />
+                <property name="repeatIteration" value="0" />
+              </properties>
+            </test-case>
+            <test-case id="1049" name="Nearest_ТочкаОтсчётаМеняетОтвет" fullname="StrategyCore.Tests.SkillTargetingTests.Nearest_ТочкаОтсчётаМеняетОтвет" methodname="Nearest_ТочкаОтсчётаМеняетОтвет" classname="StrategyCore.Tests.SkillTargetingTests" runstate="Runnable" seed="574233212" result="Passed" start-time="2026-09-13 13:38:47Z" end-time="2026-09-13 13:38:47Z" duration="0.000928" asserts="0">
+              <properties>
+                <property name="retryIteration" value="0" />
+                <property name="repeatIteration" value="0" />
+              </properties>
+            </test-case>
+            <test-case id="1080" name="Pick_Cluster_ВедётВВыборПоПлотности" fullname="StrategyCore.Tests.SkillTargetingTests.Pick_Cluster_ВедётВВыборПоПлотности" methodname="Pick_Cluster_ВедётВВыборПоПлотности" classname="StrategyCore.Tests.SkillTargetingTests" runstate="Runnable" seed="2121349349" result="Passed" start-time="2026-09-13 13:38:47Z" end-time="2026-09-13 13:38:47Z" duration="0.001560" asserts="0">
+              <properties>
+                <property name="retryIteration" value="0" />
+                <property name="repeatIteration" value="0" />
+              </properties>
+            </test-case>
+            <test-case id="1076" name="Pick_CurrentAttackTarget_ВедётВЦельАтакиКастера" fullname="StrategyCore.Tests.SkillTargetingTests.Pick_CurrentAttackTarget_ВедётВЦельАтакиКастера" methodname="Pick_CurrentAttackTarget_ВедётВЦельАтакиКастера" classname="StrategyCore.Tests.SkillTargetingTests" runstate="Runnable" seed="550326555" result="Passed" start-time="2026-09-13 13:38:47Z" end-time="2026-09-13 13:38:47Z" duration="0.000753" asserts="0">
+              <properties>
+                <property name="retryIteration" value="0" />
+                <property name="repeatIteration" value="0" />
+              </properties>
+            </test-case>
+            <test-case id="1073" name="Pick_MostWounded_ВедётВMostWounded" fullname="StrategyCore.Tests.SkillTargetingTests.Pick_MostWounded_ВедётВMostWounded" methodname="Pick_MostWounded_ВедётВMostWounded" classname="StrategyCore.Tests.SkillTargetingTests" runstate="Runnable" seed="1387419515" result="Passed" start-time="2026-09-13 13:38:47Z" end-time="2026-09-13 13:38:47Z" duration="0.000901" asserts="0">
+              <properties>
+                <property name="retryIteration" value="0" />
+                <property name="repeatIteration" value="0" />
+              </properties>
+            </test-case>
+            <test-case id="1072" name="Pick_Nearest_ВедётВNearest" fullname="StrategyCore.Tests.SkillTargetingTests.Pick_Nearest_ВедётВNearest" methodname="Pick_Nearest_ВедётВNearest" classname="StrategyCore.Tests.SkillTargetingTests" runstate="Runnable" seed="563154330" result="Passed" start-time="2026-09-13 13:38:47Z" end-time="2026-09-13 13:38:47Z" duration="0.000793" asserts="0">
+              <properties>
+                <property name="retryIteration" value="0" />
+                <property name="repeatIteration" value="0" />
+              </properties>
+            </test-case>
+            <test-case id="1077" name="Pick_RandomOne_ВедётВРавномерныйВыбор" fullname="StrategyCore.Tests.SkillTargetingTests.Pick_RandomOne_ВедётВРавномерныйВыбор" methodname="Pick_RandomOne_ВедётВРавномерныйВыбор" classname="StrategyCore.Tests.SkillTargetingTests" runstate="Runnable" seed="444381188" result="Passed" start-time="2026-09-13 13:38:47Z" end-time="2026-09-13 13:38:47Z" duration="0.000849" asserts="0">
+              <properties>
+                <property name="retryIteration" value="0" />
+                <property name="repeatIteration" value="0" />
+              </properties>
+            </test-case>
+            <test-case id="1074" name="Pick_Strongest_ВедётВStrongest_ПоМаксимуму" fullname="StrategyCore.Tests.SkillTargetingTests.Pick_Strongest_ВедётВStrongest_ПоМаксимуму" methodname="Pick_Strongest_ВедётВStrongest_ПоМаксимуму" classname="StrategyCore.Tests.SkillTargetingTests" runstate="Runnable" seed="881884445" result="Passed" start-time="2026-09-13 13:38:47Z" end-time="2026-09-13 13:38:47Z" duration="0.000940" asserts="0">
+              <properties>
+                <property name="retryIteration" value="0" />
+                <property name="repeatIteration" value="0" />
+              </properties>
+            </test-case>
+            <test-case id="1075" name="Pick_Strongest_УважаетФлагТекущегоЗдоровья" fullname="StrategyCore.Tests.SkillTargetingTests.Pick_Strongest_УважаетФлагТекущегоЗдоровья" methodname="Pick_Strongest_УважаетФлагТекущегоЗдоровья" classname="StrategyCore.Tests.SkillTargetingTests" runstate="Runnable" seed="741478245" result="Passed" start-time="2026-09-13 13:38:47Z" end-time="2026-09-13 13:38:47Z" duration="0.000842" asserts="0">
+              <properties>
+                <property name="retryIteration" value="0" />
+                <property name="repeatIteration" value="0" />
+              </properties>
+            </test-case>
+            <test-case id="1078" name="Pick_WoundedBelowThreshold_ВедётВВыборПоПорогу" fullname="StrategyCore.Tests.SkillTargetingTests.Pick_WoundedBelowThreshold_ВедётВВыборПоПорогу" methodname="Pick_WoundedBelowThreshold_ВедётВВыборПоПорогу" classname="StrategyCore.Tests.SkillTargetingTests" runstate="Runnable" seed="1580635873" result="Passed" start-time="2026-09-13 13:38:47Z" end-time="2026-09-13 13:38:47Z" duration="0.000981" asserts="0">
+              <properties>
+                <property name="retryIteration" value="0" />
+                <property name="repeatIteration" value="0" />
+              </properties>
+            </test-case>
+            <test-case id="1079" name="Pick_WoundedBelowThreshold_НиктоНеПросел_Null" fullname="StrategyCore.Tests.SkillTargetingTests.Pick_WoundedBelowThreshold_НиктоНеПросел_Null" methodname="Pick_WoundedBelowThreshold_НиктоНеПросел_Null" classname="StrategyCore.Tests.SkillTargetingTests" runstate="Runnable" seed="1551038291" result="Passed" start-time="2026-09-13 13:38:47Z" end-time="2026-09-13 13:38:47Z" duration="0.000870" asserts="0">
+              <properties>
+                <property name="retryIteration" value="0" />
+                <property name="repeatIteration" value="0" />
+              </properties>
+            </test-case>
+            <test-case id="1062" name="Strongest_ПоМаксимальномуЗдоровью" fullname="StrategyCore.Tests.SkillTargetingTests.Strongest_ПоМаксимальномуЗдоровью" methodname="Strongest_ПоМаксимальномуЗдоровью" classname="StrategyCore.Tests.SkillTargetingTests" runstate="Runnable" seed="1472122551" result="Passed" start-time="2026-09-13 13:38:47Z" end-time="2026-09-13 13:38:47Z" duration="0.000755" asserts="0">
+              <properties>
+                <property name="retryIteration" value="0" />
+                <property name="repeatIteration" value="0" />
+              </properties>
+            </test-case>
+            <test-case id="1063" name="Strongest_ПоТекущемуЗдоровью" fullname="StrategyCore.Tests.SkillTargetingTests.Strongest_ПоТекущемуЗдоровью" methodname="Strongest_ПоТекущемуЗдоровью" classname="StrategyCore.Tests.SkillTargetingTests" runstate="Runnable" seed="498359090" result="Passed" start-time="2026-09-13 13:38:47Z" end-time="2026-09-13 13:38:47Z" duration="0.000533" asserts="0">
+              <properties>
+                <property name="retryIteration" value="0" />
+                <property name="repeatIteration" value="0" />
+              </properties>
+            </test-case>
+            <test-case id="1083" name="TakeTargets_Ближайшие_БерётNБлижайшихИНеПортитИсточник" fullname="StrategyCore.Tests.SkillTargetingTests.TakeTargets_Ближайшие_БерётNБлижайшихИНеПортитИсточник" methodname="TakeTargets_Ближайшие_БерётNБлижайшихИНеПортитИсточник" classname="StrategyCore.Tests.SkillTargetingTests" runstate="Runnable" seed="219223599" result="Passed" start-time="2026-09-13 13:38:47Z" end-time="2026-09-13 13:38:47Z" duration="0.003151" asserts="0">
+              <properties>
+                <property name="retryIteration" value="0" />
+                <property name="repeatIteration" value="0" />
+              </properties>
+            </test-case>
+            <test-case id="1085" name="TakeTargets_ИсточникПустИлиNull_РезультатОчищен" fullname="StrategyCore.Tests.SkillTargetingTests.TakeTargets_ИсточникПустИлиNull_РезультатОчищен" methodname="TakeTargets_ИсточникПустИлиNull_РезультатОчищен" classname="StrategyCore.Tests.SkillTargetingTests" runstate="Runnable" seed="1458789806" result="Passed" start-time="2026-09-13 13:38:47Z" end-time="2026-09-13 13:38:47Z" duration="0.001178" asserts="0">
+              <properties>
+                <property name="retryIteration" value="0" />
+                <property name="repeatIteration" value="0" />
+              </properties>
+            </test-case>
+            <test-case id="1081" name="TakeTargets_ЛимитаНет_ПереноситВесьНабор" fullname="StrategyCore.Tests.SkillTargetingTests.TakeTargets_ЛимитаНет_ПереноситВесьНабор" methodname="TakeTargets_ЛимитаНет_ПереноситВесьНабор" classname="StrategyCore.Tests.SkillTargetingTests" runstate="Runnable" seed="1034742401" result="Passed" start-time="2026-09-13 13:38:47Z" end-time="2026-09-13 13:38:47Z" duration="0.001135" asserts="0">
+              <properties>
+                <property name="retryIteration" value="0" />
+                <property name="repeatIteration" value="0" />
+              </properties>
+            </test-case>
+            <test-case id="1084" name="TakeTargets_Случайные_БерётРовноNБезПовторов" fullname="StrategyCore.Tests.SkillTargetingTests.TakeTargets_Случайные_БерётРовноNБезПовторов" methodname="TakeTargets_Случайные_БерётРовноNБезПовторов" classname="StrategyCore.Tests.SkillTargetingTests" runstate="Runnable" seed="46252730" result="Passed" start-time="2026-09-13 13:38:47Z" end-time="2026-09-13 13:38:47Z" duration="0.002586" asserts="0">
+              <properties>
+                <property name="retryIteration" value="0" />
+                <property name="repeatIteration" value="0" />
+              </properties>
+            </test-case>
+            <test-case id="1082" name="TakeTargets_ЦелейМеньшеЛимита_ПереноситВесьНабор" fullname="StrategyCore.Tests.SkillTargetingTests.TakeTargets_ЦелейМеньшеЛимита_ПереноситВесьНабор" methodname="TakeTargets_ЦелейМеньшеЛимита_ПереноситВесьНабор" classname="StrategyCore.Tests.SkillTargetingTests" runstate="Runnable" seed="1053990349" result="Passed" start-time="2026-09-13 13:38:47Z" end-time="2026-09-13 13:38:47Z" duration="0.000895" asserts="0">
+              <properties>
+                <property name="retryIteration" value="0" />
+                <property name="repeatIteration" value="0" />
+              </properties>
+            </test-case>
+            <test-case id="1087" name="WeightedPick_ВесьВесВПервомЭлементе_ВозвращаетПервый" fullname="StrategyCore.Tests.SkillTargetingTests.WeightedPick_ВесьВесВПервомЭлементе_ВозвращаетПервый" methodname="WeightedPick_ВесьВесВПервомЭлементе_ВозвращаетПервый" classname="StrategyCore.Tests.SkillTargetingTests" runstate="Runnable" seed="1107751412" result="Passed" start-time="2026-09-13 13:38:47Z" end-time="2026-09-13 13:38:47Z" duration="0.000804" asserts="0">
+              <properties>
+                <property name="retryIteration" value="0" />
+                <property name="repeatIteration" value="0" />
+              </properties>
+            </test-case>
+            <test-case id="1088" name="WeightedPick_ВсеВесаНулевые_ИндексВДиапазоне" fullname="StrategyCore.Tests.SkillTargetingTests.WeightedPick_ВсеВесаНулевые_ИндексВДиапазоне" methodname="WeightedPick_ВсеВесаНулевые_ИндексВДиапазоне" classname="StrategyCore.Tests.SkillTargetingTests" runstate="Runnable" seed="873092829" result="Passed" start-time="2026-09-13 13:38:47Z" end-time="2026-09-13 13:38:47Z" duration="0.000377" asserts="0">
+              <properties>
+                <property name="retryIteration" value="0" />
+                <property name="repeatIteration" value="0" />
+              </properties>
+            </test-case>
+            <test-case id="1086" name="WeightedPick_ПустойИлиNull_ВозвращаетНоль" fullname="StrategyCore.Tests.SkillTargetingTests.WeightedPick_ПустойИлиNull_ВозвращаетНоль" methodname="WeightedPick_ПустойИлиNull_ВозвращаетНоль" classname="StrategyCore.Tests.SkillTargetingTests" runstate="Runnable" seed="980700258" result="Passed" start-time="2026-09-13 13:38:47Z" end-time="2026-09-13 13:38:47Z" duration="0.000420" asserts="0">
+              <properties>
+                <property name="retryIteration" value="0" />
+                <property name="repeatIteration" value="0" />
+              </properties>
+            </test-case>
+          </test-suite>
+          <test-suite type="TestFixture" id="1089" name="UnitStatArithmeticTests" fullname="StrategyCore.Tests.UnitStatArithmeticTests" classname="StrategyCore.Tests.UnitStatArithmeticTests" runstate="Runnable" testcasecount="39" result="Passed" start-time="2026-09-13 13:38:47Z" end-time="2026-09-13 13:38:47Z" duration="0.098747" total="39" passed="39" failed="0" inconclusive="0" skipped="0" asserts="0">
+            <properties />
+            <test-case id="1127" name="SetHP_БезNetworkManager_БросаетNRE_НоПолеУжеИзменено" fullname="StrategyCore.Tests.UnitStatArithmeticTests.SetHP_БезNetworkManager_БросаетNRE_НоПолеУжеИзменено" methodname="SetHP_БезNetworkManager_БросаетNRE_НоПолеУжеИзменено" classname="StrategyCore.Tests.UnitStatArithmeticTests" runstate="Runnable" seed="1906976614" result="Passed" start-time="2026-09-13 13:38:47Z" end-time="2026-09-13 13:38:47Z" duration="0.003597" asserts="0">
+              <properties>
+                <property name="retryIteration" value="0" />
+                <property name="repeatIteration" value="0" />
+              </properties>
+            </test-case>
+            <test-case id="1128" name="SetMP_БезNetworkManager_БросаетNRE_НоПолеУжеИзменено" fullname="StrategyCore.Tests.UnitStatArithmeticTests.SetMP_БезNetworkManager_БросаетNRE_НоПолеУжеИзменено" methodname="SetMP_БезNetworkManager_БросаетNRE_НоПолеУжеИзменено" classname="StrategyCore.Tests.UnitStatArithmeticTests" runstate="Runnable" seed="1469535026" result="Passed" start-time="2026-09-13 13:38:47Z" end-time="2026-09-13 13:38:47Z" duration="0.001367" asserts="0">
+              <properties>
+                <property name="retryIteration" value="0" />
+                <property name="repeatIteration" value="0" />
+              </properties>
+            </test-case>
+            <test-case id="1102" name="Броня_ПроцентТудаОбратно_ВозвращаетИсходноеИМножитель" fullname="StrategyCore.Tests.UnitStatArithmeticTests.Броня_ПроцентТудаОбратно_ВозвращаетИсходноеИМножитель" methodname="Броня_ПроцентТудаОбратно_ВозвращаетИсходноеИМножитель" classname="StrategyCore.Tests.UnitStatArithmeticTests" runstate="Runnable" seed="1819256633" result="Passed" start-time="2026-09-13 13:38:47Z" end-time="2026-09-13 13:38:47Z" duration="0.000938" asserts="0">
+              <properties>
+                <property name="retryIteration" value="0" />
+                <property name="repeatIteration" value="0" />
+              </properties>
+            </test-case>
+            <test-case id="1101" name="Броня_ФлэтТудаОбратно_ВозвращаетИсходное" fullname="StrategyCore.Tests.UnitStatArithmeticTests.Броня_ФлэтТудаОбратно_ВозвращаетИсходное" methodname="Броня_ФлэтТудаОбратно_ВозвращаетИсходное" classname="StrategyCore.Tests.UnitStatArithmeticTests" runstate="Runnable" seed="1802629469" result="Passed" start-time="2026-09-13 13:38:47Z" end-time="2026-09-13 13:38:47Z" duration="0.000550" asserts="0">
+              <properties>
+                <property name="retryIteration" value="0" />
+                <property name="repeatIteration" value="0" />
+              </properties>
+            </test-case>
+            <test-case id="1115" name="Дальность_ДалекоОтПорога_ПроцентТудаОбратно_ВозвращаетИМножитель" fullname="StrategyCore.Tests.UnitStatArithmeticTests.Дальность_ДалекоОтПорога_ПроцентТудаОбратно_ВозвращаетИМножитель" methodname="Дальность_ДалекоОтПорога_ПроцентТудаОбратно_ВозвращаетИМножитель" classname="StrategyCore.Tests.UnitStatArithmeticTests" runstate="Runnable" seed="26382606" result="Passed" start-time="2026-09-13 13:38:47Z" end-time="2026-09-13 13:38:47Z" duration="0.000759" asserts="0">
+              <properties>
+                <property name="retryIteration" value="0" />
+                <property name="repeatIteration" value="0" />
+              </properties>
+            </test-case>
+            <test-case id="1114" name="Дальность_ДалекоОтПорога_ФлэтТудаОбратно_ВозвращаетИСнимаетБлижнийБой" fullname="StrategyCore.Tests.UnitStatArithmeticTests.Дальность_ДалекоОтПорога_ФлэтТудаОбратно_ВозвращаетИСнимаетБлижнийБой" methodname="Дальность_ДалекоОтПорога_ФлэтТудаОбратно_ВозвращаетИСнимаетБлижнийБой" classname="StrategyCore.Tests.UnitStatArithmeticTests" runstate="Runnable" seed="463685997" result="Passed" start-time="2026-09-13 13:38:47Z" end-time="2026-09-13 13:38:47Z" duration="0.001217" asserts="0">
+              <properties>
+                <property name="retryIteration" value="0" />
+                <property name="repeatIteration" value="0" />
+              </properties>
+            </test-case>
+            <test-case id="1095" name="Дрейф_100ЦикловПроцентТудаОбратно_НеНакапливается" fullname="StrategyCore.Tests.UnitStatArithmeticTests.Дрейф_100ЦикловПроцентТудаОбратно_НеНакапливается" methodname="Дрейф_100ЦикловПроцентТудаОбратно_НеНакапливается" classname="StrategyCore.Tests.UnitStatArithmeticTests" runstate="Runnable" seed="1898060447" result="Passed" start-time="2026-09-13 13:38:47Z" end-time="2026-09-13 13:38:47Z" duration="0.001392" asserts="0">
+              <properties>
+                <property name="retryIteration" value="0" />
+                <property name="repeatIteration" value="0" />
+              </properties>
+              <output><![CDATA[урон 100, цикл ±20 %: после 1 цикла 100, после 100 100, дельта от исходного 0
+урон 418,05, цикл ±39,5 %: после 1 цикла 418,05, после 100 418,05, дельта от исходного 0
+]]></output>
+            </test-case>
+            <test-case id="1107" name="МаксМП_ПроцентТудаОбратно_ВозвращаетМаксимумТекущееИМножитель" fullname="StrategyCore.Tests.UnitStatArithmeticTests.МаксМП_ПроцентТудаОбратно_ВозвращаетМаксимумТекущееИМножитель" methodname="МаксМП_ПроцентТудаОбратно_ВозвращаетМаксимумТекущееИМножитель" classname="StrategyCore.Tests.UnitStatArithmeticTests" runstate="Runnable" seed="2034724560" result="Passed" start-time="2026-09-13 13:38:47Z" end-time="2026-09-13 13:38:47Z" duration="0.000932" asserts="0">
+              <properties>
+                <property name="retryIteration" value="0" />
+                <property name="repeatIteration" value="0" />
+              </properties>
+            </test-case>
+            <test-case id="1106" name="МаксМП_ФлэтТудаОбратно_ПриМножителеОдин_Возвращает" fullname="StrategyCore.Tests.UnitStatArithmeticTests.МаксМП_ФлэтТудаОбратно_ПриМножителеОдин_Возвращает" methodname="МаксМП_ФлэтТудаОбратно_ПриМножителеОдин_Возвращает" classname="StrategyCore.Tests.UnitStatArithmeticTests" runstate="Runnable" seed="1038301329" result="Passed" start-time="2026-09-13 13:38:47Z" end-time="2026-09-13 13:38:47Z" duration="0.000589" asserts="0">
+              <properties>
+                <property name="retryIteration" value="0" />
+                <property name="repeatIteration" value="0" />
+              </properties>
+            </test-case>
+            <test-case id="1105" name="МаксХП_ПроцентТудаОбратно_ВозвращаетМаксимумТекущееИМножитель" fullname="StrategyCore.Tests.UnitStatArithmeticTests.МаксХП_ПроцентТудаОбратно_ВозвращаетМаксимумТекущееИМножитель" methodname="МаксХП_ПроцентТудаОбратно_ВозвращаетМаксимумТекущееИМножитель" classname="StrategyCore.Tests.UnitStatArithmeticTests" runstate="Runnable" seed="1548123731" result="Passed" start-time="2026-09-13 13:38:47Z" end-time="2026-09-13 13:38:47Z" duration="0.001374" asserts="0">
+              <properties>
+                <property name="retryIteration" value="0" />
+                <property name="repeatIteration" value="0" />
+              </properties>
+            </test-case>
+            <test-case id="1103" name="МаксХП_Флэт_ПриМножителеОдин_СохраняетДолюТекущего" fullname="StrategyCore.Tests.UnitStatArithmeticTests.МаксХП_Флэт_ПриМножителеОдин_СохраняетДолюТекущего" methodname="МаксХП_Флэт_ПриМножителеОдин_СохраняетДолюТекущего" classname="StrategyCore.Tests.UnitStatArithmeticTests" runstate="Runnable" seed="1445976931" result="Passed" start-time="2026-09-13 13:38:47Z" end-time="2026-09-13 13:38:47Z" duration="0.000844" asserts="0">
+              <properties>
+                <property name="retryIteration" value="0" />
+                <property name="repeatIteration" value="0" />
+              </properties>
+            </test-case>
+            <test-case id="1104" name="МаксХП_ФлэтТудаОбратно_ПриМножителеОдин_Возвращает" fullname="StrategyCore.Tests.UnitStatArithmeticTests.МаксХП_ФлэтТудаОбратно_ПриМножителеОдин_Возвращает" methodname="МаксХП_ФлэтТудаОбратно_ПриМножителеОдин_Возвращает" classname="StrategyCore.Tests.UnitStatArithmeticTests" runstate="Runnable" seed="332446938" result="Passed" start-time="2026-09-13 13:38:47Z" end-time="2026-09-13 13:38:47Z" duration="0.000424" asserts="0">
+              <properties>
+                <property name="retryIteration" value="0" />
+                <property name="repeatIteration" value="0" />
+              </properties>
+            </test-case>
+            <test-case id="1123" name="Мультитаргет_ПриБлижнемБою_ЗаполняетМассивЦелейИНеТрогаетСнаряд" fullname="StrategyCore.Tests.UnitStatArithmeticTests.Мультитаргет_ПриБлижнемБою_ЗаполняетМассивЦелейИНеТрогаетСнаряд" methodname="Мультитаргет_ПриБлижнемБою_ЗаполняетМассивЦелейИНеТрогаетСнаряд" classname="StrategyCore.Tests.UnitStatArithmeticTests" runstate="Runnable" seed="1119934803" result="Passed" start-time="2026-09-13 13:38:47Z" end-time="2026-09-13 13:38:47Z" duration="0.000964" asserts="0">
+              <properties>
+                <property name="retryIteration" value="0" />
+                <property name="repeatIteration" value="0" />
+              </properties>
+            </test-case>
+            <test-case id="1117" name="Опыт_ЦелыеЗначения_ПроцентТудаОбратно_ВозвращаетИМножитель" fullname="StrategyCore.Tests.UnitStatArithmeticTests.Опыт_ЦелыеЗначения_ПроцентТудаОбратно_ВозвращаетИМножитель" methodname="Опыт_ЦелыеЗначения_ПроцентТудаОбратно_ВозвращаетИМножитель" classname="StrategyCore.Tests.UnitStatArithmeticTests" runstate="Runnable" seed="934271840" result="Passed" start-time="2026-09-13 13:38:47Z" end-time="2026-09-13 13:38:47Z" duration="0.000803" asserts="0">
+              <properties>
+                <property name="retryIteration" value="0" />
+                <property name="repeatIteration" value="0" />
+              </properties>
+            </test-case>
+            <test-case id="1116" name="Опыт_ЦелыеЗначения_ФлэтТудаОбратно_Возвращает" fullname="StrategyCore.Tests.UnitStatArithmeticTests.Опыт_ЦелыеЗначения_ФлэтТудаОбратно_Возвращает" methodname="Опыт_ЦелыеЗначения_ФлэтТудаОбратно_Возвращает" classname="StrategyCore.Tests.UnitStatArithmeticTests" runstate="Runnable" seed="1896699953" result="Passed" start-time="2026-09-13 13:38:47Z" end-time="2026-09-13 13:38:47Z" duration="0.000502" asserts="0">
+              <properties>
+                <property name="retryIteration" value="0" />
+                <property name="repeatIteration" value="0" />
+              </properties>
+            </test-case>
+            <test-case id="1124" name="Отскок_ПриБлижнемБою_ПоляПрисваиваютсяКакЕсть" fullname="StrategyCore.Tests.UnitStatArithmeticTests.Отскок_ПриБлижнемБою_ПоляПрисваиваютсяКакЕсть" methodname="Отскок_ПриБлижнемБою_ПоляПрисваиваютсяКакЕсть" classname="StrategyCore.Tests.UnitStatArithmeticTests" runstate="Runnable" seed="59041931" result="Passed" start-time="2026-09-13 13:38:47Z" end-time="2026-09-13 13:38:47Z" duration="0.000531" asserts="0">
+              <properties>
+                <property name="retryIteration" value="0" />
+                <property name="repeatIteration" value="0" />
+              </properties>
+            </test-case>
+            <test-case id="1113" name="РегенМП_ФлэтИПроцентТудаОбратно_Возвращают" fullname="StrategyCore.Tests.UnitStatArithmeticTests.РегенМП_ФлэтИПроцентТудаОбратно_Возвращают" methodname="РегенМП_ФлэтИПроцентТудаОбратно_Возвращают" classname="StrategyCore.Tests.UnitStatArithmeticTests" runstate="Runnable" seed="2054998640" result="Passed" start-time="2026-09-13 13:38:47Z" end-time="2026-09-13 13:38:47Z" duration="0.000815" asserts="0">
+              <properties>
+                <property name="retryIteration" value="0" />
+                <property name="repeatIteration" value="0" />
+              </properties>
+            </test-case>
+            <test-case id="1112" name="РегенХП_ФлэтИПроцентТудаОбратно_Возвращают" fullname="StrategyCore.Tests.UnitStatArithmeticTests.РегенХП_ФлэтИПроцентТудаОбратно_Возвращают" methodname="РегенХП_ФлэтИПроцентТудаОбратно_Возвращают" classname="StrategyCore.Tests.UnitStatArithmeticTests" runstate="Runnable" seed="635740881" result="Passed" start-time="2026-09-13 13:38:47Z" end-time="2026-09-13 13:38:47Z" duration="0.001802" asserts="0">
+              <properties>
+                <property name="retryIteration" value="0" />
+                <property name="repeatIteration" value="0" />
+              </properties>
+            </test-case>
+            <test-case id="1120" name="Селектор_Непустой_ВключаетАтакуИПринудительноГаситНевидимость" fullname="StrategyCore.Tests.UnitStatArithmeticTests.Селектор_Непустой_ВключаетАтакуИПринудительноГаситНевидимость" methodname="Селектор_Непустой_ВключаетАтакуИПринудительноГаситНевидимость" classname="StrategyCore.Tests.UnitStatArithmeticTests" runstate="Runnable" seed="1545320627" result="Passed" start-time="2026-09-13 13:38:47Z" end-time="2026-09-13 13:38:47Z" duration="0.001203" asserts="0">
+              <properties>
+                <property name="retryIteration" value="0" />
+                <property name="repeatIteration" value="0" />
+              </properties>
+            </test-case>
+            <test-case id="1121" name="Селектор_Пустой_АтакуНеВключает" fullname="StrategyCore.Tests.UnitStatArithmeticTests.Селектор_Пустой_АтакуНеВключает" methodname="Селектор_Пустой_АтакуНеВключает" classname="StrategyCore.Tests.UnitStatArithmeticTests" runstate="Runnable" seed="1098897241" result="Passed" start-time="2026-09-13 13:38:47Z" end-time="2026-09-13 13:38:47Z" duration="0.000400" asserts="0">
+              <properties>
+                <property name="retryIteration" value="0" />
+                <property name="repeatIteration" value="0" />
+              </properties>
+            </test-case>
+            <test-case id="1097" name="СкоростьАтаки_МинусПроцент_УВЕЛИЧИВАЕТИнтервал" fullname="StrategyCore.Tests.UnitStatArithmeticTests.СкоростьАтаки_МинусПроцент_УВЕЛИЧИВАЕТИнтервал" methodname="СкоростьАтаки_МинусПроцент_УВЕЛИЧИВАЕТИнтервал" classname="StrategyCore.Tests.UnitStatArithmeticTests" runstate="Runnable" seed="1427600927" result="Passed" start-time="2026-09-13 13:38:47Z" end-time="2026-09-13 13:38:47Z" duration="0.001233" asserts="0">
+              <properties>
+                <property name="retryIteration" value="0" />
+                <property name="repeatIteration" value="0" />
+              </properties>
+            </test-case>
+            <test-case id="1096" name="СкоростьАтаки_ПлюсПроцент_УМЕНЬШАЕТИнтервал" fullname="StrategyCore.Tests.UnitStatArithmeticTests.СкоростьАтаки_ПлюсПроцент_УМЕНЬШАЕТИнтервал" methodname="СкоростьАтаки_ПлюсПроцент_УМЕНЬШАЕТИнтервал" classname="StrategyCore.Tests.UnitStatArithmeticTests" runstate="Runnable" seed="452228689" result="Passed" start-time="2026-09-13 13:38:47Z" end-time="2026-09-13 13:38:47Z" duration="0.000949" asserts="0">
+              <properties>
+                <property name="retryIteration" value="0" />
+                <property name="repeatIteration" value="0" />
+              </properties>
+            </test-case>
+            <test-case id="1099" name="СкоростьАтаки_ПроцентТудаОбратно_ВозвращаетЗначениеИМножитель" fullname="StrategyCore.Tests.UnitStatArithmeticTests.СкоростьАтаки_ПроцентТудаОбратно_ВозвращаетЗначениеИМножитель" methodname="СкоростьАтаки_ПроцентТудаОбратно_ВозвращаетЗначениеИМножитель" classname="StrategyCore.Tests.UnitStatArithmeticTests" runstate="Runnable" seed="1084178268" result="Passed" start-time="2026-09-13 13:38:47Z" end-time="2026-09-13 13:38:47Z" duration="0.000703" asserts="0">
+              <properties>
+                <property name="retryIteration" value="0" />
+                <property name="repeatIteration" value="0" />
+              </properties>
+            </test-case>
+            <test-case id="1098" name="СкоростьАтаки_ФлэтИПроцентИмеютПротивоположныйСмыслЗнака" fullname="StrategyCore.Tests.UnitStatArithmeticTests.СкоростьАтаки_ФлэтИПроцентИмеютПротивоположныйСмыслЗнака" methodname="СкоростьАтаки_ФлэтИПроцентИмеютПротивоположныйСмыслЗнака" classname="StrategyCore.Tests.UnitStatArithmeticTests" runstate="Runnable" seed="1582462156" result="Passed" start-time="2026-09-13 13:38:47Z" end-time="2026-09-13 13:38:47Z" duration="0.000819" asserts="0">
+              <properties>
+                <property name="retryIteration" value="0" />
+                <property name="repeatIteration" value="0" />
+              </properties>
+            </test-case>
+            <test-case id="1100" name="СкоростьАтаки_ФлэтТудаОбратно_ВозвращаетИсходное" fullname="StrategyCore.Tests.UnitStatArithmeticTests.СкоростьАтаки_ФлэтТудаОбратно_ВозвращаетИсходное" methodname="СкоростьАтаки_ФлэтТудаОбратно_ВозвращаетИсходное" classname="StrategyCore.Tests.UnitStatArithmeticTests" runstate="Runnable" seed="401597883" result="Passed" start-time="2026-09-13 13:38:47Z" end-time="2026-09-13 13:38:47Z" duration="0.000794" asserts="0">
+              <properties>
+                <property name="retryIteration" value="0" />
+                <property name="repeatIteration" value="0" />
+              </properties>
+            </test-case>
+            <test-case id="1126" name="СкоростьХода_Процент_БезNavMeshAgent_БросаетNRE_НоПолеУжеИзменено" fullname="StrategyCore.Tests.UnitStatArithmeticTests.СкоростьХода_Процент_БезNavMeshAgent_БросаетNRE_НоПолеУжеИзменено" methodname="СкоростьХода_Процент_БезNavMeshAgent_БросаетNRE_НоПолеУжеИзменено" classname="StrategyCore.Tests.UnitStatArithmeticTests" runstate="Runnable" seed="1511147425" result="Passed" start-time="2026-09-13 13:38:47Z" end-time="2026-09-13 13:38:47Z" duration="0.001446" asserts="0">
+              <properties>
+                <property name="retryIteration" value="0" />
+                <property name="repeatIteration" value="0" />
+              </properties>
+            </test-case>
+            <test-case id="1125" name="СкоростьХода_Флэт_БезNavMeshAgent_БросаетNRE_НоПолеУжеИзменено" fullname="StrategyCore.Tests.UnitStatArithmeticTests.СкоростьХода_Флэт_БезNavMeshAgent_БросаетNRE_НоПолеУжеИзменено" methodname="СкоростьХода_Флэт_БезNavMeshAgent_БросаетNRE_НоПолеУжеИзменено" classname="StrategyCore.Tests.UnitStatArithmeticTests" runstate="Runnable" seed="1697136163" result="Passed" start-time="2026-09-13 13:38:47Z" end-time="2026-09-13 13:38:47Z" duration="0.000821" asserts="0">
+              <properties>
+                <property name="retryIteration" value="0" />
+                <property name="repeatIteration" value="0" />
+              </properties>
+            </test-case>
+            <test-case id="1122" name="Сплэш_ПоляПрисваиваютсяКакЕсть" fullname="StrategyCore.Tests.UnitStatArithmeticTests.Сплэш_ПоляПрисваиваютсяКакЕсть" methodname="Сплэш_ПоляПрисваиваютсяКакЕсть" classname="StrategyCore.Tests.UnitStatArithmeticTests" runstate="Runnable" seed="2105222157" result="Passed" start-time="2026-09-13 13:38:47Z" end-time="2026-09-13 13:38:47Z" duration="0.000517" asserts="0">
+              <properties>
+                <property name="retryIteration" value="0" />
+                <property name="repeatIteration" value="0" />
+              </properties>
+            </test-case>
+            <test-case id="1111" name="ТекущееМП_ЗажимаетсяВДиапазонеОтНуляДоМаксимума" fullname="StrategyCore.Tests.UnitStatArithmeticTests.ТекущееМП_ЗажимаетсяВДиапазонеОтНуляДоМаксимума" methodname="ТекущееМП_ЗажимаетсяВДиапазонеОтНуляДоМаксимума" classname="StrategyCore.Tests.UnitStatArithmeticTests" runstate="Runnable" seed="1336355607" result="Passed" start-time="2026-09-13 13:38:47Z" end-time="2026-09-13 13:38:47Z" duration="0.000631" asserts="0">
+              <properties>
+                <property name="retryIteration" value="0" />
+                <property name="repeatIteration" value="0" />
+              </properties>
+            </test-case>
+            <test-case id="1108" name="ТекущееХП_ВышеМаксимума_ЗажимаетсяКМаксимумуИНеУбивает" fullname="StrategyCore.Tests.UnitStatArithmeticTests.ТекущееХП_ВышеМаксимума_ЗажимаетсяКМаксимумуИНеУбивает" methodname="ТекущееХП_ВышеМаксимума_ЗажимаетсяКМаксимумуИНеУбивает" classname="StrategyCore.Tests.UnitStatArithmeticTests" runstate="Runnable" seed="1795262770" result="Passed" start-time="2026-09-13 13:38:47Z" end-time="2026-09-13 13:38:47Z" duration="0.001401" asserts="0">
+              <properties>
+                <property name="retryIteration" value="0" />
+                <property name="repeatIteration" value="0" />
+              </properties>
+            </test-case>
+            <test-case id="1109" name="ТекущееХП_НижеПорога005_ОбнуляетсяИВозвращаетTrue" fullname="StrategyCore.Tests.UnitStatArithmeticTests.ТекущееХП_НижеПорога005_ОбнуляетсяИВозвращаетTrue" methodname="ТекущееХП_НижеПорога005_ОбнуляетсяИВозвращаетTrue" classname="StrategyCore.Tests.UnitStatArithmeticTests" runstate="Runnable" seed="1072647995" result="Passed" start-time="2026-09-13 13:38:47Z" end-time="2026-09-13 13:38:47Z" duration="0.000679" asserts="0">
+              <properties>
+                <property name="retryIteration" value="0" />
+                <property name="repeatIteration" value="0" />
+              </properties>
+            </test-case>
+            <test-case id="1110" name="ТекущееХП_ОбычноеИзменение_ВозвращаетFalse" fullname="StrategyCore.Tests.UnitStatArithmeticTests.ТекущееХП_ОбычноеИзменение_ВозвращаетFalse" methodname="ТекущееХП_ОбычноеИзменение_ВозвращаетFalse" classname="StrategyCore.Tests.UnitStatArithmeticTests" runstate="Runnable" seed="594788233" result="Passed" start-time="2026-09-13 13:38:47Z" end-time="2026-09-13 13:38:47Z" duration="0.000845" asserts="0">
+              <properties>
+                <property name="retryIteration" value="0" />
+                <property name="repeatIteration" value="0" />
+              </properties>
+            </test-case>
+            <test-case id="1119" name="ТипБрони_Присваивается" fullname="StrategyCore.Tests.UnitStatArithmeticTests.ТипБрони_Присваивается" methodname="ТипБрони_Присваивается" classname="StrategyCore.Tests.UnitStatArithmeticTests" runstate="Runnable" seed="258477574" result="Passed" start-time="2026-09-13 13:38:47Z" end-time="2026-09-13 13:38:47Z" duration="0.004104" asserts="0">
+              <properties>
+                <property name="retryIteration" value="0" />
+                <property name="repeatIteration" value="0" />
+              </properties>
+            </test-case>
+            <test-case id="1118" name="ТипУрона_Присваивается" fullname="StrategyCore.Tests.UnitStatArithmeticTests.ТипУрона_Присваивается" methodname="ТипУрона_Присваивается" classname="StrategyCore.Tests.UnitStatArithmeticTests" runstate="Runnable" seed="1103007630" result="Passed" start-time="2026-09-13 13:38:47Z" end-time="2026-09-13 13:38:47Z" duration="0.000793" asserts="0">
+              <properties>
+                <property name="retryIteration" value="0" />
+                <property name="repeatIteration" value="0" />
+              </properties>
+            </test-case>
+            <test-case id="1090" name="Урон_ПорядокНаложенияНеВлияет_ОбаПутиДают165" fullname="StrategyCore.Tests.UnitStatArithmeticTests.Урон_ПорядокНаложенияНеВлияет_ОбаПутиДают165" methodname="Урон_ПорядокНаложенияНеВлияет_ОбаПутиДают165" classname="StrategyCore.Tests.UnitStatArithmeticTests" runstate="Runnable" seed="690027126" result="Passed" start-time="2026-09-13 13:38:47Z" end-time="2026-09-13 13:38:47Z" duration="0.001246" asserts="0">
+              <properties>
+                <property name="retryIteration" value="0" />
+                <property name="repeatIteration" value="0" />
+              </properties>
+            </test-case>
+            <test-case id="1094" name="Урон_ПроцентНаложенПриФлэтеСнятПослеНего_ВозвращаетИсходное" fullname="StrategyCore.Tests.UnitStatArithmeticTests.Урон_ПроцентНаложенПриФлэтеСнятПослеНего_ВозвращаетИсходное" methodname="Урон_ПроцентНаложенПриФлэтеСнятПослеНего_ВозвращаетИсходное" classname="StrategyCore.Tests.UnitStatArithmeticTests" runstate="Runnable" seed="1360983620" result="Passed" start-time="2026-09-13 13:38:47Z" end-time="2026-09-13 13:38:47Z" duration="0.000511" asserts="0">
+              <properties>
+                <property name="retryIteration" value="0" />
+                <property name="repeatIteration" value="0" />
+              </properties>
+            </test-case>
+            <test-case id="1092" name="Урон_ПроцентТудаОбратно_ВозвращаетИсходноеИМножитель" fullname="StrategyCore.Tests.UnitStatArithmeticTests.Урон_ПроцентТудаОбратно_ВозвращаетИсходноеИМножитель" methodname="Урон_ПроцентТудаОбратно_ВозвращаетИсходноеИМножитель" classname="StrategyCore.Tests.UnitStatArithmeticTests" runstate="Runnable" seed="1271033384" result="Passed" start-time="2026-09-13 13:38:47Z" end-time="2026-09-13 13:38:47Z" duration="0.000703" asserts="0">
+              <properties>
+                <property name="retryIteration" value="0" />
+                <property name="repeatIteration" value="0" />
+              </properties>
+            </test-case>
+            <test-case id="1093" name="Урон_ФлэтНаложенПриОдномМножителеСнятПриДругом_ВозвращаетсяТОЧНО" fullname="StrategyCore.Tests.UnitStatArithmeticTests.Урон_ФлэтНаложенПриОдномМножителеСнятПриДругом_ВозвращаетсяТОЧНО" methodname="Урон_ФлэтНаложенПриОдномМножителеСнятПриДругом_ВозвращаетсяТОЧНО" classname="StrategyCore.Tests.UnitStatArithmeticTests" runstate="Runnable" seed="1235276309" result="Passed" start-time="2026-09-13 13:38:47Z" end-time="2026-09-13 13:38:47Z" duration="0.000801" asserts="0">
+              <properties>
+                <property name="retryIteration" value="0" />
+                <property name="repeatIteration" value="0" />
+              </properties>
+            </test-case>
+            <test-case id="1091" name="Урон_ФлэтТудаОбратно_ВозвращаетИсходноеИМножитель" fullname="StrategyCore.Tests.UnitStatArithmeticTests.Урон_ФлэтТудаОбратно_ВозвращаетИсходноеИМножитель" methodname="Урон_ФлэтТудаОбратно_ВозвращаетИсходноеИМножитель" classname="StrategyCore.Tests.UnitStatArithmeticTests" runstate="Runnable" seed="1102876252" result="Passed" start-time="2026-09-13 13:38:47Z" end-time="2026-09-13 13:38:47Z" duration="0.000642" asserts="0">
+              <properties>
+                <property name="retryIteration" value="0" />
+                <property name="repeatIteration" value="0" />
+              </properties>
+              <output><![CDATA[Saving results to: C:/Users/Admin/AppData/LocalLow/DefaultCompany/Interflow\TestResults.xml
+]]></output>
+            </test-case>
+          </test-suite>
+        </test-suite>
+      </test-suite>
+    </test-suite>
+  </test-suite>
+</test-run>

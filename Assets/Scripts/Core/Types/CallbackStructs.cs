@@ -36,5 +36,17 @@ namespace StrategyCore
         public int Level;
     }
 
-
+    // 4. Снаряд долетел. Поднимается на ВСЕХ пирах после урона и разлёта, до уничтожения снаряда;
+    //    при рикошете — на каждый прилёт. Гейт клиента — у подписчиков, а не у подъёмника.
+    //    Отличие от AfterDamageDealCallback: событие есть и когда цели не стало (прилёт в землю),
+    //    и когда урон никого не принял, — именно ради «места, куда попало» оно и заведено.
+    //    [Interflow 2026-09-16 слияние с Сашей, семья Б] Блок 22 умения и реакция 5 пассивки.
+    public struct ProjectileImpactCallback
+    {
+        // Parameters: Vector3 точка прилёта, Unit цель (null — земля), Unit стрелок (null — погиб в полёте),
+        // int владелец снаряда, bool directAttack, Projectile сам снаряд, int level
+        public Action<Vector3, Unit, Unit, int, bool, Projectile, int> Callback;
+        public Ability Ability;
+        public int Level;
+    }
 }

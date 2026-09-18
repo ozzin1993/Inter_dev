@@ -58,6 +58,9 @@ namespace StrategyCore
                 case 6: return "сплеш атаки";
                 case 7: return "эффекторы к своим атакам";
                 case 8: return "аура";
+                case 9: return "шкала носителя";
+                case 10: return "характеристики от нехватки здоровья";
+                case 11: return "рассечение";
             }
 
             return "неизвестный блок";
@@ -247,6 +250,85 @@ namespace StrategyCore
                           " | состояния=" + EffectorNames(effectors));
         }
 
+        // ============================ СЕМЬЯ «ЗДОРОВЬЕ НОСИТЕЛЯ» (решения Artsiom 41–46) ==
+
+        /// <summary>Условие по здоровью у блока 2 или 3: пересечение порога и откуда его посчитали.</summary>
+        void LogHealthCondition(int block, Unit unit, bool active, float hpBelow, string where)
+        {
+            WriteBlock(block, "условие по здоровью " + (active ? "ВЫПОЛНЕНО" : "не выполнено") +
+                              " | носитель=" + InterflowDebug.Name(unit) +
+                              " | порог=" + N2(hpBelow) +
+                              " | посчитано=" + where);
+        }
+
+        /// <summary>Блок 3: снятие по категории — сколько висевших наложений убрал полный иммунитет.</summary>
+        void LogResistanceDispel(Unit unit, EffectorCategory category, int removed)
+        {
+            WriteBlock(3, "снятие по категории | носитель=" + InterflowDebug.Name(unit) +
+                          " | категория=" + category +
+                          " | снято висевших наложений=" + removed);
+        }
+
+        /// <summary>Блок 10: новая ступень нехватки здоровья и выданные по ней прибавки.</summary>
+        void LogMissingHpStats(Unit unit, float missing, float damageFraction, float armor, float attackSpeedFraction)
+        {
+            WriteBlock(10, "пересчёт | носитель=" + InterflowDebug.Name(unit) +
+                           " | нехватка здоровья=" + SignedPercent(missing) +
+                           " | урон=" + SignedPercent(damageFraction) +
+                           " | броня=" + Signed(armor) +
+                           " | скорость атаки=" + SignedPercent(attackSpeedFraction));
+        }
+
+        /// <summary>Длящийся визуал блоков 2, 3 и 10: наложен или снят по держателю.</summary>
+        void LogHealthVisual(int block, Unit unit, bool applied, Effector visual)
+        {
+            WriteBlock(block, "длящийся визуал " + (applied ? "наложен" : "снят по держателю") +
+                              " | носитель=" + InterflowDebug.Name(unit) +
+                              " | состояние=" + (visual != null ? visual.name : "нет"));
+        }
+
+        // ============================================== 11. РАССЕЧЕНИЕ ==
+        // [Interflow 2026-09-18, решения Artsiom 59–62] Блок сидит на каждом ударе носителя,
+        // поэтому все вызовы отсюда стоят под `if (InterflowDebug.FullOn)`.
+
+        /// <summary>Блок 11: подписка на попадания носителя поставлена или снята.</summary>
+        void LogCleaveWire(Unit unit, bool wired)
+        {
+            WriteBlock(11, (wired ? "подписан на удары носителя" : "отписан от ударов носителя") +
+                           " | носитель=" + InterflowDebug.Name(unit));
+        }
+
+        /// <summary>Блок 11: условие по здоровью носителя пересчитано (открытие умения или тик).</summary>
+        void LogCleaveCondition(Unit unit, bool active, float hpBelow, string where)
+        {
+            WriteBlock(11, "условие по здоровью " + (active ? "ВЫПОЛНЕНО" : "не выполнено") +
+                           " | носитель=" + InterflowDebug.Name(unit) +
+                           " | порог=" + N2(hpBelow) +
+                           " | посчитано=" + where);
+        }
+
+        /// <summary>Блок 11: подписка сработала, но удар отсеян — чем именно.</summary>
+        void LogCleaveSkipped(Unit byUnit, Unit target, string reason)
+        {
+            WriteBlock(11, "срабатывание пропущено | носитель=" + InterflowDebug.Name(byUnit) +
+                           " | цель=" + InterflowDebug.Name(target) +
+                           " | причина=" + reason);
+        }
+
+        /// <summary>Блок 11: рассечение отработало — с какими числами и скольких задело.</summary>
+        void LogCleaveRun(Unit byUnit, Unit target, float radius, float fraction, bool upgraded,
+                          float neighbourDamage, int hit)
+        {
+            WriteBlock(11, "сработало | носитель=" + InterflowDebug.Name(byUnit) +
+                           " | цель=" + InterflowDebug.Name(target) +
+                           " | центр=" + (cleave.centerOnCaster ? "носитель" : "цель удара") +
+                           " | радиус=" + N(radius) +
+                           " | доля=" + N2(fraction) +
+                           " | улучшено технологией=" + Yes(upgraded) +
+                           " | урон соседу=" + N(neighbourDamage) +
+                           " | задето соседей=" + hit);
+        }
+
         /// <summary>Блок 8: носитель убран из списка тика.</summary>
         void LogAuraRemoved(Unit unit)
         {
@@ -316,6 +398,7 @@ namespace StrategyCore
             if (c.splash != null) Append(sb, "6 сплеш");
             if (c.originalAttackEffectors != null) Append(sb, "7 эффекторы атаки");
             if (c.aura) Append(sb, "8 аура");
+            if (c.gauge) Append(sb, "9 шкала");
 
             return sb.Length > 0 ? sb.ToString() : "ничего";
         }
@@ -477,7 +560,18 @@ namespace StrategyCore
                              " | длительность=" + N(seconds) + " сек");
         }
 
-        /// <summary>Реакция 5: сработавший эффект из десяти. Что именно — в аргументах, порядок задан кодом.</summary>
+        /// <summary>
+        /// Реакция 5, второй вход: снаряд атаки носителя долетел и прок состоялся. Цели может не быть —
+        /// прилёт в пустую землю: ровно ради него флаг «срабатывать при прилёте» и заведён.
+        /// </summary>
+        void LogOnHitImpact(Unit byUnit, Unit target, Vector3 point)
+        {
+            WriteReaction(5, "прилёт → прок | носитель=" + InterflowDebug.Name(byUnit) +
+                             " | цель=" + (target != null ? InterflowDebug.Name(target) : "нет, пустая земля") +
+                             " | точка=" + point.ToString("0.#"));
+        }
+
+        /// <summary>Реакция 5: сработавший кирпич из одиннадцати. Что именно — в аргументах, порядок задан кодом.</summary>
         void LogOnHitEffect(Unit byUnit, Unit target, string effect, string detail)
         {
             WriteReaction(5, effect + " | носитель=" + InterflowDebug.Name(byUnit) +

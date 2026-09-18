@@ -53,6 +53,7 @@ namespace StrategyCore
 
                 // Полоска маны — рядом с полоской здоровья, внутри контейнера (решение Artsiom 2026-09-09).
                 CreateManaBar(team);
+                CreateGaugeBar(team);
 
                 // [Interflow fix 2026-08-05 unit-status-sync] Шкала статусов (ряд иконок над полоской
                 // здоровья) — та же конвенция, что у бара: только не на дедике и не для статики.
@@ -380,6 +381,26 @@ namespace StrategyCore
 
         // Предупреждение о незаполненной ссылке на префаб полоски маны — один раз за запуск.
         private static bool manaBarMissingWarned;
+
+        private void CreateGaugeBar(int unitTeam)
+        {
+            if (overlayRoot == null) return;
+            if (unitTeam != SlotManager.Instance.currentTeam) return;
+
+            if (ReferenceManager.Instance.gaugeBar == null)
+            {
+                if (!gaugeBarMissingWarned)
+                {
+                    gaugeBarMissingWarned = true;
+                    InterflowDebug.Warn("Полоска шкалы: в ReferenceManager не задан префаб gaugeBar — шкалы над юнитами не будет.");
+                }
+                return;
+            }
+
+            Instantiate(ReferenceManager.Instance.gaugeBar, overlayRoot);
+        }
+
+        private static bool gaugeBarMissingWarned;
 
         /// <summary>
         /// When visual representation of unit changes this should be called. Assigns renderers, mesh renderers, animation data and other paremeters.

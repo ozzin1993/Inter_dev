@@ -7,6 +7,7 @@
     "com.unity.ai.navigation": "2.0.12",
     "com.unity.collab-proxy": "2.12.4",
     "com.unity.dedicated-server": "2.0.2",
+    "com.unity.formats.fbx": "5.1.6",
     "com.unity.ide.rider": "3.0.40",
     "com.unity.ide.visualstudio": "2.0.27",
     "com.unity.inputsystem": "1.19.0",
@@ -15,6 +16,7 @@
     "com.unity.multiplayer.playmode": "2.0.2",
     "com.unity.multiplayer.tools": "2.2.9",
     "com.unity.netcode.gameobjects": "2.13.0",
+    "com.unity.pipeline": "0.7.0-exp.1",
     "com.unity.render-pipelines.universal": "17.4.0",
     "com.unity.services.cloudcode": "2.10.2",
     "com.unity.services.multiplayer": "2.2.4",
@@ -23,6 +25,7 @@
     "com.unity.test-framework": "1.6.0",
     "com.unity.timeline": "1.8.12",
     "com.unity.ugui": "2.0.0",
+    "com.unity.visualscripting": "1.9.11",
     "com.unity.modules.accessibility": "1.0.0",
     "com.unity.modules.adaptiveperformance": "1.0.0",
     "com.unity.modules.ai": "1.0.0",
@@ -56,8 +59,7 @@
     "com.unity.modules.video": "1.0.0",
     "com.unity.modules.vr": "1.0.0",
     "com.unity.modules.wind": "1.0.0",
-    "com.unity.modules.xr": "1.0.0",
-    "com.unity.pipeline": "0.7.0-exp.1"
+    "com.unity.modules.xr": "1.0.0"
   },
   "scopedRegistries": [
     {

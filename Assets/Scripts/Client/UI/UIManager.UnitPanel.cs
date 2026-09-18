@@ -121,6 +121,10 @@ namespace StrategyCore
             cooldownElements.Clear();
             cooldownTimers.Clear();
             cooldownIndex.Clear();
+            gaugeOverlayElements.Clear();
+            gaugeOverlayAbilityIndex.Clear();
+            castOverlayElements.Clear();
+            castOverlayAbilityIndex.Clear();
 
             pc.activeUnit.OnStatusUpdate -= DisplayStatusTab;
 

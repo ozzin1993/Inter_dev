@@ -276,7 +276,9 @@ namespace StrategyCore
                 else if (TEXT_FIELDS.Contains(it.name)) target = textBox;
                 else target = restFold;
 
-                target.Add(InterflowEditorUI.MakeField(it, InterflowEditorUI.FieldLabel(it.name), true));
+                // Подпись — по паре «блок + поле» (решение Artsiom 34 от 17.09.2026): поле лежит
+                // на самом ассете, но перегрузка со свойством одна на весь редактор.
+                target.Add(InterflowEditorUI.MakeField(it, InterflowEditorUI.FieldLabel(it), true));
             }
 
             AddIfNotEmpty(ownBox);
@@ -296,7 +298,9 @@ namespace StrategyCore
         /// </summary>
         static readonly HashSet<string> REACTION_FIELDS = new HashSet<string>
         {
-            "onDamaged", "onDeath", "onKill", "onHpBelow", "onHit"
+            "onDamaged", "onDeath", "onKill", "onHpBelow", "onHit",
+            "onAttackStart",  // [Interflow 2026-09-17] реакция 6 «носитель начал атаку»
+            "onAllyDeath"     // [Interflow 2026-09-17] реакция 7 «погиб союзник» (решение Artsiom 40)
         };
 
         /// <summary>Имена сериализованных полей, объявленных самим классом-кирпичом (а не унаследованных от Ability).</summary>

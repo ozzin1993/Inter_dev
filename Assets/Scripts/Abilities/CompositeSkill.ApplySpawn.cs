@@ -55,11 +55,50 @@ namespace StrategyCore
         }
 
         // -------------------------------------------------------------------- 10. ЗОНА --
-        void ApplyGroundZone(Unit castingUnit, int castingPlayer, int level, Vector3 origin)
+        /// <param name="casterMoved">[Interflow 2026-09-18] Состоялся ли перенос кастера блоком 18.
+        /// Режим «шлейф по пути» (решение Artsiom 56) без него не работает: прямой не существует.</param>
+        /// <param name="moveStart">Точка, откуда кастер стартовал — начало прямой шлейфа.</param>
+        /// <param name="moveLanding">Точка приземления — конец прямой шлейфа.</param>
+        void ApplyGroundZone(Unit castingUnit, int castingPlayer, int level, Vector3 origin,
+                             bool casterMoved, Vector3 moveStart, Vector3 moveLanding)
         {
             if (groundZone.zonePrefab == null)
             {
                 Debug.LogWarning($"[{name}] Зона на земле: не задан префаб — каст пропущен.");
+                return;
+            }
+
+            // [Interflow 2026-09-18, решение Artsiom 56] ШЛЕЙФ ПО ПУТИ РЫВКА — режим этого блока.
+            // Зоны ложатся по прямой «старт → приземление» с шагом trailSpacing, во времени, за время
+            // полёта блока 18. Точка прицела, количество и разброс в этом режиме не участвуют.
+            if (groundZone.trailAlongCasterPath)
+            {
+                if (!casterMoved)
+                {
+                    Debug.LogWarning($"[{name}] Шлейф по пути: кастер не переместился (блок 18 выключен, " +
+                                     "нет места на навигационной сетке или иммунитет) — шлейфу негде лечь.");
+                    return;
+                }
+
+                if (groundZone.trailSpacing <= 0f)
+                {
+                    Debug.LogWarning($"[{name}] Шлейф по пути: шаг между зонами ≤ 0 — шлейф не выложен.");
+                    return;
+                }
+
+                MatchManager mmTrail = MatchManager.Instance;
+                if (mmTrail == null)
+                {
+                    Debug.LogWarning($"[{name}] Шлейф по пути: MatchManager.Instance == null — пропуск.");
+                    return;
+                }
+
+                // Интервал считается из времени полёта блока 18 (решение 56): последняя зона ложится
+                // ровно к приземлению модели. Нулевое время полёта — весь шлейф встаёт одним кадром.
+                float travel = casterMove != null ? casterMove.travelSeconds : 0f;
+
+                mmTrail.StartSkillTrail(castingUnit, castingPlayer, level, this,
+                                        moveStart, moveLanding, groundZone.trailSpacing, travel);
                 return;
             }
 
@@ -94,8 +133,10 @@ namespace StrategyCore
             }
         }
 
-        /// <summary>Одна зона: префаб, владелец, носитель (null — зона стоит в точке), запись в серверный реестр.</summary>
-        void SpawnGroundZone(Vector3 pos, Unit carrier, int castingPlayer, int level)
+        /// <summary>Одна зона: префаб, владелец, носитель (null — зона стоит в точке), запись в серверный реестр.
+        /// [Interflow 2026-09-18] internal, а не private: этим же методом выкладывает зоны шлейф
+        /// (Match/MatchManager.SkillTrail.cs) — второй точки спавна зоны в проекте быть не должно (правило 5).</summary>
+        internal void SpawnGroundZone(Vector3 pos, Unit carrier, int castingPlayer, int level)
         {
             GameObject go = Instantiate(groundZone.zonePrefab, pos, Quaternion.identity);
 

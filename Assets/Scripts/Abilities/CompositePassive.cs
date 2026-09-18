@@ -78,7 +78,22 @@ namespace StrategyCore
             public Effector[] originalAttackEffectors; // null — набор атаки не трогали
 
             public bool aura;
+            public bool gauge;
             public Vector3 lastPosition;               // для условия «в движении»
+
+            // [Interflow 2026-09-17, решения Artsiom 41 и 44] Семья «здоровье носителя».
+            // Держатели длящегося визуала здесь НЕ лежат (решение 46 = ветка Е2) — у них
+            // своё хранилище в CompositePassive.HealthGate.cs.
+            public bool controlImmunityGate;           // условие по здоровью блока 2 выполнено
+            public bool resistancesGate;               // то же у блока 3
+            public bool missingHpStats;                // блок 10 выдан носителю
+            public bool healthTick;                    // носителю нужен тик семьи «здоровье»
+
+            // [Interflow 2026-09-18, решения Artsiom 59 и 60] Блок 11 «рассечение».
+            // Своего словаря блок не заводит: подписка — это и есть вся его выдача, а чистится
+            // она вместе со всем Carrier в Init() (принцип «каждый матч изолирован»).
+            public bool cleaveWired;                   // подписка блока 11 на попадания носителя стоит
+            public bool cleaveTick;                    // у блока 11 условие по здоровью — нужен тик
         }
 
         readonly Dictionary<Unit, Carrier> carriers = new Dictionary<Unit, Carrier>();
@@ -96,6 +111,8 @@ namespace StrategyCore
             UnwireTick();
             ResetReactions();
             ResetOnHit();
+            ResetGauge();
+            ResetHealth();   // [решение Artsiom 46] держатели длящегося визуала между матчами не переносим
         }
 
         /// <summary>
@@ -114,6 +131,14 @@ namespace StrategyCore
             Carrier c = new Carrier { level = level, lastPosition = unit.transform.position };
             carriers[unit] = c;
 
+            // [Interflow 2026-09-17, решение Artsiom 41] Условие по здоровью считается ДО выдачи:
+            // блоки 2 и 3 читают посчитанные флаги и при невыполненном условии не выдаются вовсе.
+            InitHealthGates(unit, c);
+
+            // [Interflow 2026-09-18, решение Artsiom 60] Условие по здоровью блока 11 считается
+            // ТЕМ ЖЕ готовым механизмом и ДО подписки: рассечение у здорового носителя не подключается.
+            InitCleave(unit, c);
+
             ApplyStats(unit, c);
             ApplyControlImmunity(unit, c);
             ApplyResistances(unit, c);
@@ -122,6 +147,7 @@ namespace StrategyCore
             ApplySplash(unit, c);
             ApplyAttackEffectors(unit, c);
             ApplyAura(unit, c);
+            ApplyGauge(unit, c);
 
             if (InterflowDebug.FullOn) LogGranted(unit, c);
 
@@ -130,8 +156,14 @@ namespace StrategyCore
 
             WireReactions(unit, level);
             WireOnHit(unit, level);
+            WireGauge(unit, level);
 
-            if (c.aura) WireTick();
+            // [Interflow 2026-09-18, решение Artsiom 59] Блок 11 подписывается ПОСЛЕДНИМ намеренно:
+            // соседи выше добавляются по паре (умение, уровень), и лишняя запись в списке до них
+            // заставила бы штатный CallbackAdd считать пару занятой (случай блока 9 «шкала»).
+            WireCleave(unit, c);
+
+            if (c.aura || c.healthTick || c.cleaveTick) WireTick();
 
             InterflowDebug.Event("ПАССИВКА «" + PassiveDisplayName() + "» включена у " + InterflowDebug.Name(unit));
         }
@@ -157,6 +189,8 @@ namespace StrategyCore
             RemoveArmorPierce(unit, c);
             RemoveSplash(unit, c);
             RemoveAttackEffectors(unit, c);
+            RemoveGauge(unit, c);
+            RemoveHealthState(unit, c);   // [решение Artsiom 46] длящийся визуал — по держателю, прибавки блока 10 — назад
             // Аура своего состояния на юните не оставляет:
             // она живёт тиком, и достаточно убрать носителя из списка.
 
@@ -166,8 +200,14 @@ namespace StrategyCore
                 LogRevoked(unit, grantedBlocks);
             }
 
+            // [Interflow 2026-09-18, решение Artsiom 59] Блок 11 снимается ПЕРВЫМ и по ТРОЙКЕ
+            // (умение, уровень, обработчик): соседи ниже снимают по паре и взяли бы первую
+            // попавшуюся запись — в том числе эту, а своя осталась бы висеть на юните.
+            UnwireCleave(unit, c);
+
             UnwireReactions(unit);
             UnwireOnHit(unit, level);
+            UnwireGauge(unit, level);
 
             carriers.Remove(unit);
 
@@ -204,7 +244,7 @@ namespace StrategyCore
         bool AnyoneNeedsTick()
         {
             foreach (Carrier c in carriers.Values)
-                if (c.aura) return true;
+                if (c.aura || c.healthTick || c.cleaveTick) return true;
 
             return false;
         }
@@ -244,6 +284,8 @@ namespace StrategyCore
                 if (!carriers.TryGetValue(u, out Carrier c)) continue;
 
                 if (c.aura) TickAura(u, c);
+                if (c.healthTick) TickHealth(u, c);   // [решения Artsiom 41 и 44] условие по здоровью, блок 10, визуал
+                if (c.cleaveTick) TickCleave(u, c);   // [решение Artsiom 60] условие по здоровью блока 11: подписать или снять
             }
 
             if (!AnyoneNeedsTick()) UnwireTick();

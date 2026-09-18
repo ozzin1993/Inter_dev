@@ -137,22 +137,74 @@ namespace StrategyCore
         /// </summary>
         void SpawnProjectile(Unit castingUnit, int castingPlayer, int level, Unit aimUnit)
         {
-            Transform socket = ResolveSocket(castingUnit, spawnSocket);
-            Vector3 spawnPos = SocketPosition(castingUnit, spawnSocket, localOffset);
+            Transform socket = ResolveSocket(castingUnit, presentation.socket);
+            Vector3 spawnPos = SocketPosition(castingUnit, presentation.socket, presentation.localOffset);
             Quaternion spawnRot = socket != null ? socket.rotation : Quaternion.identity;
 
             DamageType dmgType;
             float dmg = FirstProjectileDamage(level, out dmgType);
 
+            // Седьмой аргумент — признак прямой атаки. До 16.09.2026 здесь стояла жёсткая ложь:
+            // снаряд умения не провоцировал, не считался промахом, не вешал состояния атаки и не кормил
+            // проки и шкалу носителя. Теперь это настройка умения (projectileDirectAttack) и её
+            // ЕДИНСТВЕННЫЙ источник — визуальная копия на клиенте берёт тот же флаг (SkillPresenter).
             Projectile spawned = Projectile.Spawn(castingPlayer, castingUnit, projectilePrefab, spawnPos, spawnRot,
-                                                  aimUnit, false, dmg, dmgType, true, sourceAbility: this);   // умение-источник для диагностики очереди пакетов (решение Artsiom 05.09.2026)
+                                                  aimUnit, projectileDirectAttack, dmg, dmgType, true, sourceAbility: this);   // умение-источник для диагностики очереди пакетов (решение Artsiom 05.09.2026)
             if (spawned == null) return;
+
+            if (InterflowDebug.FullOn) LogProjectileDirectAttack();
 
             // Снаряд уносит только урон и оглушение. Эффекторы ему не отдаём осознанно: ядро применяет
             // Projectile.attackEffectors лишь когда кастер погиб, а при живом кастере накладывает
             // эффекторы ЕГО автоатаки — эффекторы скилла так бы просто потерялись. Поэтому их
             // накладывает сам скилл в момент каста (см. ApplyEffectors).
             spawned.stunTime = (status != null && status.enabled) ? LevelValue(status.stunSeconds, level) : 0f;
+
+            // Блок 22 «прилёт снаряда»: обработчик вешается на САМ снаряд, а не на стрелка — иначе
+            // вложенное срабатывало бы и от чужих снарядов носителя. Список снаряда умения пуст:
+            // копию списка стрелка получают только снаряды автоатаки (Projectile.InternalSpawn).
+            if (projectileImpact != null && projectileImpact.enabled && projectileImpact.skill != null)
+            {
+                CallbackAdd(spawned.OnProjectileImpactCallbacks, this, level, OnProjectileImpactNested);
+
+                if (InterflowDebug.FullOn) LogProjectileImpactWired(castingUnit);
+            }
+        }
+
+        /// <summary>
+        /// Блок 22: снаряд этого умения прилетел — исполняем вложенное умение в точке прилёта
+        /// от лица стрелка. Зовётся на ВСЕХ пирах (событие поднимает сам снаряд), серверный гейт —
+        /// здесь и внутри ExecuteNested.
+        /// </summary>
+        /// <param name="point">Точка прилёта.</param>
+        /// <param name="hitUnit">Кого задел снаряд; null — прилёт в землю.</param>
+        /// <param name="shooter">Стрелок. Мог погибнуть в полёте — тогда вложенному не от кого исполняться.</param>
+        /// <param name="shooterOwner">Владелец снаряда; переживает смерть стрелка.</param>
+        /// <param name="directAttack">Признак прямой атаки снаряда — здесь не читается, приходит ради общей подписи.</param>
+        /// <param name="projectile">Сам снаряд.</param>
+        /// <param name="level">Уровень РОДИТЕЛЯ: уровень, с которым блок был зарегистрирован при спавне.</param>
+        void OnProjectileImpactNested(Vector3 point, Unit hitUnit, Unit shooter, int shooterOwner,
+                                      bool directAttack, Projectile projectile, int level)
+        {
+            if (IsClientPeer) return;                                              // правило 6
+            if (projectileImpact == null || !projectileImpact.enabled || projectileImpact.skill == null) return;
+
+            // Стрелок погиб в полёте: вложенное исполняется ОТ ЕГО ЛИЦА, исполнять не от кого.
+            // Та же конвенция, что у реакции 5 и у ветки погибшего стрелка в Projectile.Damage.
+            if (shooter == null || shooter.dead)
+            {
+                if (InterflowDebug.FullOn) LogBlockSkipped(22, hitUnit, "стрелок погиб в полёте — вложенное исполнять не от кого");
+                return;
+            }
+
+            if (InterflowDebug.FullOn) LogProjectileImpact(hitUnit, point);
+
+            // [Interflow 2026-09-17] Хозяин набора «снаряд прилетел». Показ ДО исполнения вложенного:
+            // визуал прилёта не должен зависеть от того, что вложенное умение кого-то нашло.
+            EmitEventPresentation(this, (int)AbilityEventCode.SkillProjectileImpact, projectileImpact.presentation,
+                                  shooter, level, hitUnit, point);
+
+            projectileImpact.skill.ExecuteNested(shooter, shooterOwner, level, hitUnit, point);
         }
 
         /// <summary>

@@ -35,22 +35,20 @@ namespace StrategyCore
                 return false;
             }
 
-            // Условие по себе: пока носитель здоров, умение придерживается. Проверяем ДО поиска цели —
-            // перебирать кандидатов, зная, что каста не будет, значит греть процессор впустую.
-            if (autoCastSelfHpBelow > 0f)
-            {
-                if (castingUnit.maxHealth <= 0f)
-                {
-                    if (InterflowDebug.FullOn) LogAutoCastRefused(castingUnit, "у носителя нулевой максимум здоровья");
-                    return false;
-                }
-                if (castingUnit.health / castingUnit.maxHealth >= autoCastSelfHpBelow)
-                {
-                    if (InterflowDebug.FullOn)
-                        LogAutoCastRefused(castingUnit, "здоровье носителя не ниже доли " + N(autoCastSelfHpBelow));
-                    return false;
-                }
-            }
+            // Условия каста (блок 21): облик, «есть цель в области», порог здоровья. Проверяем ДО
+            // поиска цели — перебирать кандидатов, зная, что каста не будет, значит греть процессор
+            // впустую. ЗДЕСЬ отказ МОЛЧАЛИВЫЙ, как у гейта маны (Unit.Ability.cs): этот метод зовётся
+            // на тике у каждого носителя, и сообщение на каждый тик залило бы экран.
+            // ВНИМАНИЕ: каст, который ОТСЮДА уже разрешён, проходит гейт ещё раз в момент удара
+            // (Unit.State.cs → CheckAbilityItemRequirements), и ТОТ отказ идёт игроку ТЕКСТОМ —
+            // так решено (ответ 7.13, Artsiom 16.09.2026: «слать текст, как у шкалы»). То есть
+            // условие, отпавшее за время замаха у авто-умения, игрок увидит; условие, не выполненное
+            // до каста, — нет. Ограничить это здесь нечем: гейт каста не знает, кто начал каст.
+            // До 2026-09-16 здесь жило отдельное поле autoCastSelfHpBelow — оно и переехало в блок 21
+            // как casterHpBelow, поэтому условие по здоровью теперь работает и у каста с кнопки.
+            // Строку лога пишет сам блок 21 (LogCastConditionsRefused) — одна точка на все три
+            // читателя условий, второй строки про то же событие здесь не заводим (правило 5).
+            if (!CastConditionsMet(castingUnit, castingUnit.owner, level, out _)) return false;
 
             switch (targetMode)
             {
@@ -86,7 +84,7 @@ namespace StrategyCore
 
                         target = castingUnit.target;
 
-                        bool eligible = IsEligibleTarget(target, castingUnit.owner);
+                        bool eligible = IsEligibleTarget(target, castingUnit.owner, castingUnit);
                         if (!eligible && InterflowDebug.FullOn)
                             LogAutoCastRefused(castingUnit, "текущая цель атаки не проходит отбор умения");
 
@@ -140,7 +138,7 @@ namespace StrategyCore
             // Все стратегии в SkillTargeting дырки в наборе пропускают штатно.
             // Селектор принадлежности уже применён поиском, боевые роли и мёртвых он не отсеивает.
             for (int i = 0; i < found.Length; i++)
-                if (!IsEligibleTarget(found[i], castingUnit.owner)) found[i] = null;
+                if (!IsEligibleTarget(found[i], castingUnit.owner, castingUnit)) found[i] = null;
 
             // Предпочтение по состоянию цели (решение Artsiom 11.09.2026): свободные от состояния есть —
             // занятые зануляются, и стратегия выбирает только среди свободных; свободных нет — набор

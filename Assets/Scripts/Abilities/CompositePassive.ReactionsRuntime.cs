@@ -37,6 +37,15 @@ namespace StrategyCore
             public Action<Unit, int, Unit, bool> dieHandler;       // гибель носителя
             public Action hpHandler;                               // порог здоровья
 
+            public bool attackStartWired;                          // реакция 6: подписка на хук «начал атаку»
+
+            // [Interflow 2026-09-17, решение Artsiom 37] Прибавка к урону за убийство.
+            // Счёт ведётся ЗДЕСЬ, у носителя: состояние на юните уже есть, и заводить ради счётчика
+            // второй компонент правило 5 запрещает. Новый экземпляр героя получает новое состояние,
+            // то есть счёт начинается с нуля сам собой — переносить накопленное некуда и незачем.
+            public int killCount;
+            public bool killBonusWired;                            // подписка на хук модификатора удара
+
             public float counterCooldownLeft;
             public float hpCooldownLeft;
             public bool hpBelowLatched;                            // ниже порога уже сработали
@@ -46,6 +55,7 @@ namespace StrategyCore
         readonly List<Unit> reactionTickBuffer = new List<Unit>();
         bool reactionTickWired;
         bool killHubWired;
+        bool allyDeathHubWired;        // реакция 7 — партиал .OnAllyDeath.cs
 
         // ============================================================== ЖИЗНЬ ==
 
@@ -55,6 +65,7 @@ namespace StrategyCore
             reactionCarriers.Clear();
             UnwireReactionTick();
             UnwireKillHub();
+            UnwireAllyDeathHub();
         }
 
         /// <summary>Умение открылось у юнита — подписываем включённые реакции.</summary>
@@ -69,10 +80,14 @@ namespace StrategyCore
             WireCounter(unit, st, level);
             WireDeath(unit, st);
             WireKill(unit, st);
+            WireKillDamageBonus(unit, st, level);
             WireHpBelow(unit, st);
+            st.attackStartWired = WireAttackStart(unit, level);   // реакция 6 — партиал .OnAttackStart.cs
+            WireAllyDeathHub();                                   // реакция 7 — партиал .OnAllyDeath.cs
 
             if (st.incomingRule == null && st.damagedHandler == null && st.hitMissedHandler == null &&
-                st.dieHandler == null && st.hpHandler == null && !IsKillEnabled())
+                st.dieHandler == null && st.hpHandler == null && !IsKillEnabled() && !st.attackStartWired &&
+                !IsAllyDeathEnabled())
             {
                 if (InterflowDebug.FullOn)
                     LogReactionsNotWired(unit, "включённые реакции не дали ни одной подписки: числа нейтральны или блоки пусты");
@@ -96,12 +111,14 @@ namespace StrategyCore
             if (st.hitMissedHandler != null) InterflowCombat.HitMissedListenerRemove(unit, st.hitMissedHandler);
             if (st.dieHandler != null) unit.OnDie -= st.dieHandler;
             if (st.hpHandler != null) unit.OnHPChange -= st.hpHandler;
+            if (st.attackStartWired) UnwireAttackStart(unit, st.level);
+            if (st.killBonusWired) CallbackRemove(unit.OnDamageDealModifyCallbacks, this, st.level);
 
             reactionCarriers.Remove(unit);
 
             if (InterflowDebug.FullOn) LogReactionsUnwired(unit, st, "закрытие умения");
 
-            if (reactionCarriers.Count == 0) { UnwireReactionTick(); UnwireKillHub(); }
+            if (reactionCarriers.Count == 0) { UnwireReactionTick(); UnwireKillHub(); UnwireAllyDeathHub(); }
         }
 
         bool AnyReactionEnabled()
@@ -109,7 +126,9 @@ namespace StrategyCore
             return (onDamaged != null && onDamaged.enabled)
                 || (onDeath != null && onDeath.enabled)
                 || (onKill != null && onKill.enabled)
-                || (onHpBelow != null && onHpBelow.enabled);
+                || (onHpBelow != null && onHpBelow.enabled)
+                || IsAttackStartEnabled()
+                || IsAllyDeathEnabled();
         }
 
         bool IsKillEnabled() { return onKill != null && onKill.enabled; }
@@ -284,6 +303,10 @@ namespace StrategyCore
                 // [Interflow 2026-09-09 passive-facts] Надпись над ОТВЕТИВШИМ: число — урон одной цели.
                 Fact(victim, BattleFactReason.PassiveCounter, damage);
 
+                // [Interflow 2026-09-17] Хозяин набора «носителя ударили»: показ на самом носителе.
+                EmitEventPresentation(this, (int)AbilityEventCode.PassiveOnDamaged, onDamaged.presentation,
+                                      victim, level, victim, victim.transform.position);
+
                 if (InterflowDebug.FullOn) LogCounterFired(victim, hit, damage, dt, onDamaged.counterEffectors);
                 RequestForceSync();
             }
@@ -384,6 +407,11 @@ namespace StrategyCore
             // с ответом по кругу: при разборе надо видеть, какой из двух режимов ответа сработал.
             Fact(victim, BattleFactReason.PassiveCounterOnEvade, damage);
 
+            // [Interflow 2026-09-17] Тот же набор, что у ответа по кругу: событие для игрока одно —
+            // «носитель ответил», различает режимы только надпись факта.
+            EmitEventPresentation(this, (int)AbilityEventCode.PassiveOnDamaged, onDamaged.presentation,
+                                  victim, level, attacker, victim.transform.position);
+
             if (InterflowDebug.FullOn) LogCounterOnEvadeFired(victim, attacker, damage, dt, onDamaged.counterEffectors);
             RequestForceSync();
         }
@@ -422,6 +450,10 @@ namespace StrategyCore
             float healFlat = LevelValue(onDeath.allyHealFlat, level);
             float healPercent = LevelValue(onDeath.allyHealPercentOfMaxHp, level);
 
+            // [Interflow 2026-09-17, решение Artsiom 36] У лечения союзников свой радиус; пустое
+            // или нулевое поле возвращает сегодняшнее поведение — тот же радиус, что у урона.
+            float healRadiusValue = HealRadiusOrDamage(LevelValue(onDeath.allyHealRadius, level), radiusValue);
+
             // Локальные счётчики только ради итоговой строки лога: расчёт ими не пользуется.
             int enemiesHit = 0;
             int healedCount = 0;
@@ -451,9 +483,9 @@ namespace StrategyCore
             }
 
             // 2) Лечение союзников: числом и долей от максимума КАЖДОЙ цели.
-            if ((healFlat > 0f || healPercent > 0f) && radiusValue > 0f)
+            if ((healFlat > 0f || healPercent > 0f) && healRadiusValue > 0f)
             {
-                Unit[] allies = Utils.GetUnitsInRadius(center, radiusValue, owner, onDeath.allySelector, -1, unit);
+                Unit[] allies = Utils.GetUnitsInRadius(center, healRadiusValue, owner, onDeath.allySelector, -1, unit);
                 if (allies != null)
                 {
                     if (onDeath.healOnlyNearest)
@@ -464,6 +496,10 @@ namespace StrategyCore
                             HealUnit(nearest, healFlat, healPercent);
                             healedCount = 1;
 
+                            // [Interflow 2026-09-17] Хозяин набора «гибель вылечила союзника» — на вылеченном.
+                            EmitEventPresentation(this, (int)AbilityEventCode.PassiveDeathHeal, onDeath.healPresentation,
+                                                  nearest, level, nearest, nearest.transform.position);
+
                             InterflowDebug.Verbose("ЛЕЧЕНИЕ ПРИ ГИБЕЛИ: " + InterflowDebug.Name(nearest) + " получил +" +
                                                    (healFlat + healPercent * nearest.maxHealth).ToString("0.#") + " здоровья");
                         }
@@ -471,7 +507,15 @@ namespace StrategyCore
                     else
                     {
                         for (int i = 0; i < allies.Length; i++)
-                            if (allies[i] != null && !allies[i].dead) { HealUnit(allies[i], healFlat, healPercent); healedCount++; }
+                            if (allies[i] != null && !allies[i].dead)
+                            {
+                                HealUnit(allies[i], healFlat, healPercent);
+                                healedCount++;
+
+                                // [Interflow 2026-09-17] Один показ на КАЖДОГО вылеченного союзника.
+                                EmitEventPresentation(this, (int)AbilityEventCode.PassiveDeathHeal, onDeath.healPresentation,
+                                                      allies[i], level, allies[i], allies[i].transform.position);
+                            }
 
                         if (healedCount > 0)
                             InterflowDebug.Verbose("ЛЕЧЕНИЕ ПРИ ГИБЕЛИ: вылечено союзников: " + healedCount);
@@ -500,6 +544,12 @@ namespace StrategyCore
             // Число — сколько врагов задето взрывом.
             FactAt(deathPos, BattleFactReason.PassiveDeathBurst, enemiesHit);
 
+            // [Interflow 2026-09-17] Хозяин набора «носитель погиб». Носитель НЕ передаётся намеренно:
+            // его netID уже снят с учёта, сообщение уехало бы с нулевым кастером, и визуал «у носителя»
+            // сыграл бы только у хоста. Осмысленна часть «в точке» — это и ловит правило проверки Р28.
+            EmitEventPresentation(this, (int)AbilityEventCode.PassiveDeath, onDeath.presentation,
+                                  null, level, null, deathPos);
+
             if (InterflowDebug.FullOn)
                 LogDeathFired(unit, radiusValue, enemiesHit, enemyDamage, onDeath.enemyDamageType,
                               healedCount, healFlat, healPercent, onDeath.zonePrefab != null,
@@ -524,6 +574,16 @@ namespace StrategyCore
             }
 
             return best;
+        }
+
+        /// <summary>
+        /// Каким радиусом искать союзников для лечения при гибели (решение Artsiom 36).
+        /// Пустое или нулевое поле лечения — берём радиус урона: умолчание обязано повторять
+        /// поведение до появления второго радиуса, иначе уже собранные ассеты изменили бы поведение.
+        /// </summary>
+        public static float HealRadiusOrDamage(float healRadius, float damageRadius)
+        {
+            return healRadius > 0f ? healRadius : damageRadius;
         }
 
         /// <summary>Разовое лечение числом и долей от максимума цели. ChangeHP сам зажимает по максимуму и синкает.</summary>
@@ -556,6 +616,70 @@ namespace StrategyCore
             killHubWired = false;
         }
 
+        // ------------------------------- ПРИБАВКА К УРОНУ ЗА УБИЙСТВО (решения 37, 38) ==
+        // Прибавка живёт ШТАТНЫМ хуком модификатора собственного удара (Unit.OnDamageDealModifyCallbacks),
+        // как у Crit и RageFromMissingHp, а не правкой урона юнита: Unit.ChangeDamage множит
+        // (Units/Unit.Parameters.cs:390-404), и «прибавки складываются» из задания так не получается.
+        //
+        // ДВЕ ЦЕНЫ ЭТОГО ПУТИ, обе видны только в бою и обе — следствие устройства ядра:
+        //  • ядро берёт из всех модификаторов МАКСИМУМ, а не сумму (Units/Unit.State.cs:1417-1423) —
+        //    носитель с критом или яростью получит больший из двух, а не оба;
+        //  • хук перебирается только в AttackPlay, то есть работает на АВТОАТАКЕ; урон умений мимо.
+        //
+        // Клиентского гейта здесь нет и он не нужен: счётчик растёт только на сервере
+        // (HandleKillForReactions гейтит первой строкой), у клиента killCount остаётся нулём,
+        // и хук возвращает удар без изменений сам собой.
+
+        /// <summary>Задана ли прибавка за убийство на этом уровне — по ней ставится подписка на хук.</summary>
+        bool KillBonusConfigured(int level)
+        {
+            return onKill != null && onKill.enabled && LevelValue(onKill.damagePercentPerKill, level) > 0f;
+        }
+
+        void WireKillDamageBonus(Unit unit, ReactionState st, int level)
+        {
+            if (unit == null || !KillBonusConfigured(level)) return;
+
+            CallbackAdd(unit.OnDamageDealModifyCallbacks, this, level, KillBonusApply);
+            st.killBonusWired = true;
+        }
+
+        /// <summary>
+        /// Доля прибавки при таком счёте убийств. Чистая функция: все правила накопления и предела
+        /// живут здесь, в проверяемом месте, а не в обработчике (тот же приём, что у GaugeHitDecision).
+        /// </summary>
+        /// <param name="perKill">Прибавка за одно убийство, доля от удара.</param>
+        /// <param name="kills">Сколько убийств на счету носителя.</param>
+        /// <param name="maxStacks">Предел по ЧИСЛУ убийств в счёте; 0 — без предела (решение Artsiom 38).</param>
+        public static float KillBonusFraction(float perKill, int kills, int maxStacks)
+        {
+            if (perKill <= 0f || kills <= 0) return 0f;
+
+            int counted = maxStacks > 0 && kills > maxStacks ? maxStacks : kills;
+
+            return perKill * counted;   // СЛОЖЕНИЕ, а не умножение (решение Artsiom 37)
+        }
+
+        /// <summary>
+        /// Хук модификатора собственного удара носителя. Подпись задана штатной структурой
+        /// <c>DamageModifyCallback</c> (Core/Types/CallbackStructs.cs).
+        /// </summary>
+        /// <param name="unit">Носитель, который бьёт.</param>
+        /// <param name="dmg">Урон до модификаторов.</param>
+        /// <param name="directAttack">Прямая атака. Непрямой урон прибавку не получает — как у Crit.</param>
+        float KillBonusApply(Unit unit, int level, float dmg, bool directAttack)
+        {
+            if (!directAttack || unit == null) return dmg;
+            if (!KillBonusConfigured(level)) return dmg;
+            if (!reactionCarriers.TryGetValue(unit, out ReactionState st)) return dmg;
+
+            float fraction = KillBonusFraction(LevelValue(onKill.damagePercentPerKill, level),
+                                               st.killCount, onKill.damagePerKillMaxStacks);
+            if (fraction <= 0f) return dmg;
+
+            return dmg * (1f + fraction);
+        }
+
         void HandleKillForReactions(Unit victim, int killerPlayer, Unit killerUnit, bool rewards)
         {
             if (NetworkConnectionHandler.isClient) return;
@@ -572,6 +696,13 @@ namespace StrategyCore
             }
 
             int level = st.level;
+
+            // [Interflow 2026-09-17, решение Artsiom 37] Счёт убийств носителя. Растёт ВСЕГДА, а не только
+            // при заданной прибавке: величину читает хук удара, и завязывать сам счёт на число в ассете
+            // значило бы получить разный счёт у одного носителя в зависимости от уровня умения.
+            // Предел применяется при РАСЧЁТЕ (KillBonusFraction), а не зажимом счётчика: зажатый счётчик
+            // нельзя было бы отличить от «ровно столько и убил».
+            st.killCount++;
 
             // Лечение добившему.
             float flat = LevelValue(onKill.killerHealFlat, level);
@@ -600,6 +731,10 @@ namespace StrategyCore
 
             // [Interflow 2026-09-09 passive-facts] Надпись над ДОБИВШИМ: число — сколько союзников задел клич.
             Fact(killerUnit, BattleFactReason.PassiveOnKill, cried);
+
+            // [Interflow 2026-09-17] Хозяин набора «носитель добил»: показ на добившем.
+            EmitEventPresentation(this, (int)AbilityEventCode.PassiveKill, onKill.presentation,
+                                  killerUnit, level, killerUnit, killerUnit.transform.position);
 
             if (InterflowDebug.FullOn)
                 LogKillFired(killerUnit, victim, flat + (percent > 0f ? killerUnit.maxHealth * percent : 0f),
@@ -692,6 +827,10 @@ namespace StrategyCore
             // на момент срабатывания. Сразу видно, на каком пороге реакция ушла.
             Fact(unit, BattleFactReason.PassiveHpBelow, hpFraction * 100f);
 
+            // [Interflow 2026-09-17] Хозяин набора «здоровье ниже доли»: показ на носителе.
+            EmitEventPresentation(this, (int)AbilityEventCode.PassiveHpBelow, onHpBelow.presentation,
+                                  unit, level, unit, unit.transform.position);
+
             if (InterflowDebug.FullOn)
                 LogHpBelowFired(unit, onHpBelow.threshold, hpFraction, onHpBelow.selfEffectors, helped);
 
@@ -767,6 +906,7 @@ namespace StrategyCore
             {
                 if (st.dieHandler != null) unit.OnDie -= st.dieHandler;
                 if (st.hpHandler != null) unit.OnHPChange -= st.hpHandler;
+                if (st.attackStartWired) UnwireAttackStart(unit, st.level);
 
                 // Второй путь снятия. Он и UnwireReactions исключают друг друга: оба убирают ключ
                 // из reactionCarriers, поэтому строка «снято» на носителя пишется ровно один раз.

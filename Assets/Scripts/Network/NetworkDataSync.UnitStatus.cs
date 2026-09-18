@@ -133,7 +133,9 @@ namespace StrategyCore
         // Что рисовать, презентер берёт из ассета умения по abilityID. Конвенция netID «0 == null» — из ядра.
 
         /// <summary>Сервер: умение сработало. Одно сообщение на любой каст, включая «умный выбор» с кнопки.</summary>
-        public void SkillFiredSend(Unit caster, int abilityID, int level, Unit aimUnit, Vector3 aimPoint)
+        /// <param name="eventCode">[Interflow 2026-09-17] Код набора визуала у ассета (AbilityEventCode):
+        /// 0 — сам каст, больше нуля — сработавший блок-хозяин. Своего сообщения у набора нет.</param>
+        public void SkillFiredSend(Unit caster, int abilityID, int level, Unit aimUnit, Vector3 aimPoint, int eventCode)
         {
             if (!ServerCanSend()) return;
 
@@ -142,11 +144,11 @@ namespace StrategyCore
             // на который клиент ответил бы ложным «Desync!».
             UInt16 casterID = StillRegistered(caster) ? caster.netID : (UInt16)0;
             UInt16 aimID = StillRegistered(aimUnit) ? aimUnit.netID : (UInt16)0;
-            SkillFiredClientRpc(casterID, abilityID, level, aimID, aimPoint);
+            SkillFiredClientRpc(casterID, abilityID, level, aimID, aimPoint, eventCode);
         }
 
         [Rpc(SendTo.NotServer, InvokePermission = RpcInvokePermission.Server)]
-        private void SkillFiredClientRpc(UInt16 casterID, int abilityID, int level, UInt16 aimID, Vector3 aimPoint)
+        private void SkillFiredClientRpc(UInt16 casterID, int abilityID, int level, UInt16 aimID, Vector3 aimPoint, int eventCode)
         {
             if (NetworkConnectionHandler.Instance != null && NetworkConnectionHandler.Instance.connectionStage == 2) return;
             if (GameManager.Instance == null) return; // кадр выгрузки сцены
@@ -159,7 +161,7 @@ namespace StrategyCore
             Unit aimUnit = null;
             if (aimID != 0) TryResolveUnit(aimID, "SkillFiredSend", out aimUnit);
 
-            SkillPresentationEvents.RaiseSkillFired(caster, abilityID, level, aimUnit, aimPoint);
+            SkillPresentationEvents.RaiseSkillFired(caster, abilityID, level, aimUnit, aimPoint, eventCode);
         }
 
         // ============================== ЗОНЫ НА ЗЕМЛЕ ==============================

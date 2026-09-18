@@ -438,6 +438,7 @@ namespace StrategyCore
             if (mpSync) MPSyncFalse();
             if (xpSync) XPSyncFalse();
             if (charSync) CharSyncFalse();
+            if (gaugeSync) GaugeSyncFalse();
 
             // Destroy invisibility replicate
             if (invisibilityReplica != null) Destroy(invisibilityReplica.gameObject);

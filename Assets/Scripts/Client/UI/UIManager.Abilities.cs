@@ -87,6 +87,10 @@ namespace StrategyCore
                 cooldownTimers.Clear();
                 cooldownIndex.Clear();
             }
+            gaugeOverlayElements.Clear();
+            gaugeOverlayAbilityIndex.Clear();
+            castOverlayElements.Clear();
+            castOverlayAbilityIndex.Clear();
 
             // Ability arrangement in UI
             for (int i = 0; i < abilities.Length; i++)
@@ -268,6 +272,14 @@ namespace StrategyCore
                     {
                         int abilityCooldownIndex = pc.activeUnit.GetAbilityCooldownIndex(slotToGlobalAbilityIndex[i], false);
                         if (abilityCooldownIndex != -1) AddCooldownElement(element, abilityCooldownIndex);
+
+                        Ability gaugeAbility = Utils.GetAbilityByIndex(pc.activeUnit, slotToGlobalAbilityIndex[i]);
+                        if (gaugeAbility is CompositeSkill csBtn && csBtn.gaugeBlock != null && csBtn.gaugeBlock.enabled)
+                            AddGaugeOverlay(element, slotToGlobalAbilityIndex[i]);
+
+                        if (gaugeAbility is CompositeSkill csCondBtn
+                            && csCondBtn.castConditions != null && csCondBtn.castConditions.enabled)
+                            AddCastConditionsOverlay(element, slotToGlobalAbilityIndex[i]);
                     }
                 }
             }
@@ -526,6 +538,87 @@ namespace StrategyCore
             }
         }
 
+        // GAUGE OVERLAY
+        List<VisualElement> gaugeOverlayElements = new List<VisualElement>();
+        List<int> gaugeOverlayAbilityIndex = new List<int>();
+
+        private void AddGaugeOverlay(VisualElement parent, int abilityGlobalIndex)
+        {
+            VisualElement overlay = new VisualElement();
+            overlay.pickingMode = PickingMode.Ignore;
+            overlay.AddToClassList("buttonCD");
+            parent.Add(overlay);
+            gaugeOverlayElements.Add(overlay);
+            gaugeOverlayAbilityIndex.Add(abilityGlobalIndex);
+
+            bool ready = SkillGaugeBlock.Ready(pc.activeUnit, ((CompositeSkill)Utils.GetAbilityByIndex(pc.activeUnit, abilityGlobalIndex)).gaugeBlock);
+            overlay.style.display = ready ? DisplayStyle.None : DisplayStyle.Flex;
+            overlay.style.scale = new StyleScale(new Vector2(1, 1));
+        }
+
+        private void GaugeOverlayUpdate()
+        {
+            for (int i = 0; i < gaugeOverlayElements.Count; i++)
+            {
+                Ability a = Utils.GetAbilityByIndex(pc.activeUnit, gaugeOverlayAbilityIndex[i]);
+                if (a is CompositeSkill cs && cs.gaugeBlock != null)
+                {
+                    bool ready = SkillGaugeBlock.Ready(pc.activeUnit, cs.gaugeBlock);
+                    gaugeOverlayElements[i].style.display = ready ? DisplayStyle.None : DisplayStyle.Flex;
+                }
+            }
+        }
+
+        // CAST CONDITIONS OVERLAY (блок 21) — по образцу оверлея шкалы выше.
+        List<VisualElement> castOverlayElements = new List<VisualElement>();
+        List<int> castOverlayAbilityIndex = new List<int>();
+
+        /// <summary>
+        /// Выполнены ли условия каста ГЛАЗАМИ КЛИЕНТА. Правила одни — зовётся тот же серверный
+        /// CompositeSkill.CastConditionsMet, но на ЧИСТОМ клиенте условия облика пропускаются:
+        /// признак polymorphed ему не реплицируется (решение Artsiom 16.09.2026, репликацию не делаем).
+        /// Поэтому у хоста кнопка сереет по всем условиям, а у клиента — только по «есть цель в области»
+        /// и «здоровье ниже»; отказ по облику приходит текстом с сервера.
+        /// </summary>
+        private bool CastConditionsReadyForButton(CompositeSkill skill, int abilityGlobalIndex)
+        {
+            int level = (pc.activeUnit.abilityLevel != null && abilityGlobalIndex >= 0
+                         && abilityGlobalIndex < pc.activeUnit.abilityLevel.Length)
+                        ? pc.activeUnit.abilityLevel[abilityGlobalIndex] : 0;
+
+            string refusal;
+            return skill.CastConditionsMet(pc.activeUnit, pc.activeUnit.owner, level, out refusal,
+                                           NetworkConnectionHandler.isClient);
+        }
+
+        private void AddCastConditionsOverlay(VisualElement parent, int abilityGlobalIndex)
+        {
+            VisualElement overlay = new VisualElement();
+            overlay.pickingMode = PickingMode.Ignore;
+            overlay.AddToClassList("buttonCD");
+            parent.Add(overlay);
+            castOverlayElements.Add(overlay);
+            castOverlayAbilityIndex.Add(abilityGlobalIndex);
+
+            bool ready = CastConditionsReadyForButton(
+                (CompositeSkill)Utils.GetAbilityByIndex(pc.activeUnit, abilityGlobalIndex), abilityGlobalIndex);
+            overlay.style.display = ready ? DisplayStyle.None : DisplayStyle.Flex;
+            overlay.style.scale = new StyleScale(new Vector2(1, 1));
+        }
+
+        private void CastConditionsOverlayUpdate()
+        {
+            for (int i = 0; i < castOverlayElements.Count; i++)
+            {
+                Ability a = Utils.GetAbilityByIndex(pc.activeUnit, castOverlayAbilityIndex[i]);
+                if (a is CompositeSkill cs && cs.castConditions != null)
+                {
+                    bool ready = CastConditionsReadyForButton(cs, castOverlayAbilityIndex[i]);
+                    castOverlayElements[i].style.display = ready ? DisplayStyle.None : DisplayStyle.Flex;
+                }
+            }
+        }
+
         // COOLDOWNS
         List<VisualElement> cooldownElements = new List<VisualElement>();
         List<Label> cooldownTimers = new List<Label>();
@@ -549,6 +642,9 @@ namespace StrategyCore
                 }
                 cooldownTimers[i].text = pc.activeUnit.cooldownAbility[abilityIndex].ToString("F2");
             }
+
+            GaugeOverlayUpdate();
+            CastConditionsOverlayUpdate();
         }
 
         private void AddCooldownElement(VisualElement parent, int abilityCooldownIndex)

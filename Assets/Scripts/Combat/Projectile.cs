@@ -71,6 +71,11 @@ namespace StrategyCore
         // foreach: если кастер умирал, пока снаряд летел, ловили NullReferenceException, который обрывал Update
         // ДО Destroy(gameObject) — снаряд зависал и каждый кадр заново станил и бил цель.
         [HideInInspector] public List<AfterDamageDealCallback> OnAfterDamageDealCallbacks = new();
+        // [Interflow 2026-09-16 семья Б] Второй список: «снаряд долетел». Поднимается в Update
+        // (RaiseImpact) после урона и разлёта, при рикошете — на каждый прилёт. У снаряда АТАКИ это
+        // копия списка стрелка по ссылке (InternalSpawn), у снаряда умения — собственный список,
+        // в который блок 22 кладёт свой обработчик.
+        [HideInInspector] public List<ProjectileImpactCallback> OnProjectileImpactCallbacks = new();
 
         [Tooltip("Should projectile follow target")]
         [HideInInspector] public bool followTarget = true;
@@ -200,6 +205,13 @@ namespace StrategyCore
                     }
                 }
 
+                // [Interflow 2026-09-16 семья Б] Снаряд долетел — поднимаем событие прилёта.
+                // Место выбрано так, чтобы: (а) урон и разлёт уже прошли, (б) рикошет ещё не подменил
+                // target и origin, (в) объект ещё жив. При рикошете сюда приходят на КАЖДЫЙ прилёт.
+                // Ветка «цель пропала» в начале Update события не даёт намеренно: там снаряд гаснет,
+                // не долетев, — прилёта не было.
+                RaiseImpact(followTarget ? target : null, transform.position);
+
                 // Bouncy projectile
                 if (bounceCount != 0)
                 {
@@ -250,6 +262,31 @@ namespace StrategyCore
         {
             radius = targetRadius;
             radiusSq = targetRadius * targetRadius;
+        }
+
+        /// <summary>
+        /// Снаряд долетел: точка прилёта и кого задели. Поднимается на ВСЕХ пирах — гейт клиента
+        /// стоит у подписчиков, как у остальных боевых колбэков. Стрелок мог погибнуть в полёте
+        /// (ownerUnit == null): подписчики выходят на пустом носителе сами, как в ветке
+        /// «кастер погиб» метода Damage.
+        /// </summary>
+        /// <param name="hitUnit">Кого задел снаряд; null — прилёт в землю (снаряд без самонаведения).</param>
+        /// <param name="point">Точка прилёта — фактическое положение снаряда, там же играет impactVFX.</param>
+        void RaiseImpact(Unit hitUnit, Vector3 point)
+        {
+            if (OnProjectileImpactCallbacks == null || OnProjectileImpactCallbacks.Count == 0) return;
+
+            // Обход с конца по индексу, а не foreach: обработчик может снять подписку носителя
+            // (смерть, Lock), и foreach упал бы на изменённой коллекции. Список снаряда атаки —
+            // ТОТ ЖЕ объект, что у стрелка, поэтому снятие подписки видно прямо здесь.
+            for (int i = OnProjectileImpactCallbacks.Count - 1; i >= 0; i--)
+            {
+                if (i >= OnProjectileImpactCallbacks.Count) continue;
+                ProjectileImpactCallback c = OnProjectileImpactCallbacks[i];
+                if (c.Callback == null) continue;
+
+                c.Callback(point, hitUnit, ownerUnit, owner, directAttack, this, c.Level);
+            }
         }
 
         /// <summary>
@@ -434,6 +471,11 @@ namespace StrategyCore
                     p.damageType = whoSent.damageType;
                     p.attackEffectors = whoSent.attackEffectors;
                     p.OnAfterDamageDealCallbacks = whoSent.OnAfterDamageDealCallbacks;
+                    // [Interflow 2026-09-16 семья Б] Список прилёта копируется ТОЛЬКО снаряду атаки —
+                    // тем же гейтом (!manualParameterSet), что и список выше. Снаряд умения список
+                    // стрелка не получает: иначе реакция 5 «по прилёту» срабатывала бы и от снарядов
+                    // способностей, а её флаг говорит про снаряд АТАКИ.
+                    p.OnProjectileImpactCallbacks = whoSent.OnProjectileImpactCallbacks;
 
                     // Splash
                     p.isSplash = whoSent.isSplash;

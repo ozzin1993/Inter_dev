@@ -32,6 +32,7 @@ namespace StrategyCore
         public Action onXPCleared; // Units that have their xp changed subscribe to this to clear their ID added flag
         // [Interflow fix 2026-09-09 characteristics-sync] Четвёртый канал семьи: характеристики.
         public Action onCharCleared; // Units that have their characteristics changed subscribe to this to clear their ID added flag
+        public Action onGaugeCleared;
 
         // Server
         int tickCount = 0;
@@ -94,6 +95,7 @@ namespace StrategyCore
                     HPChangeSend();
                     MPChangeSend();
                     CharacteristicsChangeSend();
+                    GaugeChangeSend();
                 }
             }
         }
@@ -109,6 +111,7 @@ namespace StrategyCore
             HPChangeSend();
             MPChangeSend();
             CharacteristicsChangeSend();
+            GaugeChangeSend();
         }
 
         // Forces the game to sync MP and HP at the next tick

@@ -80,11 +80,9 @@ namespace StrategyCore
         [Range(0f, 1f)]
         public float strategyHpThreshold = 0.3f;
 
-        [Tooltip("УСЛОВИЕ АВТОКАСТА ПО СЕБЕ: умение сработает само, только если здоровье НОСИТЕЛЯ ниже этой доли. " +
-                 "0 — условия нет, хватает отката. 0.3 — держать умение до падения ниже тридцати процентов " +
-                 "(«последний вздох»). На каст с кнопки не влияет — там решает игрок.")]
-        [Range(0f, 1f)]
-        public float autoCastSelfHpBelow;
+        // Поле autoCastSelfHpBelow снято 2026-09-16: условие по своему здоровью переехало в блок 21
+        // (SkillCastConditionsBlock.casterHpBelow) и теперь работает не только у автокаста, но и у кнопки.
+        // Миграции не было: во всех 13 ассетах с этим ключом стояло 0 (греп по Resources/Ability).
 
         [Tooltip("ПРЕДПОЧТЕНИЕ ПРИ ВЫБОРЕ ЦЕЛИ: состояние, которого у цели быть не должно. Есть среди кандидатов " +
                  "цель без него — умение выберет её, даже если стратегия указала бы на другую. Работает только " +
@@ -108,6 +106,30 @@ namespace StrategyCore
                  "вообще работает: и при выборе цели стратегией, и при сборе целей в области, и во всех блоках. " +
                  "Пусто — роль не ограничивает, годятся все.")]
         public Unit.UnitCategory[] targetCategories;
+
+        [Tooltip("ТРЕТИЙ СЕЛЕКТОР УМЕНИЯ: конкретные заготовки юнитов, которые вообще могут быть целью. " +
+                 "Сравнение идёт по идентификатору типа юнита (unitTypeID), а не по ссылке на префаб. " +
+                 "Работает вместе с ролями по «И»: цель обязана пройти оба списка. " +
+                 "Пусто — заготовка не ограничивает, годятся все.")]
+        public Unit[] targetPrefabs;
+
+        [Tooltip("ЦЕЛЬ ТОЛЬКО ВПЕРЕДИ: полный угол сектора перед кастером в градусах (120 — это ±60° " +
+                 "от взгляда). Цель вне сектора не берётся, доворота ради каста не делается. " +
+                 "0 или 360 и больше — фильтра нет. Читается ТОЛЬКО в режимах «умный выбор»: " +
+                 "у области и конуса направление задаёт сам режим.")]
+        [Min(0)]
+        public float targetFrontAngle;
+
+        [Header("Область со своим селектором")]
+        [Tooltip("ОБЛАСТЬ НАБИРАЕТСЯ ОТДЕЛЬНЫМ СЕЛЕКТОРОМ: центр выбирается как обычно (селектор, роли, " +
+                 "заготовки), а вот КОГО задевает область вокруг него — решает селектор ниже, без ролей " +
+                 "и заготовок. Например: целиться во врага, а лечить своих вокруг него. " +
+                 "Читается ТОЛЬКО в режиме «умный выбор точки».")]
+        public bool independentAreaTargets;
+
+        [Tooltip("Кого задевает область при включённой настройке выше. Лимит целей, «кого оставить» " +
+                 "и «включать кастера» работают как обычно.")]
+        public UnitSelector areaSelector;
 
         [Header("Ограничение количества")]
         [Tooltip("Максимум целей за каст. 0 — без ограничения.")]
@@ -156,43 +178,25 @@ namespace StrategyCore
                  "Оставлено как поле, чтобы значение было видно; валидатор ругается на ВЫКЛ.")]
         public bool projectileFollowsTarget = true;
 
+        [Tooltip("Снаряд считается ПРЯМОЙ АТАКОЙ: провокация, состояния атаки, промах, проки и шкала носителя. " +
+                 "По умолчанию выкл. — снаряд умения бьёт как способность и ничего из перечисленного не задевает. " +
+                 "Единственный источник признака прямой атаки у снаряда умения; у вложенного умения включать нельзя.")]
+        public bool projectileDirectAttack;
+
         // ============================================================= ПРЕЗЕНТАЦИЯ ==
 
         [Header("Презентация")]
-        [Tooltip("Из какой точки модели кастера вылетает снаряд и играет визуал замаха. " +
-                 "Точки настраиваются компонентом CharacterSockets на префабе. Нет компонента — берётся центр объекта.")]
-        public SkillSocketType spawnSocket = SkillSocketType.RightHand;
-
-        [Tooltip("Смещение от точки привязки в её собственных осях, метры. Например немного вперёд от ладони.")]
-        public Vector3 localOffset;
-
-        [Tooltip("Визуал в момент каста, из точки привязки. Пусто — без визуала.")]
-        public VFXReferencer castVFX;
-
-        [Tooltip("Через сколько секунд убрать визуал каста.")]
-        public float castVfxLifetime = 2f;
-
-        [Tooltip("Визуал в точке приложения (место попадания, центр области). Пусто — без визуала.")]
-        public VFXReferencer impactVFX;
-
-        [Tooltip("Через сколько секунд убрать визуал попадания.")]
-        public float impactVfxLifetime = 2f;
-
-        [Tooltip("Звук каста. Пусто — без звука.")]
-        public AudioClip castSound;
-
-        [Tooltip("Звук попадания. Пусто — без звука.")]
-        public AudioClip impactSound;
-
-        [Tooltip("Громкость звуков умения, 0..1.")]
-        [Range(0f, 1f)]
-        public float soundVolume = 1f;
-
-        [Tooltip("Имя стейта аниматора кастера, проигрываемого в момент срабатывания умения. Пусто — не проигрывать. " +
-                 "Стейт заводится в контроллере юнита: строчными буквами, БЕЗ зацикливания и вне зарезервированных схем ядра " +
-                 "(attack0…, death0…, idle0…, idleReady, cast, casting, hit, walk, building, construction) — иначе ядро спутает его со своими. " +
-                 "Перебивает текущую анимацию, в том числе замах атаки.")]
-        public string procAnimationState = "";
+        // [Interflow 2026-09-17, шаг 4 слияния] Десять плоских полей презентации (spawnSocket, localOffset,
+        // castVFX, castVfxLifetime, impactVFX, impactVfxLifetime, castSound, impactSound, soundVolume,
+        // procAnimationState) сведены в ОДИН набор EventPresentation (решение Artsiom 26 от 17.09.2026):
+        // у умения и у блока-хозяина форма набора одна, проигрыватель у клиента один.
+        // Ассеты переписаны скриптом scripts/migrate_skill_presentation.py (значения перенесены один в один).
+        // FormerlySerializedAs здесь НЕ помогает: атрибут работает на уровне имени поля, а не пути, и смену
+        // вложенности плоского поля во вложенное не переносит.
+        [Tooltip("Визуал каста: играется в момент срабатывания умения. Точка привязки — точка НА КАСТЕРЕ " +
+                 "(компонент CharacterSockets на префабе; нет компонента — центр объекта); из неё же вылетает снаряд. " +
+                 "Пусто — умение ничего не показывает.")]
+        public EventPresentation presentation = new EventPresentation();
 
         [Tooltip("Состояние-значок: вешается на каждую цель, чтобы игрок видел иконку в панели состояний. " +
                  "Значок показывается только у ненакапливаемых состояний (Stacks выключен) с заданной иконкой.")]
@@ -257,6 +261,15 @@ namespace StrategyCore
         [Header("Блок 19 — серверный сервис")]
         public SkillDelegateBlock delegateService = new SkillDelegateBlock();
 
+        [Header("Блок 20 — шкала")]
+        public SkillGaugeBlock gaugeBlock = new SkillGaugeBlock();
+
+        [Header("Блок 21 — условия каста")]
+        public SkillCastConditionsBlock castConditions = new SkillCastConditionsBlock();
+
+        [Header("Блок 22 — прилёт снаряда")]
+        public SkillProjectileImpactBlock projectileImpact = new SkillProjectileImpactBlock();
+
         // ============================================================ ВЫЧИСЛЯЕМЫЙ ТИП ==
 
         /// <summary>
@@ -301,7 +314,7 @@ namespace StrategyCore
         /// </summary>
         public override bool Check(Unit castingUnit, int castingPlayer, int level, Unit unit)
         {
-            if (!IsClientPeer && unit != null && !IsEligibleTarget(unit, castingPlayer)) return false;
+            if (!IsClientPeer && unit != null && !IsEligibleTarget(unit, castingPlayer, castingUnit)) return false;
 
             return CheckCommon(castingUnit, level);
         }
@@ -334,6 +347,11 @@ namespace StrategyCore
         {
             cachedEffectorSet = null;
             effectorSetBuilt = false;
+
+            // [Interflow 2026-09-18] Снимки способа атаки носителей облика (блок 12, copyAttackMode).
+            // Принцип Artsiom 17.09.2026: каждый матч изолирован — пер-юнит хранилище чистится здесь же,
+            // иначе ссылки на юнитов прошлого матча дожили бы до следующего.
+            ClearAttackModeSnapshots();
         }
 
 

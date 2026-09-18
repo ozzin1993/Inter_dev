@@ -74,6 +74,9 @@ namespace StrategyCore
                 if (refUnit.mana != unit.Value.mana) newUnitData["mana"] = unit.Value.mana;
                 if (refUnit.maxMana != unit.Value.maxMana) newUnitData["maxMana"] = unit.Value.maxMana;
                 if (refUnit.manaRegen != unit.Value.manaRegen) newUnitData["manaRegen"] = unit.Value.manaRegen;
+                // Gauge
+                if (refUnit.gauge != unit.Value.gauge) newUnitData["gauge"] = unit.Value.gauge;
+                if (refUnit.maxGauge != unit.Value.maxGauge) newUnitData["maxGauge"] = unit.Value.maxGauge;
                 // Armor
                 if (refUnit.armor != unit.Value.armor) newUnitData["armor"] = unit.Value.armor;
                 if (refUnit.armorType != null && refUnit.armorType.id != unit.Value.armorType.id) newUnitData["armorType"] = unit.Value.armorType.id;
@@ -1095,6 +1098,9 @@ namespace StrategyCore
                 if (unitData["mana"] != null) u.mana = unitData["mana"];
                 if (unitData["maxMana"] != null) u.maxMana = unitData["maxMana"];
                 if (unitData["manaRegen"] != null) u.manaRegen = unitData["manaRegen"];
+                // Gauge
+                if (unitData["gauge"] != null) u.gauge = unitData["gauge"];
+                if (unitData["maxGauge"] != null) u.maxGauge = unitData["maxGauge"];
                 // Armor
                 if (unitData["armor"] != null) u.armor = unitData["armor"];
                 if (unitData["armorType"] != null) u.armorType = GameManager.Instance.armorTypes[unitData["armorType"]];

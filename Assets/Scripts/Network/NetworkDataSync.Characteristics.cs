@@ -26,8 +26,15 @@ namespace StrategyCore
     /// клиент кладёт его в поле. Гейт шкалы статусов («есть значок или зрелище») этот канал не трогает:
     /// он про то, что показать в шкале, а не про то, чем юнит бьёт.
     ///
-    /// Объём — два поля, от которых клиент СТРОИТ картину сам. Урон, броня и дальность в этот канал
-    /// не входят: их считает сервер, а у клиента они только печатаются в панели юнита.
+    /// Объём — ТРИ поля. Два первых (скорость атаки, максимум здоровья) клиент использует в расчётах:
+    /// из них он строит откат атаки и заполнение полоски. Третье — УРОН — добавлено решением Artsiom 39
+    /// от 17.09.2026: клиент им ничего не считает, он его ПЕЧАТАЕТ в панели юнита, и до этого печатал
+    /// своё значение с префаба — любое серверное изменение урона в панели не появлялось.
+    /// Броня и дальность в канал по-прежнему не входят: их никто не просил.
+    ///
+    /// Частота отправки от нового поля не выросла: юнит встаёт в очередь из Unit.ChangeDamage, а её
+    /// зовут только источники, которые урон действительно меняют. Удар урон юнита не меняет —
+    /// модификаторы AttackPlay считают своё число и в поле его не пишут.
     ///
     /// Отсев и приёмник написаны как у семьи ХП/МП/опыта (проверка по реестру + Debug.LogError
     /// «Desync!»), а не через помощники канала статусов ServerCanSend/StillRegistered/TryResolveUnit
@@ -54,6 +61,7 @@ namespace StrategyCore
             {
                 float[] attackSpeed = new float[charChangedUnits.Count];
                 float[] maxHealth = new float[charChangedUnits.Count];
+                float[] attackDamage = new float[charChangedUnits.Count];
 
                 for (int i = 0; i < charChangedUnits.Count; i++)
                 {
@@ -61,10 +69,11 @@ namespace StrategyCore
                     {
                         attackSpeed[i] = unit.attackSpeed;
                         maxHealth[i] = unit.maxHealth;
+                        attackDamage[i] = unit.attackDamage;
                     }
                 }
 
-                CharacteristicsChangeClientRpc(charChangedUnits.ToArray(), attackSpeed, maxHealth);
+                CharacteristicsChangeClientRpc(charChangedUnits.ToArray(), attackSpeed, maxHealth, attackDamage);
             }
 
             charChangedUnits.Clear();
@@ -72,7 +81,8 @@ namespace StrategyCore
         }
 
         [Rpc(SendTo.NotServer, InvokePermission = RpcInvokePermission.Server)]
-        private void CharacteristicsChangeClientRpc(UInt16[] unitID, float[] unitAttackSpeed, float[] unitMaxHealth)
+        private void CharacteristicsChangeClientRpc(UInt16[] unitID, float[] unitAttackSpeed, float[] unitMaxHealth,
+                                                    float[] unitAttackDamage)
         {
             // Joining mid-game, we do not accept any data from the server. Only scene data.
             if (NetworkConnectionHandler.Instance.connectionStage == 2) return;
@@ -83,6 +93,7 @@ namespace StrategyCore
                 {
                     unit.SetAttackSpeed(unitAttackSpeed[i]);
                     unit.SetMaxHP(unitMaxHealth[i]);
+                    unit.SetAttackDamage(unitAttackDamage[i]);
                 }
                 else
                 {

@@ -151,6 +151,101 @@ namespace StrategyCore
             return false;
         }
 
+        /// <summary>
+        /// [Interflow 2026-09-18, семья «рассечение», решение Artsiom 59] Добавить ВТОРОЙ колбэк
+        /// ТОГО ЖЕ умения в ТОТ ЖЕ список «после нанесения урона» — по ТРОЙКЕ (ability, level, обработчик).
+        ///
+        /// Зачем понадобилось: у одного ассета пассивки на этом списке теперь может висеть больше одной
+        /// подписки (реакция 5 «носитель попал» и блок 11 «рассечение» — у него по решению 59 СВОЯ
+        /// подписка, чтобы не зависеть от отката, шанса и счёта «каждый N-й» реакции 5). Обычный
+        /// <c>CallbackAdd</c> молча ОТКАЗАЛ бы во второй записи: он считает пару (ability, level) уже занятой.
+        ///
+        /// Идемпотентность сохранена: повторный вызов с тем же обработчиком не задваивает запись.
+        /// Сравнение делегатов здесь ЗНАЧЕНИЕМ (цель + метод), поэтому группа методов, полученная
+        /// заново на каждом вызове, узнаётся как та же самая.
+        ///
+        /// ВНИМАНИЕ: старый <c>CallbackRemove</c> снимает ПЕРВУЮ запись пары и про обработчик не знает.
+        /// Кто добавился сюда, обязан сниматься парным <see cref="CallbackRemoveDistinct"/> и делать это
+        /// РАНЬШЕ соседей по паре — иначе чужое снятие по паре унесёт его запись, а своя останется висеть.
+        /// </summary>
+        public static void CallbackAddDistinct(List<AfterDamageDealCallback> list, Ability ability, int level,
+                                          Action<Unit, Vector3, Effector[], float, bool, DamageType, Unit, Projectile, int, int> handler)
+        {
+            if (list == null || ability == null || handler == null) return;
+            for (int i = 0; i < list.Count; i++)
+                if (list[i].Ability == ability && list[i].Level == level && list[i].Callback == handler) return;
+
+            list.Add(new AfterDamageDealCallback { Callback = handler, Ability = ability, Level = level });
+        }
+
+        /// <summary>
+        /// Снять колбэк «после нанесения урона» по ТРОЙКЕ (ability, level, обработчик) — ровно свою запись,
+        /// не задев вторую подписку того же ассета. true — запись была найдена.
+        /// </summary>
+        public static bool CallbackRemoveDistinct(List<AfterDamageDealCallback> list, Ability ability, int level,
+                                          Action<Unit, Vector3, Effector[], float, bool, DamageType, Unit, Projectile, int, int> handler)
+        {
+            if (list == null || ability == null || handler == null) return false;
+            for (int i = 0; i < list.Count; i++)
+                if (list[i].Ability == ability && list[i].Level == level && list[i].Callback == handler)
+                { list.RemoveAt(i); return true; }
+
+            return false;
+        }
+
+        /// <summary>
+        /// Добавить колбэк «носитель начал атаку» (штатный хук Unit.OnBeforeDamageDealCallbacks,
+        /// перебирается в Unit.State.AttackPlay ДО удара и до спавна снаряда). Идемпотентно по паре
+        /// (ability, level) — как у соседей выше.
+        ///
+        /// ВНИМАНИЕ: до 17.09.2026 у этого списка не было НИ ОДНОГО подписчика — перебор был пустым
+        /// у всех юнитов. С первым подписчиком список становится горячим путём атаки.
+        /// </summary>
+        public static void CallbackAdd(List<BeforeDamageDealCallback> list, Ability ability, int level,
+                                          Action<Unit, Vector3, Effector[], float, DamageType, Unit, int, int> handler)
+        {
+            if (list == null || ability == null || handler == null) return;
+            for (int i = 0; i < list.Count; i++)
+                if (list[i].Ability == ability && list[i].Level == level) return;
+
+            list.Add(new BeforeDamageDealCallback { Callback = handler, Ability = ability, Level = level });
+        }
+
+        /// <summary>Снять колбэк «носитель начал атаку» по паре (ability, level). true — запись была найдена.</summary>
+        public static bool CallbackRemove(List<BeforeDamageDealCallback> list, Ability ability, int level)
+        {
+            if (list == null || ability == null) return false;
+            for (int i = 0; i < list.Count; i++)
+                if (list[i].Ability == ability && list[i].Level == level) { list.RemoveAt(i); return true; }
+
+            return false;
+        }
+
+        /// <summary>
+        /// Добавить колбэк «снаряд долетел». Идемпотентно по паре (ability, level) — как у соседей выше.
+        /// Список живёт и на юните (снаряд атаки берёт его копию по ссылке), и на самом снаряде
+        /// (туда вешает себя блок 22 умения).
+        /// </summary>
+        public static void CallbackAdd(List<ProjectileImpactCallback> list, Ability ability, int level,
+                                          Action<Vector3, Unit, Unit, int, bool, Projectile, int> handler)
+        {
+            if (list == null || ability == null || handler == null) return;
+            for (int i = 0; i < list.Count; i++)
+                if (list[i].Ability == ability && list[i].Level == level) return;
+
+            list.Add(new ProjectileImpactCallback { Callback = handler, Ability = ability, Level = level });
+        }
+
+        /// <summary>Снять колбэк «снаряд долетел» по паре (ability, level). true — запись была найдена.</summary>
+        public static bool CallbackRemove(List<ProjectileImpactCallback> list, Ability ability, int level)
+        {
+            if (list == null || ability == null) return false;
+            for (int i = 0; i < list.Count; i++)
+                if (list[i].Ability == ability && list[i].Level == level) { list.RemoveAt(i); return true; }
+
+            return false;
+        }
+
         // ============================================================= ПЕР-ЮНИТ СОСТОЯНИЕ ==
 
         /// <summary>
@@ -294,15 +389,66 @@ namespace StrategyCore
         /// сообщение с SendTo.NotServer до него не доходит; на выделенном сервере подписчиков нет
         /// и подъём уходит в никуда. Дублей не возникает: каждый пир получает факт ровно один раз.
         /// </summary>
-        public static void EmitSkillFired(Unit caster, Ability ability, int level, Unit aimUnit, Vector3 aimPoint)
+        /// <param name="eventCode">[Interflow 2026-09-17] Код НАБОРА визуала у ассета
+        /// (<see cref="AbilityEventCode"/>). Умолчание 0 — «сработало само умение»: единственный
+        /// сегодняшний вызывающий (CompositeSkill.Cast.cs) этим параметром не пользуется.</param>
+        public static void EmitSkillFired(Unit caster, Ability ability, int level, Unit aimUnit, Vector3 aimPoint,
+                                          int eventCode = (int)AbilityEventCode.SkillCast)
         {
             if (ability == null) return;
             if (IsClientPeer) return;   // публикует только сервер (правило 6)
 
-            SkillPresentationEvents.RaiseSkillFired(caster, ability.id, level, aimUnit, aimPoint);
+            SkillPresentationEvents.RaiseSkillFired(caster, ability.id, level, aimUnit, aimPoint, eventCode);
 
             if (NetworkDataSync.Instance != null)
-                NetworkDataSync.Instance.SkillFiredSend(caster, ability.id, level, aimUnit, aimPoint);
+                NetworkDataSync.Instance.SkillFiredSend(caster, ability.id, level, aimUnit, aimPoint, eventCode);
+        }
+
+        // ================================================ НАБОР ВИЗУАЛА СОБЫТИЯ ==
+        // [Interflow 2026-09-17, шаг 4 слияния] Правило подключения хозяина — одна строка:
+        //   • событие признано СЕРВЕРОМ            → EmitEventPresentation;
+        //   • событие поднимается общим кодом на ВСЕХ пирах → RaiseEventPresentationLocal.
+        // Третьего не бывает. Набор не решает, состоялось ли событие, и на состояние мира не влияет:
+        // отказ показа событие не отменяет.
+
+        /// <summary>
+        /// Какой НАБОР визуала лежит у этого ассета под указанным кодом. База наборов не знает —
+        /// отдаёт null; переопределяют те, у кого блоки-хозяева есть. Зовётся КЛИЕНТСКИМ презентером:
+        /// по сети едет только адрес (id ассета, код), а содержимое каждый пир берёт из своей копии ассета.
+        /// </summary>
+        /// <param name="eventCode">Значение <see cref="AbilityEventCode"/> числом.</param>
+        /// <returns>Набор или null, если такого набора у ассета нет.</returns>
+        public virtual EventPresentation PresentationFor(int eventCode) => null;
+
+        /// <summary>
+        /// Сервер: показать набор события. ПУСТОЙ НАБОР СООБЩЕНИЯ НЕ ПОРОЖДАЕТ — иначе каждый прок
+        /// пассивки без визуала стоил бы сообщения всем клиентам (инвариант проекта §6).
+        /// </summary>
+        /// <param name="owner">Ассет-хозяин набора: по его id клиент найдёт набор в своей копии.</param>
+        /// <param name="eventCode">Код набора у этого ассета.</param>
+        /// <param name="set">Сам набор — читается только ради проверки «есть ли что показывать».</param>
+        /// <param name="carrier">Носитель: на нём играют визуал и звук «у носителя». Может быть null.</param>
+        /// <param name="aimUnit">Цель события (для звука в точке). Может быть null.</param>
+        /// <param name="aimPoint">Точка события: там играет визуал в точке.</param>
+        public static void EmitEventPresentation(Ability owner, int eventCode, EventPresentation set,
+                                                 Unit carrier, int level, Unit aimUnit, Vector3 aimPoint)
+        {
+            if (owner == null || set == null || !set.Any) return;
+
+            EmitSkillFired(carrier, owner, level, aimUnit, aimPoint, eventCode);
+        }
+
+        /// <summary>
+        /// Показ набора БЕЗ СЕТИ: событие поднимается одинаковым кодом на каждом пире, и сообщение
+        /// было бы вторым показом того же (решение Artsiom 7.1 от 17.09.2026 — «начало атаки»).
+        /// Гейта клиента здесь нет НАМЕРЕННО: на клиенте этот путь и работает.
+        /// </summary>
+        public static void RaiseEventPresentationLocal(Ability owner, int eventCode, EventPresentation set,
+                                                       Unit carrier, int level, Unit aimUnit, Vector3 aimPoint)
+        {
+            if (owner == null || set == null || !set.Any) return;
+
+            SkillPresentationEvents.RaiseSkillFired(carrier, owner.id, level, aimUnit, aimPoint, eventCode);
         }
 
         // ====================================================================== ПРЕЗЕНТАЦИЯ ==

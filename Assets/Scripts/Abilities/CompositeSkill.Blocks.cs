@@ -13,9 +13,15 @@ namespace StrategyCore
     {
         /// <summary>
         /// Применить включённые блоки в фиксированном порядке:
-        /// стоимость → урон → контроль → эффекторы → лечение → баф → щит → ослепление →
-        /// призыв → зона → серверный сервис.
+        /// стоимость → ПЕРЕМЕЩЕНИЕ КАСТЕРА → облик на себя → урон → контроль → эффекторы → лечение →
+        /// баф → щит → ослепление → призыв → зона → серверный сервис.
         /// Цель, погибшую от урона этого же каста, дальше не обрабатываем (паттерн EffectorArea).
+        ///
+        /// [Interflow 2026-09-18, решение Artsiom 48] Блок 18 переехал из конца (был последним, после
+        /// цикла по целям) в НАЧАЛО, до цикла: у обоих рывков Саши удар и отброс задуманы от точки
+        /// приземления. Порядок остаётся ОДИН на все умения — поля «до или после» нет. Набор целей
+        /// от переноса не меняется: цели набраны раньше (CompositeSkill.Cast.cs). На 18.09 блок 18
+        /// не включён ни в одном ассете — ломать нечего.
         /// </summary>
         /// Вызывается ТОЛЬКО на сервере: клиент до этого места не доходит. Значки состояний и VFX
         /// уезжают клиенту отдельным сообщением (CompositeSkill.SendPresentation) — геймплейного
@@ -38,6 +44,17 @@ namespace StrategyCore
                 if (pct > 0f) PercentHpCost.PayFromCaster(castingUnit, pct);
                 if (flat > 0f) PayHealth(castingUnit, flat);
             }
+
+            // ---------- 18. Перемещение кастера (решение Artsiom 48: ДО цикла по целям) ----------
+            // Точка старта и точка приземления живут ЛОКАЛЬНО, на время этого каста: ими пользуются
+            // шлейф блока 17 ниже и никто больше. Поля на ассете под них нет намеренно — ассет живёт
+            // между матчами, и пер-каст значение в нём пришлось бы сбрасывать и защищать от вложенных
+            // кастов (ExecuteNested зовёт ApplyEffects повторно).
+            bool casterMoved = ApplyCasterMove(castingUnit, level, origin,
+                                               out Vector3 moveStart, out Vector3 moveLanding);
+
+            // ---------- 12'. Облик НА СЕБЯ (решение Artsiom 53: один раз за каст, рядом с блоком 18) ----------
+            ApplyMorphToCaster(castingUnit, castingPlayer, level);
 
             // ---------- 2..15. Блоки по каждой цели (порядок фиксирован) ----------
             if (targets != null)
@@ -69,7 +86,7 @@ namespace StrategyCore
                     ApplyBlind(castingUnit, castingPlayer, level, t);
                     ApplyMorph(castingUnit, castingPlayer, level, t);
                     ApplyOwnership(castingUnit, t);          // после всех эффектов: меняет сторону цели
-                    ApplySecondary(castingPlayer, level, t, baseDamageToTarget); // своя выборка вокруг этой цели
+                    ApplySecondary(castingUnit, castingPlayer, level, t, baseDamageToTarget); // своя выборка вокруг этой цели
                     ApplyKnockback(castingUnit, level, t);   // последним: сдвигает цель, всё позиционное уже сработало
                 }
             }
@@ -78,10 +95,10 @@ namespace StrategyCore
             if (summon != null && summon.enabled) ApplySummon(castingUnit, castingPlayer, level);
 
             // ---------- 17. Зона на земле ----------
-            if (groundZone != null && groundZone.enabled) ApplyGroundZone(castingUnit, castingPlayer, level, origin);
-
-            // ---------- 18. Перемещение кастера ----------
-            ApplyCasterMove(castingUnit, origin);
+            // Режим «шлейф по пути» (решение Artsiom 56) требует состоявшегося переноса кастера:
+            // без него прямой «старт → приземление» не существует.
+            if (groundZone != null && groundZone.enabled)
+                ApplyGroundZone(castingUnit, castingPlayer, level, origin, casterMoved, moveStart, moveLanding);
 
             // ---------- 19. Серверный сервис ----------
             if (delegateService != null && delegateService.enabled) ApplyDelegate(castingUnit, castingPlayer, origin);

@@ -28,9 +28,7 @@ namespace StrategyCore
             float burstRadius = shield.onDepletedRadius;
             bool hasReaction = (onDepletedEffectors != null && onDepletedEffectors.Length > 0)
                                || (blindChance > 0f && blindDuration > 0f);
-            bool hasRetaliation = shield.retaliationRadius > 0f
-                                  && (shield.retaliationStunSeconds > 0f
-                                      || (shield.retaliationEffectors != null && shield.retaliationEffectors.Length > 0));
+            bool hasRetaliation = NeedsRetaliation(shield);
 
             // Снижение входящего урона привязано к ЖИЗНИ ЩИТА, а не к своему таймеру: ставим вместе
             // со щитом, снимаем в onEnded (пробит, истёк или носитель погиб). Тем и отличается
@@ -39,11 +37,15 @@ namespace StrategyCore
             // не ставит (IncomingDamageModifier.cs:43). У бессрочного щита снижения не будет — ровно так же
             // вёл себя класс ShieldAlly, поведение не меняем.
             float incomingMultiplier = shield.incomingDamageMultiplier;
-            bool hasIncomingRule = !Mathf.Approximately(incomingMultiplier, 1f)
-                                   && incomingMultiplier > 0f
-                                   && duration > 0f;
+            bool hasIncomingRule = NeedsIncomingRule(shield, duration);
 
-            if (!hasReaction && !hasRetaliation && !hasIncomingRule)
+            // [Interflow 2026-09-17, решение Artsiom 21] Визуал на время щита — СОСТОЯНИЕ, и снимать его
+            // нечем, кроме onEnded. Поэтому при заданном визуале коротких путей ниже не бывает: оба ранних
+            // выхода зовут AbsorbShield.Apply БЕЗ onEnded, и визуал остался бы висеть навсегда.
+            bool hasVisual = shield.visualEffector != null;
+            bool needsOnEnded = ShieldNeedsOnEnded(shield, duration);
+
+            if (!hasReaction && !needsOnEnded)
             {
                 AbsorbShield.Apply(target, amount, duration);
 
@@ -81,7 +83,7 @@ namespace StrategyCore
                 }
             };
 
-            if (!hasRetaliation && !hasIncomingRule)
+            if (!needsOnEnded)
             {
                 AbsorbShield.Apply(target, amount, duration, onDepleted);
 
@@ -93,12 +95,17 @@ namespace StrategyCore
             // (любая причина снятия). ПОРЯДОК КАК В ShieldAlly: сначала щит, потом подписка — перекаст
             // поверх живого щита дёргает прежний onEnded, и тот снёс бы только что поставленную подписку.
             InterflowCombat.DamagedHandler retaliation = null;
+            EffectorHolder visualHolder = null;   // держатель визуала щита: снимаем ровно своё наложение
             Action<Unit> onEnded = carrier =>
             {
                 if (carrier == null) return;
 
                 if (retaliation != null) InterflowCombat.DamagedListenerRemove(carrier, retaliation);
                 if (hasIncomingRule) IncomingDamageModifier.RemoveRule(carrier, incomingMultiplier);
+
+                // Держатель нулевой — наложения не было вовсе (здание, труп, отказ приёмника):
+                // EffectorAdd в этих случаях отдаёт null (Effectors/Effector.cs).
+                if (visualHolder != null) { Effector.EffectorRemove(carrier, visualHolder); visualHolder = null; }
             };
 
             AbsorbShield.Apply(target, amount, duration, onDepleted, onEnded);
@@ -114,7 +121,46 @@ namespace StrategyCore
             // Таймер здесь страховочный — обычно правило снимает onEnded, когда щит сходит.
             if (hasIncomingRule) IncomingDamageModifier.Apply(target, incomingMultiplier, duration, this);
 
+            // Визуал — тоже ПОСЛЕ щита: перекаст поверх живого щита дёргает ПРЕЖНИЙ onEnded уже после
+            // подмены реакций (Units/AbsorbShield.cs), и поставленное раньше наложение он бы и снял.
+            if (hasVisual) visualHolder = Effector.EffectorAdd(target, shield.visualEffector, null, castingPlayer);
+
             if (InterflowDebug.FullOn) LogShieldApplied(target, amount, duration, hasReaction, hasRetaliation, hasIncomingRule);
+        }
+
+        /// <summary>
+        /// Нужна ли щиту перегрузка <c>AbsorbShield.Apply</c> С <c>onEnded</c>. ЕДИНСТВЕННЫЙ источник
+        /// этого решения: оба ранних выхода ApplyShield спрашивают его же, второй копии правила нет.
+        ///
+        /// onEnded нужен тому, кто вешает на ВРЕМЯ ЩИТА что-то, что обязан снять: подписку ответа,
+        /// правило снижения урона, состояние-визуал. Без onEnded снимать их нечем, и они пережили бы щит.
+        ///
+        /// Публичный ради теста режима редактора — живой ApplyShield в EditMode неподъёмен
+        /// (нужны цели, приёмник и менеджеры сцены), а правило проверять надо.
+        /// </summary>
+        /// <param name="duration">Длительность щита на этом уровне: у бессрочного правило снижения урона
+        /// не ставится вовсе (штатный IncomingDamageModifier при нулевой длительности молчит).</param>
+        public static bool ShieldNeedsOnEnded(SkillShieldBlock shield, float duration)
+        {
+            if (shield == null) return false;
+
+            return NeedsRetaliation(shield) || NeedsIncomingRule(shield, duration) || shield.visualEffector != null;
+        }
+
+        /// <summary>Ставится ли вместе со щитом подписка «ответ на удар по носителю».</summary>
+        static bool NeedsRetaliation(SkillShieldBlock shield)
+        {
+            return shield.retaliationRadius > 0f
+                   && (shield.retaliationStunSeconds > 0f
+                       || (shield.retaliationEffectors != null && shield.retaliationEffectors.Length > 0));
+        }
+
+        /// <summary>Ставится ли вместе со щитом правило снижения входящего урона.</summary>
+        static bool NeedsIncomingRule(SkillShieldBlock shield, float duration)
+        {
+            return !Mathf.Approximately(shield.incomingDamageMultiplier, 1f)
+                   && shield.incomingDamageMultiplier > 0f
+                   && duration > 0f;
         }
 
         /// <summary>Кого задевают вспышка и ответ щита: враги носителя по селектору ответа.</summary>

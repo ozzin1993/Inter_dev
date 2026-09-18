@@ -72,6 +72,8 @@ namespace StrategyCore
                 case 10: return "щит";
                 case 11: return "ослепление";
                 case 16: return "призыв";
+                case 21: return "условия каста";
+                case 22: return "прилёт снаряда";
             }
 
             return "неизвестный блок";
@@ -268,6 +270,79 @@ namespace StrategyCore
         void LogSummonSkipped(Unit castingUnit, string reason)
         {
             WriteBlock(16, "не сработал | кастер=" + InterflowDebug.Name(castingUnit) + " | причина=" + reason);
+        }
+
+        /// <summary>
+        /// Блок 21 «условия каста»: почему каста не будет. Цели у блока нет — он решает про КАСТЕРА,
+        /// поэтому строка идёт своим шаблоном, как у блока 16.
+        ///
+        /// ВНИМАНИЕ (та же цена, что у строки автокаста): проверка зовётся на тике — и у готовности
+        /// авто-умения, и у оверлея кнопки выбранного юнита. Подавить повтор нечем: состояние хранить
+        /// негде, ассет один на всех носителей и оба пира.
+        /// </summary>
+        /// <param name="shapeChecked">Проверялись ли условия облика: на чистом клиенте их нечем считать.</param>
+        void LogCastConditionsRefused(Unit caster, string refusal, bool shapeChecked)
+        {
+            WriteBlock(21, "не сработал | кастер=" + InterflowDebug.Name(caster) +
+                           " | причина=" + refusal +
+                           (shapeChecked ? "" : " | облик не проверялся (чистый клиент)"));
+        }
+
+        // ===================================================== БЛОК 22 И ВЛОЖЕНИЕ ==
+
+        /// <summary>
+        /// Блок 22 «прилёт снаряда»: обработчик зарегистрирован на только что созданном снаряде.
+        /// Пишется в момент спавна, а не прилёта: если строки нет, значит блок вообще не подключился.
+        /// </summary>
+        void LogProjectileImpactWired(Unit castingUnit)
+        {
+            WriteBlock(22, "подключён к снаряду | кастер=" + InterflowDebug.Name(castingUnit) +
+                           " | прилёт → " + NestedSkillName(projectileImpact != null ? projectileImpact.skill : null));
+        }
+
+        /// <summary>Блок 22: снаряд прилетел, вложенное сейчас пойдёт.</summary>
+        void LogProjectileImpact(Unit hitUnit, Vector3 point)
+        {
+            WriteBlock(22, "прилёт → " + NestedSkillName(projectileImpact != null ? projectileImpact.skill : null) +
+                           " | цель=" + InterflowDebug.Name(hitUnit) +
+                           " | точка=" + point.ToString("0.#"));
+        }
+
+        /// <summary>
+        /// Признак прямой атаки у снаряда умения. Строка пишется при спавне: это единственный
+        /// источник directAttack для снаряда умения, и по нему считаются провокация, промах,
+        /// состояния атаки, проки и шкала носителя.
+        /// </summary>
+        void LogProjectileDirectAttack()
+        {
+            WriteCast("снаряд — атака=" + Yes(projectileDirectAttack));
+        }
+
+        /// <summary>Вложенное исполнение отказано — причина обязательна, ради неё строка и заводилась.</summary>
+        void LogNestedRefused(Unit caster, string reason)
+        {
+            WriteCast("вложенное не исполнено | носитель=" + InterflowDebug.Name(caster) + " | причина=" + reason);
+        }
+
+        /// <summary>Предложенная цель вложенного не прошла отбор умения — остаётся точка.</summary>
+        void LogNestedAimDropped(Unit caster, Unit dropped)
+        {
+            WriteCast("вложенное: цель отброшена отбором умения | носитель=" + InterflowDebug.Name(caster) +
+                      " | цель=" + InterflowDebug.Name(dropped) + " | исполняем по точке");
+        }
+
+        /// <summary>Вложенное исполнение пошло.</summary>
+        void LogNestedFired(Unit caster, Unit aimUnit, Vector3 aimPoint)
+        {
+            WriteCast("вложенное исполняется | носитель=" + InterflowDebug.Name(caster) +
+                      " | цель=" + InterflowDebug.Name(aimUnit) +
+                      " | точка=" + aimPoint.ToString("0.#"));
+        }
+
+        /// <summary>Имя вложенного умения для строки; пусто — ассет не задан.</summary>
+        static string NestedSkillName(CompositeSkill nested)
+        {
+            return nested != null ? "«" + nested.name + "»" : "ассет не задан";
         }
 
         // ========================================================== АВТОКАСТ ==

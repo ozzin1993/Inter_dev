@@ -22,7 +22,24 @@ namespace StrategyCore
         [InspectorName("Слепота")]              Blind,
         [InspectorName("Замедление движения")]  MoveSlow,
         [InspectorName("Замедление атаки")]     AttackSlow,
-        [InspectorName("Периодический урон")]   DamageOverTime
+        [InspectorName("Периодический урон")]   DamageOverTime,
+
+        // [Interflow 2026-09-17, решение Artsiom 43] Дописано В КОНЕЦ (числовые значения прежних
+        // категорий не сдвинулись — они сериализованы в ассетах числом). Категория ЧИСЛОВАЯ:
+        // сопротивление режет силу, а не время (UnitResistances.CutsTime). Через неё выражается
+        // поле «alsoRemoveDamageReduction» семьи «здоровье носителя и иммунитеты»: строка блока 3
+        // с долей 1 и больше делает носителя невосприимчивым к снижению его урона и снимает
+        // уже висящее (Effector.EffectorRemoveByCategory).
+        [InspectorName("Снижение урона")]       DamageReduction,
+
+        // [Interflow 2026-09-18, решение Artsiom 50] Дописано В КОНЕЦ (числа прежних категорий
+        // не сдвинулись — они сериализованы в ассетах). Категория СЛУЖЕБНАЯ и ЕДИНСТВЕННАЯ,
+        // которая идёт МИМО сопротивлений и мимо иммунитета к контролю: она не урон и не контроль
+        // извне, а отметка «цель прямо сейчас летит от отброса» на время travelSeconds блока 15.
+        // Явное исключение живёт в приёмнике (Units/UnitReceiver.Statuses.cs) — иначе сопротивление
+        // резало бы время полёта, а иммунный к контролю юнит улетал бы, оставаясь «не в полёте».
+        // Значка у состояния нет намеренно (решение 50): клиенту оно не уезжает вовсе.
+        [InspectorName("В полёте (служебная)")] InFlight
     }
 
     public class Effector : ScriptableObject
@@ -333,6 +350,59 @@ namespace StrategyCore
             if ((EH.effector.icon != null || EH.effector.VFX != null) && NetworkDataSync.Instance != null
                 && !HasEffectorWithId(unitHolder, EH.effector.id))
                 NetworkDataSync.Instance.UnitStatusEffectorRemoveSend(unitHolder, EH.effector.id);
+        }
+
+        /// <summary>
+        /// СНЯТИЕ ПО КАТЕГОРИИ (решение Artsiom 42 от 17.09.2026). Снимает с юнита ВСЕ висящие
+        /// наложения указанной категории — тем же штатным путём <see cref="EffectorRemove"/>,
+        /// что и любое досрочное снятие: пересборка контроля, погашение невидимости и сообщение
+        /// клиентам «статус снят» отрабатывают сами.
+        ///
+        /// Зачем отдельный метод: до сих пор досрочное снятие шло ТОЛЬКО ПО ДЕРЖАТЕЛЮ, то есть
+        /// умело снимать лишь своё наложение. «Иммунитет снимает уже висящее замедление» так
+        /// не выражается: замедление наложил кто-то другой, и его держателя источник иммунитета
+        /// не знает. Адрес, по которому такие наложения находятся, — категория (тот же адрес,
+        /// по которому их находят сопротивления, <see cref="EffectorCategory"/>).
+        ///
+        /// Место — здесь, а не в приёмнике (правило 5): приёмник по своему заголовку отвечает
+        /// за ПРИЁМ пакета наложения, а снятие целиком живёт в этом классе — и по держателю
+        /// (<see cref="EffectorRemove"/>), и «снять всё» у клиентского чита. Две точки снятия
+        /// в разных файлах разъехались бы по правилам (команда, невидимость, канал статусов).
+        ///
+        /// Категория «Нет» игнорируется: у неё нет смысла «этого вида состояний», под неё попали
+        /// бы все нетегированные ассеты разом. Решение «какую категорию снимать» принимает
+        /// вызывающий — здесь ни сопротивления, ни иммунитеты не читаются (правило 7).
+        /// </summary>
+        /// <returns>Сколько наложений снято. 0 — снимать было нечего.</returns>
+        public static int EffectorRemoveByCategory(Unit unitHolder, EffectorCategory category)
+        {
+            if (unitHolder == null || category == EffectorCategory.None) return 0;
+            if (unitHolder.effectors == null || unitHolder.effectors.Count == 0) return 0;
+
+            // Список собирается ЗАРАНЕЕ: EffectorRemove правит unit.effectors изнутри, и обход
+            // по живому списку пропускал бы соседние наложения. Выделение памяти делается только
+            // когда снимать действительно есть что — метод зовётся на включении условия, не в тике.
+            System.Collections.Generic.List<EffectorHolder> doomed = null;
+
+            for (int i = 0; i < unitHolder.effectors.Count; i++)
+            {
+                EffectorHolder eh = unitHolder.effectors[i];
+                if (eh == null || eh.effector == null) continue;
+                if (eh.effector.category != category) continue;
+
+                (doomed ?? (doomed = new System.Collections.Generic.List<EffectorHolder>())).Add(eh);
+            }
+
+            if (doomed == null) return 0;
+
+            for (int i = 0; i < doomed.Count; i++) EffectorRemove(unitHolder, doomed[i]);
+
+            if (InterflowDebug.FullOn)
+                InterflowDebug.Full("СНЯТИЕ ПО КАТЕГОРИИ: " + InterflowDebug.Name(unitHolder) +
+                                    " | категория=" + category +
+                                    " | снято наложений=" + doomed.Count);
+
+            return doomed.Count;
         }
 
         // [Interflow fix 2026-08-05 unit-status-sync] Остались ли на юните наложения эффектора с этим id

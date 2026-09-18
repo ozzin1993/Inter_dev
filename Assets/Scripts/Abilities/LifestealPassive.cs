@@ -17,6 +17,16 @@ namespace StrategyCore
                  "§6.1: выбор режима — в будущем нужны оба; стартовое значение — только прямые.")]
         public bool onlyDirectAttack = true;
 
+        [Header("Презентация")]
+        // [Interflow 2026-09-17, решение Artsiom 30] Набор на СТАРОМ классе, хотя вампиризм уже выразим
+        // кирпичом реакции 5 конструктора пассивок: пока класс жив, его событие тоже получает визуал.
+        [Tooltip("Визуал события «вампиризм вернул здоровье»: играется на носителе. Пусто — без визуала.")]
+        public EventPresentation healPresentation = new EventPresentation();
+
+        /// <summary>Набор визуала по коду события: у этого класса единственное событие — возврат здоровья.</summary>
+        public override EventPresentation PresentationFor(int eventCode)
+            => (AbilityEventCode)eventCode == AbilityEventCode.Lifesteal ? healPresentation : null;
+
         public override void Unlock(Unit unit, int castingPlayer, int level)
         {
             if (unit == null) return;
@@ -45,6 +55,10 @@ namespace StrategyCore
             if (heal <= 0f) return;
             byUnit.ChangeHP(heal);
             AbilityFacts.Proc(this, byUnit);   // [2026-09-10] показ срабатывания — см. AbilityFacts
+
+            // [Interflow 2026-09-17] Хозяин набора «вампиризм»: показ НА НОСИТЕЛЕ (лечится он, а не цель).
+            EmitEventPresentation(this, (int)AbilityEventCode.Lifesteal, healPresentation,
+                                  byUnit, level, byUnit, byUnit.transform.position);
         }
     }
 }

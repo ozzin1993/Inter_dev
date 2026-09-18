@@ -146,6 +146,10 @@ namespace StrategyCore
         [Tooltip("Лечение в ПРОЦЕНТАХ от максимального здоровья цели, целым числом, по уровням. " +
                  "Пример: 25 — вылечить на четверть максимума. Перелечить нельзя, штатный ChangeHP сам обрежет.")]
         public float[] percentOfMaxHp;
+
+        [Tooltip("Визуал события «цель вылечена»: играется в момент лечения, по одному разу на каждую вылеченную цель. " +
+                 "Пусто — без визуала.")]
+        public EventPresentation presentation = new EventPresentation();
     }
 
     /// <summary>6. Длящийся баф на цели (аура урона, лечение во времени, самосожжение, защита, детонация).</summary>
@@ -268,6 +272,14 @@ namespace StrategyCore
         [Tooltip("Длительность ослепления при пробитии щита, секунды.")]
         public float onDepletedBlindDuration;
 
+        // [Interflow 2026-09-17, решение Artsiom 21] Визуал на ВРЕМЯ щита — длящееся, поэтому не набор
+        // полей, а СОСТОЯНИЕ через единый канал статусов (решение 05.08): наложение сразу после
+        // AbsorbShield.Apply, снятие по держателю в onShieldEnded (любая причина снятия щита).
+        [Tooltip("Состояние-ВИЗУАЛ на время щита: вешается носителю вместе со щитом и снимается вместе с ним " +
+                 "(пробит, истёк, носитель погиб). Ассет должен быть бессрочным (permanent), только с VFX — " +
+                 "без значка и без геймплея. Пусто — щит ничем не подсвечивается.")]
+        public Effector visualEffector;
+
         [Tooltip("Множитель ВХОДЯЩЕГО урона носителя, пока щит держится: 0.5 — минус половина. 1 — без изменений. " +
                  "Живёт ровно столько, сколько сам щит: пробили раньше срока — снижение снимается вместе с ним. " +
                  "Тем и отличается от такого же поля в блоке длящегося бафа, где оно идёт по своему таймеру.\n\n" +
@@ -361,6 +373,22 @@ namespace StrategyCore
 
         [Tooltip("Смещение зоны вперёд от кастера, метры. Работает, когда зона ставится вокруг кастера.")]
         public float forwardOffset;
+
+        // [Interflow 2026-09-18, решение Artsiom 56] Шлейф по пути рывка — РЕЖИМ ЭТОГО БЛОКА, а не
+        // вложенное умение: полей trailSkill/trailSpacing нет, ExecuteNested не участвует (иначе шлейф
+        // молча не сыграл бы у рывка, который сам исполнен вложенным — глубина вложения ≤ 1).
+        // В этом режиме блок 17 ЗАВИСИТ от блока 18: без перемещения кастера прямой не существует.
+        [Tooltip("ШЛЕЙФ ПО ПУТИ: зоны выкладываются по прямой от точки, откуда кастер стартовал, " +
+                 "до точки его приземления (блок 18 «Перемещение кастера»). Шаг задаётся ниже. " +
+                 "Выкладка идёт ВО ВРЕМЕНИ, за время полёта блока 18; гибель кастера её прерывает. " +
+                 "ВКЛ без включённого блока 18 не работает — прямой нет. " +
+                 "В этом режиме точка прицела, количество, разброс и смещение вперёд не применяются.")]
+        public bool trailAlongCasterPath;
+
+        [Tooltip("Шаг между зонами шлейфа, метры. Число зон = длина пути ÷ шаг (минимум одна, в точке старта). " +
+                 "0 или меньше — шлейф не выкладывается вовсе.")]
+        [Min(0f)]
+        public float trailSpacing = 1f;
     }
 
     /// <summary>11. Вызов именованного серверного сервиса матча (процессы во времени).</summary>
@@ -435,5 +463,110 @@ namespace StrategyCore
 
         [Tooltip("Слушают ли поднятые общие приказы Атака/Защита.")]
         public bool resurrectObeyCommands = true;
+    }
+
+    /// <summary>20. Требование и списание шкалы (gauge) при касте.</summary>
+    [Serializable]
+    public class SkillGaugeBlock
+    {
+        [Tooltip("Включить блок: каст требует/тратит шкалу.")]
+        public bool enabled;
+
+        // Умолчания true (приёмка «Веры», п.6 — проект «Ресурс Вера» стр. 124): включённый блок
+        // без единой галки не делает ничего. Миграции не нужно: ассетов с блоком 20 на диске нет
+        // (грепом по Resources/Ability и по всем .asset/.prefab проекта на 16.09.2026 — ноль).
+        [Tooltip("Каст требует ПОЛНУЮ шкалу (gauge >= maxGauge).")]
+        public bool requireFull = true;
+
+        [Tooltip("Каст тратит ВСЮ шкалу в ноль.")]
+        public bool spendAll = true;
+
+        public static bool Ready(Unit unit, SkillGaugeBlock block)
+        {
+            if (block == null || !block.enabled) return true;
+            if (unit.maxGauge <= 0f) return false;
+            if (block.requireFull && unit.gauge < unit.maxGauge) return false;
+            return true;
+        }
+    }
+
+    /// <summary>
+    /// 21. Условия каста: в каком облике кастер, есть ли кому достаться и насколько он ранен.
+    /// Читается в двух точках — гейт каста (Unit.CheckAbilityItemRequirements, с текстом отказа
+    /// владельцу) и готовность автокаста (CompositeSkill.AutoCastReady, молча). Сам расчёт —
+    /// в партиале CompositeSkill.Conditions.cs; здесь только поля и две чистые функции.
+    /// </summary>
+    [Serializable]
+    public class SkillCastConditionsBlock
+    {
+        [Tooltip("Включить блок: перед кастом проверяются условия ниже. Выключен — умение кастуется как раньше.")]
+        public bool enabled;
+
+        [Tooltip("Только в ИСХОДНОМ облике: кастер не должен быть под подменой облика.")]
+        public bool requireOriginalForm;
+
+        [Tooltip("Только в облике этой заготовки. Сравнение идёт по идентификатору типа юнита (unitTypeID), " +
+                 "а не по ссылке на префаб — условие переживает варианты заготовки. " +
+                 "Пусто — облик не требуется.")]
+        public Unit requiredShape;
+
+        [Tooltip("Только когда в области умения есть хотя бы одна цель. Читается ТОЛЬКО в режимах " +
+                 "«область вокруг кастера» и «конус»: в остальных цель и так ищется до каста. " +
+                 "Конус считается по текущему направлению взгляда — доворота ради проверки нет.")]
+        public bool requireAreaTarget;
+
+        [Tooltip("Только когда здоровье кастера СТРОГО ниже этой доли максимума " +
+                 "(0.3 — ниже тридцати процентов). 0 — условия по здоровью нет.")]
+        [Range(0f, 1f)]
+        public float casterHpBelow;
+
+        /// <summary>
+        /// Проходит ли облик кастера. Оба требования сочетаются через «И»: включённое «только исходный»
+        /// вместе с заданной заготовкой облика не сойдётся никогда — валидатор ловит это правилом Р2.
+        /// </summary>
+        public static bool ShapeAllowed(bool polymorphed, Unit polymorphShape, bool requireOriginal, Unit requiredShape)
+        {
+            if (requireOriginal && polymorphed) return false;
+
+            if (requiredShape != null
+                && !(polymorphed && polymorphShape != null && polymorphShape.unitTypeID == requiredShape.unitTypeID))
+                return false;
+
+            return true;
+        }
+
+        /// <summary>
+        /// Проходит ли здоровье кастера. Доля ≤ 0 — условия нет. Нулевой максимум — отказ:
+        /// доли от нуля не существует, а пропускать «условие, которое нечем посчитать» нельзя.
+        /// Сравнение строгое, как у снятого autoCastSelfHpBelow.
+        /// </summary>
+        public static bool HpAllowed(float health, float maxHealth, float below)
+        {
+            if (below <= 0f) return true;
+            if (maxHealth <= 0f) return false;
+
+            return health / maxHealth < below;
+        }
+    }
+
+    /// <summary>
+    /// 22. Прилёт снаряда: в точке, куда прилетел снаряд ЭТОГО умения, исполняется другое умение.
+    /// Подписка живёт на самом снаряде (Projectile.OnProjectileImpactCallbacks), регистрация — в
+    /// CompositeSkill.SpawnProjectile; исполнение — общий CompositeSkill.ExecuteNested, тот же, что
+    /// у прока пассивки. Глубина вложения ≤ 1: у вложенного умения этот блок включать нельзя (Р14).
+    /// </summary>
+    [Serializable]
+    public class SkillProjectileImpactBlock
+    {
+        [Tooltip("Включить блок: когда снаряд этого умения прилетает, в точке прилёта исполняется умение ниже. " +
+                 "Работает только при доставке снарядом. При рикошете срабатывает на КАЖДЫЙ прилёт.")]
+        public bool enabled;
+
+        [Tooltip("Умение, исполняемое в точке прилёта от лица стрелка. Ассет обязан лежать в Resources/Ability. " +
+                 "Само вложенное умение не может иметь этот блок — глубина вложения не больше одного.")]
+        public CompositeSkill skill;
+
+        [Tooltip("Визуал события «снаряд прилетел»: играется в точке прилёта. Пусто — без визуала.")]
+        public EventPresentation presentation = new EventPresentation();
     }
 }

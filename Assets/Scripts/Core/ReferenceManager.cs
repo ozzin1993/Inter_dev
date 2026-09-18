@@ -89,6 +89,8 @@ namespace StrategyCore
         public Transform healthBarEnemy;
         [Tooltip("Префаб полоски маны. Ставится ребёнком полоски здоровья своим юнитам, у которых есть мана")]
         public Transform manaBar;
+        [Tooltip("Префаб полоски шкалы (gauge). Ставится ребёнком контейнера своим юнитам, у которых есть шкала")]
+        public Transform gaugeBar;
         [Tooltip("MiniMap icon prefab")]
         public Transform miniMapIcon;
 

@@ -87,6 +87,12 @@ namespace StrategyCore
             if (percent > 0f) amount += percent / 100f * target.maxHealth; // проценты целым числом: 25 = 25%
 
             if (amount > 0f) target.ChangeHP(amount); // сам клампит до максимума и синкает клиентам
+
+            // [Interflow 2026-09-17] Хозяин набора «цель вылечена»: один показ на КАЖДУЮ вылеченную цель
+            // (блок перебирается по целям в ApplyEffects). Лечения не было — события не было.
+            if (amount > 0f)
+                EmitEventPresentation(this, (int)AbilityEventCode.SkillHeal, heal.presentation,
+                                      target, level, target, target.transform.position);
         }
 
         // -------------------------------------------------------------------- 6. БАФ --

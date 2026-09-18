@@ -48,6 +48,30 @@ namespace StrategyCore
             Effector.EffectorAdd(this, controlEffector, sourceUnit, sourceOwner, 0f, powerMultiplier, time);
         }
 
+        /// <summary>
+        /// [Interflow 2026-09-18, решение Artsiom 50] Отметить юнита летящим на <paramref name="time"/> секунд.
+        /// Воронка ровно того же вида, что <see cref="Stun"/>/<see cref="Mute"/>/<see cref="Disarm"/>:
+        /// ассет берётся из справочника (правило 3 — ссылок в коде не держим) и уходит штатному
+        /// наложению состояний. Запрет активных действий задают галки САМОГО ассета, а не этот метод.
+        ///
+        /// Мимо сопротивлений и иммунитета к контролю — исключение живёт в приёмнике
+        /// (Units/UnitReceiver.Statuses.cs), здесь ничего особенного не делается.
+        /// Повторное наложение штатно продлевает висящее (слипание по id, команде, силе и длительности).
+        /// </summary>
+        /// <param name="time">Время полёта, секунды (travelSeconds блока 15).</param>
+        /// <param name="sourceUnit">Кто отбросил. null допустим.</param>
+        /// <param name="sourceOwner">Слот игрока-источника.</param>
+        public void InFlightStart(float time, Unit sourceUnit, int sourceOwner)
+        {
+            if (staticObject) return;
+            if (dead) return;
+            if (time <= 0f) return;
+
+            StatusIconCatalog catalog = StatusIconCatalog.Get();
+            ControlEffectorApply(catalog != null ? catalog.inFlightEffector : null, "полёта (отброс)",
+                                 time, sourceUnit, sourceOwner, 1f);
+        }
+
         // ==================================================== ПЕРЕСЧЁТ ==
 
         /// <summary>
@@ -64,6 +88,7 @@ namespace StrategyCore
             bool wantStunned = false;
             bool wantMuted = false;
             bool wantDisarmed = false;
+            bool wantInFlight = false;
             float wantMissChance = 0f;
 
             // Источник 1 — наложения в локальной симуляции этого пира. На сервере это весь контроль.
@@ -75,7 +100,7 @@ namespace StrategyCore
                 if (eh == null || eh.effector == null) continue;
 
                 CollectControl(eh.effector, eh.powerMultiplier,
-                               ref wantStunned, ref wantMuted, ref wantDisarmed, ref wantMissChance);
+                               ref wantStunned, ref wantMuted, ref wantDisarmed, ref wantInFlight, ref wantMissChance);
             }
 
             // Источник 2 — только у клиента: состояния, присланные сервером единым каналом статусов.
@@ -93,23 +118,33 @@ namespace StrategyCore
                         // Силу наложения канал не несёт, и она клиенту не нужна: бросок промаха
                         // делает только сервер, а флаги контроля от силы не зависят.
                         CollectControl(shown, 1f,
-                                       ref wantStunned, ref wantMuted, ref wantDisarmed, ref wantMissChance);
+                                       ref wantStunned, ref wantMuted, ref wantDisarmed, ref wantInFlight, ref wantMissChance);
                     }
                 }
             }
 
-            ApplyControlTransitions(wantStunned, wantMuted, wantDisarmed, wantMissChance);
+            ApplyControlTransitions(wantStunned, wantMuted, wantDisarmed, wantInFlight, wantMissChance);
         }
 
         /// <summary>Сложить признаки одного состояния в собираемые факты. Шанс промаха — СУММА висящих
         /// ослеплений с зажимом до единицы (решение Artsiom Р3, 03.09.2026, шаг 4 схемы: «проценты
         /// складываются, как везде в игре»); до шага 4 бралось наибольшее.</summary>
         static void CollectControl(Effector effector, float powerMultiplier,
-                                   ref bool stun, ref bool mute, ref bool disarm, ref float missChance)
+                                   ref bool stun, ref bool mute, ref bool disarm, ref bool inFlightFact,
+                                   ref float missChance)
         {
             if (effector.stuns) stun = true;
             if (effector.mutes) mute = true;
             if (effector.disarms) disarm = true;
+
+            // [Interflow 2026-09-18, решение Artsiom 50] Факт «юнит прямо сейчас летит от отброса»
+            // выводится ЗДЕСЬ, из списка состояний, тем же способом, что оглушение, немота и безоружие
+            // (решение 03.09.2026 — прямой записи флага нет). Признак — СЛУЖЕБНАЯ КАТЕГОРИЯ состояния,
+            // а не отдельная галка ассета: категория у состояния и так одна, и «в полёте» — её смысл.
+            // Сам запрет активных действий на время полёта задаёт КОНТЕНТ ассета (галки «Обезоруживает»
+            // и «Накладывает немоту» у Eff_Status_InFlight): ни одной новой точки запрета не заведено,
+            // работают те, что уже разведены по автомату состояний и по входу применения умения.
+            if (effector.category == EffectorCategory.InFlight) inFlightFact = true;
 
             if (effector.blinds && effector.blindMissChance > 0f)
             {
@@ -119,9 +154,17 @@ namespace StrategyCore
         }
 
         /// <summary>Применить собранные факты: вход на false→true, выход на true→false, иначе ничего.</summary>
-        void ApplyControlTransitions(bool wantStunned, bool wantMuted, bool wantDisarmed, float wantMissChance)
+        void ApplyControlTransitions(bool wantStunned, bool wantMuted, bool wantDisarmed, bool wantInFlight,
+                                     float wantMissChance)
         {
             bool onClient = NetworkConnectionHandler.isClient;
+
+            // [Interflow 2026-09-18] «В полёте» — ЧИСТЫЙ ФАКТ, без входа и выхода: никакого своего
+            // перехода у него нет и заводить его нечем. Остановку текущего действия делают переходы
+            // безоружия и немоты (AttackStop, EndActiveAbility) — их поднимает тот же ассет
+            // состояния, поэтому второй раз то же самое делать нельзя (двойная остановка).
+            // Читает флаг только блок 15: повторный отброс летящей цели пропускается (решение 50).
+            inFlight = wantInFlight;
 
             if (wantStunned != stunned)
             {

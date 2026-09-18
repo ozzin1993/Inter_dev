@@ -44,6 +44,20 @@ namespace StrategyCore
             // Лог полного уровня. Загрузка сохранения молчит (решение Artsiom 07.09.2026).
             bool log = InterflowDebug.FullOn && !p.restoring;
 
+            // [Interflow 2026-09-18, решение Artsiom 50] ЕДИНСТВЕННОЕ ИСКЛЮЧЕНИЕ в правилах наложения:
+            // служебное состояние «в полёте» (категория EffectorCategory.InFlight) накладывается МИМО
+            // иммунитета к контролю и МИМО сопротивлений. Почему так, а не «как все»:
+            //   • это не контроль извне, а отметка «цель прямо сейчас летит» на время travelSeconds
+            //     блока 15 — сервер уже переставил её в конечную точку, и отметка обязана прожить
+            //     ровно столько, сколько клиент рисует полёт (решение Artsiom 49);
+            //   • отбей её иммунитет — иммунный юнит летел бы, не считаясь летящим: он атаковал бы
+            //     и кастовал из точки, где его модель ещё не стоит, и повторный отброс не отсекался бы;
+            //   • сопротивление категории режет ВРЕМЯ (для контроля) или СИЛУ (для числовых) — здесь
+            //     время задано полем умения и совпадает со временем показа, резать его нечем.
+            // Сам ОТБРОС иммунитет к контролю по-прежнему отбивает — но раньше, в Knockback.Apply:
+            // не сдвинулся — блок 15 сюда и не приходит.
+            bool inFlightService = p.effector != null && p.effector.category == EffectorCategory.InFlight;
+
             // [Interflow fix 2026-09-03 control-as-effectors] Иммунитет к контролю отбивает НАЛОЖЕНИЕ
             // целиком, если состояние несёт оглушение, немоту или обезоруживание. Точка проверки одна
             // на все виды — прежде она жила в снесённом UnitReceiver.Receive(in ControlPacket).
@@ -53,7 +67,9 @@ namespace StrategyCore
             // в контенте таких ассетов нет.
             // Загрузка сохранения проходит мимо: она возвращает «как было», а не накладывает заново
             // (решение Artsiom 28.08.2026 «сейв — чинить»).
-            if (!p.restoring && (p.effector.stuns || p.effector.mutes || p.effector.disarms) && ControlImmune)
+            // Исключение «в полёте» — см. inFlightService выше (решение Artsiom 50).
+            if (!p.restoring && !inFlightService
+                && (p.effector.stuns || p.effector.mutes || p.effector.disarms) && ControlImmune)
             {
                 // Факт презентации «состояние отбито иммунитетом» (§15, точка 5).
                 if (ShowStatusFact(in p)) RaiseBattleFact(BattleFactReason.StatusImmune);
@@ -86,7 +102,8 @@ namespace StrategyCore
             // сосуществуют — названо в логе, не чинится (промт §9).
             // Ассет без категории («Нет») сопротивлениями не задевается; загрузка сохранения проходит мимо
             // (p.restoring): она возвращает уже посчитанные при сохранении силу и длительность.
-            if (!p.restoring && p.effector.category != EffectorCategory.None)
+            // Исключение «в полёте» — см. inFlightService выше (решение Artsiom 50).
+            if (!p.restoring && !inFlightService && p.effector.category != EffectorCategory.None)
             {
                 float r = Resistance(p.effector.category);
                 if (r >= 1f)

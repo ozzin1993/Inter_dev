@@ -32,7 +32,7 @@ namespace StrategyCore
         }
     }
 
-    public static class InterflowValidator
+    public static partial class InterflowValidator
     {
         // Кэш последнего прогона — чтобы список не пропадал при переключении вкладок окна.
         static List<InterflowIssue> lastRun;
@@ -50,6 +50,11 @@ namespace StrategyCore
             ValidateUnits(issues, units, factions);
             ValidateAbilities(issues, units, factions);
             ValidateCompositeSkills(issues, units, factions);
+            ValidateEventPresentations(issues);
+            ValidatePassiveReactions(issues);
+            ValidatePassiveHealth(issues, units);
+            ValidatePassiveCleave(issues, factions);   // [Interflow 2026-09-18] Р52–Р55: блок 11 «рассечение»
+            ValidateInFlightEffector(issues);   // [Interflow 2026-09-18] Р51: справочник под состояние «в полёте»
             ValidateFactions(issues, factions);
             ValidateTechTiers(issues, factions);
             ValidateMatchScene(issues, factions);
@@ -73,6 +78,11 @@ namespace StrategyCore
 
             ValidateAbilities(issues, units, factions);
             ValidateCompositeSkills(issues, units, factions);
+            ValidateEventPresentations(issues);
+            ValidatePassiveReactions(issues);
+            ValidatePassiveHealth(issues, units);
+            ValidatePassiveCleave(issues, factions);   // [Interflow 2026-09-18] Р52–Р55: блок 11 «рассечение»
+            ValidateInFlightEffector(issues);   // [Interflow 2026-09-18] Р51: справочник под состояние «в полёте»
 
             lastAbilityRun = issues;
             return issues;
@@ -398,7 +408,34 @@ namespace StrategyCore
                             $"У юнита «{unit.name}» авто-умение «{ability.name}» НЕ добавлена в список Abilities юнита — авто-каст не сработает.",
                             "Гайд 03 часть 3 (двойная запись обязательна)", unit));
                     else
+                    {
                         anyAuto = true;
+                        var csAuto = ability as CompositeSkill;
+                        if (csAuto != null && csAuto.gaugeBlock != null && csAuto.gaugeBlock.enabled)
+                            issues.Add(new InterflowIssue(InterflowIssueSeverity.Error,
+                                $"На юните «{unit.name}» авто-умение «{ability.name}» имеет блок шкалы — авто-каст управляется маной, шкала его не блокирует и не тратится.",
+                                "Ресурс_Вера_Проект §5 (В3)", ability));
+                    }
+                }
+
+                // Р22. Порядок авто-умений — это порядок специализаций: AutoAbilityUser берёт первое
+                //      подходящее. Умение с требованием технологии, стоящее ПОСЛЕ умения без требований,
+                //      не сработает никогда — до него очередь не дойдёт.
+                bool sawUngated = false;
+                string ungatedName = null;
+                for (int i = 0; i < entries.arraySize; i++)
+                {
+                    var ability = entries.GetArrayElementAtIndex(i).objectReferenceValue as Ability;
+                    if (ability == null) continue;
+
+                    bool gated = ability.requiredTech != null && ability.requiredTech.Length > 0;
+
+                    if (!gated && !sawUngated) { sawUngated = true; ungatedName = ability.name; }
+                    else if (gated && sawUngated)
+                        issues.Add(new InterflowIssue(InterflowIssueSeverity.Warning,
+                            $"У юнита «{unit.name}» авто-умение «{ability.name}» требует технологию, но стоит ПОСЛЕ " +
+                            $"умения «{ungatedName}» без требований — до специализации очередь не дойдёт, она не сработает никогда.",
+                            "Условия_Цели_и_Проки_Проект §4 (Р22)", unit));
                 }
 
                 // 6. Мана — шкала готовности авто-умения (блок Б5, целевая модель §9): умение готово, когда мана
@@ -415,6 +452,87 @@ namespace StrategyCore
                             $"У юнита «{unit.name}» есть авто-умение, но восстановление маны (manaRegen) = 0 — после первого срабатывания мана не вернётся, авто-каст замолчит.",
                             "AutoAbilityUser (срабатывание забирает всю ману); целевая модель §9", unit));
                 }
+            }
+
+            // ============ РЕАКЦИЯ 5: ПРОК УМЕНИЕМ И ПРИЛЁТ СНАРЯДА (Р16–Р19 проекта) ============
+            // Правила про САМ ассет пассивки считаются один раз, правила про носителя — по носителям.
+            foreach (string guid in AssetDatabase.FindAssets("t:CompositePassive"))
+            {
+                var cp = AssetDatabase.LoadAssetAtPath<CompositePassive>(AssetDatabase.GUIDToAssetPath(guid));
+                if (cp == null || cp.onHit == null || !cp.onHit.enabled) continue;
+
+                // Р16. Прок умением при выключенном «только прямой удар» — петля: непрямой урон
+                // вложенного (в том числе отложенный его снарядом) снова поднимет это же событие.
+                if (cp.onHit.procSkill != null && !cp.onHit.onlyDirectAttack)
+                    issues.Add(new InterflowIssue(InterflowIssueSeverity.Error,
+                        $"Пассивка «{cp.name}»: реакция 5 исполняет умение «{cp.onHit.procSkill.name}», но галка " +
+                        "«только прямой удар» снята — непрямой урон вложенного снова поднимет это же событие, петля.",
+                        "Условия_Цели_и_Проки_Проект §4 (Р16)", cp));
+
+                ValidateNestedSkill(issues, cp.onHit.procSkill, cp.name, "прок реакции 5", cp);
+            }
+
+            foreach (var (unit, _) in units)
+            {
+                if (unit.abilities == null) continue;
+
+                foreach (var ability in unit.abilities)
+                {
+                    var cp = ability as CompositePassive;
+                    if (cp == null || cp.onHit == null || !cp.onHit.enabled) continue;
+
+                    // Р17. Прилетать нечему: ближний носитель или носитель без снаряда атаки.
+                    if (cp.onHit.procAtProjectileImpact && (unit.melee || unit.projectileGO == null))
+                        issues.Add(new InterflowIssue(InterflowIssueSeverity.Error,
+                            $"Пассивка «{cp.name}» на юните «{unit.name}»: реакция 5 ждёт прилёта снаряда, но носитель " +
+                            (unit.melee ? "ближний" : "без снаряда атаки (projectileGO пуст)") +
+                            " — событие не придёт ни разу, а на удар блок при этом уже не подписан.",
+                            "Условия_Цели_и_Проки_Проект §4 (Р17)", unit));
+
+                    // Р19. Вложенное умение не должно жить у носителя ещё и своей жизнью: у него
+                    // появился бы откат и замок, а через блок 22 — и петля.
+                    if (cp.onHit.procSkill != null && unit.abilities.Contains(cp.onHit.procSkill))
+                        issues.Add(new InterflowIssue(InterflowIssueSeverity.Error,
+                            $"У юнита «{unit.name}» умение «{cp.onHit.procSkill.name}» одновременно стоит в списке способностей " +
+                            $"и исполняется проком пассивки «{cp.name}» — двойная жизнь: откат и замок мешают проку.",
+                            "Условия_Цели_и_Проки_Проект §4 (Р19)", unit));
+                }
+            }
+
+            // ======================== БЛОК «ШКАЛА (GAUGE)» ========================
+            foreach (var (unit, _) in units)
+            {
+                if (unit.abilities == null) continue;
+                int gaugePassiveCount = 0;
+                CompositePassive firstGaugePassive = null;
+
+                foreach (var ability in unit.abilities)
+                {
+                    var cp = ability as CompositePassive;
+                    if (cp == null || cp.gaugeBlock == null || !cp.gaugeBlock.enabled) continue;
+                    gaugePassiveCount++;
+                    if (firstGaugePassive == null) firstGaugePassive = cp;
+
+                    if (cp.gaugeBlock.maxGauge <= 0f)
+                        issues.Add(new InterflowIssue(InterflowIssueSeverity.Error,
+                            $"Пассивка «{cp.name}» на юните «{unit.name}»: блок шкалы включён, но maxGauge ≤ 0 — шкала не работает.",
+                            "Ресурс_Вера_Проект §5 (В4)", cp));
+
+                    if (cp.gaugeBlock.hitGain <= 0f && cp.gaugeBlock.killGain <= 0f && cp.gaugeBlock.tickGain <= 0f)
+                        issues.Add(new InterflowIssue(InterflowIssueSeverity.Warning,
+                            $"Пассивка «{cp.name}» на юните «{unit.name}»: ни одного способа копить шкалу (hitGain, killGain, tickGain — всё нулевое).",
+                            "Ресурс_Вера_Проект §5 (В5)", cp));
+                }
+
+                if (gaugePassiveCount > 1)
+                    issues.Add(new InterflowIssue(InterflowIssueSeverity.Error,
+                        $"У юнита «{unit.name}» включён блок шкалы в {gaugePassiveCount} пассивках — носитель может иметь только одну шкалу.",
+                        "Ресурс_Вера_Проект §5 (В1)", unit));
+
+                if (firstGaugePassive != null && unit.maxMana > 0f)
+                    issues.Add(new InterflowIssue(InterflowIssueSeverity.Warning,
+                        $"У юнита «{unit.name}» одновременно maxMana > 0 и шкала (пассивка «{firstGaugePassive.name}») — два ресурса могут конфликтовать.",
+                        "Ресурс_Вера_Проект §5 (В6)", unit));
             }
         }
 
@@ -737,21 +855,21 @@ namespace StrategyCore
                         "AbsorbShield (duration ≤ 0 = без таймера)", skill));
 
                 // --- 11. Визуал замаха при нулевом времени каста ---
-                if (skill.castVFX != null && (skill.castTime == null || !skill.castTime.Any(v => v > 0f)))
+                if (skill.presentation.carrierVFX != null && (skill.castTime == null || !skill.castTime.Any(v => v > 0f)))
                     issues.Add(new InterflowIssue(InterflowIssueSeverity.Warning,
                         $"Умение «{n}»: задан визуал каста, но castTime = 0 — замах и удар совпадут в один кадр.",
                         "План §5.2", skill));
 
                 // --- 12. Каст с кнопки с умным выбором: клиент не воспроизведёт выбор цели ---
                 if (skill.buttonCast && skill.PicksTargetByStrategy
-                    && (skill.impactVFX != null || skill.delivery == SkillDelivery.Projectile))
+                    && (skill.presentation.pointVFX != null || skill.delivery == SkillDelivery.Projectile))
                     issues.Add(new InterflowIssue(InterflowIssueSeverity.Warning,
                         $"Умение «{n}»: цель выбирает стратегия на СЕРВЕРЕ — клиент не увидит визуала попадания и снаряда. " +
                         "Значки состояний и визуал бафа до клиента доедут: их сервер шлёт отдельным сообщением.",
                         "CompositeSkill.Execute (ранний выход клиента)", skill));
 
                 // --- 13. Сокет задан, а на носителе нет CharacterSockets ---
-                if (skill.spawnSocket != SkillSocketType.None && (skill.castVFX != null || skill.delivery == SkillDelivery.Projectile))
+                if (skill.presentation.socket != SkillSocketType.None && (skill.presentation.carrierVFX != null || skill.delivery == SkillDelivery.Projectile))
                 {
                     foreach (var (unit, _) in units)
                     {
@@ -763,6 +881,281 @@ namespace StrategyCore
                             "План §5.2", unit));
                     }
                 }
+
+                // --- 14. Блок шкалы (gauge) ---
+                // Проверка по КАЖДОМУ носителю (приёмка «Веры», п.5): раньше хватало одного юнита
+                // со шкалой, и остальные носители того же умения молча оставались с пустой шкалой.
+                // Умение без носителей правило не трогает: проверять некого.
+                if (skill.gaugeBlock != null && skill.gaugeBlock.enabled)
+                {
+                    foreach (var (unit, _) in units)
+                    {
+                        if (unit.abilities == null || !unit.abilities.Contains(skill)) continue;
+
+                        bool carrierHasGauge = false;
+                        foreach (var ab in unit.abilities)
+                        {
+                            var cp = ab as CompositePassive;
+                            if (cp != null && cp.gaugeBlock != null && cp.gaugeBlock.enabled)
+                            { carrierHasGauge = true; break; }
+                        }
+
+                        if (!carrierHasGauge)
+                            issues.Add(new InterflowIssue(InterflowIssueSeverity.Error,
+                                $"У юнита «{unit.name}» есть умение «{n}» с блоком шкалы, но нет пассивки с включённым блоком шкалы — шкала у этого носителя всегда пуста.",
+                                "Ресурс_Вера_Проект §5 (В2)", unit));
+                    }
+                }
+
+                // --- 15. Блок 21 «условия каста» и новые селекторы цели (правила Р1–Р12 проекта) ---
+                // Р1 (блок включён, все поля пусты) живёт в EmptyEnabledBlocks — там же, где остальные
+                // «включён, но ничего не делает».
+                ValidateCastConditions(issues, skill, n);
+
+                // --- 16. Блок 22 «прилёт снаряда» и признак прямой атаки (правила Р13–Р16б, Р20, Р23) ---
+                ValidateProjectileImpact(issues, skill, n);
+
+                // --- 17. Р21: снаряд-атака у носителя, который считает атаки (Info) ---
+                ValidateDirectAttackCarriers(issues, skill, n, units);
+
+                // --- 18. Наборы визуала событий и визуал щита (Р24–Р27, Р29 проекта «Презентация поля») ---
+                ValidateSkillPresentations(issues, skill, n);
+
+                // --- 19. Семья «движение кастера, отброс целей, облик» (Р43–Р50) ---
+                ValidateMovementFamily(issues, skill, n);
+        }
+
+        // Правила Р24–Р30 (наборы визуала событий, визуал щита, одинаковость статуса) —
+        // партиал Editor/Interflow/InterflowValidator.Presentation.cs (правило 22).
+
+        /// <summary>
+        /// Правила Р13–Р16б, Р20 и Р23 проекта «Условия каста, выбор целей и проки» §4: блок 22
+        /// «прилёт снаряда» и признак прямой атаки у снаряда умения.
+        ///
+        /// Слово «прилёт» в текстах правил блока 22 обязательно: по нему вкладка «Боевые умения»
+        /// кладёт сообщение в карточку блока (ISSUE_ROUTES).
+        /// </summary>
+        static void ValidateProjectileImpact(List<InterflowIssue> issues, CompositeSkill skill, string n)
+        {
+            var b = skill.projectileImpact;
+
+            if (b != null && b.enabled)
+            {
+                // Р13. Прилетать нечему: доставка не снарядом.
+                if (skill.delivery != SkillDelivery.Projectile)
+                    issues.Add(new InterflowIssue(InterflowIssueSeverity.Error,
+                        $"Умение «{n}»: включён блок «прилёт снаряда», но доставка не снарядом — " +
+                        "прилетать нечему, вложенное умение не исполнится никогда.",
+                        "Условия_Цели_и_Проки_Проект §4 (Р13)", skill));
+
+                ValidateNestedSkill(issues, b.skill, n, "прилёт снаряда", skill);
+            }
+
+            // Р20. Признак прямой атаки читает только снаряд.
+            if (skill.projectileDirectAttack && skill.delivery != SkillDelivery.Projectile)
+                issues.Add(new InterflowIssue(InterflowIssueSeverity.Warning,
+                    $"Умение «{n}»: включено «снаряд считается прямой атакой», но доставка не снарядом — " +
+                    "признак читает только снаряд, настройка ни на что не влияет.",
+                    "Условия_Цели_и_Проки_Проект §4 (Р20)", skill));
+        }
+
+        /// <summary>
+        /// Правила Р14, Р15, Р16б, Р18 и Р23 — про САМ вложенный ассет. Общие для обоих хозяев вложения:
+        /// блока 22 умения и поля procSkill реакции 5 пассивки (правило 5 — правила в одном месте).
+        /// </summary>
+        /// <param name="nested">Вложенный ассет; null — блок включён без умения, это ловит сам вызывающий.</param>
+        /// <param name="ownerName">Имя хозяина для текста сообщения.</param>
+        /// <param name="place">Откуда вложение: «прилёт снаряда» или «прок реакции 5».</param>
+        /// <param name="target">Объект, на который кликает геймдизайнер из списка сообщений.</param>
+        static void ValidateNestedSkill(List<InterflowIssue> issues, CompositeSkill nested,
+                                        string ownerName, string place, Object target)
+        {
+            if (nested == null) return;
+
+            // Р14. Глубина вложения ровно один: вложенное само вложенного не запускает.
+            if (nested.projectileImpact != null && nested.projectileImpact.enabled)
+                issues.Add(new InterflowIssue(InterflowIssueSeverity.Error,
+                    $"«{ownerName}» ({place}): вложенное умение «{nested.name}» само имеет блок «прилёт снаряда» — " +
+                    "глубина вложения не больше одного, второй уровень рантайм откажет.",
+                    "Условия_Цели_и_Проки_Проект §4 (Р14)", target));
+
+            // Р15. Кнопка вложенному не нужна: его никто не нажимает.
+            if (nested.buttonCast)
+                issues.Add(new InterflowIssue(InterflowIssueSeverity.Warning,
+                    $"«{ownerName}» ({place}): вложенное умение «{nested.name}» помечено как умение по кнопке — " +
+                    "вложенное исполняется мимо панели, кнопка ему не нужна.",
+                    "Условия_Цели_и_Проки_Проект §4 (Р15)", target));
+
+            // Р16б. Снаряд вложенного не может быть прямой атакой: его прилёт снова кормил бы проки носителя.
+            if (nested.projectileDirectAttack)
+                issues.Add(new InterflowIssue(InterflowIssueSeverity.Error,
+                    $"«{ownerName}» ({place}): у вложенного умения «{nested.name}» включено «снаряд считается прямой атакой» — " +
+                    "его прилёт снова покормил бы проки и шкалу носителя, петля. Рантайм такое вложение отказывает.",
+                    "Условия_Цели_и_Проки_Проект §4 (Р16б)", target));
+
+            // Р18. Ассет вложенного обязан лежать в Resources/Ability — иначе он не попадёт в сборку.
+            string path = AssetDatabase.GetAssetPath(nested);
+            if (!string.IsNullOrEmpty(path) && !InResourcesSubfolder(path, "Ability"))
+                issues.Add(new InterflowIssue(InterflowIssueSeverity.Error,
+                    $"«{ownerName}» ({place}): вложенное умение «{nested.name}» лежит вне Resources/Ability ({path}) — " +
+                    "в сборке его может не оказаться.",
+                    "Условия_Цели_и_Проки_Проект §4 (Р18)", target));
+
+            // Р23. Исполнение идёт ВНУТРИ перебора колбэков носителя (Unit.Combat.cs): смена его
+            // списка способностей или его здоровья прямо здесь ломает перебор.
+            bool changesOwner = nested.ownership != null && nested.ownership.enabled;
+            bool costsHealth = nested.selfCost != null && nested.selfCost.enabled;
+            if (changesOwner || costsHealth)
+                issues.Add(new InterflowIssue(InterflowIssueSeverity.Warning,
+                    $"«{ownerName}» ({place}): у вложенного умения «{nested.name}» включён блок " +
+                    (changesOwner && costsHealth ? "«смена владельца» и «стоимость в здоровье»"
+                                                 : changesOwner ? "«смена владельца»" : "«стоимость в здоровье»") +
+                    " — вложенное исполняется внутри перебора колбэков носителя, и смена его списка или его смерть " +
+                    "прямо в переборе ломают перебор. Рантайм-защиты нет.",
+                    "Условия_Цели_и_Проки_Проект §4 (Р23)", target));
+        }
+
+        /// <summary>
+        /// Р21: у носителя умения со снарядом-атакой есть то, что считает атаки (реакция 5, EveryNthAttack
+        /// или шкала) — снаряд умения теперь в этот счёт попадает. Не ошибка, но знать об этом надо.
+        /// </summary>
+        static void ValidateDirectAttackCarriers(List<InterflowIssue> issues, CompositeSkill skill, string n,
+                                                 List<(Unit unit, string path)> units)
+        {
+            if (!skill.projectileDirectAttack || skill.delivery != SkillDelivery.Projectile) return;
+            if (units == null) return;
+
+            foreach (var (unit, _) in units)
+            {
+                if (unit.abilities == null || !unit.abilities.Contains(skill)) continue;
+
+                var counters = new List<string>();
+                foreach (var ability in unit.abilities)
+                {
+                    if (ability is EveryNthAttack) { if (!counters.Contains("EveryNthAttack")) counters.Add("EveryNthAttack"); continue; }
+
+                    var cp = ability as CompositePassive;
+                    if (cp == null) continue;
+                    if (cp.onHit != null && cp.onHit.enabled && !counters.Contains("реакция 5 «носитель попал по цели»"))
+                        counters.Add("реакция 5 «носитель попал по цели»");
+                    if (cp.gaugeBlock != null && cp.gaugeBlock.enabled && !counters.Contains("шкала"))
+                        counters.Add("шкала");
+                }
+
+                if (counters.Count > 0)
+                    issues.Add(new InterflowIssue(InterflowIssueSeverity.Info,
+                        $"У юнита «{unit.name}» умение «{n}» помечено «снаряд считается прямой атакой», а на носителе есть " +
+                        $"[{string.Join(", ", counters)}] — снаряд умения теперь засчитывается им как атака.",
+                        "Условия_Цели_и_Проки_Проект §4 (Р21)", unit));
+            }
+        }
+
+        /// <summary>
+        /// Правила Р2–Р12 проекта «Условия каста, выбор целей и проки» §4: блок 21 и три новых
+        /// настройки выбора цели. Вынесено отдельным методом — ValidateSkill и без того длинный.
+        ///
+        /// Слово «услов» в текстах правил блока 21 обязательно: по нему вкладка «Боевые умения»
+        /// кладёт сообщение в карточку блока (ISSUE_ROUTES). Правила по выбору цели (Р6–Р12)
+        /// этого слова не содержат намеренно — им карточки нет, они идут в общую зону.
+        /// </summary>
+        static void ValidateCastConditions(List<InterflowIssue> issues, CompositeSkill skill, string n)
+        {
+            var c = skill.castConditions;
+
+            if (c != null && c.enabled)
+            {
+                // Р2. Взаимоисключающие требования облика: исходный И чужой одновременно не бывает.
+                if (c.requireOriginalForm && c.requiredShape != null)
+                    issues.Add(new InterflowIssue(InterflowIssueSeverity.Error,
+                        $"Умение «{n}»: в условиях каста включено «только в исходном облике» И задан требуемый облик " +
+                        $"«{c.requiredShape.name}» — вместе они не сойдутся никогда, умение не сработает ни разу.",
+                        "Условия_Цели_и_Проки_Проект §4 (Р2)", skill));
+
+                // Р3. Требование цели в области читается только там, где область собирается.
+                if (c.requireAreaTarget
+                    && skill.targetMode != SkillTargetMode.AreaAroundSelf && skill.targetMode != SkillTargetMode.Cone)
+                    issues.Add(new InterflowIssue(InterflowIssueSeverity.Warning,
+                        $"Умение «{n}»: в условиях каста включено «нужна цель в области», но режим цели " +
+                        $"«{InterflowEditorUI.EnumLabel(typeof(SkillTargetMode), skill.targetMode.ToString())}» " +
+                        "область не собирает — проверка всегда проходит и ничего не решает.",
+                        "Условия_Цели_и_Проки_Проект §4 (Р3)", skill));
+
+                // Р4. Сравнение облика идёт по unitTypeID: у незарегистрированной заготовки он 0 и не совпадёт.
+                if (c.requiredShape != null && c.requiredShape.unitTypeID == 0)
+                    issues.Add(new InterflowIssue(InterflowIssueSeverity.Error,
+                        $"Умение «{n}»: в условиях каста требуемый облик «{c.requiredShape.name}» имеет unitTypeID = 0 — " +
+                        "облик сравнивается именно по нему, поэтому условие не выполнится никогда.",
+                        "Условия_Цели_и_Проки_Проект §4 (Р4)", skill));
+
+                // Р5. Доля здоровья вне возможного диапазона. ВНИМАНИЕ (расхождение с текстом проекта):
+                // проект пишет «вне (0,1]», но ноль — это штатное «условия по здоровью нет», и ошибка на нём
+                // сработала бы на каждом умении, где блок включён ради облика или цели в области.
+                // Поэтому ошибка — только на значении, которого поле принимать не должно ([Range(0,1)]
+                // в инспекторе такое не даст; в ассете руками — даст). Пустой блок целиком ловит Р1.
+                if (c.casterHpBelow < 0f || c.casterHpBelow > 1f)
+                    issues.Add(new InterflowIssue(InterflowIssueSeverity.Error,
+                        $"Умение «{n}»: в условиях каста доля здоровья кастера = {c.casterHpBelow:0.###} — " +
+                        "это доля от максимума, она обязана лежать между 0 и 1.",
+                        "Условия_Цели_и_Проки_Проект §4 (Р5)", skill));
+            }
+
+            // Р6. «Цель только впереди» читается лишь в режимах «умный выбор» — и только как сектор.
+            if (skill.targetFrontAngle > 0f && !skill.PicksTargetByStrategy)
+                issues.Add(new InterflowIssue(InterflowIssueSeverity.Warning,
+                    $"Умение «{n}»: задан сектор «цель только впереди» ({skill.targetFrontAngle:0}°), но режим цели " +
+                    $"«{InterflowEditorUI.EnumLabel(typeof(SkillTargetMode), skill.targetMode.ToString())}» " +
+                    "его не читает — направление там задаёт сам режим.",
+                    "Условия_Цели_и_Проки_Проект §4 (Р6)", skill));
+
+            if (skill.targetFrontAngle >= 360f)
+                issues.Add(new InterflowIssue(InterflowIssueSeverity.Warning,
+                    $"Умение «{n}»: сектор «цель только впереди» = {skill.targetFrontAngle:0}° — это полный круг, " +
+                    "то есть фильтра нет. Поставь 0, если он не нужен.",
+                    "Условия_Цели_и_Проки_Проект §4 (Р6)", skill));
+
+            // Р12. У «текущей цели атаки» цель выбрана боем, и юнит к ней уже развёрнут.
+            if (skill.targetFrontAngle > 0f && skill.targetFrontAngle < 360f
+                && skill.targetStrategy == SkillTargetStrategy.CurrentAttackTarget)
+                issues.Add(new InterflowIssue(InterflowIssueSeverity.Warning,
+                    $"Умение «{n}»: сектор «цель только впереди» задан вместе со стратегией «текущая цель атаки» — " +
+                    "к цели боя юнит и так развёрнут, отсекать фактически нечего.",
+                    "Условия_Цели_и_Проки_Проект §4 (Р12)", skill));
+
+            // Р7. Пустая строка в списке заготовок ничего не значит и легко принимается за настройку.
+            if (skill.targetPrefabs != null && skill.targetPrefabs.Any(u => u == null))
+                issues.Add(new InterflowIssue(InterflowIssueSeverity.Warning,
+                    $"Умение «{n}»: в селекторе заготовок есть пустая запись — она ничего не отбирает.",
+                    "Условия_Цели_и_Проки_Проект §4 (Р7)", skill));
+
+            // Р8. Два фильтра работают по «И» — цель обязана пройти оба. Это легко принять за «или».
+            if (skill.targetPrefabs != null && skill.targetPrefabs.Length > 0
+                && skill.targetCategories != null && skill.targetCategories.Length > 0)
+                issues.Add(new InterflowIssue(InterflowIssueSeverity.Info,
+                    $"Умение «{n}»: заданы и селектор ролей, и селектор заготовок — цель обязана пройти ОБА " +
+                    "(а не любой из них).",
+                    "Условия_Цели_и_Проки_Проект §4 (Р8)", skill));
+
+            // Р9–Р11. Область со своим селектором.
+            if (skill.independentAreaTargets)
+            {
+                if (skill.targetMode != SkillTargetMode.SmartPoint)
+                    issues.Add(new InterflowIssue(InterflowIssueSeverity.Warning,
+                        $"Умение «{n}»: включено «область набирается своим селектором», но режим цели " +
+                        $"«{InterflowEditorUI.EnumLabel(typeof(SkillTargetMode), skill.targetMode.ToString())}» " +
+                        "эту настройку не читает — она работает только при «умном выборе точки».",
+                        "Условия_Цели_и_Проки_Проект §4 (Р9)", skill));
+
+                if (!skill.areaSelector.AnySelectors())
+                    issues.Add(new InterflowIssue(InterflowIssueSeverity.Error,
+                        $"Умение «{n}»: включено «область набирается своим селектором», но сам селектор области пуст — " +
+                        "область не заденет никого.",
+                        "Условия_Цели_и_Проки_Проект §4 (Р11)", skill));
+                else if (!skill.areaSelector.isOwn && !skill.areaSelector.isAlly && !skill.areaSelector.isEnemy)
+                    issues.Add(new InterflowIssue(InterflowIssueSeverity.Error,
+                        $"Умение «{n}»: в селекторе области не отмечено отношение (свой / союзник / враг) — " +
+                        "штатная проверка пригодности без него не пропустит никого.",
+                        "Условия_Цели_и_Проки_Проект §4 (Р10)", skill));
+            }
         }
 
         /// <summary>
@@ -934,6 +1327,15 @@ namespace StrategyCore
                 && (s.secondary.radius <= 0f
                     || (!Any(s.secondary.healFlat) && (s.secondary.effectors == null || s.secondary.effectors.Length == 0))))
                 yield return "вторичные цели";
+
+            if (s.gaugeBlock != null && s.gaugeBlock.enabled && !s.gaugeBlock.requireFull && !s.gaugeBlock.spendAll)
+                yield return "шкала";
+
+            // Р1: блок 21 включён, но ни одно условие не задано — гейт пропускает всегда.
+            if (s.castConditions != null && s.castConditions.enabled
+                && !s.castConditions.requireOriginalForm && s.castConditions.requiredShape == null
+                && !s.castConditions.requireAreaTarget && s.castConditions.casterHpBelow <= 0f)
+                yield return "условия каста";
         }
 
         // ======================== БЛОК «ФРАКЦИИ» (шаг 3) ========================

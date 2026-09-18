@@ -24,14 +24,20 @@ namespace StrategyCore
         // пассивок в конструктор их прок и есть срабатывание умения, два сообщения описывали бы один факт).
 
         /// <summary>
-        /// Умение сработало: (кастер, id умения, уровень, цель наведения, точка приложения).
+        /// Умение сработало: (кастер, id умения, уровень, цель наведения, точка приложения, КОД НАБОРА).
         /// Кастер и цель могут быть null — умение без кастера или без конкретной цели.
+        ///
+        /// [Interflow 2026-09-17, шаг 4 слияния] Шестой параметр — код набора визуала
+        /// (<see cref="AbilityEventCode"/>): 0 — сработало само умение (сегодняшнее поведение),
+        /// больше нуля — у этого ассета сработал такой-то блок-хозяин. Отдельного сообщения «сработал
+        /// набор» не заводится намеренно: оно описывало бы то же событие, что и этот факт (решение 06.08).
         /// </summary>
-        public static event Action<Unit, int, int, Unit, Vector3> SkillFired;
+        public static event Action<Unit, int, int, Unit, Vector3, int> SkillFired;
 
         /// <summary>Поднять факт «умение сработало». Зовётся сервером (локально) и приёмником RPC (у клиента).</summary>
-        public static void RaiseSkillFired(Unit caster, int abilityID, int level, Unit aimUnit, Vector3 aimPoint)
-            => SkillFired?.Invoke(caster, abilityID, level, aimUnit, aimPoint);
+        /// <param name="eventCode">Код набора визуала у ассета; 0 — сам каст.</param>
+        public static void RaiseSkillFired(Unit caster, int abilityID, int level, Unit aimUnit, Vector3 aimPoint, int eventCode)
+            => SkillFired?.Invoke(caster, abilityID, level, aimUnit, aimPoint, eventCode);
 
         // ============================== ЖИЗНЬ ЮНИТА ==============================
         // Нужны презентеру, чтобы заводить и снимать постоянный круг радиуса (ауры).

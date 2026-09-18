@@ -239,7 +239,7 @@ namespace StrategyCore
                 else if (TEXT_FIELDS.Contains(it.name)) target = textBox;
                 else target = restFold;
 
-                target.Add(InterflowEditorUI.MakeField(it, InterflowEditorUI.FieldLabel(it.name), true));
+                target.Add(InterflowEditorUI.MakeField(it, InterflowEditorUI.FieldLabel(it), true));
                 used.Add(it.name);
             }
 

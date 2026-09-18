@@ -55,6 +55,12 @@ namespace StrategyCore
         [Tooltip("Эффекторы на ЦЕЛЬ удара с разгона. Пусто — только урон и оглушение.")]
         public Effector[] targetEffectorsOnImpact;
 
+        [Header("Презентация")]
+        // [Interflow 2026-09-17, решение Artsiom 30] Набор на СТАРОМ классе: удар с разгона конструктором
+        // умений не выразим, и переносить его событие некуда.
+        [Tooltip("Визуал события «удар с разгона»: играется в момент первого удара после разгона. Пусто — без визуала.")]
+        public EventPresentation impactPresentation = new EventPresentation();
+
         // ---- состояние по юниту (SO один на всех носителей) ----
         class ChargeState
         {
@@ -237,8 +243,16 @@ namespace StrategyCore
             st.cooldownLeft = LevelValue(cooldown, level, 0f);
             AbilityFacts.Proc(this, byUnit);   // [2026-09-10] показ срабатывания — см. AbilityFacts
 
+            // [Interflow 2026-09-17] Хозяин набора «удар с разгона».
+            EmitEventPresentation(this, (int)AbilityEventCode.ChargeImpact, impactPresentation,
+                                  byUnit, level, targetUnit, targetPosition);
+
             RequestForceSync();
         }
+
+        /// <summary>Набор визуала по коду события: у этого класса единственное событие — удар с разгона.</summary>
+        public override EventPresentation PresentationFor(int eventCode)
+            => (AbilityEventCode)eventCode == AbilityEventCode.ChargeImpact ? impactPresentation : null;
 
         /// <summary>Технология не задана — условия нет; задана — проверяем через безопасную обёртку (гарды по игроку и словарю).</summary>
         static bool TechReady(Technology tech, int owner)

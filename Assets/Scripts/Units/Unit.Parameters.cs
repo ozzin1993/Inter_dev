@@ -334,6 +334,21 @@ namespace StrategyCore
         }
 
         /// <summary>
+        /// Sets the unit`s attack damage to value. Приёмник канала характеристик — клиент значение НЕ считает.
+        /// [Interflow 2026-09-17, решение Artsiom 39] До этого урон клиенту не ехал вовсе, и панель юнита
+        /// печатала своё, прибитое префабом значение: любое серверное изменение урона (состояние, аура,
+        /// пассивка) в панели не появлялось. passiveEffects.damageChange здесь НЕ трогается — это
+        /// серверный множитель расчёта, а по каналу едет уже готовое число.
+        /// </summary>
+        /// <param name="value">New attack damage value.</param>
+        public void SetAttackDamage(float value)
+        {
+            attackDamage = value;
+
+            OnCharacteristicsChange?.Invoke();
+        }
+
+        /// <summary>
         /// Changes the unit`s MP regeneration. MP regeneration can go negative.
         /// </summary>
         /// <param name="amount">The value to adjust the MP regeneration by (Positive or Negative).</param>
@@ -380,6 +395,11 @@ namespace StrategyCore
             // if (attackDamage < 0) attackDamage = 0; // Damage cant be lower than 0, Uncomment if needed
 
             OnCharacteristicsChange?.Invoke();
+            // [Interflow 2026-09-17, решение Artsiom 39] Урон вошёл в канал характеристик третьим полем.
+            // Очередь сама гасит частоту: юнит попадает в неё один раз за период, сколько бы источников
+            // ни поменяли урон. На КАЖДЫЙ УДАР эта строка не срабатывает — удар урон юнита не меняет
+            // (модификаторы AttackPlay считают своё число и в поле его не пишут).
+            CharSyncQueue();
         }
 
         /// <summary>
@@ -401,6 +421,7 @@ namespace StrategyCore
             }
 
             OnCharacteristicsChange?.Invoke();
+            CharSyncQueue();   // см. перегрузку выше
         }
 
         /// <summary>

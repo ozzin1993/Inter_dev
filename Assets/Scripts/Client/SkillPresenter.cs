@@ -406,39 +406,79 @@ namespace StrategyCore
         {
             zoneVisuals.Clear();
             ClearAreas();
+            ClearFlights();   // [Interflow 2026-09-18] летящие модели прошлой сцены (SkillPresenter.Flight.cs)
         }
 
-        // Таймеры областей и гейт тумана войны — покадрово (см. SkillPresenter.Areas.cs).
-        void Update() => UpdateAreas();
+        // Таймеры областей и гейт тумана войны — покадрово (см. SkillPresenter.Areas.cs);
+        // ведение летящих моделей — там же покадрово (см. SkillPresenter.Flight.cs).
+        void Update()
+        {
+            UpdateAreas();
+            UpdateFlights();
+        }
 
         // ============================== СРАБАТЫВАНИЕ УМЕНИЯ ==============================
 
         /// <summary>
-        /// Умение сработало — проигрываем всё, что описано в его ассете. Гейты тумана войны те же,
-        /// что были в CompositeSkill.Execute до переноса: у хелперов VFX они внутри, у звуков — здесь.
+        /// Умение сработало — проигрываем НАБОР, который ассет отдал по коду события. Гейты тумана войны
+        /// те же, что были в CompositeSkill.Execute до переноса: у хелперов VFX они внутри, у звуков — здесь.
+        ///
+        /// [Interflow 2026-09-17, шаг 4 слияния] Резолв расширен с CompositeSkill до InterflowAbility:
+        /// иначе факт от ПАССИВКИ (приведение к CompositeSkill даёт null) молча терялся бы. Про устройство
+        /// блоков презентер по-прежнему не знает — набор отдаёт сам ассет (правило 5).
         /// </summary>
-        void HandleSkillFired(Unit caster, int abilityID, int level, Unit aimUnit, Vector3 aimPoint)
+        /// <param name="eventCode">Код набора: 0 — сам каст, больше нуля — сработавший блок-хозяин.</param>
+        void HandleSkillFired(Unit caster, int abilityID, int level, Unit aimUnit, Vector3 aimPoint, int eventCode)
         {
-            CompositeSkill skill = ResolveSkill(abilityID);
+            InterflowAbility ability = ResolveAbility(abilityID);
+            if (ability == null) return;
+
+            // [Interflow 2026-09-18, шаг 4 слияния] Пять кодов семьи «движение, отброс, облик» несут
+            // клиенту не только набор, но и ПОВОД начать показ во времени — полёт модели и подмену
+            // внешности (решения Artsiom 47, 49, 54). Разбор стоит ДО общего проигрывателя: набор
+            // «кастер прибыл» при заданном времени полёта откладывается на конец полёта, и играть
+            // его сейчас нельзя. Устройства блоков презентер по-прежнему не знает — он спрашивает
+            // ассет (PresentationFor) и читает у него только поля времени и высоты (SkillPresenter.Flight).
+            if (!HandleFamilyEvent(ability, caster, level, aimUnit, aimPoint, eventCode)) return;
+
+            PlayPresentation(ability.PresentationFor(eventCode), caster, aimUnit, aimPoint);
+
+            // Копия снаряда и область привязаны к КАСТУ: снаряд копируется по delivery умения, область —
+            // по его targetMode. У набора блока-хозяина ни того, ни другого нет, поэтому только код 0.
+            if (eventCode != (int)AbilityEventCode.SkillCast) return;
+
+            CompositeSkill skill = ability as CompositeSkill;
             if (skill == null) return;
-
-            PlayProcAnimation(caster, skill.procAnimationState);
-
-            // Визуал и звук замаха — из точки привязки на модели кастера.
-            InterflowAbility.PlaySocketVFX(caster, skill.spawnSocket, skill.localOffset, skill.castVFX, skill.castVfxLifetime);
-            if (caster != null && InterflowAbility.VisibleForLocalViewer(caster.transform.position))
-                InterflowAbility.PlaySound(skill.castSound, caster.transform, skill.soundVolume);
-
-            // Визуал и звук попадания — в точке приложения (она же центр области).
-            InterflowAbility.PlayPointVFX(aimPoint, skill.impactVFX, skill.impactVfxLifetime);
-            if (InterflowAbility.VisibleForLocalViewer(aimPoint))
-                InterflowAbility.PlaySound(skill.impactSound, aimUnit != null ? aimUnit.transform : null, skill.soundVolume);
 
             SpawnVisualProjectile(skill, caster, level, aimUnit);
 
             // Область действия: та, что висела на замахе, доживает свой срок; у «умного выбора точки»
             // область появляется только сейчас — раньше точки не существовало.
             AreaOnSkillFired(skill, caster, level, aimPoint);
+        }
+
+        /// <summary>
+        /// ЕДИНСТВЕННЫЙ проигрыватель набора: и каст умения, и любой блок-хозяин идут сюда.
+        /// Пустой набор (его не прислали бы) и null отрабатываются молча.
+        /// </summary>
+        /// <param name="carrier">Носитель набора. null — носителя к моменту показа уже нет (реакция «погиб»).</param>
+        /// <param name="aimUnit">Цель события: к ней привязан звук в точке. Может быть null.</param>
+        /// <param name="aimPoint">Точка события.</param>
+        static void PlayPresentation(EventPresentation set, Unit carrier, Unit aimUnit, Vector3 aimPoint)
+        {
+            if (set == null) return;
+
+            PlayProcAnimation(carrier, set.animationState);
+
+            // Визуал и звук У НОСИТЕЛЯ — из точки привязки на его модели.
+            InterflowAbility.PlaySocketVFX(carrier, set.socket, set.localOffset, set.carrierVFX, set.carrierVfxLifetime);
+            if (carrier != null && InterflowAbility.VisibleForLocalViewer(carrier.transform.position))
+                InterflowAbility.PlaySound(set.carrierSound, carrier.transform, set.soundVolume);
+
+            // Визуал и звук В ТОЧКЕ события (она же центр области у каста).
+            InterflowAbility.PlayPointVFX(aimPoint, set.pointVFX, set.pointVfxLifetime);
+            if (InterflowAbility.VisibleForLocalViewer(aimPoint))
+                InterflowAbility.PlaySound(set.pointSound, aimUnit != null ? aimUnit.transform : null, set.soundVolume);
         }
 
         /// <summary>
@@ -455,14 +495,17 @@ namespace StrategyCore
             if (skill.delivery != SkillDelivery.Projectile || skill.projectilePrefab == null) return;
             if (caster == null || aimUnit == null || !skill.projectileFollowsTarget) return;
 
-            Transform socket = InterflowAbility.ResolveSocket(caster, skill.spawnSocket);
-            Vector3 spawnPos = InterflowAbility.SocketPosition(caster, skill.spawnSocket, skill.localOffset);
+            Transform socket = InterflowAbility.ResolveSocket(caster, skill.presentation.socket);
+            Vector3 spawnPos = InterflowAbility.SocketPosition(caster, skill.presentation.socket, skill.presentation.localOffset);
             Quaternion spawnRot = socket != null ? socket.rotation : Quaternion.identity;
 
             // Урон и оглушение — нули: состояние мира клиент не считает. Тип урона всё же передаём —
             // штатный снаряд по прилёте обращается к нему, и без типа расчёт брони упал бы.
+            // Признак прямой атаки — ТОТ ЖЕ, что у настоящего снаряда на сервере (projectileDirectAttack):
+            // по нему чистый клиент играет анимацию приёма удара (UnitReceiver), и без него у клиента
+            // снаряд-атака умения выглядел бы как обычная способность.
             Projectile visual = Projectile.Spawn(caster.owner, caster, skill.projectilePrefab, spawnPos, spawnRot,
-                                                 aimUnit, false, 0f, skill.ProjectileDamageType(level), true);
+                                                 aimUnit, skill.projectileDirectAttack, 0f, skill.ProjectileDamageType(level), true);
             if (visual == null) return;
 
             visual.stunTime = 0f;
@@ -556,12 +599,18 @@ namespace StrategyCore
                    : ability.name;
         }
 
-        static CompositeSkill ResolveSkill(int abilityID)
+        static CompositeSkill ResolveSkill(int abilityID) => ResolveAbility(abilityID) as CompositeSkill;
+
+        /// <summary>
+        /// Ассет по сетевому id. Реестр GameManager.gameAbilities живёт на КАЖДОМ пире и содержит
+        /// и умения, и пассивки (GameManager.cs:207-212) — клиенту хватает id, чтобы найти набор.
+        /// </summary>
+        static InterflowAbility ResolveAbility(int abilityID)
         {
             if (GameManager.Instance == null) return null;
             if (!GameManager.Instance.gameAbilities.TryGetValue(abilityID, out Ability ability)) return null;
 
-            return ability as CompositeSkill;
+            return ability as InterflowAbility;
         }
 
         static GameObject ResolveZonePrefab(int abilityID)

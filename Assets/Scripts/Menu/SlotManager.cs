@@ -694,6 +694,7 @@ namespace StrategyCore
                     NetworkDataSync.Instance.hpChangedUnits.Remove(netID);
                     NetworkDataSync.Instance.mpChangedUnits.Remove(netID);
                     NetworkDataSync.Instance.xpChangedUnits.Remove(netID);
+                    NetworkDataSync.Instance.gaugeChangedUnits.Remove(netID);
                 }
             }
 

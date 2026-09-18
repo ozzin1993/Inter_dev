@@ -21,21 +21,22 @@ namespace StrategyCore
         // ======================== ПОЛОСА ЧИПОВ «СОСТАВ УМЕНИЯ» ========================
 
         /// <summary>
-        /// Все 18 блоков одной полосой. Чип — переключатель поля «enabled» блока: включение в один клик,
+        /// Все блоки конструктора одной полосой (их число берётся из таблицы BLOCKS). Чип — переключатель поля «enabled» блока: включение в один клик,
         /// без разворачивания. Развёрнутые карточки ниже — только у включённых; выключенные всегда здесь.
         /// </summary>
         static void AddComposerChips(SerializedObject so)
         {
-            int on = BLOCKS.Count(b => IsEnabled(so, b.field));
+            var visible = VisibleBlocks().ToList();
+            int on = visible.Count(b => IsEnabled(so, b.field));
 
-            var box = Section($"Состав умения — включено {on} из {BLOCKS.Length}",
+            var box = Section($"Состав умения — включено {on} из {visible.Count}",
                 new Color(0.20f, 0.20f, 0.22f),
                 "Клик по чипу включает или выключает блок. Карточки ниже разворачиваются только у включённых — " +
                 "выключенные не занимают экран, но всегда остаются в этой полосе.");
 
             var strip = new VisualElement { style = { flexDirection = FlexDirection.Row, flexWrap = Wrap.Wrap } };
 
-            foreach (var b in BLOCKS)
+            foreach (var b in visible)
             {
                 var block = b;
                 bool enabled = IsEnabled(so, b.field);
@@ -90,16 +91,16 @@ namespace StrategyCore
             // --- шапка: три момента каста ---
             var strip = new VisualElement { style = { flexDirection = FlexDirection.Row, marginBottom = 5 } };
             strip.Add(Moment("0 с — замах",
-                selected.castVFX != null ? selected.castVFX.name : "визуала нет",
-                "Визуал замаха играет из точки привязки на кастере. Настройки — в «Шкале каста и презентации»."));
+                selected.presentation.carrierVFX != null ? selected.presentation.carrierVFX.name : "визуала нет",
+                "Визуал у носителя играет из точки привязки на кастере. Настройки — в «Шкале каста и презентации»."));
             strip.Add(Moment($"{castTime} с — срабатывание",
-                selected.impactVFX != null ? selected.impactVFX.name : "визуала нет",
+                selected.presentation.pointVFX != null ? selected.presentation.pointVFX.name : "визуала нет",
                 "В этот момент исполняются все блоки ниже. Момент задаёт castTime, не анимация."));
             strip.Add(Moment("после каста", $"откат {cd} с",
                 "Откат ставит ядро. Цены в мане у умения нет (Б5): у авто-умения срабатывание забирает всю ману носителя."));
             box.Add(strip);
 
-            if (castTime <= 0f && selected.castVFX != null)
+            if (castTime <= 0f && selected.presentation.carrierVFX != null)
                 box.Add(IssueRow(new InterflowIssue(InterflowIssueSeverity.Info,
                     "Время каста ноль — замах и удар совпадут в одном кадре.", "лента", null)));
 
@@ -183,6 +184,22 @@ namespace StrategyCore
                     case "summon": return s.summon.prefab != null ? $" — {s.summon.prefab.name}" : " — префаб не задан";
                     case "groundZone": return s.groundZone.zonePrefab != null ? $" — {s.groundZone.zonePrefab.name}" : " — префаб не задан";
                     case "delegateService": return " — " + InterflowEditorUI.EnumLabel(typeof(SkillServerService), s.delegateService.service.ToString());
+                    case "gaugeBlock":
+                    {
+                        var parts = new List<string>();
+                        if (s.gaugeBlock.requireFull) parts.Add("полная");
+                        if (s.gaugeBlock.spendAll) parts.Add("в ноль");
+                        return parts.Count > 0 ? " — " + string.Join(", ", parts) : "";
+                    }
+                    case "castConditions":
+                    {
+                        var parts = new List<string>();
+                        if (s.castConditions.requireOriginalForm) parts.Add("исходный облик");
+                        if (s.castConditions.requiredShape != null) parts.Add("облик: " + s.castConditions.requiredShape.name);
+                        if (s.castConditions.requireAreaTarget) parts.Add("цель в области");
+                        if (s.castConditions.casterHpBelow > 0f) parts.Add($"ХП < {s.castConditions.casterHpBelow * 100f:0}%");
+                        return parts.Count > 0 ? " — " + string.Join(", ", parts) : " — условий нет";
+                    }
                 }
             }
             catch { /* поле переименовали — лента не должна ронять вкладку, покажем без чисел */ }
@@ -337,13 +354,14 @@ namespace StrategyCore
 
             var hidden = new List<string>();
 
-            // Стратегия и её параметры читаются ТОЛЬКО в режимах «умный выбор» (предикат — из самого умения).
-            AddField(box, so, "autoCastSelfHpBelow");   // условие по своему здоровью — работает во всех режимах цели
+            // Условие по своему здоровью уехало в блок 21 (castConditions.casterHpBelow) вместе
+            // со снятым полем autoCastSelfHpBelow — оно правится в карточке блока, не здесь.
 
             // Предпочтение по состоянию цели (2026-09-11) читается там же, где стратегия, — в режимах
             // «умный выбор», поэтому живёт в той же группе и вместе с ней уходит в скрытые.
+            // targetFrontAngle («цель только впереди») читается ровно там же — в той же группе.
             var strategyFields = new[] { "targetStrategy", "searchOrigin", "strategyUseCurrentHealth", "strategyHpThreshold",
-                                         "avoidTargetState", "avoidTargetEffector", "avoidNoFreeTarget" };
+                                         "avoidTargetState", "avoidTargetEffector", "avoidNoFreeTarget", "targetFrontAngle" };
             if (selected.PicksTargetByStrategy) foreach (var f in strategyFields) AddField(box, so, f);
             else hidden.AddRange(strategyFields);
 
@@ -352,13 +370,18 @@ namespace StrategyCore
 
             AddField(box, so, "directionMatters");
 
-            foreach (var f in new[] { "unitSelector", "targetCategories", "maxTargets", "multiPick",
+            foreach (var f in new[] { "unitSelector", "targetCategories", "targetPrefabs", "maxTargets", "multiPick",
                                       "includeSelf", "radius", "castRange" })
                 AddField(box, so, f);
 
+            // Область со своим селектором читается ТОЛЬКО в режиме «умный выбор точки».
+            var areaFields = new[] { "independentAreaTargets", "areaSelector" };
+            if (selected.targetMode == SkillTargetMode.SmartPoint) foreach (var f in areaFields) AddField(box, so, f);
+            else hidden.AddRange(areaFields);
+
             AddField(box, so, "delivery");
 
-            var projectileFields = new[] { "projectilePrefab", "projectileFollowsTarget" };
+            var projectileFields = new[] { "projectilePrefab", "projectileFollowsTarget", "projectileDirectAttack" };
             if (selected.delivery == SkillDelivery.Projectile) foreach (var f in projectileFields) AddField(box, so, f);
             else hidden.AddRange(projectileFields);
 
@@ -371,7 +394,8 @@ namespace StrategyCore
                         { style = { color = COL_DIM, fontSize = 10, marginTop = 4 } });
                     foreach (var f in hidden)
                     {
-                        var pf = InterflowEditorUI.MakeField(so.FindProperty(f), InterflowEditorUI.FieldLabel(f), false);
+                        var hiddenProp = so.FindProperty(f);
+                        var pf = InterflowEditorUI.MakeField(hiddenProp, InterflowEditorUI.FieldLabel(hiddenProp), false);
                         pf.style.opacity = 0.5f;
                         box.Add(pf);
                     }
@@ -474,10 +498,9 @@ namespace StrategyCore
                           "Моменты замаха и срабатывания показаны в шапке ленты исполнения выше."
             };
 
-            foreach (var f in new[] { "castTime", "cooldown", "duration",
-                                      "spawnSocket", "localOffset",
-                                      "castVFX", "castVfxLifetime", "impactVFX", "impactVfxLifetime",
-                                      "castSound", "impactSound", "soundVolume", "procAnimationState" })
+            // [Interflow 2026-09-17] Десять плоских полей заменены ОДНИМ набором: он рисуется штатным
+            // PropertyField со своим раскрытием, подписи внутри берутся из [Tooltip] полей типа.
+            foreach (var f in new[] { "castTime", "cooldown", "duration", "presentation" })
                 AddField(fold, so, f);
 
             rightPanel.Add(fold);
@@ -545,7 +568,7 @@ namespace StrategyCore
             // Ц1: подпись — из общего словаря (правило 5); null — остаётся подпись Unity.
             // Декоратор прячем только у cooldown: там [Header("Parameters")] базового Ability —
             // единственная английская надпись в этой вкладке, а перевести её — правка ядра.
-            parent.Add(InterflowEditorUI.MakeField(p, InterflowEditorUI.FieldLabel(field), field == "cooldown"));
+            parent.Add(InterflowEditorUI.MakeField(p, InterflowEditorUI.FieldLabel(p), field == "cooldown"));
         }
 
         /// <summary>

@@ -36,6 +36,8 @@ namespace StrategyCore
         const int BlockSplash = 6;
         const int BlockAttackEffectors = 7;
         const int BlockAura = 8;
+        const int BlockGauge = 9;
+        const int BlockMissingHpStats = 10;   // [Interflow 2026-09-17, решение Artsiom 44]
 
         // ============================================== ОТПРАВКА ==
 
@@ -91,6 +93,8 @@ namespace StrategyCore
             if (c.splash != null) Fact(unit, reason, BlockSplash);
             if (c.originalAttackEffectors != null) Fact(unit, reason, BlockAttackEffectors);
             if (c.aura) Fact(unit, reason, BlockAura);
+            if (c.gauge) Fact(unit, reason, BlockGauge);
+            if (c.missingHpStats) Fact(unit, reason, BlockMissingHpStats);
         }
     }
 }
