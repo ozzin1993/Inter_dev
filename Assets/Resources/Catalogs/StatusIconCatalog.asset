@@ -21,6 +21,7 @@ MonoBehaviour:
   muteEffector: {fileID: 11400000, guid: 70e51523d8ec19b4a81dc8a59dd59ca8, type: 2}
   disarmEffector: {fileID: 11400000, guid: c2ff1bfca9eabee4f96080d76f526307, type: 2}
   blindEffector: {fileID: 11400000, guid: 714f07dbbb9463047a437430cfbdead9, type: 2}
+  inFlightEffector: {fileID: 11400000, guid: 3f1a7c5e0b24d9a4ba0e7c1d86f4a209, type: 2}
   iconMaterial: {fileID: 2100000, guid: 7ef9779f40db4ba4fa115ace9bef13eb, type: 2}
   iconSize: 0.28
   iconGap: 0.05

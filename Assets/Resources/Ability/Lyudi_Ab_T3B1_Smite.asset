@@ -74,16 +74,17 @@ MonoBehaviour:
   delivery: 0
   projectilePrefab: {fileID: 0}
   projectileFollowsTarget: 1
-  spawnSocket: 1
-  localOffset: {x: 0, y: 0, z: 0}
-  castVFX: {fileID: 5587211854629263477, guid: a9d026652b41ce9419db1eeda742c825, type: 3}
-  castVfxLifetime: 2
-  impactVFX: {fileID: 7871830709641012102, guid: 853bd5fcf0d7f2049b12b96e99e87b0f, type: 3}
-  impactVfxLifetime: 2
-  castSound: {fileID: 0}
-  impactSound: {fileID: 0}
-  soundVolume: 1
-  procAnimationState: 
+  presentation:
+    animationState: 
+    socket: 1
+    localOffset: {x: 0, y: 0, z: 0}
+    carrierVFX: {fileID: 5587211854629263477, guid: a9d026652b41ce9419db1eeda742c825, type: 3}
+    carrierVfxLifetime: 2
+    pointVFX: {fileID: 7871830709641012102, guid: 853bd5fcf0d7f2049b12b96e99e87b0f, type: 3}
+    pointVfxLifetime: 2
+    carrierSound: {fileID: 0}
+    pointSound: {fileID: 0}
+    soundVolume: 1
   statusEffector: {fileID: 0}
   selfCost:
     enabled: 0
